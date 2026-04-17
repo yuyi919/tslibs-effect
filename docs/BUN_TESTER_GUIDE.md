@@ -10,7 +10,7 @@ BunTester 是为 `bun:test`（Bun 的原生测试运行器）量身定制的 Eff
 在使用 Bun 测试 Effect 代码时，直接返回 Effect 是不会被运行器捕获的，你需要使用特定的包裹器。BunTester 提供了 `it.effect` 来替代普通的 `it`，并自动处理 Effect 的执行与错误。
 
 ```ts
-import { Effect } from "effect";
+import { Effect } from "@yuyi919/tslibs-effect/effect-next";
 import { describe, expect, it } from "@yuyi919/tslibs-effect/BunTester";
 
 describe("基础功能", () => {
@@ -44,7 +44,7 @@ describe("基础功能", () => {
 - 自动包裹在 **`Scope`** 内（测试结束自动释放资源）
 
 ```ts
-import { TestClock } from "effect";
+import { Effect, TestClock } from "@yuyi919/tslibs-effect/effect-next";
 
 it.effect("时间控制测试", () =>
   Effect.gen(function* () {
@@ -99,7 +99,7 @@ Effect 的一大优势在于强大的依赖注入机制（Layer）。你可以�
 
 ```ts
 import { layer } from "@yuyi919/tslibs-effect/BunTester";
-import { Context, Layer, Effect } from "effect";
+import { Context, Layer, Effect } from "@yuyi919/tslibs-effect/effect-next";
 
 class Database extends Context.Tag("Database")<
   Database,
@@ -142,7 +142,7 @@ BunTester 直接将二者合二为一，极大减少了嵌套层级，代码更�
 
 ```ts
 import { describe, expect, it } from "@yuyi919/tslibs-effect/BunTester";
-import { Effect } from "effect";
+import { Effect } from "@yuyi919/tslibs-effect/effect-next";
 
 // 标准写法
 it.effect("普通的写法", () =>
@@ -169,7 +169,7 @@ BunTester 提供了一个 `waitFor` 工具，它利用了 Effect STM 的重试�
 
 ```ts
 import { it, waitFor } from "@yuyi919/tslibs-effect/BunTester";
-import { TxRef, Effect } from "effect";
+import { TxRef, Effect } from "@yuyi919/tslibs-effect/effect-next";
 
 it.gen("测试并发事务", function* () {
   const counter = yield* TxRef.make(0);
