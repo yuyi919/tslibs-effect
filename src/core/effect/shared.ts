@@ -529,23 +529,10 @@ export const tapBoth: {
 		},
 	) => Effect.Effect<A, E | E2 | E3, R | R2 | R3>
 >(2, (self, { onFailure, onSuccess }) =>
-	Effect.matchCauseEffect(self, {
-		onFailure: (cause) => {
-			const either = Cause.filterInterruptors(cause);
-			switch (either._tag) {
-				case "Failure": {
-					return zipRight(
-						onFailure(either.failure as any),
-						Effect.failCause(cause),
-					);
-				}
-				case "Success": {
-					return Effect.failCause(cause);
-				}
-			}
-		},
-		onSuccess: (a) => Effect.as(onSuccess(a as any), a),
-	}),
+	self.pipe(
+		Effect.tapError(onFailure),
+		Effect.tap(onSuccess)
+	)
 );
 
 export const tapBothLogWithLevel: (

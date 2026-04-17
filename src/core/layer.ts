@@ -68,7 +68,7 @@ export const buildMemoized: <A, E = never, R = never>(
 			Layer.CurrentMemoMap as unknown as Context.Reference<MemoMap>,
 		).pipe(
 			Effect.flatMap((_memoMap) =>
-				Effect.scopedWith((_scope) =>
+				Effect.flatMap(Effect.scope, (_scope) =>
 					Layer.buildWithMemoMap(layer, _memoMap, _scope),
 				),
 			),

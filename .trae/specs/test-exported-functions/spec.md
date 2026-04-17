@@ -5,6 +5,7 @@
 
 ## What Changes
 - 在 `src/internal/test/core/` 目录下新增测试文件，针对核心导出的工具函数进行单元测试。
+- 测试使用 `bun test` 框架，无需额外测试器，并优先使用项目内 `src/BunTester.ts` 导出的工具。
 - 测试重点包括：
   - `Runtime` 相关的双态执行入口（`runFork`, `runSync`, `runPromise` 等）
   - `Effect` 的执行流与转换函数（`from`, `tryMap`, `orElse`, `zipRight`, `tapBoth` 等）

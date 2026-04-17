@@ -57,7 +57,7 @@ export function filterNilWith<A, E>(
 
 // from
 export function fromFunction<A, E, R>(f: () => T<A, E, R>): T<A, E, R>;
-export function fromFunction<A>(f: () => Promise<A> | A): T<A>;
+export function fromFunction<A>(f: () => Promise<A> | A): T<A, never, never>;
 export function fromFunction(f: () => any) {
 	return Effect.sync(f).pipe(Effect.flatMap(fromSomething));
 }
@@ -71,14 +71,14 @@ export function fromSomething<A, E = never, R = never>(
 			? (a as unknown as T<A, E, R>)
 			: Effect.succeed(a);
 }
+export function from<A, E, R>(
+	f: T<A, E, R> | (() => T<A, E, R>),
+): T<A, E, R>;
 export function from<A>(
 	f:
-		| (Promise<A> | Context.Tag<any, A> | A)
-		| (() => Promise<A> | Context.Tag<any, A> | T<A> | A),
-): T<A>;
-export function from<A, E, R>(
-	f: T<A, E, R> | (() => A | Promise<A> | Context.Tag<any, A> | T<A, E, R>),
-): T<A, E, R>;
+		| (Promise<A> | Context.Tag<any, A> | Exclude<A, T<any, any, any>>)
+		| (() => Promise<A> | Context.Tag<any, A> | A),
+): T<A, never, never>;
 export function from(f: any) {
 	return isFn(f) ? fromFunction(f) : fromSomething(f);
 }
