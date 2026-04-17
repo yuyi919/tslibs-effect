@@ -23,30 +23,30 @@ export const Test = Context.GenericTag<"Test", { test: 1 }>("@test/Test");
 //   )
 // );
 const testFn = Eff.batched((a: number[]) =>
-  Eff.service(Test).pipe(
-    Eff.andThen((_) => (console.log(_, a), Eff.succeed(a.map((a) => a * 2))))
-  )
+	Eff.service(Test).pipe(
+		Eff.andThen((_) => (console.log(_, a), Eff.succeed(a.map((a) => a * 2)))),
+	),
 );
 const testFn2 = Eff.batched(
-  (a: number[]) => (console.log(a), Eff.succeed(a.map((a) => a * 2)))
+	(a: number[]) => (console.log(a), Eff.succeed(a.map((a) => a * 2))),
 );
 // Usage with multiple requests
 const effects = [1, 2, 3].map(
-  (value) => testFn(value)
-  //   Effect.request(GetDoubleRequest({ value }), DoubleResolver),
+	(value) => testFn(value),
+	//   Effect.request(GetDoubleRequest({ value }), DoubleResolver),
 );
 const effects2 = [4, 5, 6].map(
-  (value) => testFn2(value)
-  //   Effect.request(GetDoubleRequest({ value }), DoubleResolver),
+	(value) => testFn2(value),
+	//   Effect.request(GetDoubleRequest({ value }), DoubleResolver),
 );
 
 const batchedEffect = Eff.all([...effects, ...effects2], {
-  concurrency: "unbounded",
+	concurrency: "unbounded",
 }); // [2, 4, 6]
 
 await Eff.runPromise(
-  batchedEffect.pipe(
-    Eff.tap(Eff.log),
-    Eff.provide(Eff.Layer.succeed(Test, { test: 1 }))
-  )
+	batchedEffect.pipe(
+		Eff.tap(Eff.log),
+		Eff.provide(Eff.Layer.succeed(Test, { test: 1 })),
+	),
 );

@@ -1,1 +1,1 @@
-export * from "effect/unstable/Persistence/Persistence";
+export * from "effect/unstable/persistence/Persistence";
