@@ -5,6 +5,7 @@
 
 ## What Changes
 - 将仓库中的示例代码统一迁移至 `examples/` 目录，并在文档中明确“示例不属于稳定 API”的定位
+- 修正示例代码本身：移除/替换遗留的 `withRequestCaching` 用法，避免读者从示例中获得错误结论；如示例需要缓存，改为演示 Effect v4 的显式缓存开启方式（`RequestResolver.withCache` 或等价机制）
 - 更新批处理 + 缓存相关文档：纠正 `withRequestCaching` 在 Effect v4 中已不存在/默认不缓存的事实，改为说明 `RequestResolver.withCache`（或等价机制）如何显式开启缓存
 - 更新 `README.md` 中对示例/文档的引用路径，确保链接可用
 - **不直接引入新的对外 API**；仅做目录组织与文档维护（必要时调整构建/脚本入口以匹配新路径）
@@ -36,6 +37,15 @@
 #### Scenario: Agent 按文档改造脚本
 - **WHEN** agent 按文档实现批处理与缓存
 - **THEN** 不会使用已不存在的 `withRequestCaching`，而是使用 v4 推荐的显式缓存机制
+
+### Requirement: 示例不误导
+系统 SHALL 确保示例代码本身不包含已不存在或语义错误的 API 用法（例如 `withRequestCaching`），并且：
+- 示例中提到“缓存”时必须展示显式缓存开启方式
+- 示例中不需要缓存时，不应出现“关闭缓存/禁用缓存”的写法
+
+#### Scenario: 读者复制示例代码
+- **WHEN** 读者复制 `examples/` 下的示例到自己项目中
+- **THEN** 不会因为示例包含遗留 API 而编译失败或形成错误认知
 
 ## MODIFIED Requirements
 ### Requirement: 批处理与缓存优化指南的准确性

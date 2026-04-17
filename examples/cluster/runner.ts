@@ -49,3 +49,4 @@ PlatformRuntime.runMain(
 		// disablePrettyLogger: inEcs,
 	},
 );
+

@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	build: {
-		lib: { entry: ["./icons.ts"], formats: ["es"] },
+		lib: { entry: ["./examples/icons.ts"], formats: ["es"] },
 		target: "esnext",
 		minify: true,
 		rolldownOptions: {

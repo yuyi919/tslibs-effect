@@ -11,9 +11,9 @@ import {
 } from "effect/unstable/http";
 import { KeyValueStore, Persistence } from "effect/unstable/persistence";
 import { isString, pascalCase } from "es-toolkit";
-import * as Eff from "./src/effect-next";
+import * as Eff from "../src/effect-next";
 // import { IconifyJSON } from "@iconify/types";
-import { FsUtilsLive } from "./src/FsUtils";
+import { FsUtilsLive } from "../src/FsUtils";
 
 // import { PlatformLoggerAlive } from "@server/effect/logger";
 
@@ -199,9 +199,7 @@ const program = Eff.gen(function* () {
 			return id;
 		};
 		return Eff.gen(function* () {
-			const json = yield* fetchIconifyJson(iconSetId).pipe(
-				Eff.withRequestCaching(false),
-			);
+			const json = yield* fetchIconifyJson(iconSetId);
 			yield* Eff.logTrace(
 				json.prefix + ":" + JSON.stringify(json).slice(0, 100) + "..",
 			);
@@ -258,26 +256,5 @@ pipe(
 			// Layer.provideMerge(Layer.succeed()),
 		),
 	),
-	Eff.provideService(Eff.FiberRef.MinimumLogLevel, "Trace"),
-	Eff.catchAll(Eff.logFatal),
-	runMain({ disableErrorReporting: false }),
+	runMain,
 );
-// import { Eff, RequestResolver } from "effect/exp"
-
-const suffixMap = Object.entries({
-	"-rounded": "round-",
-	"-outlined": "outline-",
-	"-sharp": "sharp-",
-	"-two-tone": "twotone-",
-	"": "baseline-",
-});
-
-function convertId(id: string): string {
-	const prefix = "baseline-";
-	for (const [suffix, prefix] of suffixMap) {
-		if (id.startsWith(prefix)) {
-			return id.replace(prefix, "") + suffix;
-		}
-	}
-	return prefix + id; // 默认情况，未匹配到后缀
-}

@@ -82,6 +82,10 @@ src/
 - 新增稳定 API：优先新增根目录 `src/<Name>.ts` 作为门面入口，再由内部实现提供能力
 - 避免把测试/PoC 当作公共 API：优先放在 `src/internal/**`，不要依赖其文件路径做外部集成
 
+## 示例（examples/）
+
+`examples/` 存放可执行脚本/PoC（例如 iconify 图标批处理生成、cluster/workflow 演示等）。它们用于展示本库的组合用法，不属于稳定 API。
+
 ## 开发与验证
 
 ```bash

@@ -1,6 +1,6 @@
 # 基于 Effect 框架的批处理与本地缓存优化指南
 
-本指南基于代码库中 [icons.ts](../icons.ts) 的实际案例，介绍如何使用 `@yuyi919/tslibs-effect` 提供的工具函数，在 Node.js / Bun 环境下优雅地实现**请求批处理 (Batching)**与**持久化缓存 (Persistent Caching)**，从而大幅提升脚本或服务的运行效率。
+本指南基于代码库中 [icons.ts](../examples/icons.ts) 的实际案例，介绍如何使用 `@yuyi919/tslibs-effect` 提供的工具函数，在 Node.js / Bun 环境下优雅地实现**请求批处理 (Batching)**与**持久化缓存 (Persistent Caching)**，从而大幅提升脚本或服务的运行效率。
 
 ## 1. 核心概念
 
@@ -14,7 +14,7 @@
 
 ## 2. 批处理 (Batching)
 
-在 [icons.ts](../icons.ts) 中，我们通过 `Eff.batched` 或 `Eff.persistedBatch` 来定义一个支持自动批处理的请求函数。
+在 [icons.ts](../examples/icons.ts) 中，我们通过 `Eff.batched` 或 `Eff.persistedBatch` 来定义一个支持自动批处理的请求函数。
 
 ### 定义批处理函数
 
@@ -114,34 +114,40 @@ const fetchIconifyJson = Eff.persistedBatch(
 默认情况下，`KeyValueStore` 是基于内存的。为了让缓存落盘到本地文件系统，我们需要在入口点提供具体的实现层（Layer）。
 
 ```typescript
-import { KeyValueStore } from "@effect/platform";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Eff, Layer } from "@yuyi919/tslibs-effect";
+import { Layer } from "effect";
+import { KeyValueStore, Persistence } from "effect/unstable/persistence";
+import * as Eff from "@yuyi919/tslibs-effect/effect-next";
 
 const program = Eff.gen(function* () {
   // 发起请求...
   const data = yield* fetchIconifyJson("mdi");
-}).pipe(
-  // 关键：禁用当前纤程(Fiber)的内存请求缓存，强制穿透到持久化层
-  Eff.withRequestCaching(false)
-);
+});
 
 // 组装并运行
-const RunnableLayer = Layer.mergeAll(
-  // 注入文件系统实现
-  NodeFileSystem.layer,
+const RunnableLayer = Persistence.layerKvs.pipe(
   // 注入基于文件系统的 KeyValueStore，缓存将写入 "./icons_cache" 目录
-  KeyValueStore.layerFileSystem("./icons_cache")
+  Layer.provideMerge(KeyValueStore.layerFileSystem("./icons_cache"))
 );
 
-Eff.runMain(
-  program.pipe(Eff.provide(RunnableLayer))
-);
+Eff.runMain(program.pipe(Eff.provide(RunnableLayer)));
+
+```
+
+补充说明（Effect v4 缓存语义）：
+
+- Effect v4 默认**不会**对 `RequestResolver` / `Effect.request` 做隐式缓存
+- 若需要“同一次运行内”的请求级缓存，需要显式对 resolver 使用 `RequestResolver.withCache`
+
+```ts
+import { Effect, RequestResolver } from "effect";
+
+const resolver = RequestResolver.makeBatched(/* ... */);
+const cachedResolver = yield* RequestResolver.withCache(resolver, { capacity: 1024 });
 ```
 
 ## 4. 总结最佳实践
 
-通过分析 [icons.ts](../icons.ts) 的设计，我们总结出以下最佳实践：
+通过分析 [icons.ts](../examples/icons.ts) 的设计，我们总结出以下最佳实践：
 
 1. **声明式的数据流**：使用 `Effect.gen` 编写类似同步代码的异步逻辑，通过 `pipe` 组合状态校验、序列化、重试和错误兜底（`catchAll`）。
 2. **分离关注点**：将“拉取单条数据”、“限制并发与合并”以及“缓存策略”拆分为独立的配置项。

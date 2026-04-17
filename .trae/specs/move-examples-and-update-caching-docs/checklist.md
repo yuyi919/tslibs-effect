@@ -1,7 +1,8 @@
-- [ ] 示例代码已集中迁移到 `examples/`，目录结构清晰且不与 `src/` 的库代码混淆
-- [ ] 迁移未引入逻辑/类型语义变更，仅发生文件移动与必要的导入路径修复
-- [ ] 如有构建配置引用示例脚本，相关配置已同步更新且命令可运行
-- [ ] `docs/batch-and-cache-guide.md` 已完成勘误：不再使用 `withRequestCaching`，并正确说明 v4 的显式缓存机制（`RequestResolver.withCache` 或等价）
-- [ ] `README.md` 已更新：文档引用链接可用，并说明 `examples/` 的定位与使用方式
-- [ ] `npm run build` 通过
-- [ ] `npm run test` 通过
+- [x] 示例代码已集中迁移到 `examples/`，目录结构清晰且不与 `src/` 的库代码混淆
+- [x] 迁移未引入逻辑/类型语义变更，仅发生文件移动与必要的导入路径修复
+- [x] 如有构建配置引用示例脚本，相关配置已同步更新且命令可运行
+- [x] 示例代码已完成勘误：不再包含 `withRequestCaching` 等遗留/无效 API；如需要缓存，使用 v4 显式缓存机制（`RequestResolver.withCache` 或等价）
+- [x] `docs/batch-and-cache-guide.md` 已完成勘误：不再使用 `withRequestCaching`，并正确说明 v4 的显式缓存机制（`RequestResolver.withCache` 或等价）
+- [x] `README.md` 已更新：文档引用链接可用，并说明 `examples/` 的定位与使用方式
+- [x] `npm run build` 通过
+- [x] `npm run test` 通过

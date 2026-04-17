@@ -8,3 +8,4 @@ export const TickCron = ClusterCron.make({
 	skipIfOlderThan: "1 minutes",
 	calculateNextRunFromPrevious: false,
 });
+

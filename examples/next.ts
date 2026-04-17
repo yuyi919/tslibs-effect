@@ -1,7 +1,7 @@
-import * as Context from "./src/Context";
-import * as Eff from "./src/effect-next";
+import * as Context from "../src/Context";
+import * as Eff from "../src/effect-next";
 // import { Context } from "./dist/index.mjs";
-import * as Layer from "./src/Layer";
+import * as Layer from "../src/Layer";
 
 export const Test = Context.GenericTag<"Test", { test: 1 }>("@test/Test");
 
@@ -50,3 +50,4 @@ await Eff.runPromise(
 		Eff.provide(Eff.Layer.succeed(Test, { test: 1 })),
 	),
 );
+

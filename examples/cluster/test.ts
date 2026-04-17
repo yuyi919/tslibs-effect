@@ -10,7 +10,7 @@ import {
 	Logger,
 	LogLevel,
 } from "@/effect";
-import { Eff } from "../..";
+import { Eff } from "../../src";
 import { ClusterRunnerSocket } from "./cluster/runtime";
 import { SqlLayer } from "./cluster/sql";
 import {
@@ -115,3 +115,4 @@ Effect.all(Effect.replicate(program, 2), { concurrency: 15 })
 	.catch((error) => {
 		console.error(error);
 	});
+
