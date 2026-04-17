@@ -37,3 +37,4 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 3. **Spec-Driven**: We follow a spec-driven development process. Always check `.trae/specs` for current specifications and checklists before making structural changes.
 4. **Validation**: Always run `pnpm run check`, `pnpm run build`, and `pnpm run test` to verify your changes before completing a task.
 5. **Code Maintenance**: Remember to execute `pnpm run check` before submitting PRs or ending tasks to ensure the code passes format, lint, and biome checks automatically.
+6. **Temporary Files**: All temporary files, scratchpads, scripts, or diff patches generated during task execution must be placed in the `.agent_temp/` directory. Do not clutter the project root.
