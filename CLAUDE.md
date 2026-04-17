@@ -1,0 +1,1 @@
+See [AGENTS.md](./AGENTS.md) for all AI assistant instructions and repository guidelines.

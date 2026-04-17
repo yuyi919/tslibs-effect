@@ -148,6 +148,12 @@ export type Redacted<T> = import("effect/Redacted").Redacted<T>;
 export * as TRef from "effect/TxRef";
 export type TRef<T> = import("effect/TxRef").TxRef<T>;
 
+export * as TxRef from "effect/TxRef";
+export type TxRef<T> = import("effect/TxRef").TxRef<T>;
+
+export * as TestClock from "effect/testing/TestClock";
+export type TestClock = import("effect/testing/TestClock").TestClock;
+
 export * as Optic from "effect/Optic";
 export type Optic<S, A> = import("effect/Optic").Iso<S, A>;
 
