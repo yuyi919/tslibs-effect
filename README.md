@@ -8,8 +8,6 @@
 - 在不改变语义的前提下，对齐/补齐常用的 effect-v3 风格命名与 API 组织方式
 - 以“可维护、可读、对 agent 友好”为优先目标
 
-> **参考文档**：关于 Effect v4 演进方向的调研，请参考 [Effect-SMOL 研究笔记](./docs/effect-smol-research.md)。
-
 非目标：
 
 - tree-shaking 友好（本库倾向聚合与再导出）
@@ -91,6 +89,10 @@ npm run check
 npm run build
 bun test src
 ```
+
+> **参考文档**：
+> - 关于 Effect v4 演进方向的调研，请参考 [Effect-SMOL 研究笔记](./docs/effect-smol-research.md)。
+> - 关于如何利用本库进行批处理与本地缓存优化的案例，请参考 [基于 Effect 框架的批处理与本地缓存优化指南](./docs/batch-and-cache-guide.md)。
 
 ## 后续维护方向（规划入口）
 
