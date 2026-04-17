@@ -171,7 +171,6 @@ const makeTester = <R>(
 						FC.asyncProperty(...arbs, (...as) =>
 							run(ctx, [as as any, {}], self),
 						),
-						// @ts-expect-error
 						isObject(timeout) ? timeout?.fastCheck : {},
 					),
 				testOptions(timeout),
@@ -201,7 +200,6 @@ const makeTester = <R>(
 						// @ts-expect-error
 						run(ctx, [as[0] as any, ctx], self),
 					),
-					// @ts-expect-error
 					isObject(timeout) ? timeout?.fastCheck : {},
 				),
 			testOptions(timeout),
@@ -399,7 +397,6 @@ export const prop: BunTester.Methods["prop"] = (
 
 	return bunTest.it(
 		name,
-		// @ts-expect-error
 		(_) =>
 			FC.assert<object>(
 				FC.property(arbs, (as) => self(as as any, {})),

@@ -15,9 +15,9 @@
   - [x] 在 `README.md` 增加：目录结构说明（重组后）、子路径兼容策略（含可能的迁移说明）
   - [x] 在 `README.md` 增加：维护者/agent 约束（不改逻辑、如何添加新导出/对齐函数、测试/构建命令）
 
-- [ ] Task 4: 验证与回归
-  - [ ] `bun test src` 通过
-  - [ ] `npm run build`（tsc --build）通过，产物结构满足 `package.json#exports` 的预期
+- [x] Task 4: 验证与回归
+  - [x] `bun test src` 通过
+  - [x] `npm run build`（tsc --build）通过，产物结构满足 `package.json#exports` 的预期
 
 # Task Dependencies
 - Task 2 depends on Task 1
