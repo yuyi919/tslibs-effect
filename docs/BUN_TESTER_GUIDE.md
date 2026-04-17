@@ -44,8 +44,7 @@ describe("基础功能", () => {
 - 自动包裹在 **`Scope`** 内（测试结束自动释放资源）
 
 ```ts
-import { Effect, Context, Layer, TxRef } from "@yuyi919/tslibs-effect/effect-next";
-import * as TestClock from "effect/testing/TestClock";
+import { Effect, Context, Layer, TxRef, TestClock } from "@yuyi919/tslibs-effect/effect-next";
 import { describe, expect, it, layer, waitFor } from "@yuyi919/tslibs-effect/BunTester";
 
 it.effect("时间控制测试", () =>

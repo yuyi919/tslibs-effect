@@ -1,6 +1,4 @@
-import { Effect, Context, Layer } from "@yuyi919/tslibs-effect/effect-next";
-import { TxRef } from "effect";
-import * as TestClock from "effect/testing/TestClock";
+import { Effect, Context, Layer, TxRef, TestClock } from "@yuyi919/tslibs-effect/effect-next";
 import { describe, expect, it, layer, waitFor } from "@yuyi919/tslibs-effect/BunTester";
 
 describe("BunTester Guide Examples", () => {
