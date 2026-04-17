@@ -11,7 +11,7 @@ BunTester 是为 `bun:test`（Bun 的原生测试运行器）量身定制的 Eff
 
 ```ts
 import { Effect } from "effect";
-import { describe, expect, it } from "./BunTester"; // 从你的 BunTester 路径导入
+import { describe, expect, it } from "@yuyi919/tslibs-effect/BunTester";
 
 describe("基础功能", () => {
   // 普通的同步测试
@@ -98,8 +98,8 @@ it.effect("不稳定的测试", () =>
 Effect 的一大优势在于强大的依赖注入机制（Layer）。你可以使用 `it.layer()` 或顶层的 `layer()` 为一组测试预先提供环境，这类似于传统的 `beforeAll` / `afterAll`。
 
 ```ts
-import { layer } from "./BunTester";
-import { Context, Layer } from "effect";
+import { layer } from "@yuyi919/tslibs-effect/BunTester";
+import { Context, Layer, Effect } from "effect";
 
 class Database extends Context.Tag("Database")<
   Database,
@@ -141,7 +141,8 @@ layer(LiveDatabase)("测试数据库相关功能", (it) => {
 BunTester 直接将二者合二为一，极大减少了嵌套层级，代码更清爽。
 
 ```ts
-import { describe, expect, it } from "./BunTester";
+import { describe, expect, it } from "@yuyi919/tslibs-effect/BunTester";
+import { Effect } from "effect";
 
 // 标准写法
 it.effect("普通的写法", () =>
@@ -167,7 +168,7 @@ it.scopedGen("带作用域的更清爽的写法", function* () {
 BunTester 提供了一个 `waitFor` 工具，它利用了 Effect STM 的重试机制 (`Effect.txRetry`)，让测试并发状态更优雅。
 
 ```ts
-import { waitFor } from "./BunTester";
+import { it, waitFor } from "@yuyi919/tslibs-effect/BunTester";
 import { TxRef, Effect } from "effect";
 
 it.gen("测试并发事务", function* () {
