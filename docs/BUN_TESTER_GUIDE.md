@@ -168,15 +168,15 @@ BunTester 提供了一个 `waitFor` 工具，它利用了 Effect STM 的重试�
 
 ```ts
 import { waitFor } from "./BunTester";
-import { TRef, Effect } from "effect";
+import { TxRef, Effect } from "effect";
 
 it.gen("测试并发事务", function* () {
-  const counter = yield* TRef.make(0);
+  const counter = yield* TxRef.make(0);
   
   // 模拟一个异步改变状态的动作
   yield* Effect.fork(
     Effect.sleep("100 millis").pipe(
-      Effect.andThen(TRef.update(counter, n => n + 1))
+      Effect.andThen(TxRef.update(counter, n => n + 1))
     )
   );
 
@@ -185,7 +185,7 @@ it.gen("测试并发事务", function* () {
     if (val !== 1) throw new Error("not ready");
   });
 
-  expect(yield* TRef.get(counter)).toBe(1);
+  expect(yield* TxRef.get(counter)).toBe(1);
 });
 ```
 
