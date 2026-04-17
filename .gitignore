@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+tmp/
+*.db
+*.db-shm
+*.db-wal
+.env
+.data
+icons/
+dist/
+build/
+tsconfig.tsbuildinfo
+.codex
+.trae/get-shit-done

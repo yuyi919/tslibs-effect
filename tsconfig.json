@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "useDefineForClassFields": false,
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["bun"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowArbitraryExtensions": true,
+    "incremental": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "paths": {
+      "@/effect": ["./src/effect-next"]
+    }
+    // "paths": {
+    //   "effect/*": ["./node_modules/effect/src/*"],
+    //   "effect": ["./node_modules/effect/src/index.ts"]
+    // }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
+  "extends": ["../../../biome.json"],
+  "root": false,
+  "linter": {},
+  "files": {
+    "includes": [
+      "*.json",
+      "./*.ts",
+      "**/src/**/*",
+      "**/scripts/**/*.ts",
+      "**/test/**/*.ts",
+      "!**/src/baml_client/**/*.ts",
+      "!**/dist/**/*",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
+      "!**/*.js"
+    ]
+  }
+}
