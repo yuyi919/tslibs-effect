@@ -256,14 +256,14 @@ type ScopedTester = {
 };
 
 const makeEffectTest =
-  (runner: typeof bunTest.test) =>
+  (getRunner: () => typeof bunTest.test) =>
   <A, E>(
     name: string,
     fn: Effect.EffGenFn<A, E, never>,
     options?: number | V.TestOptions
   ) => {
     const timeout = typeof options === "number" ? options : options?.timeout;
-    runner(
+    getRunner()(
       name,
       () => runTest(Effect.gen(fn)),
       timeout ? { timeout } : undefined
@@ -271,30 +271,30 @@ const makeEffectTest =
   };
 
 const makeScopedTest =
-  (runner: typeof bunTest.test) =>
+  (getRunner: () => typeof bunTest.test) =>
   <A, E>(
     name: string,
     fn: Effect.EffGenFn<A, E, Scope.Scope>,
     options?: number | V.TestOptions
   ) => {
     const timeout = typeof options === "number" ? options : options?.timeout;
-    runner(
+    getRunner()(
       name,
       () => runTestScoped(Effect.gen(fn)),
       timeout ? { timeout } : undefined
     );
   };
 
-export const gen: EffectTester = Object.assign(makeEffectTest(bunTest.test), {
-  skip: makeEffectTest(bunTest.test.skip),
-  only: makeEffectTest(bunTest.test.only),
+export const gen: EffectTester = Object.assign(makeEffectTest(() => bunTest.test), {
+  skip: makeEffectTest(() => bunTest.test.skip),
+  only: makeEffectTest(() => bunTest.test.only),
 });
 
 export const scopedGen: ScopedTester = Object.assign(
-  makeScopedTest(bunTest.test),
+  makeScopedTest(() => bunTest.test),
   {
-    skip: makeScopedTest(bunTest.test.skip),
-    only: makeScopedTest(bunTest.test.only),
+    skip: makeScopedTest(() => bunTest.test.skip),
+    only: makeScopedTest(() => bunTest.test.only),
   }
 );
 
