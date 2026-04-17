@@ -97,6 +97,7 @@ bun test src
 > **参考文档**：
 > - 关于 Effect v4 演进方向的调研，请参考 [Effect-SMOL 研究笔记](./docs/effect-smol-research.md)。
 > - 关于如何利用本库进行批处理与本地缓存优化的案例，请参考 [基于 Effect 框架的批处理与本地缓存优化指南](./docs/batch-and-cache-guide.md)。
+> - 关于如何在 Bun 环境下编写 Effect 测试，请参考 [BunTester 核心使用指南](./docs/BUN_TESTER_GUIDE.md)。
 
 ## 后续维护方向（规划入口）
 

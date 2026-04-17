@@ -12,7 +12,7 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 - `src/public/`: (Planned/Conceptual) Stable public APIs. Files here are exposed via `package.json` exports.
 - `src/internal/`: Internal implementations and experimental features (e.g., `cluster`, `libs`). These are NOT directly exported to consumers.
 - `src/internal/test/`: Unit tests and testing utilities.
-- `docs/`: Project documentation and research notes.
+- `docs/`: Project documentation and research notes (e.g., `BUN_TESTER_GUIDE.md`).
 
 ## Setup Commands
 - **Install dependencies**: `pnpm install` (We use pnpm with workspace catalog for dependency management)
