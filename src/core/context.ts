@@ -50,7 +50,7 @@ export const GenericTag: <Identifier, Shape = Identifier>(
   key: string
 ) => Tag<Identifier, Shape> = (key) => Context.Service(key);
 
+export type { Context as t } from "effect/Context";
 export * from "effect/Context";
-export { type Context as t } from "effect/Context";
 
 export * from "./TaggedBrandContext";

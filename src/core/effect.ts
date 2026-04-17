@@ -5,15 +5,15 @@ import {
   Fiber,
   FiberHandle,
   identity,
-  ManagedRuntime,
+  type ManagedRuntime,
   Ref,
-  Schedule,
+  type Schedule,
 } from "effect";
 import { dual } from "effect/Function";
 import { isPromiseLike } from "effect/Predicate";
-import { Scope } from "effect/Scope";
-import { NoSuchElementException } from "./cause";
-import * as Context from "./context";
+import type { Scope } from "effect/Scope";
+import type { NoSuchElementException } from "./cause";
+import type * as Context from "./context";
 import * as Duration from "./duration";
 import { scopedCacheWith } from "./effect/scopedCache";
 import * as Layer from "./layer";
@@ -39,7 +39,7 @@ export const __unsafe_coerce =
     unsafeCoerce(e);
 
 // filter
-export function filterNil<A extends any>(
+export function filterNil<A>(
   _: void
 ): <E, R>(
   self: Effect.Effect<A, E, R>
@@ -47,7 +47,7 @@ export function filterNil<A extends any>(
   return Effect.filterOrFail<A, NonNullable<A>>(isNotNil<A>);
 }
 
-export function filterNilWith<A extends any, E>(
+export function filterNilWith<A, E>(
   onElse: (e: NoInfer<A>) => E
 ): <E2, R>(
   self: Effect.Effect<A, E2, R>
@@ -57,7 +57,7 @@ export function filterNilWith<A extends any, E>(
 
 // from
 export function fromFunction<A, E, R>(f: () => T<A, E, R>): T<A, E, R>;
-export function fromFunction<A>(f: () => Promise<A> | A): T<A>;
+export function fromFunction<A>(f: () => Promise<A> | A): T<A, never, never>;
 export function fromFunction(f: () => any) {
   return Effect.sync(f).pipe(Effect.flatMap(fromSomething));
 }
@@ -71,14 +71,12 @@ export function fromSomething<A, E = never, R = never>(
       ? (a as unknown as T<A, E, R>)
       : Effect.succeed(a);
 }
+export function from<A, E, R>(f: T<A, E, R> | (() => T<A, E, R>)): T<A, E, R>;
 export function from<A>(
   f:
-    | (Promise<A> | Context.Tag<any, A> | A)
-    | (() => Promise<A> | Context.Tag<any, A> | T<A> | A)
-): T<A>;
-export function from<A, E, R>(
-  f: T<A, E, R> | (() => A | Promise<A> | Context.Tag<any, A> | T<A, E, R>)
-): T<A, E, R>;
+    | (Promise<A> | Context.Tag<any, A> | Exclude<A, T<any, any, any>>)
+    | (() => Promise<A> | Context.Tag<any, A> | A)
+): T<A, never, never>;
 export function from(f: any) {
   return isFn(f) ? fromFunction(f) : fromSomething(f);
 }

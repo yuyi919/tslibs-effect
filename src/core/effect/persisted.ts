@@ -8,8 +8,8 @@ import { Persistable } from "effect/unstable/persistence";
 import * as PersistedCache from "effect/unstable/persistence/PersistedCache";
 import * as Persistence from "effect/unstable/persistence/Persistence";
 import { memoize } from "es-toolkit";
-import * as Context from "../context";
-import * as Duration from "../duration";
+import type * as Context from "../context";
+import type * as Duration from "../duration";
 import * as Eff from "../effect";
 import { scopedCacheWith } from "./scopedCache";
 

@@ -1,0 +1,9 @@
+packages:
+  - "."
+catalog:
+  "@biomejs/biome": "2.4.11"
+  "@effect/platform-bun": "~4.0.0-beta.47"
+  "@effect/sql-sqlite-bun": "~4.0.0-beta.47"
+  "@effect/sql-pg": "~4.0.0-beta.47"
+  "@types/bun": "^1.2.0"
+  "effect": "~4.0.0-beta.47"

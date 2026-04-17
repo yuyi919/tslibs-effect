@@ -9,43 +9,44 @@ import { ProcessCrasher } from "./domain/process-crasher";
 import { TickCron } from "./domain/TickCron";
 
 const RunnerLive = Layer.mergeAll(ipLayer, portLayer).pipe(
-  Layer.flatMap((ctx) =>
-    ClusterRunnerSocket.layer({
-      storage: "sql",
-      // runnerStorage: "memory",
-      shardingConfig: {
-        runnerAddress: Option.some(
-          RunnerAddress.make(
-            Context.get(ctx, IpAddress),
-            Context.get(ctx, Port)
-          )
-        ),
-      },
-    })
-  )
+	Layer.flatMap((ctx) =>
+		ClusterRunnerSocket.layer({
+			storage: "sql",
+			// runnerStorage: "memory",
+			shardingConfig: {
+				runnerAddress: Option.some(
+					RunnerAddress.make(
+						Context.get(ctx, IpAddress),
+						Context.get(ctx, Port),
+					),
+				),
+			},
+		}),
+	),
 );
 
 const Entities = Layer.mergeAll(
-  MathematicianLive,
-  ProcessCrasher,
-  TickCron
+	MathematicianLive,
+	ProcessCrasher,
+	TickCron,
 ).pipe(Layer.provide(ipLayer));
 
 const program = Entities.pipe(
-  Layer.provide(RunnerLive),
-  Layer.provide(HealthServerLive),
-  Layer.provide(SqlLayer),
-  Layer.launch
+	Layer.provide(RunnerLive),
+	Layer.provide(HealthServerLive),
+	Layer.provide(SqlLayer),
+	Layer.launch,
 );
 
 const inEcs = process.env.ECS_CONTAINER_METADATA_URI_V4 !== undefined;
 const programWithAdjustedLogger = inEcs
-  ? program.pipe(Effect.provide(Logger.json))
-  : program.pipe(Effect.provide(Logger.pretty));
+	? program.pipe(Effect.provide(Logger.json))
+	: program.pipe(Effect.provide(Logger.pretty));
 
 PlatformRuntime.runMain(
-  programWithAdjustedLogger.pipe(Logger.withMinimumLogLevel("Debug")),
-  {
-    // disablePrettyLogger: inEcs,
-  }
+	programWithAdjustedLogger.pipe(Logger.withMinimumLogLevel("Debug")),
+	{
+		// disablePrettyLogger: inEcs,
+	},
 );
+

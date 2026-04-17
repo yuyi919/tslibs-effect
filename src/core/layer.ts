@@ -1,11 +1,11 @@
 import { pureMemoize } from "@yuyi919/shared-proto/Functions";
 import { isStr } from "@yuyi919/shared-proto/JsTypes";
 import { Effect } from "effect";
+import type { MemoMap } from "effect/Layer";
 import * as Layer from "effect/Layer";
-import { MemoMap } from "effect/Layer";
-import { Scope } from "effect/Scope";
+import type { Scope } from "effect/Scope";
 import { deepAssign } from "./_helper";
-import * as Context from "./context";
+import type * as Context from "./context";
 
 export class LayerHelper<ROut, E = never, RIn = never> {
   constructor(public layer: Layer.Layer<ROut, E, RIn>) {}
@@ -68,7 +68,7 @@ export const buildMemoized: <A, E = never, R = never>(
       Layer.CurrentMemoMap as unknown as Context.Reference<MemoMap>
     ).pipe(
       Effect.flatMap((_memoMap) =>
-        Effect.scopedWith((_scope) =>
+        Effect.flatMap(Effect.scope, (_scope) =>
           Layer.buildWithMemoMap(layer, _memoMap, _scope)
         )
       )

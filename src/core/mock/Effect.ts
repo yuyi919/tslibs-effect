@@ -1,11 +1,15 @@
 import { pureMemoize } from "@yuyi919/shared-proto/Functions";
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
-import { Cause, Context, Fiber, Scope } from "effect";
+import { type Cause, Context, Fiber, type Scope } from "effect";
 import * as core from "effect/Effect";
-import { Effect, map, service } from "effect/Effect";
-import { Equivalence } from "effect/Equivalence";
-import { LazyArg } from "effect/Function";
-import { Contravariant, Covariant, NoExcessProperties } from "effect/Types";
+import { type Effect, map, service } from "effect/Effect";
+import type { Equivalence } from "effect/Equivalence";
+import type { LazyArg } from "effect/Function";
+import type {
+  Contravariant,
+  Covariant,
+  NoExcessProperties,
+} from "effect/Types";
 import { deepAssign } from "../_helper";
 import { from } from "../effect";
 import * as Layer from "../layer";

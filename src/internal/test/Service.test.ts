@@ -1,5 +1,5 @@
-import { Effect } from ".";
-import { describe, expect, it } from "./BunTester";
+import { Effect } from "../..";
+import { describe, expect, it } from "../../BunTester";
 
 describe("Service", () => {
   it("isEffect", () => {

@@ -48,7 +48,7 @@ import {
   Scope,
   TxRef as TRef,
 } from "effect";
-import { NonEmptyArray } from "effect/Array";
+import type { NonEmptyArray } from "effect/Array";
 import { isObject } from "effect/Predicate";
 
 export { default as assert } from "node:assert";
@@ -165,13 +165,12 @@ const makeTester = <R>(
       return it(
         name,
         (ctx) =>
-          // @ts-ignore
+          // @ts-expect-error
           FC.assert(
-            // @ts-ignore
+            // @ts-expect-error
             FC.asyncProperty(...arbs, (...as) =>
               run(ctx, [as as any, {}], self)
             ),
-            // @ts-ignore
             isObject(timeout) ? timeout?.fastCheck : {}
           ),
         testOptions(timeout)
@@ -180,7 +179,7 @@ const makeTester = <R>(
 
     const arbs = FC.record(
       Object.keys(arbitraries).reduce(
-        function (result, key) {
+        (result, key) => {
           const arb: any = arbitraries[key];
           if (Schema.isSchema(arb)) {
             result[key] = Schema.toArbitrary(arb);
@@ -195,13 +194,12 @@ const makeTester = <R>(
     return it(
       name,
       (ctx) =>
-        // @ts-ignore
+        // @ts-expect-error
         FC.assert(
           FC.asyncProperty(arbs, (...as) =>
-            // @ts-ignore
+            // @ts-expect-error
             run(ctx, [as[0] as any, ctx], self)
           ),
-          // @ts-ignore
           isObject(timeout) ? timeout?.fastCheck : {}
         ),
       testOptions(timeout)
@@ -258,14 +256,14 @@ type ScopedTester = {
 };
 
 const makeEffectTest =
-  (runner: typeof bunTest.test) =>
+  (getRunner: () => typeof bunTest.test) =>
   <A, E>(
     name: string,
     fn: Effect.EffGenFn<A, E, never>,
     options?: number | V.TestOptions
   ) => {
     const timeout = typeof options === "number" ? options : options?.timeout;
-    runner(
+    getRunner()(
       name,
       () => runTest(Effect.gen(fn)),
       timeout ? { timeout } : undefined
@@ -273,30 +271,30 @@ const makeEffectTest =
   };
 
 const makeScopedTest =
-  (runner: typeof bunTest.test) =>
+  (getRunner: () => typeof bunTest.test) =>
   <A, E>(
     name: string,
     fn: Effect.EffGenFn<A, E, Scope.Scope>,
     options?: number | V.TestOptions
   ) => {
     const timeout = typeof options === "number" ? options : options?.timeout;
-    runner(
+    getRunner()(
       name,
       () => runTestScoped(Effect.gen(fn)),
       timeout ? { timeout } : undefined
     );
   };
 
-export const gen: EffectTester = Object.assign(makeEffectTest(bunTest.test), {
-  skip: makeEffectTest(bunTest.test.skip),
-  only: makeEffectTest(bunTest.test.only),
+export const gen: EffectTester = Object.assign(makeEffectTest(() => bunTest.test), {
+  skip: makeEffectTest(() => bunTest.test.skip),
+  only: makeEffectTest(() => bunTest.test.only),
 });
 
 export const scopedGen: ScopedTester = Object.assign(
-  makeScopedTest(bunTest.test),
+  makeScopedTest(() => bunTest.test),
   {
-    skip: makeScopedTest(bunTest.test.skip),
-    only: makeScopedTest(bunTest.test.only),
+    skip: makeScopedTest(() => bunTest.test.skip),
+    only: makeScopedTest(() => bunTest.test.only),
   }
 );
 
@@ -372,7 +370,7 @@ export const prop: BunTester.Methods["prop"] = (
     return bunTest.it(
       name,
       (_) =>
-        // @ts-ignore
+        // @ts-expect-error
         FC.assert(
           FC.property(...(arbs as NonEmptyArray<FC.Arbitrary<any>>), (...as) =>
             self(as as any, {})
@@ -385,7 +383,7 @@ export const prop: BunTester.Methods["prop"] = (
 
   const arbs: FC.Arbitrary<object> = FC.record(
     Object.keys(arbitraries).reduce(
-      function (result, key) {
+      (result, key) => {
         const arb: any = arbitraries[key];
         if (Schema.isSchema(arb)) {
           throw new Error("Schemas are not supported yet");
@@ -399,7 +397,6 @@ export const prop: BunTester.Methods["prop"] = (
 
   return bunTest.it(
     name,
-    // @ts-ignore
     (_) =>
       FC.assert<object>(
         FC.property(arbs, (as) => self(as as any, {})),
@@ -524,20 +521,18 @@ export declare namespace BunTester {
   /**
    * @since 1.0.0
    */
-  export interface TestFunction<A, E, R, TestArgs extends Array<any>> {
-    (...args: TestArgs): Effect.Effect<A, E, R>;
-  }
+  export type TestFunction<A, E, R, TestArgs extends Array<any>> = (
+    ...args: TestArgs
+  ) => Effect.Effect<A, E, R>;
 
   /**
    * @since 1.0.0
    */
-  export interface Test<R> {
-    <A, E>(
-      name: string,
-      self: TestFunction<A, E, R, [V.TestContext]>,
-      timeout?: number | V.TestOptions
-    ): void;
-  }
+  export type Test<R> = <A, E>(
+    name: string,
+    self: TestFunction<A, E, R, [V.TestContext]>,
+    timeout?: number | V.TestOptions
+  ) => void;
   /**
    * @since 1.0.0
    */

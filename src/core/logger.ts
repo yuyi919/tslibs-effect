@@ -1,16 +1,16 @@
 import {
-  Duration,
-  FileSystem,
+  type Duration,
+  type FileSystem,
   Layer,
   Logger,
   Option,
   References,
-  Scope,
+  type Scope,
   ScopedRef,
 } from "effect";
 import { dual } from "effect/Function";
-import { LogLevel } from "effect/LogLevel";
-import { PlatformError } from "effect/PlatformError";
+import type { LogLevel } from "effect/LogLevel";
+import type { PlatformError } from "effect/PlatformError";
 import { Effect } from "../index";
 
 export * from "effect/Logger";

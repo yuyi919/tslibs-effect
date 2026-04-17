@@ -12,7 +12,7 @@ export {
   UnhandledLogLevel as unhandledErrorLogLevel,
 } from "effect/References";
 
-import { Effect } from "effect/Effect";
+import type { Effect } from "effect/Effect";
 import type { Reference } from "./context";
 
 export function get<A>(ref: FiberRef<A>): Effect<A> {

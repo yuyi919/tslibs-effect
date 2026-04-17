@@ -1,4 +1,4 @@
-import { LogLevel, Severity } from "effect/LogLevel";
+import type { LogLevel, Severity } from "effect/LogLevel";
 
 export * from "effect/LogLevel";
 

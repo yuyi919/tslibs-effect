@@ -1,13 +1,13 @@
 import { identity } from "@yuyi919/shared-proto/Functions";
 import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes";
-import { DateTime, Effect, Scope, Types } from "effect";
-import { context, Yieldable } from "effect/Effect";
-import { dual, LazyArg } from "effect/Function";
+import { DateTime, Effect, Scope, type Types } from "effect";
+import { context, type Yieldable } from "effect/Effect";
+import { dual, type LazyArg } from "effect/Function";
 import { pick } from "es-toolkit";
 import * as Cause from "../cause";
 import { currentMinimumLogLevel } from "../FiberRef";
 import * as LogLevel from "../logLevel";
-import { Runtime } from "../mock/Runtime";
+import type { Runtime } from "../mock/Runtime";
 import * as Option from "../option";
 
 export interface YieldWrap<T extends Effect.All.EffectAny>
@@ -529,20 +529,15 @@ export const tapBoth: {
     }
   ) => Effect.Effect<A, E | E2 | E3, R | R2 | R3>
 >(2, (self, { onFailure, onSuccess }) =>
-  Effect.matchCauseEffect(self, {
+  Effect.matchCauseEffectEager(self, {
     onFailure: (cause) => {
-      const either = Cause.filterInterruptors(cause);
-      switch (either._tag) {
-        case "Failure": {
-          return zipRight(
-            onFailure(either.failure as any),
-            Effect.failCause(cause)
-          );
-        }
-        case "Success": {
-          return Effect.failCause(cause);
-        }
-      }
+      const failed = cause.reasons.find(Cause.isFailReason);
+      if (failed)
+        return zipRight(
+          onFailure(failed.error as any),
+          Effect.failCause(cause)
+        );
+      return Effect.failCause(cause);
     },
     onSuccess: (a) => Effect.as(onSuccess(a as any), a),
   })

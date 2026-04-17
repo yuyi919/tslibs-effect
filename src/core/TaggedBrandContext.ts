@@ -1,6 +1,6 @@
 import * as Brand from "effect/Brand";
 import * as Config from "effect/Config";
-import * as Redacted from "effect/Redacted";
+import type * as Redacted from "effect/Redacted";
 import { deepAssign } from "./_helper";
 import * as Context from "./context";
 import * as Effect from "./effect";

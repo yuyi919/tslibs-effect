@@ -5,8 +5,8 @@ import * as SynchronizedRef from "effect/SynchronizedRef";
 import { structEntries } from "./_helper";
 import * as Duration from "./duration";
 
+export type { Schedule as t } from "effect/Schedule";
 export * from "effect/Schedule";
-export { type Schedule as t } from "effect/Schedule";
 
 // /** @internal */
 // export const isSchedule = (u: unknown): u is Schedule.Schedule<any, any, any> =>
@@ -161,10 +161,7 @@ export function exponentialWithIndex(
   return Schedule.forever.pipe(
     Schedule.map((i) => ({
       i,
-      delay: Duration.times(
-        Duration.fromInputUnsafe(base),
-        Math.pow(factor, i)
-      ),
+      delay: Duration.times(Duration.fromInputUnsafe(base), factor ** i),
     })),
     Schedule.addDelay((i) => Effect.succeed(i.delay))
   );
@@ -184,17 +181,16 @@ export const addExponentialDelay: {
   ): Schedule.Schedule<number, In, R>;
 } = dual(
   (arg) => Schedule.isSchedule(arg[0]),
-  function <In, R>(
+  <In, R>(
     self: Schedule.Schedule<number, In, R>,
     base: Duration.DurationInput,
     factor: number = 2.0
-  ) {
-    return self.pipe(
+  ) =>
+    self.pipe(
       Schedule.addDelay((i) =>
         Effect.succeed(
-          Duration.times(Duration.fromInputUnsafe(base), Math.pow(factor, i))
+          Duration.times(Duration.fromInputUnsafe(base), factor ** i)
         )
       )
-    );
-  }
+    )
 );

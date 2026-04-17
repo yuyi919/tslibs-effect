@@ -12,3 +12,5 @@ build/
 tsconfig.tsbuildinfo
 .codex
 .trae/get-shit-done
+.pnpm-store/
+.agent_temp/

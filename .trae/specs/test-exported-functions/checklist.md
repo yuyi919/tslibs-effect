@@ -1,0 +1,6 @@
+- [x] `Runtime.run*` 系列双态执行函数的测试已使用 `BunTester` 编写并运行通过。
+- [x] `Effect` 流控制函数的测试已使用 `BunTester` 编写并运行通过。
+- [x] 批处理与持久化缓存的测试已使用 `BunTester` 编写并验证了请求合并与缓存命中。
+- [x] `Layer` 辅助工具的测试已使用 `BunTester` 编写并运行通过。
+- [x] `bun test src` 包含新加测试的执行，且全部通过。
+- [x] `npm run build` 通过。
