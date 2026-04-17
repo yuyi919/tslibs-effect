@@ -31,11 +31,22 @@
   },
   "peerDependencies": {
     "@yuyi919/shared-proto": "^0.1.23",
-    "@effect/platform-bun": "^4.0.0-beta.47",
-    "effect": "^4.0.0-beta.47",
-    "@effect/sql-sqlite-bun": "^4.0.0-beta.47",
-    "@effect/sql-pg": "^4.0.0-beta.47",
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
+    "@effect/sql-pg": "catalog:",
     "es-toolkit": ">1"
+  },
+  "peerDependenciesMeta": {
+    "@effect/platform-bun": {
+      "optional": true
+    },
+    "@effect/sql-sqlite-bun": {
+      "optional": true
+    },
+    "@effect/sql-pg": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
