@@ -15,10 +15,14 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 - `docs/`: Project documentation and research notes.
 
 ## Setup Commands
-- **Install dependencies**: `npm install` (Use `--legacy-peer-deps` if peer dependency conflicts occur)
-- **Run formatter and linter**: `npx @biomejs/biome check --write .`
-- **Build the project**: `npm run build` (uses `tsc --build`)
-- **Run tests**: `npm run test` (uses `bun test src`)
+- **Install dependencies**: `pnpm install` (We use pnpm with workspace catalog for dependency management)
+- **Run formatter and linter**: `pnpm run check` (uses `biome check --write .`)
+- **Build the project**: `pnpm run build` (uses `tsc --build`)
+- **Run tests**: `pnpm run test` (uses `bun test src`)
+
+## Dependency Management (pnpm catalog)
+- **Catalog Usage**: All shared dependencies (e.g. `effect`, `@biomejs/biome`, `@types/bun`) MUST use the `catalog:` protocol in `package.json`.
+- **Version Upgrades**: To upgrade a catalog dependency, update its version strictly in `pnpm-workspace.yaml` under the `catalog:` field, then run `pnpm install`. Do not hardcode versions in `package.json` for these shared packages.
 
 ## Code Style & Constraints
 - **TypeScript**: Strict mode is enabled. We use `bun` as the primary runtime environment types (`"types": ["bun"]` in tsconfig).
@@ -31,4 +35,5 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 1. **Preserve Logic**: Do not modify business logic or type semantics when performing directory restructurings, unless explicitly requested.
 2. **Documentation Separation**: Keep `README.md` concise and human-readable. Use this `AGENTS.md` file for machine-specific instructions and tool configurations.
 3. **Spec-Driven**: We follow a spec-driven development process. Always check `.trae/specs` for current specifications and checklists before making structural changes.
-4. **Validation**: Always run `npm run build` and `npm run test` to verify your changes before completing a task.
+4. **Validation**: Always run `pnpm run check`, `pnpm run build`, and `pnpm run test` to verify your changes before completing a task.
+5. **Code Maintenance**: Remember to execute `pnpm run check` before submitting PRs or ending tasks to ensure the code passes format, lint, and biome checks automatically.

@@ -1,7 +1,7 @@
 {
   "name": "@yuyi919/tslibs-effect",
   "private": false,
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A collection of effect libraries for TypeScript",
   "exports": {
     ".": {
@@ -38,13 +38,13 @@
     "es-toolkit": ">1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.11",
-    "@types/bun": "^1.2.0",
-    "@effect/platform-bun": "~4.0.0-beta.47",
+    "@biomejs/biome": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
+    "@effect/sql-pg": "catalog:",
     "@yuyi919/shared-proto": "^0.1.23",
-    "effect": "~4.0.0-beta.47",
-    "@effect/sql-sqlite-bun": "~4.0.0-beta.47",
-    "@effect/sql-pg": "~4.0.0-beta.47",
+    "@types/bun": "catalog:",
+    "effect": "catalog:",
     "es-toolkit": "^1.45.1",
     "tsdown": "^0.21.7",
     "typescript": "^6.0.2",
