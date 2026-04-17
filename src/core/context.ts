@@ -3,8 +3,8 @@ import * as Context from "effect/Context";
 export * from "effect/Context";
 
 export type Tag<Identifier, Shape> = import("effect/Context").Key<
-	Identifier,
-	Shape
+  Identifier,
+  Shape
 >;
 /**
  * @example
@@ -24,13 +24,13 @@ export type Tag<Identifier, Shape> = import("effect/Context").Key<
  * @category constructors
  */
 export function Tag<const Id extends string>(
-	id: Id,
+  id: Id
 ): <Self, Shape>() => TagClass<Self, Id, Shape> {
-	return <Self, Shape>() => Context.Service<Self, Shape>()(id);
+  return <Self, Shape>() => Context.Service<Self, Shape>()(id);
 }
 
 export interface TagClass<Self, Id extends string, Type>
-	extends Context.ServiceClass<Self, Id, Type> {}
+  extends Context.ServiceClass<Self, Id, Type> {}
 
 /**
  * Creates a new `Tag` instance with an optional key parameter.
@@ -47,7 +47,7 @@ export interface TagClass<Self, Id extends string, Type>
  * @category constructors
  */
 export const GenericTag: <Identifier, Shape = Identifier>(
-	key: string,
+  key: string
 ) => Tag<Identifier, Shape> = (key) => Context.Service(key);
 
 export type { Context as t } from "effect/Context";

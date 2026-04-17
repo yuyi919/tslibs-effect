@@ -1,63 +1,64 @@
 {
-	"name": "@yuyi919/tslibs-effect",
-	"private": false,
-	"version": "0.4.0",
-	"description": "A collection of effect libraries for TypeScript",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		},
-		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
-		}
-	},
-	"scripts": {
-		"format": "biome format --write .",
-		"lint": "biome lint --write .",
-		"check": "biome check --write .",
-		"build": "tsc --build",
-		"dev": "tsc --build --watch",
-		"test": "bun test src"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
-	"sideEffects": [],
-	"type": "module",
-	"dependencies": {
-		"glob": "^13.0.6"
-	},
-	"peerDependencies": {
-		"@yuyi919/shared-proto": "^0.1.23",
-		"@effect/platform-bun": "^4.0.0-beta.47",
-		"effect": "^4.0.0-beta.47",
-		"@effect/sql-sqlite-bun": "^4.0.0-beta.47",
-		"@effect/sql-pg": "^4.0.0-beta.47",
-		"es-toolkit": ">1"
-	},
-	"devDependencies": {
+  "name": "@yuyi919/tslibs-effect",
+  "private": false,
+  "version": "0.4.0",
+  "description": "A collection of effect libraries for TypeScript",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "format": "biome format --write .",
+    "lint": "biome lint --write .",
+    "check": "biome check --write .",
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
+    "test": "bun test src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "sideEffects": [],
+  "type": "module",
+  "dependencies": {
+    "glob": "^13.0.6"
+  },
+  "peerDependencies": {
+    "@yuyi919/shared-proto": "^0.1.23",
+    "@effect/platform-bun": "^4.0.0-beta.47",
+    "effect": "^4.0.0-beta.47",
+    "@effect/sql-sqlite-bun": "^4.0.0-beta.47",
+    "@effect/sql-pg": "^4.0.0-beta.47",
+    "es-toolkit": ">1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.11",
     "@types/bun": "^1.2.0",
-		"@effect/platform-bun": "~4.0.0-beta.47",
-		"@yuyi919/shared-proto": "^0.1.23",
-		"effect": "~4.0.0-beta.47",
-		"@effect/sql-sqlite-bun": "~4.0.0-beta.47",
-		"@effect/sql-pg": "~4.0.0-beta.47",
-		"es-toolkit": "^1.45.1",
-		"tsdown": "^0.21.7",
-		"typescript": "^6.0.2",
-		"vite": "^8.0.8"
-	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"files": [
-		"README.md",
-		"dist",
-		"!**/__tests__/**",
-		"!**/*.(spec,test).js",
-		"!**/*.(spec,test).d.ts",
-		"package.json"
-	]
+    "@effect/platform-bun": "~4.0.0-beta.47",
+    "@yuyi919/shared-proto": "^0.1.23",
+    "effect": "~4.0.0-beta.47",
+    "@effect/sql-sqlite-bun": "~4.0.0-beta.47",
+    "@effect/sql-pg": "~4.0.0-beta.47",
+    "es-toolkit": "^1.45.1",
+    "tsdown": "^0.21.7",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "!**/__tests__/**",
+    "!**/*.(spec,test).js",
+    "!**/*.(spec,test).d.ts",
+    "package.json"
+  ]
 }

@@ -5,9 +5,9 @@ import * as Context from "../context";
 export interface Runtime<in R> extends Context.Context<R> {}
 
 export declare namespace Runtime {
-	export type Context<T extends Runtime<never>> = [T] extends [Runtime<infer R>]
-		? R
-		: never;
+  export type Context<T extends Runtime<never>> = [T] extends [Runtime<infer R>]
+    ? R
+    : never;
 }
 
 /**
@@ -18,23 +18,23 @@ export declare namespace Runtime {
  * @category execution
  */
 export const runFork: {
-	<R>(
-		runtime: Runtime<R>,
-	): <A, E>(
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	) => Fiber.Fiber<A, E>;
-	<R, A, E>(
-		runtime: Runtime<R>,
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	): Fiber.Fiber<A, E>;
+  <R>(
+    runtime: Runtime<R>
+  ): <A, E>(
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ) => Fiber.Fiber<A, E>;
+  <R, A, E>(
+    runtime: Runtime<R>,
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ): Fiber.Fiber<A, E>;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runForkWith(runtime)(arguments[1], arguments[2]);
-	}
-	return (eff: any, options: any) => Effect.runForkWith(runtime)(eff, options);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runForkWith(runtime)(arguments[1], arguments[2]);
+  }
+  return (eff: any, options: any) => Effect.runForkWith(runtime)(eff, options);
 } as any;
 
 /**
@@ -47,19 +47,19 @@ export const runFork: {
  * @category execution
  */
 export const runSyncExit: {
-	<A, E, R>(
-		runtime: Runtime<R>,
-		effect: Effect.Effect<A, E, R>,
-	): Exit.Exit<A, E>;
-	<R>(
-		runtime: Runtime<R>,
-	): <A, E>(effect: Effect.Effect<A, E, R>) => Exit.Exit<A, E>;
+  <A, E, R>(
+    runtime: Runtime<R>,
+    effect: Effect.Effect<A, E, R>
+  ): Exit.Exit<A, E>;
+  <R>(
+    runtime: Runtime<R>
+  ): <A, E>(effect: Effect.Effect<A, E, R>) => Exit.Exit<A, E>;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runSyncExitWith(runtime)(arguments[1]);
-	}
-	return (eff: any) => Effect.runSyncExitWith(runtime)(eff);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runSyncExitWith(runtime)(arguments[1]);
+  }
+  return (eff: any) => Effect.runSyncExitWith(runtime)(eff);
 } as any;
 
 /**
@@ -72,32 +72,32 @@ export const runSyncExit: {
  * @category execution
  */
 export const runSync: {
-	/**
-	 * Executes the effect synchronously throwing in case of errors or async boundaries.
-	 *
-	 * This method is effectful and should only be invoked at the edges of your
-	 * program.
-	 *
-	 * @since 2.0.0
-	 * @category execution
-	 */
-	<A, E, R>(runtime: Runtime<R>, effect: Effect.Effect<A, E, R>): A;
-	/**
-	 * Executes the effect synchronously throwing in case of errors or async boundaries.
-	 *
-	 * This method is effectful and should only be invoked at the edges of your
-	 * program.
-	 *
-	 * @since 2.0.0
-	 * @category execution
-	 */
-	<R>(runtime: Runtime<R>): <A, E>(effect: Effect.Effect<A, E, R>) => A;
+  /**
+   * Executes the effect synchronously throwing in case of errors or async boundaries.
+   *
+   * This method is effectful and should only be invoked at the edges of your
+   * program.
+   *
+   * @since 2.0.0
+   * @category execution
+   */
+  <A, E, R>(runtime: Runtime<R>, effect: Effect.Effect<A, E, R>): A;
+  /**
+   * Executes the effect synchronously throwing in case of errors or async boundaries.
+   *
+   * This method is effectful and should only be invoked at the edges of your
+   * program.
+   *
+   * @since 2.0.0
+   * @category execution
+   */
+  <R>(runtime: Runtime<R>): <A, E>(effect: Effect.Effect<A, E, R>) => A;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runSyncWith(runtime)(arguments[1]);
-	}
-	return (eff: any) => Effect.runSyncWith(runtime)(eff);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runSyncWith(runtime)(arguments[1]);
+  }
+  return (eff: any) => Effect.runSyncWith(runtime)(eff);
 } as any;
 
 export type RunForkOptions = Effect.RunOptions;
@@ -107,7 +107,7 @@ export type RunForkOptions = Effect.RunOptions;
  * @category models
  */
 export interface RunCallbackOptions<in A, in E = never> extends RunForkOptions {
-	readonly onExit?: ((exit: Exit.Exit<A, E>) => void) | undefined;
+  readonly onExit?: ((exit: Exit.Exit<A, E>) => void) | undefined;
 }
 
 /**
@@ -121,43 +121,44 @@ export interface RunCallbackOptions<in A, in E = never> extends RunForkOptions {
  * @category execution
  */
 export const runCallback: {
-	/**
-	 * Executes the effect asynchronously, eventually passing the exit value to
-	 * the specified callback.
-	 *
-	 * This method is effectful and should only be invoked at the edges of your
-	 * program.
-	 *
-	 * @since 2.0.0
-	 * @category execution
-	 */
-	<R>(
-		runtime: Runtime<R>,
-	): <A, E>(
-		effect: Effect.Effect<A, E, R>,
-		options?: RunCallbackOptions<A, E> | undefined,
-	) => (interruptor?: number | undefined) => void;
-	/**
-	 * Executes the effect asynchronously, eventually passing the exit value to
-	 * the specified callback.
-	 *
-	 * This method is effectful and should only be invoked at the edges of your
-	 * program.
-	 *
-	 * @since 2.0.0
-	 * @category execution
-	 */
-	<R, A, E>(
-		runtime: Runtime<R>,
-		effect: Effect.Effect<A, E, R>,
-		options?: RunCallbackOptions<A, E> | undefined,
-	): (interruptor?: number | undefined) => void;
+  /**
+   * Executes the effect asynchronously, eventually passing the exit value to
+   * the specified callback.
+   *
+   * This method is effectful and should only be invoked at the edges of your
+   * program.
+   *
+   * @since 2.0.0
+   * @category execution
+   */
+  <R>(
+    runtime: Runtime<R>
+  ): <A, E>(
+    effect: Effect.Effect<A, E, R>,
+    options?: RunCallbackOptions<A, E> | undefined
+  ) => (interruptor?: number | undefined) => void;
+  /**
+   * Executes the effect asynchronously, eventually passing the exit value to
+   * the specified callback.
+   *
+   * This method is effectful and should only be invoked at the edges of your
+   * program.
+   *
+   * @since 2.0.0
+   * @category execution
+   */
+  <R, A, E>(
+    runtime: Runtime<R>,
+    effect: Effect.Effect<A, E, R>,
+    options?: RunCallbackOptions<A, E> | undefined
+  ): (interruptor?: number | undefined) => void;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runCallbackWith(runtime)(arguments[1], arguments[2]);
-	}
-	return (eff: any, options: any) => Effect.runCallbackWith(runtime)(eff, options);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runCallbackWith(runtime)(arguments[1], arguments[2]);
+  }
+  return (eff: any, options: any) =>
+    Effect.runCallbackWith(runtime)(eff, options);
 } as any;
 
 /**
@@ -172,23 +173,24 @@ export const runCallback: {
  * @category execution
  */
 export const runPromise: {
-	<R>(
-		runtime: Runtime<R>,
-	): <A, E>(
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	) => Promise<A>;
-	<R, A, E>(
-		runtime: Runtime<R>,
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	): Promise<A>;
+  <R>(
+    runtime: Runtime<R>
+  ): <A, E>(
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ) => Promise<A>;
+  <R, A, E>(
+    runtime: Runtime<R>,
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ): Promise<A>;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runPromiseWith(runtime)(arguments[1], arguments[2]);
-	}
-	return (eff: any, options: any) => Effect.runPromiseWith(runtime)(eff, options);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runPromiseWith(runtime)(arguments[1], arguments[2]);
+  }
+  return (eff: any, options: any) =>
+    Effect.runPromiseWith(runtime)(eff, options);
 } as any;
 
 /**
@@ -202,23 +204,24 @@ export const runPromise: {
  * @category execution
  */
 export const runPromiseExit: {
-	<R>(
-		runtime: Runtime<R>,
-	): <A, E>(
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	) => Promise<Exit.Exit<A, E>>;
-	<R, A, E>(
-		runtime: Runtime<R>,
-		effect: Effect.Effect<A, E, R>,
-		options?: Effect.RunOptions | undefined,
-	): Promise<Exit.Exit<A, E>>;
+  <R>(
+    runtime: Runtime<R>
+  ): <A, E>(
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ) => Promise<Exit.Exit<A, E>>;
+  <R, A, E>(
+    runtime: Runtime<R>,
+    effect: Effect.Effect<A, E, R>,
+    options?: Effect.RunOptions | undefined
+  ): Promise<Exit.Exit<A, E>>;
 } = function () {
-	const runtime = arguments[0];
-	if (arguments.length >= 2 && arguments[1] !== undefined) {
-		return Effect.runPromiseExitWith(runtime)(arguments[1], arguments[2]);
-	}
-	return (eff: any, options: any) => Effect.runPromiseExitWith(runtime)(eff, options);
+  const runtime = arguments[0];
+  if (arguments.length >= 2 && arguments[1] !== undefined) {
+    return Effect.runPromiseExitWith(runtime)(arguments[1], arguments[2]);
+  }
+  return (eff: any, options: any) =>
+    Effect.runPromiseExitWith(runtime)(eff, options);
 } as any;
 
 /**

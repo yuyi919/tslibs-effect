@@ -13,5 +13,5 @@ export const Error: LogLevel & Severity = "Error";
 export const All: LogLevel = "All";
 
 export function fromLiteral(literal: LogLevel): LogLevel {
-	return literal;
+  return literal;
 }
