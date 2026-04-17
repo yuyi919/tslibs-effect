@@ -1,4 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: 无所谓 */
+export * as Data from "effect/Data";
 
 export type Cause<Err> = import("./core/cause").Cause<Err>;
 export * as Cause from "./core/cause";
@@ -7,10 +8,10 @@ export type Context<Services> = import("./core/context").Context<Services>;
 export * as Context from "./core/context";
 
 export type Option<T> = import("effect/Option").Option<T>;
-export * as Option from "./core/option";
+export * as Option from "effect/Option";
 
-export type Either<R, L = never> = import("effect/Either").Either<R, L>;
-export * as Either from "effect/Either";
+export type Either<R, L = never> = import("effect/Result").Result<R, L>;
+export * as Either from "effect/Result";
 
 export type Result<R, L = never> = import("effect/Result").Result<R, L>;
 export * as Result from "effect/Result";
@@ -146,12 +147,6 @@ export type Redacted<T> = import("effect/Redacted").Redacted<T>;
 
 export * as TRef from "effect/TxRef";
 export type TRef<T> = import("effect/TxRef").TxRef<T>;
-
-export * as TxRef from "effect/TxRef";
-export type TxRef<T> = import("effect/TxRef").TxRef<T>;
-
-export * as TestClock from "effect/testing/TestClock";
-export type TestClock = import("effect/testing/TestClock").TestClock;
 
 export * as Optic from "effect/Optic";
 export type Optic<S, A> = import("effect/Optic").Iso<S, A>;
