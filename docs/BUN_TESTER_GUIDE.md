@@ -44,13 +44,16 @@ describe("基础功能", () => {
 - 自动包裹在 **`Scope`** 内（测试结束自动释放资源）
 
 ```ts
-import { Effect, TestClock } from "@yuyi919/tslibs-effect/effect-next";
+import { Effect, Context, Layer, TxRef } from "@yuyi919/tslibs-effect/effect-next";
+import * as TestClock from "effect/testing/TestClock";
+import { describe, expect, it, layer, waitFor } from "@yuyi919/tslibs-effect/BunTester";
 
 it.effect("时间控制测试", () =>
   Effect.gen(function* () {
     let executed = false;
-    yield* Effect.sleep("10 seconds").pipe(
-      Effect.tap(() => { executed = true })
+    const fiber = yield* Effect.sleep("10 seconds").pipe(
+      Effect.tap(() => { executed = true }),
+      Effect.fork
     );
 
     // TestClock 允许我们快进虚拟时间
