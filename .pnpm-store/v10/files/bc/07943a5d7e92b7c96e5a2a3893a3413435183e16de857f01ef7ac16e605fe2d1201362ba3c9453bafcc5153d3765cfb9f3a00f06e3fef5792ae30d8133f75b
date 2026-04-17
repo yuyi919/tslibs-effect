@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/HeytingAlgebra.js",
-  "module": "../dist/esm/HeytingAlgebra.js",
-  "types": "../dist/esm/HeytingAlgebra.d.ts",
-  "sideEffects": []
-}

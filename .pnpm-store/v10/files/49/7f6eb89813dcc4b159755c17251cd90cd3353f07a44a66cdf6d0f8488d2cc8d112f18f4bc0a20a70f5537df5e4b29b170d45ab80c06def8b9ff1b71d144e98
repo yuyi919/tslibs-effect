@@ -1,7 +1,0 @@
-'use strict';
-
-var p=t=>(e,r)=>e===r||t.compare(e,r)<1?e:r,a=t=>(e,r)=>e===r||t.compare(e,r)>-1?e:r;var x=t=>({meet:p(t),join:a(t)});var f=t=>{let e=x(t);return (r,m)=>({join:e.join,meet:e.meet,zero:r,one:m})};
-
-exports.getMinMaxBoundedDistributiveLattice = f;
-//# sourceMappingURL=BoundedDistributiveLattice.js.map
-//# sourceMappingURL=BoundedDistributiveLattice.js.map

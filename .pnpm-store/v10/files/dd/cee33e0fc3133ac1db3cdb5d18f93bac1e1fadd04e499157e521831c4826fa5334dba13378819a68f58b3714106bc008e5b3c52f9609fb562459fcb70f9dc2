@@ -1,7 +1,0 @@
-export type {
-  PackageJson,
-  PackageJsonExports,
-  PackageJsonPerson,
-  StripEnums,
-  TSConfig,
-} from "pkg-types"

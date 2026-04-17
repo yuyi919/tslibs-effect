@@ -1,6 +1,0 @@
-{
-  "main": "../../dist/cjs/function/memoized.js",
-  "module": "../../dist/esm/function/memoized.js",
-  "types": "../../dist/esm/function/memoized.d.ts",
-  "sideEffects": []
-}

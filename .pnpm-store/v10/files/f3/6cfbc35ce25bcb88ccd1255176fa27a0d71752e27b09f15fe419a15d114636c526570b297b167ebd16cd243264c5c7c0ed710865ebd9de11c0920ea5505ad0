@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Writer.js",
-  "module": "../dist/esm/Writer.js",
-  "types": "../dist/esm/Writer.d.ts",
-  "sideEffects": []
-}

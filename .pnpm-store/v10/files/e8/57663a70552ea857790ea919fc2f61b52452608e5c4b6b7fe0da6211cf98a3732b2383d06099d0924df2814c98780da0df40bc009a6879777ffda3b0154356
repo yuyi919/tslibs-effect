@@ -1,8 +1,0 @@
-import type { HashValue } from "./Hash";
-export declare function makeHash(base: number, keys: readonly string[]): (data: Record<any, any>) => HashValue;
-export declare function makeThisHash<T extends {}>(base: number, keys: readonly (keyof T)[]): (this: T) => number;
-export declare function makeThisHash<T extends {}>(base: number, keys: readonly string[]): (this: T) => number;
-export declare function makeHashArray(base: number, keys: readonly string[]): (data: Record<any, any>) => HashValue;
-export declare function makeHashArgs(base: number, keys: readonly string[]): (...args: any[]) => HashValue;
-export declare function makeIncrementHash(base: number, keys: readonly string[], keyHashes?: HashValue[]): (source: any, field: string | symbol, fieldHash: HashValue) => number;
-//# sourceMappingURL=HashFactory.d.ts.map

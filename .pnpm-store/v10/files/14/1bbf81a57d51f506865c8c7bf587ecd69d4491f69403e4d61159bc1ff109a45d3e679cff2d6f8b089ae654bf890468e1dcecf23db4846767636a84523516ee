@@ -1,8 +1,0 @@
-let inlineCompression = true
-let forceGridAlignment = false
-let westernCharacterFirst = true
-let forceSpaceBetweenCJKAndWestern = true
-let fixCJKLeftQuote = false
-
-let debugger = true
-let groupCollapsed = false

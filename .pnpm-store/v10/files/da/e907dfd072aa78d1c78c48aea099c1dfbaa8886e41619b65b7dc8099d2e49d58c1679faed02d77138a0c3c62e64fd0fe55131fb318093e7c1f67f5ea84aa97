@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/FromEither.js",
-  "module": "../dist/esm/FromEither.js",
-  "types": "../dist/esm/FromEither.d.ts",
-  "sideEffects": []
-}

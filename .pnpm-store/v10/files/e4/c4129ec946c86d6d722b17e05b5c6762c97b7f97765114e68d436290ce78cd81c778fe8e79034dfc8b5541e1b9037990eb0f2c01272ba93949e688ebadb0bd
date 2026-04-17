@@ -1,8 +1,0 @@
-/* TypeScript file generated from Internals__Shared.res by genType. */
-
-/* eslint-disable */
-/* tslint:disable */
-
-export type f64 = number;
-
-export type i32 = number;

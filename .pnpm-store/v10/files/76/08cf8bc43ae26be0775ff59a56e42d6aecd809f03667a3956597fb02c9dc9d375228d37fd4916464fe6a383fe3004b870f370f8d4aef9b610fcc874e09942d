@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/FilterableWithIndex.js",
-  "module": "../dist/esm/FilterableWithIndex.js",
-  "types": "../dist/esm/FilterableWithIndex.d.ts",
-  "sideEffects": []
-}

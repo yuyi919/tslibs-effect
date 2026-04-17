@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Disposify.js",
-  "module": "../dist/esm/Disposify.js",
-  "types": "../dist/esm/Disposify.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/StateReaderTaskEither.js",
-  "module": "../dist/esm/StateReaderTaskEither.js",
-  "types": "../dist/esm/StateReaderTaskEither.d.ts",
-  "sideEffects": []
-}

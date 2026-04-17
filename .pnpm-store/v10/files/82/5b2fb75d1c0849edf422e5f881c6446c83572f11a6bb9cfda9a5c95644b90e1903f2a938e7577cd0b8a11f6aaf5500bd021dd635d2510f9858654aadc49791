@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Option.setup.js",
-  "module": "../dist/esm/Option.setup.js",
-  "types": "../dist/esm/Option.setup.d.ts",
-  "sideEffects": []
-}

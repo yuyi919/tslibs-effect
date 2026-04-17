@@ -1,6 +1,0 @@
-/* TypeScript file generated from COrdering.res by genType. */ /* eslint-disable */ /* tslint:disable */ import * as COrderingJS from "./COrdering.bs.js";
-
-export let less = COrderingJS.less;
-export let equal = COrderingJS.equal;
-export let greater = COrderingJS.greater;
-//# sourceMappingURL=COrdering.gen.js.map

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Filterable.js",
-  "module": "../dist/esm/Filterable.js",
-  "types": "../dist/esm/Filterable.d.ts",
-  "sideEffects": []
-}

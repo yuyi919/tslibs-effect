@@ -1,6 +1,0 @@
-export * from "./Parser/core.js";
-export * from "./Parser/URI.js";
-export * from "./Parser/combinators.js";
-export * from "./Parser/liftmap.js";
-export * from "./Parser/options.js";
-//# sourceMappingURL=Parser.js.map

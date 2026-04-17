@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Identity.js",
-  "module": "../dist/esm/Identity.js",
-  "types": "../dist/esm/Identity.d.ts",
-  "sideEffects": []
-}

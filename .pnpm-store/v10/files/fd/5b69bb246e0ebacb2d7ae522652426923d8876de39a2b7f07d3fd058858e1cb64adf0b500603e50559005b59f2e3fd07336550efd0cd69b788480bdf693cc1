@@ -1,8 +1,0 @@
-'use strict';
-
-var s=class extends Error{constructor(t="The operation was timed out"){super(t),this._tag="TimeoutError",this.name=this._tag;}},r=class extends Error{constructor(t){super("The operation was aborted"),this.reason=t,this._tag="AbortError",this.name=this._tag;}};
-
-exports.a = s;
-exports.b = r;
-//# sourceMappingURL=chunk-P5MTIGTA.js.map
-//# sourceMappingURL=chunk-P5MTIGTA.js.map

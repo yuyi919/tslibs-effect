@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/ReadonlyNonEmptyArray.js",
-  "module": "../dist/esm/ReadonlyNonEmptyArray.js",
-  "types": "../dist/esm/ReadonlyNonEmptyArray.d.ts",
-  "sideEffects": []
-}

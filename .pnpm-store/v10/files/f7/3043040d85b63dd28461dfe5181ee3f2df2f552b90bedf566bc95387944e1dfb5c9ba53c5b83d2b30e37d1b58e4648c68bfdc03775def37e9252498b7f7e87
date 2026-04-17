@@ -1,1 +1,0 @@
-{"version":3,"file":"JsTypes.gen.js","names":[],"sources":["../src/internal/JsTypes.gen.js"],"sourcesContent":["/* TypeScript file generated from JsTypes.resi by genType. */ /* eslint-disable */ /* tslint:disable */ export { };\n"],"mappings":"AAAA,8DAA8D,qBAAqB,oBAAqB","ignoreList":[]}

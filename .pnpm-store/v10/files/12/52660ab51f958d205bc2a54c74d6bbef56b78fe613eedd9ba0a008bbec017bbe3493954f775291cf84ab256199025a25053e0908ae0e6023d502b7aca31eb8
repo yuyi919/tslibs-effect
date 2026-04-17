@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/LiftMap.js",
-  "module": "../dist/esm/LiftMap.js",
-  "types": "../dist/esm/LiftMap.d.ts",
-  "sideEffects": []
-}

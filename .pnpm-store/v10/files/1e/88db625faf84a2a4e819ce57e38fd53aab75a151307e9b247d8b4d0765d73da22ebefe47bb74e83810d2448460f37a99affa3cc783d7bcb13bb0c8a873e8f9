@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/MonadIO.js",
-  "module": "../dist/esm/MonadIO.js",
-  "types": "../dist/esm/MonadIO.d.ts",
-  "sideEffects": []
-}

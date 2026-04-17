@@ -1,8 +1,0 @@
-'use strict';
-
-var n=(t,e)=>p=>o=>t.ap(t.map(o,r=>l=>e.ap(r,l)),p);var m=t=>e=>({concat:(p,o)=>t.ap(t.map(p,r=>l=>e.concat(r,l)),o)});var u=(t,e)=>p=>o=>t.map(o,r=>e.map(r,p));var i=(t,e)=>{let p=u(t,e);return {map:(o,r)=>p(r)(o)}};var h=t=>{let e=m(t);return p=>({concat:e(p).concat,empty:t.of(p.empty)})},C=(t,e)=>{let p=i(t,e).map,o=n(t,e);return {map:p,of:r=>t.of(e.of(r)),ap:(r,l)=>o(l)(r)}};
-
-exports.getApplicativeComposition = C;
-exports.getApplicativeMonoid = h;
-//# sourceMappingURL=Applicative.js.map
-//# sourceMappingURL=Applicative.js.map

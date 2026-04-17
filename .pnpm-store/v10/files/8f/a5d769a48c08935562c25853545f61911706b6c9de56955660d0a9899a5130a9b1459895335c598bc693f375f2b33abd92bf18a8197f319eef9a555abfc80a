@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/JsPropertyDescriptor.js",
-  "module": "../dist/esm/JsPropertyDescriptor.js",
-  "types": "../dist/esm/JsPropertyDescriptor.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/void.js",
-  "module": "../dist/esm/void.js",
-  "types": "../dist/esm/void.d.ts",
-  "sideEffects": []
-}

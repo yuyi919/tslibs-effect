@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Separated.js",
-  "module": "../dist/esm/Separated.js",
-  "types": "../dist/esm/Separated.d.ts",
-  "sideEffects": []
-}

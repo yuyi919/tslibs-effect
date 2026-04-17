@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/TheseT.js",
-  "module": "../dist/esm/TheseT.js",
-  "types": "../dist/esm/TheseT.d.ts",
-  "sideEffects": []
-}

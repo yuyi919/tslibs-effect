@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Ord.js",
-  "module": "../dist/esm/Ord.js",
-  "types": "../dist/esm/Ord.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/HKT.js",
-  "module": "../dist/esm/HKT.js",
-  "types": "../dist/esm/HKT.d.ts",
-  "sideEffects": []
-}

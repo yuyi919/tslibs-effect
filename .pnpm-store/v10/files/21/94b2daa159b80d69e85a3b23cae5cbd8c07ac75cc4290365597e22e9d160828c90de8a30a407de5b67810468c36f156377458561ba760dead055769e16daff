@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/IO.js",
-  "module": "../dist/esm/IO.js",
-  "types": "../dist/esm/IO.d.ts",
-  "sideEffects": []
-}

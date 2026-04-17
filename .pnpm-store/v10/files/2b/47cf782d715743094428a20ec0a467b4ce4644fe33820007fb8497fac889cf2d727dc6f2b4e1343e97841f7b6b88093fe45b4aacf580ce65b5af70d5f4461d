@@ -1,8 +1,0 @@
-export let Constants: {};
-export function floorInt(f: any): number;
-export function randomInt(min: any, max: any): number;
-export namespace Int {
-    export { floorInt as floor };
-    export { randomInt as random };
-}
-//# sourceMappingURL=Math.bs.d.ts.map

@@ -1,8 +1,0 @@
-export let inlineCompression: boolean;
-export let forceGridAlignment: boolean;
-export let westernCharacterFirst: boolean;
-export let forceSpaceBetweenCJKAndWestern: boolean;
-export let fixCJKLeftQuote: boolean;
-export let $$debugger: boolean;
-export let groupCollapsed: boolean;
-//# sourceMappingURL=DefaultCompressOptions.bs.d.ts.map

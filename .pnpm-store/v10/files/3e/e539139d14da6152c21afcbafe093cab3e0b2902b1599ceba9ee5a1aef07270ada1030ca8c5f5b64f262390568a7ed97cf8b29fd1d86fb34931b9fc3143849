@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Traced.js",
-  "module": "../dist/esm/Traced.js",
-  "types": "../dist/esm/Traced.d.ts",
-  "sideEffects": []
-}

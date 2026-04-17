@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/NaturalTransformation.js",
-  "module": "../dist/esm/NaturalTransformation.js",
-  "types": "../dist/esm/NaturalTransformation.d.ts",
-  "sideEffects": []
-}

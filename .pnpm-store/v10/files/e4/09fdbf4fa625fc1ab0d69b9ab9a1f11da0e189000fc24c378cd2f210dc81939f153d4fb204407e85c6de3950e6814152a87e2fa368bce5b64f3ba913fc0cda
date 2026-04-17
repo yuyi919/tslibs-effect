@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/BoundedJoinSemilattice.js",
-  "module": "../dist/esm/BoundedJoinSemilattice.js",
-  "types": "../dist/esm/BoundedJoinSemilattice.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/checker.js",
-  "module": "../dist/esm/checker.js",
-  "types": "../dist/esm/checker.d.ts",
-  "sideEffects": []
-}

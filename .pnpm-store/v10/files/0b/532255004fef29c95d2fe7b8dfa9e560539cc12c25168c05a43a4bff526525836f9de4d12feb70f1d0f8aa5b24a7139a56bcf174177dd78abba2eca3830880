@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Event.js",
-  "module": "../dist/esm/Event.js",
-  "types": "../dist/esm/Event.d.ts",
-  "sideEffects": []
-}

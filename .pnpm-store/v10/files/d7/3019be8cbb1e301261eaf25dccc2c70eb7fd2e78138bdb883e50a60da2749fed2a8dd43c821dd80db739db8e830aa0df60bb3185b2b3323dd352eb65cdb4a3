@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Pointed.js",
-  "module": "../dist/esm/Pointed.js",
-  "types": "../dist/esm/Pointed.d.ts",
-  "sideEffects": []
-}

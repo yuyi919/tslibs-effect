@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Lattice.js",
-  "module": "../dist/esm/Lattice.js",
-  "types": "../dist/esm/Lattice.d.ts",
-  "sideEffects": []
-}

@@ -1,1 +1,0 @@
-{"version":3,"file":"Internal.js","names":["ENABLE_EVALFUNCTION"],"sources":["src/Internal.js"],"sourcesContent":["import { ENABLE_EVALFUNCTION } from \"./internal/EvalFunction.js\";\nexport * from \"./internal/constant/index.js\";\nexport { ENABLE_EVALFUNCTION };\n"],"mappings":"AAAA,SAASA,mBAAmB,QAAQ,4BAA4B;AAChE,cAAc,8BAA8B;AAC5C,SAASA,mBAAmB","ignoreList":[]}

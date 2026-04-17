@@ -1,2 +1,0 @@
-export declare function parser(text: string): string[];
-//# sourceMappingURL=parser.d.ts.map

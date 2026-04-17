@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/BooleanAlgebra.js",
-  "module": "../dist/esm/BooleanAlgebra.js",
-  "types": "../dist/esm/BooleanAlgebra.d.ts",
-  "sideEffects": []
-}

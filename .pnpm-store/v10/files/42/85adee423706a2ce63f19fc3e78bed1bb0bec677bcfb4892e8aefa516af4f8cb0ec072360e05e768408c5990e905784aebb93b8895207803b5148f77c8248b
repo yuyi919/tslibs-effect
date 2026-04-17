@@ -1,6 +1,0 @@
-export function make(prim: any): {};
-declare function zero$1(): {};
-export function bindSymbol(dict: any, key: any, value: any): any;
-export function singletonSymbol(key: any, value: any): Record<string, any>;
-export { zero$1 as zero };
-//# sourceMappingURL=Record.bs.d.ts.map

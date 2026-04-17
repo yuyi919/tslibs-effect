@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/BoundedDistributiveLattice.js",
-  "module": "../dist/esm/BoundedDistributiveLattice.js",
-  "types": "../dist/esm/BoundedDistributiveLattice.d.ts",
-  "sideEffects": []
-}

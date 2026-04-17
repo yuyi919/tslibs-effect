@@ -1,8 +1,0 @@
-import { len } from "../function/index.js";
-
-export let joinWith = (array, sep) => array.join(sep);
-export let join = (array) => joinWith(array, "");
-export let joinMany = (a, array) => a + join(array);
-export let joinManyWith = (a, array, sep) =>
-  len(array) > 0 ? a + sep + joinWith(array, sep) : a;
-//# sourceMappingURL=Array.js.map

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/FromThese.js",
-  "module": "../dist/esm/FromThese.js",
-  "types": "../dist/esm/FromThese.d.ts",
-  "sideEffects": []
-}

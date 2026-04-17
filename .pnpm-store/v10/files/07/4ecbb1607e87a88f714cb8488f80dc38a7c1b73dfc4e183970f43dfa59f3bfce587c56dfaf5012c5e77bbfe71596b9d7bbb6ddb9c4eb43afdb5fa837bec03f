@@ -1,4 +1,0 @@
-import { ENABLE_EVALFUNCTION } from "./internal/EvalFunction";
-export * from "./internal/constant";
-export { ENABLE_EVALFUNCTION };
-//# sourceMappingURL=Internal.d.ts.map

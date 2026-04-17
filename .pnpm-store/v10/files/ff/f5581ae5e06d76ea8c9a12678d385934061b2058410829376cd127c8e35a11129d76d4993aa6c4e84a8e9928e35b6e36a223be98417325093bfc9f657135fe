@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Unfoldable.js",
-  "module": "../dist/esm/Unfoldable.js",
-  "types": "../dist/esm/Unfoldable.d.ts",
-  "sideEffects": []
-}

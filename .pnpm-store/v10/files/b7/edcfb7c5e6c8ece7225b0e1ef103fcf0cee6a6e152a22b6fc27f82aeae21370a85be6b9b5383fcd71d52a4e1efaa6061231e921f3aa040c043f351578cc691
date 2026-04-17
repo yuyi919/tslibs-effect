@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/EitherT.js",
-  "module": "../dist/esm/EitherT.js",
-  "types": "../dist/esm/EitherT.d.ts",
-  "sideEffects": []
-}

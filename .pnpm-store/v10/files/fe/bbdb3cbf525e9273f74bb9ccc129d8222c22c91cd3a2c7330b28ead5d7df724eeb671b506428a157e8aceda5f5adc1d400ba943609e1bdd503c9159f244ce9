@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Y-Expr.js",
-  "module": "../dist/esm/Y-Expr.js",
-  "types": "../dist/esm/Y-Expr.d.ts",
-  "sideEffects": []
-}

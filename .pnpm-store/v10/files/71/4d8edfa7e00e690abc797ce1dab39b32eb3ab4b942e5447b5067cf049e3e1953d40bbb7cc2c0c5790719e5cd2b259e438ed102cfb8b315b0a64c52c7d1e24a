@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/ReadonlyMap.js",
-  "module": "../dist/esm/ReadonlyMap.js",
-  "types": "../dist/esm/ReadonlyMap.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/MonadTask.js",
-  "module": "../dist/esm/MonadTask.js",
-  "types": "../dist/esm/MonadTask.d.ts",
-  "sideEffects": []
-}

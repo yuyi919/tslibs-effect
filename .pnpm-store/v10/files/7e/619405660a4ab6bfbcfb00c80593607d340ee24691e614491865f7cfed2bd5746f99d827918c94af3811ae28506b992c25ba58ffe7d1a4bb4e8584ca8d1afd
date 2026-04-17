@@ -1,6 +1,0 @@
-export declare const MAX_SAFE_INTEGER: typeof Number.MAX_SAFE_INTEGER;
-export declare const MIN_SAFE_INTEGER: typeof Number.MIN_SAFE_INTEGER;
-export declare const INFINITY: typeof Infinity;
-export declare const SYMBOL_DISPOSE: typeof Symbol.dispose;
-export declare const SYMBOL_ASYNC_DISPOSE: typeof Symbol.asyncDispose;
-//# sourceMappingURL=consts.d.ts.map

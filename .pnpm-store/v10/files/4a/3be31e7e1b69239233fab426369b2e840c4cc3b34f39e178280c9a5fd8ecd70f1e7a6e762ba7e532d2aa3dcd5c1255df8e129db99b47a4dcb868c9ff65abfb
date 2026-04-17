@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Semigroupoid.js",
-  "module": "../dist/esm/Semigroupoid.js",
-  "types": "../dist/esm/Semigroupoid.d.ts",
-  "sideEffects": []
-}

@@ -1,2 +1,0 @@
-export * from "./internal/object/property.js";
-//# sourceMappingURL=JsPropertyDescriptor.js.map

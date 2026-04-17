@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/JsObject.js",
-  "module": "../dist/esm/JsObject.js",
-  "types": "../dist/esm/JsObject.d.ts",
-  "sideEffects": []
-}

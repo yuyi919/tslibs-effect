@@ -1,2 +1,0 @@
-export type SingleShotGen<Perform, TNext, A> = Generator<Perform, A, TNext>;
-//# sourceMappingURL=SingleShotGen.base.d.ts.map

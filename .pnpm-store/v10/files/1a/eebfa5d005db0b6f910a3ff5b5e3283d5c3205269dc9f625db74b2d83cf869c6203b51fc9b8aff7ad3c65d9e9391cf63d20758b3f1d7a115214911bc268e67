@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Internal.js",
-  "module": "../dist/esm/Internal.js",
-  "types": "../dist/esm/Internal.d.ts",
-  "sideEffects": []
-}

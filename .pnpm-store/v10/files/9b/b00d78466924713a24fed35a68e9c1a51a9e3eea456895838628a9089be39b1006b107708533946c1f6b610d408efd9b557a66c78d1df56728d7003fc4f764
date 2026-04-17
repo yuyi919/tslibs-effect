@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/MonadThrow.js",
-  "module": "../dist/esm/MonadThrow.js",
-  "types": "../dist/esm/MonadThrow.d.ts",
-  "sideEffects": []
-}

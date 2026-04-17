@@ -1,4 +1,0 @@
-export * as char from "./char"
-export * as string from "./string"
-export * as stream from "./Stream"
-export * as parser from "./Parser"

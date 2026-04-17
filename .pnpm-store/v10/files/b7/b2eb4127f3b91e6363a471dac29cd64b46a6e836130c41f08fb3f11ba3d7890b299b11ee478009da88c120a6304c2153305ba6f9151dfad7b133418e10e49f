@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Map.js",
-  "module": "../dist/esm/Map.js",
-  "types": "../dist/esm/Map.d.ts",
-  "sideEffects": []
-}

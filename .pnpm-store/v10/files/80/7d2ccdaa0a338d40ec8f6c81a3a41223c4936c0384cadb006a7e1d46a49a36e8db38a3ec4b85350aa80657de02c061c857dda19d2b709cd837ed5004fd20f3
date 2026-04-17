@@ -1,8 +1,0 @@
-import type { JsObject, JsObjectKey, JsPropertyKey } from "@yuyi919/shared-proto/JsObject";
-export declare function keys<T extends JsObject>(target: NonNullable<T>): Exclude<keyof T, symbol | number>[];
-export declare function keys(target: unknown): string[];
-export declare function ownKeys<T extends JsObject>(target: NonNullable<T>): JsObjectKey<T>[];
-export declare function ownKeys(target: object): (string | symbol)[];
-export declare function _hasOwnKey<T extends JsObject, K extends JsPropertyKey>(value: T, key: K): value is T & JsObject<unknown>;
-export declare function _hasOwnKey<Key extends JsPropertyKey, T = any>(value: JsObject, key: Key): value is JsObject<T, Key>;
-//# sourceMappingURL=keys.d.ts.map

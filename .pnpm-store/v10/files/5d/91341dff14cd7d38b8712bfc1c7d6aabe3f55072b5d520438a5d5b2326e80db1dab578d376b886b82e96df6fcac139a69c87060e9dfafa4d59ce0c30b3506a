@@ -1,7 +1,0 @@
-'use strict';
-
-var f=(e,d)=>o=>o?d.of(void 0):e.zero();
-
-exports.guard = f;
-//# sourceMappingURL=Zero.js.map
-//# sourceMappingURL=Zero.js.map

@@ -1,3 +1,0 @@
-import type { TypedArray as $$t } from '../JsTypes.shim';
-export type t<a> = $$t<a>;
-//# sourceMappingURL=TypedArray.gen.d.ts.map

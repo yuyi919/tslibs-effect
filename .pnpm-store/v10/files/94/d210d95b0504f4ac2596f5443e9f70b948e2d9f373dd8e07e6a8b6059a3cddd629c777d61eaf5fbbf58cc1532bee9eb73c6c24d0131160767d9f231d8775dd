@@ -1,8 +1,0 @@
-'use strict';
-
-var n=t=>l=>r=>r.reduce((p,e)=>t.alt(p,()=>e),l);var u=t=>l=>({concat:(r,p)=>t.ap(t.map(r,e=>a=>l.concat(e,a)),p)});var h=t=>n(t)(t.zero()),d=t=>{let l=u(t);return r=>{let p=l(r);return {concat:(e,a)=>t.alt(p.concat(e,a),()=>t.alt(e,()=>a)),empty:t.zero()}}};
-
-exports.altAll = h;
-exports.getAlternativeMonoid = d;
-//# sourceMappingURL=Alternative.js.map
-//# sourceMappingURL=Alternative.js.map

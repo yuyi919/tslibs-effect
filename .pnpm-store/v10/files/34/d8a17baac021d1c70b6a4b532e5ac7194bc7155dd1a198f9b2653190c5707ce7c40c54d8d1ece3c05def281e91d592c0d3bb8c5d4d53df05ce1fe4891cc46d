@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Tree.js",
-  "module": "../dist/esm/Tree.js",
-  "types": "../dist/esm/Tree.d.ts",
-  "sideEffects": []
-}

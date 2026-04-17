@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/IORef.js",
-  "module": "../dist/esm/IORef.js",
-  "types": "../dist/esm/IORef.d.ts",
-  "sideEffects": []
-}

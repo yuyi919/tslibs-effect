@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Comonad.js",
-  "module": "../dist/esm/Comonad.js",
-  "types": "../dist/esm/Comonad.d.ts",
-  "sideEffects": []
-}

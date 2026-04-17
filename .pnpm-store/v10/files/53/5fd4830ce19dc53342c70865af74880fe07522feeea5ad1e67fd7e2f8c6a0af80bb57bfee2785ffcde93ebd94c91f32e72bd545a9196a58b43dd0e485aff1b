@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Hasbable.js",
-  "module": "../dist/esm/Hasbable.js",
-  "types": "../dist/esm/Hasbable.d.ts",
-  "sideEffects": []
-}

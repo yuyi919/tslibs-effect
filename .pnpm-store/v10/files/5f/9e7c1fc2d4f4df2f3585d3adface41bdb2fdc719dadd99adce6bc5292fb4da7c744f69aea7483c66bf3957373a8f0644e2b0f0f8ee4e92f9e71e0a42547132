@@ -1,6 +1,0 @@
-{
-  "main": "../../dist/cjs/function/compose.js",
-  "module": "../../dist/esm/function/compose.js",
-  "types": "../../dist/esm/function/compose.d.ts",
-  "sideEffects": []
-}

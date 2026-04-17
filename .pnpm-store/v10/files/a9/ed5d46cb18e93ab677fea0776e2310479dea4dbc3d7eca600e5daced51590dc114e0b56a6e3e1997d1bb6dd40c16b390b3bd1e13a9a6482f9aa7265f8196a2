@@ -1,7 +1,0 @@
-import * as Eval from "../Eval";
-export declare function defer<A, B>(fa: () => (a: A) => B): (a: A) => B;
-export declare function andThen<A, B, C>(fa: (a: A) => B, f: (b: B) => C): (a: A) => C;
-export declare function compose<A, B, C>(fa: (b: B) => C, f: (a: A) => B): (a: A) => C;
-export declare function flatMap<A1, A2, B, C>(fa: (a: A1) => B, f: (b: B) => (a: A2) => C): (a: A1 & A2) => C;
-export declare function combineEval<A1, A2, B, C, D>(lhs: (a: A1) => B, rhs: Eval.Eval<(a: A2) => C>, f: (b: B, ec: Eval.Eval<C>) => Eval.Eval<D>): (a: A1 & A2) => D;
-//# sourceMappingURL=function1.d.ts.map

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Zero.js",
-  "module": "../dist/esm/Zero.js",
-  "types": "../dist/esm/Zero.d.ts",
-  "sideEffects": []
-}

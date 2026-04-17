@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/PriorityQueue.js",
-  "module": "../dist/esm/PriorityQueue.js",
-  "types": "../dist/esm/PriorityQueue.d.ts",
-  "sideEffects": []
-}

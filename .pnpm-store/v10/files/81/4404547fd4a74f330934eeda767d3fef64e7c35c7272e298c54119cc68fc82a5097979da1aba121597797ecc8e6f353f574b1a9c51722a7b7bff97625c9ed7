@@ -1,3 +1,0 @@
-import type { Array2_array_like as Js_Array2_array_like } from '../../../src/JsTypes.shim';
-export type t<a> = Js_Array2_array_like<a>;
-//# sourceMappingURL=ArrayLike.gen.d.ts.map

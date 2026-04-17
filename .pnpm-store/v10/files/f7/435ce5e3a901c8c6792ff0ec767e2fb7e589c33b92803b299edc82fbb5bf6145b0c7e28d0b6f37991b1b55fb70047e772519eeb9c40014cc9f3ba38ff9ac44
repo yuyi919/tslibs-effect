@@ -1,7 +1,0 @@
-'use strict';
-
-var p=t=>(e,r)=>e===r||t.compare(e,r)<1?e:r,a=t=>(e,r)=>e===r||t.compare(e,r)>-1?e:r;var O=t=>({meet:p(t),join:a(t)});
-
-exports.getMinMaxDistributiveLattice = O;
-//# sourceMappingURL=DistributiveLattice.js.map
-//# sourceMappingURL=DistributiveLattice.js.map

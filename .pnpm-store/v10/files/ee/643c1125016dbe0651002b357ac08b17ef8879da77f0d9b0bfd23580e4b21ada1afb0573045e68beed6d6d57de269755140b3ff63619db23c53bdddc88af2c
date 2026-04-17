@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Functor.js",
-  "module": "../dist/esm/Functor.js",
-  "types": "../dist/esm/Functor.d.ts",
-  "sideEffects": []
-}

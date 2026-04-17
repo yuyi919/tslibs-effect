@@ -1,1 +1,0 @@
-{"version":3,"file":"Monoid.js","names":[],"sources":["src/Monoid.js"],"sourcesContent":["export * from \"./internal/Monoid.js\";\n"],"mappings":"AAAA,cAAc,sBAAsB","ignoreList":[]}

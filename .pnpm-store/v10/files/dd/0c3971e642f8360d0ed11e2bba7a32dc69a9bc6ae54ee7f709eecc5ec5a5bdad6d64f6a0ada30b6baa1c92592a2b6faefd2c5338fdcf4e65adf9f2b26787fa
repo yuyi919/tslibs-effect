@@ -1,1 +1,0 @@
-{"version":3,"file":"jsx.js","names":[],"sources":["src/jsx.js"],"sourcesContent":["// /** @jsxImportSource @org */\n// export function Hello() {\n//   return (\n//     <div>\n//       hello\n//       hello2\n//     </div>\n//   )\n// }\n"],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","ignoreList":[]}

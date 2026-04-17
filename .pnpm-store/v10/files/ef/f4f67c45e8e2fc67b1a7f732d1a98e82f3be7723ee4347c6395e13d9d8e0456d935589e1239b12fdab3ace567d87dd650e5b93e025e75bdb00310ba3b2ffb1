@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Functions.js",
-  "module": "../dist/esm/Functions.js",
-  "types": "../dist/esm/Functions.d.ts",
-  "sideEffects": []
-}

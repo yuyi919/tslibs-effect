@@ -1,7 +1,0 @@
-'use strict';
-
-var o=t=>({add:(r,n)=>e=>t.add(r(e),n(e)),zero:()=>t.zero,mul:(r,n)=>e=>t.mul(r(e),n(e)),one:()=>t.one});var i=o;
-
-exports.getFunctionSemiring = i;
-//# sourceMappingURL=Semiring.js.map
-//# sourceMappingURL=Semiring.js.map

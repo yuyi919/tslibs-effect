@@ -1,2 +1,0 @@
-export * from "@effect/typeclass/data/Number";
-//# sourceMappingURL=Number.js.map

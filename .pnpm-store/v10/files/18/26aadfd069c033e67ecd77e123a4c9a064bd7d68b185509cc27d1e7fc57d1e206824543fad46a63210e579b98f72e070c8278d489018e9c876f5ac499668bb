@@ -1,1 +1,0 @@
-{"version":3,"file":"module.js","names":[],"sources":["../src/namespaces/module.js"],"sourcesContent":["/**\n * 判断是否是EsModule的导入\n * @alpha\n */ /**\n * 判断是否是EsModule的导入\n * @alpha\n */ export { };\n"],"mappings":"AAAA;AACA;AACA;AACA,GAHA,CAGI;AACJ;AACA;AACA,MAAI","ignoreList":[]}

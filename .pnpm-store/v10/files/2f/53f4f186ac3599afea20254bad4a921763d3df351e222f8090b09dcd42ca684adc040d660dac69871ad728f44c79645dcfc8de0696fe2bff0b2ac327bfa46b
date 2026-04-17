@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/number.js",
-  "module": "../dist/esm/number.js",
-  "types": "../dist/esm/number.d.ts",
-  "sideEffects": []
-}

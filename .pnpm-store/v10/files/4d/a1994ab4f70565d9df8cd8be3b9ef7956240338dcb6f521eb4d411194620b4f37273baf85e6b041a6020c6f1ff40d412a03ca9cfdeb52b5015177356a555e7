@@ -1,9 +1,0 @@
-'use strict';
-
-var s=t=>t;function i(t,e,r,n,o,u,l,p,m){switch(arguments.length){case 1:return t;case 2:return function(){return e(t.apply(this,arguments))};case 3:return function(){return r(e(t.apply(this,arguments)))};case 4:return function(){return n(r(e(t.apply(this,arguments))))};case 5:return function(){return o(n(r(e(t.apply(this,arguments)))))};case 6:return function(){return u(o(n(r(e(t.apply(this,arguments))))))};case 7:return function(){return l(u(o(n(r(e(t.apply(this,arguments)))))))};case 8:return function(){return p(l(u(o(n(r(e(t.apply(this,arguments))))))))};case 9:return function(){return m(p(l(u(o(n(r(e(t.apply(this,arguments)))))))))}}}var y="Endomorphism",c=()=>({concat:(t,e)=>i(t,e)}),f=()=>({concat:c().concat,empty:s});
-
-exports.URI = y;
-exports.getMonoid = f;
-exports.getSemigroup = c;
-//# sourceMappingURL=Endomorphism.js.map
-//# sourceMappingURL=Endomorphism.js.map

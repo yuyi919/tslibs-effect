@@ -1,2 +1,0 @@
-export type t<a> = a;
-//# sourceMappingURL=Identity.gen.d.ts.map

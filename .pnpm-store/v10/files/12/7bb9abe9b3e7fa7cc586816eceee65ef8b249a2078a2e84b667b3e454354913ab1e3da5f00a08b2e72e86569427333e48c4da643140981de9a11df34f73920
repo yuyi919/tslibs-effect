@@ -1,7 +1,0 @@
-export const ERRORS_TypeError: typeof TypeError = TypeError
-export const ERRORS_EvalError: typeof EvalError = EvalError
-export const ERRORS_RangeError: typeof RangeError = RangeError
-export const ERRORS_SyntaxError: typeof SyntaxError = SyntaxError
-export const ERRORS_ReferenceError: typeof ReferenceError = ReferenceError
-
-export { ERROR } from "./atomic/generated"

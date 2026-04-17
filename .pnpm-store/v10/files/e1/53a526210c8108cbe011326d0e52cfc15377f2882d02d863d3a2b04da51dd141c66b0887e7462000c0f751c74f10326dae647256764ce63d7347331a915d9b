@@ -1,9 +1,0 @@
-'use strict';
-
-var o={equals:(e,t)=>e===t};var n=e=>(t,r)=>t===r||e(t,r)===0,q=e=>({equals:n(e),compare:(t,r)=>t===r?0:e(t,r)});var a=e=>q((t,r)=>e.compare(r,t));var i=e=>(t,r)=>t===r||e.compare(t,r)<1?t:r,g=e=>(t,r)=>t===r||e.compare(t,r)>-1?t:r,m=e=>{let t=i(e),r=g(e);return (u,x)=>c=>r(t(c,x),u)};var O=(e,t)=>e<t?-1:e>t?1:0,s={equals:o.equals,compare:O};var l=s;var N=e=>m(e)(e.bottom,e.top),d=e=>{let t=a(e);return {equals:t.equals,compare:t.compare,top:e.bottom,bottom:e.top}},D={equals:l.equals,compare:l.compare,top:1/0,bottom:-1/0};
-
-exports.boundedNumber = D;
-exports.clamp = N;
-exports.reverse = d;
-//# sourceMappingURL=Bounded.js.map
-//# sourceMappingURL=Bounded.js.map

@@ -1,8 +1,0 @@
-'use strict';
-
-var g=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var i=Object.getOwnPropertyNames;var j=Object.prototype.hasOwnProperty;var k=(b,a)=>{for(var c in a)g(b,c,{get:a[c],enumerable:!0});},f=(b,a,c,e)=>{if(a&&typeof a=="object"||typeof a=="function")for(let d of i(a))!j.call(b,d)&&d!==c&&g(b,d,{get:()=>a[d],enumerable:!(e=h(a,d))||e.enumerable});return b},l=(b,a,c)=>(f(b,a,"default"),c&&f(c,a,"default"));
-
-exports.a = k;
-exports.b = l;
-//# sourceMappingURL=chunk-DJ356OUX.js.map
-//# sourceMappingURL=chunk-DJ356OUX.js.map

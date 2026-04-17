@@ -1,5 +1,0 @@
-export declare function joinWith(array: readonly string[], sep: string): string;
-export declare function join(array: readonly string[]): string;
-export declare function joinMany(a: string, array: readonly string[]): string;
-export declare function joinManyWith(a: string, array: readonly string[], sep: string): string;
-//# sourceMappingURL=Array.d.ts.map

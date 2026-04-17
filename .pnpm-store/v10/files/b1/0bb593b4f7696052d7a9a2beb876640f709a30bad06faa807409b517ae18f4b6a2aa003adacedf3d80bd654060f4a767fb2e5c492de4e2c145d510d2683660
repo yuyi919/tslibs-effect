@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Ok.js",
-  "module": "../dist/esm/Ok.js",
-  "types": "../dist/esm/Ok.d.ts",
-  "sideEffects": []
-}

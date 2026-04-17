@@ -1,6 +1,0 @@
-{
-  "main": "../../dist/cjs/function/flow.js",
-  "module": "../../dist/esm/function/flow.js",
-  "types": "../../dist/esm/function/flow.d.ts",
-  "sideEffects": []
-}

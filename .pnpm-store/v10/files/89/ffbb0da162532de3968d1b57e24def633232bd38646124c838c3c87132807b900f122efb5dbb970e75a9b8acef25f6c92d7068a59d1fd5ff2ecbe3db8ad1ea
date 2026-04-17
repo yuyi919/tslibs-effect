@@ -1,7 +1,0 @@
-/* TypeScript file generated from SingleShotGen.res by genType. */ /* eslint-disable */ /* tslint:disable */ import * as SingleShotGenJS from "./SingleShotGen.bs.js";
-
-export let constant = SingleShotGenJS.constant;
-export let bindTo = SingleShotGenJS.bindTo;
-export let bind = SingleShotGenJS.bind;
-export let bindS = SingleShotGenJS.bindS;
-//# sourceMappingURL=SingleShotGen.gen.js.map

@@ -1,3 +1,0 @@
-export declare function isEquals(a: any, b: any): boolean;
-export declare function _isEquals(a: any, b: any, cache: Map<any, any> | null): boolean;
-//# sourceMappingURL=caml-obj.d.ts.map

@@ -1,4 +1,0 @@
-export function toArray(prim: any): any[];
-export function toArrayWithMapper(prim0: any, prim1: any): any[];
-export function forEach(iterator: any, f: any): void;
-//# sourceMappingURL=Iterator.bs.d.ts.map

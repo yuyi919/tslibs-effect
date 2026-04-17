@@ -1,8 +1,0 @@
-'use strict';
-
-var t=e=>({concat:()=>e});var c=t(void 0),n={concat:c.concat,empty:void 0};
-
-exports.Monoid = n;
-exports.Semigroup = c;
-//# sourceMappingURL=void.js.map
-//# sourceMappingURL=void.js.map

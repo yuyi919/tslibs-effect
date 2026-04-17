@@ -1,9 +1,0 @@
-import { expect, test } from "vitest"
-
-import { testAt } from "./regexp"
-
-test("", () => {
-  expect(testAt(/A/y, "_A_", 0)).toBe(false)
-  expect(testAt(/A/y, "_A_", 1)).toBe(true)
-  expect(testAt(/A/y, "_A_", 2)).toBe(false)
-})

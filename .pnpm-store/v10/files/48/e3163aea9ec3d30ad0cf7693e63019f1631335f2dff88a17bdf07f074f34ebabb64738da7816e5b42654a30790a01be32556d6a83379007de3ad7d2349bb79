@@ -1,4 +1,0 @@
-export declare function defer<A>(fa: () => () => A): () => A;
-export declare function map<A, B>(fa: () => A, f: (a: A) => B): () => B;
-export declare function flatMap<A, B>(fa: () => A, f: (a: A) => () => B): () => B;
-//# sourceMappingURL=function0.d.ts.map

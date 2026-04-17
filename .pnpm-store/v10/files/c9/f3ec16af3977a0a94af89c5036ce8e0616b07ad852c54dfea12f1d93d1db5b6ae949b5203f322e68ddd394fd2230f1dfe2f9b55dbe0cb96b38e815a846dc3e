@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Length.js",
-  "module": "../dist/esm/Length.js",
-  "types": "../dist/esm/Length.d.ts",
-  "sideEffects": []
-}

@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/TaskThese.js",
-  "module": "../dist/esm/TaskThese.js",
-  "types": "../dist/esm/TaskThese.d.ts",
-  "sideEffects": []
-}

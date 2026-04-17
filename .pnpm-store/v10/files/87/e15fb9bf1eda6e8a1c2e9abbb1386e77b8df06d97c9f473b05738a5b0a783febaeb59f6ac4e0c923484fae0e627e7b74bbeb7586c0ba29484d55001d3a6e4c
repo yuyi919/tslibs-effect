@@ -1,5 +1,0 @@
-export type t = -1 | 0 | 1;
-export declare const less: t;
-export declare const equal: t;
-export declare const greater: t;
-//# sourceMappingURL=COrdering.gen.d.ts.map

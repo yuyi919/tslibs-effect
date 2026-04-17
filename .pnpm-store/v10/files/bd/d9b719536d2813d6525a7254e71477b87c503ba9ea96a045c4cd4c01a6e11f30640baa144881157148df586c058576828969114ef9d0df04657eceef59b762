@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/FunctorWithIndex.js",
-  "module": "../dist/esm/FunctorWithIndex.js",
-  "types": "../dist/esm/FunctorWithIndex.d.ts",
-  "sideEffects": []
-}

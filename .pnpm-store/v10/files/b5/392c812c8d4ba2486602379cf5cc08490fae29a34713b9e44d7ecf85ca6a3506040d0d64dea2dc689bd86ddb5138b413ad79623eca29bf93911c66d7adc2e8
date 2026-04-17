@@ -1,2 +1,0 @@
-/* TypeScript file generated from Dict.resi by genType. */ /* eslint-disable */ /* tslint:disable */ /** Type representing a dictionary of value `'a`. */ export {};
-//# sourceMappingURL=Dict.gen.js.map

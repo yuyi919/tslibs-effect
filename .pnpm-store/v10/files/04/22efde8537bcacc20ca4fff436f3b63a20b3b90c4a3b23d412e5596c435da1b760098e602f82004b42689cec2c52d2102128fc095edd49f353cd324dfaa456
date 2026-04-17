@@ -1,5 +1,0 @@
-export function unbox(ids: any): any;
-export function first(ids: any): any;
-export function get(ids: any, i: any): any;
-export function unboxCompressed(ids: any): any;
-//# sourceMappingURL=ElementIdentifiers.bs.d.ts.map

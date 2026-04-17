@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/FoldableWithIndex.js",
-  "module": "../dist/esm/FoldableWithIndex.js",
-  "types": "../dist/esm/FoldableWithIndex.d.ts",
-  "sideEffects": []
-}

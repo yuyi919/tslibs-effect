@@ -1,3 +1,0 @@
-export declare function testAt(reg: RegExp, text: string, offset: number): boolean;
-export declare function execAt(reg: RegExp, text: string, offset: number): RegExpExecArray | null;
-//# sourceMappingURL=regexp.d.ts.map

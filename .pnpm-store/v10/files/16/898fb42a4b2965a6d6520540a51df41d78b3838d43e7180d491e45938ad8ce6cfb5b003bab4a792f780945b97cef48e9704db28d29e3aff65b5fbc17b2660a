@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/dom.js",
-  "module": "../dist/esm/dom.js",
-  "types": "../dist/esm/dom.d.ts",
-  "sideEffects": []
-}

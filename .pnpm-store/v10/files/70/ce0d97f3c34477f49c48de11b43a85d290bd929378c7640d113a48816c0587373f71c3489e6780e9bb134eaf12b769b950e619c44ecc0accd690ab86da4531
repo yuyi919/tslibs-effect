@@ -1,8 +1,0 @@
-import * as Layer from "effect/Layer";
-import * as Platform from "effect/unstable/http/HttpPlatform";
-/**
- * @since 1.0.0
- * @category Layers
- */
-export declare const layer: Layer.Layer<Platform.HttpPlatform, never, never>;
-//# sourceMappingURL=BunHttpPlatform.d.ts.map

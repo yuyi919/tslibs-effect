@@ -1,6 +1,0 @@
-{
-  "main": "../../dist/cjs/function/core.js",
-  "module": "../../dist/esm/function/core.js",
-  "types": "../../dist/esm/function/core.d.ts",
-  "sideEffects": []
-}

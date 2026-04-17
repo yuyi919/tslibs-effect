@@ -1,6 +1,0 @@
-{
-  "main": "../dist/cjs/Bifunctor.js",
-  "module": "../dist/esm/Bifunctor.js",
-  "types": "../dist/esm/Bifunctor.d.ts",
-  "sideEffects": []
-}

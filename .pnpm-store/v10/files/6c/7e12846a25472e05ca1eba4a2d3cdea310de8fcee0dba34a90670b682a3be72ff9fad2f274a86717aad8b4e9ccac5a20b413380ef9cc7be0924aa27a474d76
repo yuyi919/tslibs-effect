@@ -1,8 +1,0 @@
-/* TypeScript file generated from ArrayLike.res by genType. */
-
-/* eslint-disable */
-/* tslint:disable */
-
-import type {Array2_array_like as Js_Array2_array_like} from '../../../src/JsTypes.shim';
-
-export type t<a> = Js_Array2_array_like<a>;

@@ -1,1 +1,0 @@
-{"version":3,"file":"Functions.js","names":[],"sources":["src/Functions.js"],"sourcesContent":["// 修改自 https://github.com/fp4ts/fp4ts/blob/master/packages/core\n// 遵循 MIT\n// 添加了一点函数\nexport * from \"./function/index.js\";\n"],"mappings":"AAAA;AACA;AACA;AACA,cAAc,qBAAqB","ignoreList":[]}
