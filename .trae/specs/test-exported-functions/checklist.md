@@ -1,0 +1,6 @@
+- [ ] `Runtime.run*` 系列双态执行函数的测试已编写并运行通过。
+- [ ] `Effect` 流控制函数（`from`, `orElse`, `tryMap`, `zipRight`, `tapBoth` 等）的测试已编写并运行通过。
+- [ ] 批处理与持久化缓存（`batched`, `persisted`, `scopedCacheWith`）的测试已编写并验证了请求合并与缓存命中。
+- [ ] `Layer` 辅助工具（`withHelper` 相关）的测试已编写并运行通过。
+- [ ] `bun test src` 包含新加测试的执行，且全部通过。
+- [ ] `npm run build` 通过。
