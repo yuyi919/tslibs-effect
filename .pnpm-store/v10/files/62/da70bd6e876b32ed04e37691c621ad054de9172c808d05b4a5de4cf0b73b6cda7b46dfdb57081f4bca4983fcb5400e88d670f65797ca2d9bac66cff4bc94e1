@@ -1,0 +1,55 @@
+// type KeyWords = {
+//   [K in
+//     | "A"
+//     | "B"
+//     | "C"
+//     | "D"
+//     | "E"
+//     | "F"
+//     | "G"
+//     | "H"
+//     | "I"
+//     | "J"
+//     | "K"
+//     | "L"
+//     | "M"
+//     | "N"
+//     | "O"
+//     | "P"
+//     | "Q"
+//     | "R"
+//     | "S"
+//     | "T"
+//     | "U"
+//     | "V"
+//     | "W"
+//     | "X"
+//     | "Y"
+//     | "Z"]: Lowercase<K>;
+// };
+// type UpperKey = Uppercase<keyof KeyWords>;
+// type LowerKey = Lowercase<KeyWords[keyof KeyWords]>;
+/**
+ * @beta
+ */ /**
+    * @beta
+    */ /**
+       * @beta
+       */ /**
+          * @beta
+          */ // type ToUpperCaseFirstA = ToUpperCaseFirst<"abc">
+// type CamelCaseInner<
+//   T extends string,
+//   Split extends string,
+//   R extends string = ""
+// > = T extends `${infer A}${Split}${infer B}`
+//   ? CamelCaseInner<ToUpperCaseFirst<B>, Split, `${R}${ToUpperCaseFirst<A>}`>
+//   : `${R}${ToUpperCaseFirst<T>}`;
+/**
+ * 将字符串转换为驼峰格式
+ * @typeParam T - 字符串，必传
+ * @typeParam Split - 分隔符，默认为 "-"
+ * @typeParam Deep - 递归类型层级，默认为10，不宜过高
+ * @beta
+ */export {}; // type SplitResult = CamelCase<"update:window-open-status", "-" | ":", 9>;
+//# sourceMappingURL=case.js.map

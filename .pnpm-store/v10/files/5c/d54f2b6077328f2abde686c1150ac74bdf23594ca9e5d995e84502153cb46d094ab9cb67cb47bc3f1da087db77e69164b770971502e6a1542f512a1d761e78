@@ -1,0 +1,14 @@
+export class TimeoutError extends Error {
+  _tag = "TimeoutError"
+  constructor(message = "The operation was timed out") {
+    super(message)
+    this.name = this._tag
+  }
+}
+export class AbortError<R = any> extends Error {
+  _tag = "AbortError"
+  constructor(public reason?: R | undefined) {
+    super("The operation was aborted")
+    this.name = this._tag
+  }
+}

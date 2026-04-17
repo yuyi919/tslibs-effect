@@ -1,0 +1,2 @@
+export declare function toFastProperties<T extends {}>(o: T): T;
+//# sourceMappingURL=toFastProperties.d.ts.map

@@ -1,0 +1,52 @@
+import * as E from "fp-ts/Endomorphism";
+import * as NEA from "fp-ts/NonEmptyArray";
+import * as Exp from "./source";
+export * from "./source";
+export { unicode as enableUnicode, allowMultiple as markGlobal, lineByLine as markMultiLine, sticky as markSticky, } from "./source";
+export declare const make: (...patterns: NEA.NonEmptyArray<E.Endomorphism<Exp.ExpressionBuilder>>) => RegExp;
+export declare const pattern: (...patterns: NEA.NonEmptyArray<E.Endomorphism<Exp.ExpressionBuilder>>) => Exp.ExpressionBuilder;
+/**
+ * @category combinators
+ * @since 0.0.1
+ */
+export declare const manyOneOfNot: (patterns: (string | RegExp)[]) => E.Endomorphism<Exp.ExpressionBuilder>;
+/**
+ * @category combinators
+ * @since 0.0.1
+ */
+export declare const oneOrMoreNotDot: (patterns: (string | RegExp)[]) => E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const lookBack: (patterns: (string | RegExp)[], content: (string | RegExp)[]) => (pattern: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const appendUnicode: (pattern: string) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export type PScriptLang = "Han" | "Katakana" | "Hiragana";
+export declare const pScript: (lang: PScriptLang | PScriptLang[]) => E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const charWord: E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const charAlphanum: E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const char: (char: string) => E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const chars: (...chars: NEA.NonEmptyArray<E.Endomorphism<Exp.ExpressionBuilder>>) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const capture: (...chars: NEA.NonEmptyArray<E.Endomorphism<Exp.ExpressionBuilder>>) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const or: (chars: NEA.NonEmptyArray<E.Endomorphism<Exp.ExpressionBuilder>>) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const withLookAhead: (exp: E.Endomorphism<Exp.ExpressionBuilder>) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const withNotLookAhead: (exp: E.Endomorphism<Exp.ExpressionBuilder>) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const maybeGroup: (...exp: [E.Endomorphism<Exp.ExpressionBuilder>, ...E.Endomorphism<Exp.ExpressionBuilder>[]]) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const group: (...exp: [E.Endomorphism<Exp.ExpressionBuilder>, ...E.Endomorphism<Exp.ExpressionBuilder>[]]) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const compose: (...exp: [E.Endomorphism<Exp.ExpressionBuilder>, ...E.Endomorphism<Exp.ExpressionBuilder>[]]) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const singleString: (string: string) => (a: Exp.ExpressionBuilder) => Exp.ExpressionBuilder;
+export declare const exp: (exp: Exp.ExpressionBuilder) => E.Endomorphism<Exp.ExpressionBuilder>;
+export declare const from: (pattern: RegExp | string) => E.Endomorphism<Exp.ExpressionBuilder>;
+/**
+ * @category combinators
+ * @since 0.0.1
+ */
+export declare const oneOf: (value: (string | RegExp)[]) => E.Endomorphism<Exp.ExpressionBuilder>;
+/**
+ * @category combinators
+ * @since 0.0.1
+ */
+export declare const oneOfNot: (value: (string | RegExp)[]) => E.Endomorphism<Exp.ExpressionBuilder>;
+export declare function testAt(text: string, offset: number): (reg: RegExp) => boolean;
+export declare function _testAt(reg: RegExp, text: string, offset: number): boolean;
+export declare function execAt(text: string, offset: number): (reg: RegExp) => RegExpExecArray | null;
+export declare function _execAt(reg: RegExp, text: string, offset: number): RegExpExecArray | null;
+export declare function matchAt(text: string, offset: number): (reg: RegExp) => RegExpMatchArray | null;
+export declare function _matchAt(reg: RegExp, text: string, offset: number): RegExpMatchArray | null;
+//# sourceMappingURL=index.d.ts.map

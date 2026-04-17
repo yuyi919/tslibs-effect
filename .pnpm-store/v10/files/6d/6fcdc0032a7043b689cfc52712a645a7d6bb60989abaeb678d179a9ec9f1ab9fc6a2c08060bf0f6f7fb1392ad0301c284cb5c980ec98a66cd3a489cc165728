@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ReaderTaskEither.js",
+  "module": "../dist/esm/ReaderTaskEither.js",
+  "types": "../dist/esm/ReaderTaskEither.d.ts",
+  "sideEffects": []
+}

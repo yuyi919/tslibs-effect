@@ -1,0 +1,2 @@
+export type t<t> = "undefined" | "null" | "boolean" | "number" | "string" | "function" | "object" | "symbol" | "bigint";
+//# sourceMappingURL=JsTypes.gen.d.ts.map

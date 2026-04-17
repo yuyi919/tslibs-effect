@@ -1,0 +1,25 @@
+/**
+ * @category models
+ * @since 2.0.0
+ */ /**
+ * @since 2.0.0
+ */ /**
+ * @since 2.0.0
+ */ /**
+ * @since 2.0.0
+ */ export let map = (record, each) => mapI(record, (k, a) => each(a, k));
+export let mapI = (fa, f) => {
+  let r = {};
+  for (let k in fa) {
+    r[k] = f(k, fa[k]);
+  }
+  return r;
+};
+export let bind = (record, key, a) => ({
+  ...record,
+  [key]: a,
+});
+export let singleton = (name, a) => ({
+  [name]: a,
+});
+//# sourceMappingURL=Record.js.map

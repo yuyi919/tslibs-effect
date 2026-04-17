@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Category.js",
+  "module": "../dist/esm/Category.js",
+  "types": "../dist/esm/Category.d.ts",
+  "sideEffects": []
+}

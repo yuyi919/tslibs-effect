@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Show.js",
+  "module": "../dist/esm/Show.js",
+  "types": "../dist/esm/Show.d.ts",
+  "sideEffects": []
+}

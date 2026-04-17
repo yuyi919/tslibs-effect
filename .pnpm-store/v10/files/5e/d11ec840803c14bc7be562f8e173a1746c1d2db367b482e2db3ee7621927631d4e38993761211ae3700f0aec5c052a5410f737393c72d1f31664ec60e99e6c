@@ -1,0 +1,100 @@
+declare namespace $$Uint8Array$1 {
+    export { Uint8Array_Constants as Constants };
+    export { fromTypedArray };
+}
+declare namespace $$Uint8ClampedArray$1 {
+    export { Uint8ClampedArray_Constants as Constants };
+    export { fromTypedArray$1 as fromTypedArray };
+}
+declare namespace $$Uint16Array$1 {
+    export { Uint16Array_Constants as Constants };
+    export { fromTypedArray$2 as fromTypedArray };
+}
+declare namespace $$Uint32Array$1 {
+    export { Uint32Array_Constants as Constants };
+    export { fromTypedArray$3 as fromTypedArray };
+}
+declare namespace $$Float32Array$1 {
+    export { Float32Array_Constants as Constants };
+    export { fromTypedArray$4 as fromTypedArray };
+}
+declare namespace $$Float64Array$1 {
+    export { Float64Array_Constants as Constants };
+    export { fromTypedArray$5 as fromTypedArray };
+}
+declare namespace $$Int8Array$1 {
+    export { Int8Array_Constants as Constants };
+    export { fromTypedArray$6 as fromTypedArray };
+}
+declare namespace $$Int16Array$1 {
+    export { Int16Array_Constants as Constants };
+    export { fromTypedArray$7 as fromTypedArray };
+}
+declare namespace $$Int32Array$1 {
+    export { Int32Array_Constants as Constants };
+    export { fromTypedArray$8 as fromTypedArray };
+}
+declare namespace $$BigUint64Array$1 {
+    export { BigUint64Array_Constants as Constants };
+    export { fromTypedArray$9 as fromTypedArray };
+}
+declare namespace $$BigInt64Array$1 {
+    export { BigInt64Array_Constants as Constants };
+    export { fromTypedArray$10 as fromTypedArray };
+}
+declare namespace Uint8Array_Constants {
+    let bytesPerElement: number;
+}
+declare function fromTypedArray(ta: any): Uint8Array<any>;
+declare namespace Uint8ClampedArray_Constants {
+    let bytesPerElement_1: number;
+    export { bytesPerElement_1 as bytesPerElement };
+}
+declare function fromTypedArray$1(ta: any): Uint8ClampedArray<any>;
+declare namespace Uint16Array_Constants {
+    let bytesPerElement_2: number;
+    export { bytesPerElement_2 as bytesPerElement };
+}
+declare function fromTypedArray$2(ta: any): Uint16Array<any>;
+declare namespace Uint32Array_Constants {
+    let bytesPerElement_3: number;
+    export { bytesPerElement_3 as bytesPerElement };
+}
+declare function fromTypedArray$3(ta: any): Uint32Array<any>;
+declare namespace Float32Array_Constants {
+    let bytesPerElement_4: number;
+    export { bytesPerElement_4 as bytesPerElement };
+}
+declare function fromTypedArray$4(ta: any): Float32Array<any>;
+declare namespace Float64Array_Constants {
+    let bytesPerElement_5: number;
+    export { bytesPerElement_5 as bytesPerElement };
+}
+declare function fromTypedArray$5(ta: any): Float64Array<any>;
+declare namespace Int8Array_Constants {
+    let bytesPerElement_6: number;
+    export { bytesPerElement_6 as bytesPerElement };
+}
+declare function fromTypedArray$6(ta: any): Int8Array<any>;
+declare namespace Int16Array_Constants {
+    let bytesPerElement_7: number;
+    export { bytesPerElement_7 as bytesPerElement };
+}
+declare function fromTypedArray$7(ta: any): Int16Array<any>;
+declare namespace Int32Array_Constants {
+    let bytesPerElement_8: number;
+    export { bytesPerElement_8 as bytesPerElement };
+}
+declare function fromTypedArray$8(ta: any): Int32Array<any>;
+declare namespace BigUint64Array_Constants {
+    let bytesPerElement_9: number;
+    export { bytesPerElement_9 as bytesPerElement };
+}
+declare function fromTypedArray$9(ta: any): BigUint64Array<any>;
+declare namespace BigInt64Array_Constants {
+    let bytesPerElement_10: number;
+    export { bytesPerElement_10 as bytesPerElement };
+}
+declare function fromTypedArray$10(ta: any): BigInt64Array<any>;
+export { $$Uint8Array$1 as $$Uint8Array, $$Uint8ClampedArray$1 as $$Uint8ClampedArray, $$Uint16Array$1 as $$Uint16Array, $$Uint32Array$1 as $$Uint32Array, $$Float32Array$1 as $$Float32Array, $$Float64Array$1 as $$Float64Array, $$Int8Array$1 as $$Int8Array, $$Int16Array$1 as $$Int16Array, $$Int32Array$1 as $$Int32Array, $$BigUint64Array$1 as $$BigUint64Array, $$BigInt64Array$1 as $$BigInt64Array };
+//# sourceMappingURL=TypedArrays.bs.d.ts.map

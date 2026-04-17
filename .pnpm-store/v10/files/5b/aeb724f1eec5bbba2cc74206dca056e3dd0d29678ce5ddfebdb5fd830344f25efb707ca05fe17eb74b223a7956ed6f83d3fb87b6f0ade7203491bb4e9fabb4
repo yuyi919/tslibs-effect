@@ -1,0 +1,1 @@
+{"version":3,"file":"Split.js","names":[],"sources":["../../src/namespaces/array/Split.js"],"sourcesContent":["/**\n * @beta\n */ /**\n * @beta\n */ /**\n * 类似于 [first, ...other] 返回other\n */ /**\n * @beta\n */ export { };\n"],"mappings":"AAAA;AACA;AACA,GAFA,CAEI;AACJ;AACA,MAFI,CAEA;AACJ;AACA,SAFI,CAEA;AACJ;AACA,YAAI","ignoreList":[]}

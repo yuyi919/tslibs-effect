@@ -1,0 +1,94 @@
+@genType
+type t<'a> = Js.Array2.array_like<'a>
+
+module type IndexableReadonly = {
+  type t<'a>
+  let get: (t<'a>, int) => 'a
+  let length: t<'a> => int
+}
+
+module type Indexable = {
+  include IndexableReadonly
+  let set: (t<'a>, int, 'a) => unit
+}
+
+module type Id = {
+  include Indexable
+  let makeUnsafe: int => t<'a>
+}
+
+module type CopyId = {
+  type t<'a>
+  @inline
+  let copy: t<'a> => t<'a>
+}
+
+module Copy = (M: Id): {
+  let copy: M.t<'a> => M.t<'a>
+} => {
+  @inline
+  let copy = xs => {
+    let result = M.makeUnsafe(xs->M.length)
+    M.length(xs)->Identity.map(len => {
+      for i in 0 to len - 1 {
+        result->M.set(i, xs->M.get(i))
+      }
+      result
+    })
+  }
+}
+
+module type SwapId = {
+  type t<'a>
+  let swap: (t<'a>, int, int) => unit
+}
+module Swap = (M: Indexable): {
+  let swap: (M.t<'a>, int, int) => unit
+} => {
+  @inline
+  let swap = (fa, i, j) => {
+    let tmp = fa->M.get(i)
+    fa->M.set(i, fa->M.get(j))
+    fa->M.set(j, tmp)
+  }
+}
+
+module type ShuffleId = {
+  type t<'a>
+  let shuffle: t<'a> => unit
+}
+module Shuffle = (M: Indexable): {
+  let shuffle: M.t<'a> => unit
+} => {
+  module Swap = Swap(M)
+  @inline
+  let shuffle = xs =>
+    M.length(xs)->Identity.map(len =>
+      for i in 0 to len - 1 {
+        xs->Swap.swap(i, Math.randomInt(i, len)) /* [i,len) */
+      }
+    )
+}
+
+module type ToShuffledId = {
+  type t<'a>
+  let toShuffled: t<'a> => t<'a>
+}
+module ToShuffled = (M: Id): {
+  let toShuffled: M.t<'a> => M.t<'a>
+} => {
+  module Swap = Swap(M)
+  @inline
+  let toShuffled = xs => {
+    let result = M.makeUnsafe(xs->M.length)
+    M.length(xs)->Identity.map(len => {
+      for i in 0 to len - 1 {
+        result->M.set(i, xs->M.get(i))
+      }
+      for i in 0 to len - 1 {
+        result->Swap.swap(i, Math.randomInt(i, len)) /* [i,len) */
+      }
+    })
+    result
+  }
+}

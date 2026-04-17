@@ -1,0 +1,550 @@
+/**
+ * @since 1.0.0
+ */
+import * as Arr from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as Channel from "effect/Channel";
+import * as Config from "effect/Config";
+import * as Context from "effect/Context";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
+import * as Layer from "effect/Layer";
+import * as Number from "effect/Number";
+import * as Option from "effect/Option";
+import * as Queue from "effect/Queue";
+import * as RcRef from "effect/RcRef";
+import * as Redacted from "effect/Redacted";
+import * as Scope from "effect/Scope";
+import * as Semaphore from "effect/Semaphore";
+import * as Stream from "effect/Stream";
+import * as Reactivity from "effect/unstable/reactivity/Reactivity";
+import * as Client from "effect/unstable/sql/SqlClient";
+import { AuthenticationError, AuthorizationError, ConnectionError, ConstraintError, DeadlockError, LockTimeoutError, SerializationError, SqlError, SqlSyntaxError, StatementTimeoutError, UnknownError } from "effect/unstable/sql/SqlError";
+import * as Statement from "effect/unstable/sql/Statement";
+import * as Pg from "pg";
+import * as PgConnString from "pg-connection-string";
+import Cursor from "pg-cursor";
+/**
+ * @category type ids
+ * @since 1.0.0
+ */
+export const TypeId = "~@effect/sql-pg/PgClient";
+/**
+ * @category tags
+ * @since 1.0.0
+ */
+export const PgClient = /*#__PURE__*/Context.Service("@effect/sql-pg/PgClient");
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const make = options => fromPool({
+  ...options,
+  acquire: Effect.gen(function* () {
+    const pool = new Pg.Pool({
+      connectionString: options.url ? Redacted.value(options.url) : undefined,
+      user: options.username,
+      host: options.host,
+      database: options.database,
+      password: options.password ? Redacted.value(options.password) : undefined,
+      ssl: options.ssl,
+      port: options.port,
+      ...(options.stream ? {
+        stream: options.stream
+      } : {}),
+      connectionTimeoutMillis: options.connectTimeout ? Duration.toMillis(Duration.fromInputUnsafe(options.connectTimeout)) : undefined,
+      idleTimeoutMillis: options.idleTimeout ? Duration.toMillis(Duration.fromInputUnsafe(options.idleTimeout)) : undefined,
+      max: options.maxConnections,
+      min: options.minConnections,
+      maxLifetimeSeconds: options.connectionTTL ? Duration.toSeconds(Duration.fromInputUnsafe(options.connectionTTL)) : undefined,
+      application_name: options.applicationName ?? "@effect/sql-pg",
+      types: options.types
+    });
+    pool.on("error", _err => {});
+    yield* Effect.acquireRelease(Effect.tryPromise({
+      try: () => pool.query("SELECT 1"),
+      catch: cause => new SqlError({
+        reason: classifyError(cause, "PgClient: Failed to connect", "connect")
+      })
+    }), () => Effect.promise(() => pool.end()).pipe(Effect.timeoutOption(1000))).pipe(Effect.timeoutOrElse({
+      duration: options.connectTimeout ?? Duration.seconds(5),
+      orElse: () => Effect.fail(new SqlError({
+        reason: new ConnectionError({
+          cause: new Error("Connection timed out"),
+          message: "PgClient: Connection timed out",
+          operation: "connect"
+        })
+      }))
+    }));
+    return pool;
+  })
+});
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const makeClient = options => fromClient({
+  ...options,
+  acquire: Effect.gen(function* () {
+    const client = new Pg.Client({
+      connectionString: options.url ? Redacted.value(options.url) : undefined,
+      user: options.username,
+      host: options.host,
+      database: options.database,
+      password: options.password ? Redacted.value(options.password) : undefined,
+      ssl: options.ssl,
+      port: options.port,
+      ...(options.stream ? {
+        stream: options.stream
+      } : {}),
+      application_name: options.applicationName ?? "@effect/sql-pg",
+      types: options.types
+    });
+    yield* Effect.acquireRelease(Effect.tryPromise({
+      try: () => client.query("SELECT 1"),
+      catch: cause => new SqlError({
+        reason: classifyError(cause, "PgClient: Failed to connect", "connect")
+      })
+    }), () => Effect.promise(() => client.end()).pipe(Effect.timeoutOption(1000))).pipe(Effect.timeoutOrElse({
+      duration: options.connectTimeout ?? Duration.seconds(5),
+      orElse: () => Effect.fail(new SqlError({
+        reason: new ConnectionError({
+          cause: new Error("Connection timed out"),
+          message: "PgClient: Connection timed out",
+          operation: "connect"
+        })
+      }))
+    }));
+    return client;
+  }),
+  acquireForStream: options.acquireForStream ?? false
+});
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const fromPool = /*#__PURE__*/Effect.fnUntraced(function* (options) {
+  const pool = yield* options.acquire;
+  const makeConection = client => new ConnectionImpl(function runWithClient(f) {
+    if (client !== undefined) {
+      return Effect.callback(resume => {
+        f(client, resume);
+        return makeCancel(pool, client);
+      });
+    }
+    return Effect.callback(resume => {
+      let done = false;
+      let cancel = undefined;
+      let client = undefined;
+      function onError(cause) {
+        cleanup(cause);
+        resume(Effect.fail(new SqlError({
+          reason: classifyError(cause, "Connection error", "acquireConnection")
+        })));
+      }
+      function cleanup(cause) {
+        if (!done) client?.release(cause);
+        done = true;
+        client?.off("error", onError);
+      }
+      pool.connect((cause, client_) => {
+        if (cause) {
+          return resume(Effect.fail(new SqlError({
+            reason: classifyError(cause, "Failed to acquire connection", "acquireConnection")
+          })));
+        } else if (!client_) {
+          return resume(Effect.fail(new SqlError({
+            reason: new ConnectionError({
+              message: "Failed to acquire connection",
+              cause: new Error("No client returned"),
+              operation: "acquireConnection"
+            })
+          })));
+        } else if (done) {
+          client_.release();
+          return;
+        }
+        client = client_;
+        client.once("error", onError);
+        cancel = makeCancel(pool, client);
+        f(client, eff => {
+          cleanup();
+          resume(eff);
+        });
+      });
+      return Effect.suspend(() => {
+        if (!cancel) {
+          cleanup();
+          return Effect.void;
+        }
+        return Effect.ensuring(cancel, Effect.sync(cleanup));
+      });
+    });
+  }, client ? Effect.succeed(client) : reserveRaw);
+  const reserveRaw = Effect.callback(resume => {
+    const fiber = Fiber.getCurrent();
+    const scope = Context.getUnsafe(fiber.context, Scope.Scope);
+    let cause = undefined;
+    function onError(cause_) {
+      cause = cause_;
+    }
+    pool.connect((err, client, release) => {
+      if (err) {
+        return resume(Effect.fail(new SqlError({
+          reason: classifyError(err, "Failed to acquire connection for transaction", "acquireConnection")
+        })));
+      } else if (!client) {
+        return resume(Effect.fail(new SqlError({
+          reason: new ConnectionError({
+            message: "Failed to acquire connection for transaction",
+            cause: new Error("No client returned"),
+            operation: "acquireConnection"
+          })
+        })));
+      }
+      client.on("error", onError);
+      resume(Effect.as(Scope.addFinalizer(scope, Effect.sync(() => {
+        client.off("error", onError);
+        release(cause);
+      })), client));
+    });
+  });
+  const reserve = Effect.map(reserveRaw, makeConection);
+  const onListenClientError = _ => {};
+  const listenAcquirer = yield* RcRef.make({
+    acquire: Effect.acquireRelease(Effect.tryPromise({
+      try: async () => {
+        const client = new Pg.Client(pool.options);
+        await client.connect();
+        client.on("error", onListenClientError);
+        return client;
+      },
+      catch: cause => new SqlError({
+        reason: classifyError(cause, "Failed to acquire connection for listen", "acquireConnection")
+      })
+    }), client => Effect.promise(() => {
+      client.off("error", onListenClientError);
+      return client.end();
+    }).pipe(Effect.timeoutOption(1000)))
+  });
+  let config = {
+    url: pool.options.connectionString ? Redacted.make(pool.options.connectionString) : undefined,
+    host: pool.options.host,
+    port: pool.options.port,
+    database: pool.options.database,
+    username: pool.options.user,
+    password: typeof pool.options.password === "string" ? Redacted.make(pool.options.password) : undefined,
+    ssl: pool.options.ssl,
+    applicationName: pool.options.application_name,
+    types: pool.options.types
+  };
+  if (pool.options.connectionString) {
+    // @effect-diagnostics-next-line tryCatchInEffectGen:off
+    try {
+      const parsed = PgConnString.parse(pool.options.connectionString);
+      config = {
+        ...config,
+        host: config.host ?? parsed.host ?? undefined,
+        port: config.port ?? (parsed.port ? Option.getOrUndefined(Number.parse(parsed.port)) : undefined),
+        username: config.username ?? parsed.user ?? undefined,
+        password: config.password ?? (parsed.password ? Redacted.make(parsed.password) : undefined),
+        database: config.database ?? parsed.database ?? undefined
+      };
+    } catch {
+      //
+    }
+  }
+  return yield* makeWith({
+    acquirer: Effect.succeed(makeConection()),
+    transactionAcquirer: reserve,
+    listenAcquirer: RcRef.get(listenAcquirer),
+    config,
+    spanAttributes: options.spanAttributes,
+    transformResultNames: options.transformResultNames,
+    transformQueryNames: options.transformQueryNames,
+    transformJson: options.transformJson
+  });
+});
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const fromClient = /*#__PURE__*/Effect.fnUntraced(function* (options) {
+  function onError() {}
+  const acquireWithErrorHandler = options.acquire.pipe(Effect.tap(client => {
+    client.on("error", onError);
+    return Effect.addFinalizer(() => {
+      client.off("error", onError);
+      return Effect.void;
+    });
+  }));
+  const client = yield* acquireWithErrorHandler;
+  const semaphore = Semaphore.makeUnsafe(1);
+  let streamClient = options.acquireForStream ? acquireWithErrorHandler : Effect.acquireRelease(Effect.as(semaphore.take(1), client), () => semaphore.release(1));
+  const makeConection = client => new ConnectionImpl(function runWithClient(f) {
+    return Effect.callback(resume => {
+      f(client, resume);
+    });
+  }, streamClient);
+  const connection = makeConection(client);
+  const acquirer = semaphore.withPermit(Effect.succeed(connection));
+  const config = {
+    ...options,
+    host: client.host,
+    port: client.port,
+    database: client.database,
+    username: client.user,
+    password: typeof client.password === "string" ? Redacted.make(client.password) : undefined,
+    ssl: client.ssl
+  };
+  return yield* makeWith({
+    acquirer,
+    transactionAcquirer: acquirer,
+    listenAcquirer: streamClient,
+    config,
+    spanAttributes: options.spanAttributes,
+    transformResultNames: options.transformResultNames,
+    transformQueryNames: options.transformQueryNames,
+    transformJson: options.transformJson
+  });
+});
+/**
+ * @category constructors
+ * @since 1.0.0
+ */
+export const makeWith = /*#__PURE__*/Effect.fnUntraced(function* (options) {
+  const compiler = makeCompiler(options.transformQueryNames, options.transformJson);
+  const transformRows = options.transformResultNames ? Statement.defaultTransforms(options.transformResultNames, options.transformJson).array : undefined;
+  const config = options.config;
+  return Object.assign(yield* Client.make({
+    acquirer: options.acquirer,
+    transactionAcquirer: options.transactionAcquirer,
+    compiler,
+    spanAttributes: [...(options.spanAttributes ? Object.entries(options.spanAttributes) : []), [ATTR_DB_SYSTEM_NAME, "postgresql"], [ATTR_DB_NAMESPACE, config.database ?? config.username ?? "postgres"], [ATTR_SERVER_ADDRESS, config.host ?? "localhost"], [ATTR_SERVER_PORT, config.port ?? 5432]],
+    transformRows
+  }), {
+    [TypeId]: TypeId,
+    config: options.config,
+    json: _ => Statement.fragment([PgJson(_)]),
+    listen: channel => Stream.callback(Effect.fnUntraced(function* (queue) {
+      const client = yield* options.listenAcquirer;
+      function onNotification(msg) {
+        if (msg.channel === channel && msg.payload) {
+          Queue.offerUnsafe(queue, msg.payload);
+        }
+      }
+      yield* Effect.addFinalizer(() => Effect.promise(() => {
+        client.off("notification", onNotification);
+        return client.query(`UNLISTEN ${Pg.escapeIdentifier(channel)}`);
+      }));
+      yield* Effect.tryPromise({
+        try: () => client.query(`LISTEN ${Pg.escapeIdentifier(channel)}`),
+        catch: cause => new SqlError({
+          reason: classifyError(cause, "Failed to listen", "listen")
+        })
+      });
+      client.on("notification", onNotification);
+    })),
+    notify: (channel, payload) => Effect.asVoid(Effect.scoped(Effect.flatMap(options.acquirer, conn => conn.executeRaw(`SELECT pg_notify($1, $2)`, [channel, payload]))))
+  });
+});
+class ConnectionImpl {
+  constructor(runWithClient, reserve) {
+    this.runWithClient = runWithClient;
+    this.reserve = reserve;
+  }
+  runWithClient;
+  reserve;
+  run(query, params) {
+    return this.runWithClient((client, resume) => {
+      client.query(query, params, (err, result) => {
+        if (err) {
+          resume(Effect.fail(new SqlError({
+            reason: classifyError(err, "Failed to execute statement", "execute")
+          })));
+        } else {
+          // Multi-statement queries return an array of results
+          resume(Effect.succeed(Array.isArray(result) ? result.map(r => r.rows ?? []) : result.rows ?? []));
+        }
+      });
+    });
+  }
+  execute(sql, params, transformRows) {
+    return transformRows ? Effect.map(this.run(sql, params), transformRows) : this.run(sql, params);
+  }
+  executeRaw(sql, params) {
+    return this.runWithClient((client, resume) => {
+      client.query(sql, params, (err, result) => {
+        if (err) {
+          resume(Effect.fail(new SqlError({
+            reason: classifyError(err, "Failed to execute statement", "execute")
+          })));
+        } else {
+          resume(Effect.succeed(result));
+        }
+      });
+    });
+  }
+  executeWithoutTransform(sql, params) {
+    return this.run(sql, params);
+  }
+  executeValues(sql, params) {
+    return this.runWithClient((client, resume) => {
+      client.query({
+        text: sql,
+        rowMode: "array",
+        values: params
+      }, (err, result) => {
+        if (err) {
+          resume(Effect.fail(new SqlError({
+            reason: classifyError(err, "Failed to execute statement", "execute")
+          })));
+        } else {
+          resume(Effect.succeed(result.rows));
+        }
+      });
+    });
+  }
+  executeUnprepared(sql, params, transformRows) {
+    return this.execute(sql, params, transformRows);
+  }
+  executeStream(sql, params, transformRows) {
+    // oxlint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+    return Stream.fromChannel(Channel.fromTransform(Effect.fnUntraced(function* (_, scope) {
+      const client = yield* Scope.provide(self.reserve, scope);
+      yield* Scope.addFinalizer(scope, Effect.promise(() => cursor.close()));
+      const cursor = client.query(new Cursor(sql, params));
+      // @effect-diagnostics-next-line returnEffectInGen:off
+      return Effect.callback(resume => {
+        cursor.read(128, (err, rows) => {
+          if (err) {
+            resume(Effect.fail(new SqlError({
+              reason: classifyError(err, "Failed to execute statement", "stream")
+            })));
+          } else if (Arr.isArrayNonEmpty(rows)) {
+            resume(Effect.succeed(transformRows ? transformRows(rows) : rows));
+          } else {
+            resume(Cause.done());
+          }
+        });
+      });
+    })));
+  }
+}
+const cancelEffects = /*#__PURE__*/new WeakMap();
+const makeCancel = (pool, client) => {
+  if (cancelEffects.has(client)) {
+    return cancelEffects.get(client);
+  }
+  const processId = client.processID;
+  const eff = processId !== undefined
+  // query cancelation is best-effort, so we don't fail if it doesn't work
+  ? Effect.callback(resume => {
+    if (pool.ending) return resume(Effect.void);
+    pool.query(`SELECT pg_cancel_backend(${processId})`, () => {
+      resume(Effect.void);
+    });
+  }).pipe(Effect.interruptible, Effect.timeoutOption(5000)) : undefined;
+  cancelEffects.set(client, eff);
+  return eff;
+};
+/**
+ * @category layers
+ * @since 1.0.0
+ */
+export const layerFrom = acquire => Layer.effectContext(Effect.map(acquire, client => Context.make(PgClient, client).pipe(Context.add(Client.SqlClient, client)))).pipe(Layer.provide(Reactivity.layer));
+/**
+ * @category layers
+ * @since 1.0.0
+ */
+export const layerConfig = config => layerFrom(Effect.flatMap(Config.unwrap(config).asEffect(), make));
+/**
+ * @category layers
+ * @since 1.0.0
+ */
+export const layer = config => layerFrom(make(config));
+/**
+ * @category constructor
+ * @since 1.0.0
+ */
+export const makeCompiler = (transform, transformJson = true) => {
+  const transformValue = transformJson && transform ? Statement.defaultTransforms(transform).value : undefined;
+  return Statement.makeCompiler({
+    dialect: "pg",
+    placeholder(_) {
+      return `$${_}`;
+    },
+    onIdentifier: transform ? function (value, withoutTransform) {
+      return withoutTransform ? escape(value) : escape(transform(value));
+    } : escape,
+    onRecordUpdate(placeholders, valueAlias, valueColumns, values, returning) {
+      return [`(values ${placeholders}) AS ${valueAlias}${valueColumns}${returning ? ` RETURNING ${returning[0]}` : ""}`, returning ? values.flat().concat(returning[1]) : values.flat()];
+    },
+    onCustom(type, placeholder, withoutTransform) {
+      switch (type.kind) {
+        case "PgJson":
+          {
+            return [placeholder(undefined), [withoutTransform || transformValue === undefined ? type.paramA : transformValue(type.paramA)]];
+          }
+      }
+    }
+  });
+};
+const escape = /*#__PURE__*/Statement.defaultEscape("\"");
+/**
+ * @category custom types
+ * @since 1.0.0
+ */
+const PgJson = /*#__PURE__*/Statement.custom("PgJson");
+const ATTR_DB_SYSTEM_NAME = "db.system.name";
+const ATTR_DB_NAMESPACE = "db.namespace";
+const ATTR_SERVER_ADDRESS = "server.address";
+const ATTR_SERVER_PORT = "server.port";
+const pgCodeFromCause = cause => {
+  if (typeof cause !== "object" || cause === null || !("code" in cause)) {
+    return undefined;
+  }
+  const code = cause.code;
+  return typeof code === "string" ? code : undefined;
+};
+const classifyError = (cause, message, operation) => {
+  const props = {
+    cause,
+    message,
+    operation
+  };
+  const code = pgCodeFromCause(cause);
+  if (code !== undefined) {
+    if (code.startsWith("08")) {
+      return new ConnectionError(props);
+    }
+    if (code.startsWith("28")) {
+      return new AuthenticationError(props);
+    }
+    if (code === "42501") {
+      return new AuthorizationError(props);
+    }
+    if (code.startsWith("42")) {
+      return new SqlSyntaxError(props);
+    }
+    if (code.startsWith("23")) {
+      return new ConstraintError(props);
+    }
+    if (code === "40P01") {
+      return new DeadlockError(props);
+    }
+    if (code === "40001") {
+      return new SerializationError(props);
+    }
+    if (code === "55P03") {
+      return new LockTimeoutError(props);
+    }
+    if (code === "57014") {
+      return new StatementTimeoutError(props);
+    }
+  }
+  return new UnknownError(props);
+};
+//# sourceMappingURL=PgClient.js.map

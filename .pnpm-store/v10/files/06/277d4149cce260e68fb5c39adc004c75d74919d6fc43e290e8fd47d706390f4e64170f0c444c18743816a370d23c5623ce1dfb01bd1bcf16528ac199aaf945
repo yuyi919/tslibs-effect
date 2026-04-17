@@ -1,0 +1,29 @@
+/**
+ * `Compactable` represents data structures which can be _compacted_/_filtered_. This is a generalization of
+ * `catOptions` as a new function `compact`. `compact` has relations with `Functor`, `Applicative`,
+ * `Monad`, `Alternative`, and `Traversable` in that we can use these classes to provide the ability to
+ * operate on a data type by eliminating intermediate `None`s. This is useful for representing the filtering out of
+ * values, or failure.
+ *
+ * Adapted from https://github.com/LiamGoodacre/purescript-filterable/blob/master/src/Data/Compactable.purs
+ *
+ * @since 2.0.0
+ */import { pipe } from "./function.js";
+import { getFunctorComposition, map } from "./Functor.js";
+import { getLeft, getRight } from "./Option.js";
+import * as S from "./Separated.js";
+export let compact = (F, G) => fga => F.map(fga, G.compact);
+export let separate = (F, C, G) => {
+  let _compact = compact(F, C);
+  let _map = map(F, G);
+  return fge => S.separated(_compact(_map(getLeft)(fge)), _compact(_map(getRight)(fge)));
+}; /** @deprecated */
+export let getCompactableComposition = (F, G) => {
+  let map = getFunctorComposition(F, G).map;
+  return {
+    map,
+    compact: compact(F, G),
+    separate: separate(F, G, G)
+  };
+};
+//# sourceMappingURL=Compactable.js.map

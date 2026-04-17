@@ -1,0 +1,8 @@
+/**
+ * 判断是否是EsModule的导入
+ * @alpha
+ */ /**
+    * 判断是否是EsModule的导入
+    * @alpha
+    */export {};
+//# sourceMappingURL=module.js.map

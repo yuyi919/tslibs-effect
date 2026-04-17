@@ -1,0 +1,10 @@
+/**
+ * @since 1.0.0
+ */
+import type { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
+/**
+ * @since 1.0.0
+ * @category Accessors
+ */
+export declare const toBunServerRequest: <T extends string = string>(self: HttpServerRequest) => Bun.BunRequest<T>;
+//# sourceMappingURL=BunHttpServerRequest.d.ts.map

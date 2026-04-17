@@ -1,0 +1,13 @@
+/**
+ * @since 1.0.0
+ */ import * as assertT from "./internal/AssertsT/index.js";
+
+/**
+ * @category model
+ * @since 1.0.0
+ */ /**
+ * @category model
+ * @since 1.0.0
+ */
+export let getAsserts = assertT.getAsserts;
+//# sourceMappingURL=AssertsT.js.map

@@ -1,0 +1,631 @@
+/**
+ * @since 2.0.0
+ */import { pipe } from "./function.js";
+import { flap as flap_ } from "./Functor.js";
+import * as _ from "./internal.js";
+import * as O from "./Option.js";
+import * as RM from "./ReadonlyMap.js";
+import { separated } from "./Separated.js";
+import { wiltDefault, witherDefault } from "./Witherable.js"; /**
+                                                              * @category instances
+                                                              * @since 2.0.0
+                                                              */
+export let getShow = RM.getShow; /**
+                                 * Calculate the number of key/value pairs in a map
+                                 *
+                                 * @since 2.0.0
+                                 */
+export let size = RM.size; /**
+                           * Test whether or not a map is empty
+                           *
+                           * @since 2.0.0
+                           */
+export let isEmpty = RM.isEmpty; // TODO: remove non-curried overloading in v3
+/**
+ * Test whether or not a key exists in a map
+ *
+ * @since 2.0.0
+ */
+export let member = RM.member; // TODO: remove non-curried overloading in v3
+/**
+ * Test whether or not a value is a member of a map
+ *
+ * @since 2.0.0
+ */
+export let elem = RM.elem; /**
+                           * Get a sorted `Array` of the keys contained in a `Map`.
+                           *
+                           * @since 2.0.0
+                           */
+export let keys = O => m => Array.from(m.keys()).sort(O.compare); /**
+                                                                  * Get a sorted `Array` of the values contained in a `Map`.
+                                                                  *
+                                                                  * @since 2.0.0
+                                                                  */
+export let values = O => m => Array.from(m.values()).sort(O.compare); /**
+                                                                      * @since 2.0.0
+                                                                      */
+export let collect = O => {
+  let keysO = keys(O);
+  return f => m => {
+    let out = [];
+    let ks = keysO(m);
+    for (let key of ks) {
+      out.push(f(key, m.get(key)));
+    }
+    return out;
+  };
+}; /**
+   * Get a sorted `Array` of the key/value pairs contained in a `Map`.
+   *
+   * @since 2.0.0
+   */
+export let toArray = O => collect(O)((k, a) => [k, a]);
+export let toUnfoldable = (ord, U) => {
+  let toArrayO = toArray(ord);
+  return d => {
+    let kas = toArrayO(d);
+    let len = kas.length;
+    return U.unfold(0, b => b < len ? _.some([kas[b], b + 1]) : _.none);
+  };
+}; /**
+   * Insert or replace a key/value pair in a `Map`.
+   *
+   * @since 2.0.0
+   */
+export let upsertAt = E => {
+  let lookupWithKeyE = lookupWithKey(E);
+  return (k, a) => {
+    let lookupWithKeyEk = lookupWithKeyE(k);
+    return m => {
+      let found = lookupWithKeyEk(m);
+      if (_.isNone(found)) {
+        let out = new Map(m);
+        out.set(k, a);
+        return out;
+      } else if (found.value[1] !== a) {
+        let out = new Map(m);
+        out.set(found.value[0], a);
+        return out;
+      }
+      return m;
+    };
+  };
+}; /**
+   * Delete a key and value from a map
+   *
+   * @since 2.0.0
+   */
+export let deleteAt = E => {
+  let lookupWithKeyE = lookupWithKey(E);
+  return k => m => {
+    let found = lookupWithKeyE(k, m);
+    if (_.isSome(found)) {
+      let r = new Map(m);
+      r.delete(found.value[0]);
+      return r;
+    }
+    return m;
+  };
+}; /**
+   * @since 2.0.0
+   */
+export let updateAt = E => {
+  let modifyAtE = modifyAt(E);
+  return (k, a) => modifyAtE(k, () => a);
+}; /**
+   * @since 2.0.0
+   */
+export let modifyAt = E => {
+  let lookupWithKeyE = lookupWithKey(E);
+  return (k, f) => m => {
+    let found = lookupWithKeyE(k, m);
+    if (_.isNone(found)) {
+      return _.none;
+    }
+    let r = new Map(m);
+    r.set(found.value[0], f(found.value[1]));
+    return _.some(r);
+  };
+}; /**
+   * Delete a key and value from a map, returning the value as well as the subsequent map
+   *
+   * @since 2.0.0
+   */
+export let pop = E => {
+  let lookupE = lookup(E);
+  let deleteAtE = deleteAt(E);
+  return k => {
+    let deleteAtEk = deleteAtE(k);
+    return m => O.map(a => [a, deleteAtEk(m)])(lookupE(k, m));
+  };
+};
+export let lookupWithKey = E => (k, m) => {
+  if (m === undefined) {
+    let lookupWithKeyE = lookupWithKey(E);
+    return m => lookupWithKeyE(k, m);
+  }
+  let entries = m.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [ka, a] = e.value;
+    if (E.equals(ka, k)) {
+      return _.some([ka, a]);
+    }
+  }
+  return _.none;
+}; // TODO: remove non-curried overloading in v3
+/**
+ * Lookup the value for a key in a `Map`.
+ *
+ * @since 2.0.0
+ */
+export let lookup = RM.lookup; // TODO: remove non-curried overloading in v3
+/**
+ * Test whether or not one `Map` contains all of the keys and values contained in another `Map`
+ *
+ * @since 2.0.0
+ */
+export let isSubmap = RM.isSubmap; /**
+                                   * @category instances
+                                   * @since 2.0.0
+                                   */
+export let getEq = RM.getEq; /**
+                             * Gets `Monoid` instance for Maps given `Semigroup` instance for their values
+                             *
+                             * @category instances
+                             * @since 2.0.0
+                             */
+export let getMonoid = (SK, SA) => {
+  let lookupWithKeyS = lookupWithKey(SK);
+  return {
+    concat: (mx, my) => {
+      if (isEmpty(mx)) {
+        return my;
+      }
+      if (isEmpty(my)) {
+        return mx;
+      }
+      let r = new Map(mx);
+      let entries = my.entries();
+      let e;
+      while (!(e = entries.next()).done) {
+        let [k, a] = e.value;
+        let mxOptA = lookupWithKeyS(k, mx);
+        if (_.isSome(mxOptA)) {
+          r.set(mxOptA.value[0], SA.concat(mxOptA.value[1], a));
+        } else {
+          r.set(k, a);
+        }
+      }
+      return r;
+    },
+    empty: new Map()
+  };
+}; /**
+   * Create a map with one key/value pair
+   *
+   * @since 2.0.0
+   */
+export let singleton = (k, a) => new Map([[k, a]]);
+export let fromFoldable = (E, M, F) => fka => {
+  let lookupWithKeyE = lookupWithKey(E);
+  return F.reduce(fka, new Map(), (b, [k, a]) => {
+    let bOpt = lookupWithKeyE(k, b);
+    if (_.isSome(bOpt)) {
+      b.set(bOpt.value[0], M.concat(bOpt.value[1], a));
+    } else {
+      b.set(k, a);
+    }
+    return b;
+  });
+};
+let _mapWithIndex = (fa, f) => {
+  let m = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [key, a] = e.value;
+    m.set(key, f(key, a));
+  }
+  return m;
+}; /**
+   * @since 2.10.0
+   */
+export let partitionMapWithIndex = f => fa => {
+  let left = new Map();
+  let right = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, a] = e.value;
+    let ei = f(k, a);
+    if (_.isLeft(ei)) {
+      left.set(k, ei.left);
+    } else {
+      right.set(k, ei.right);
+    }
+  }
+  return separated(left, right);
+};
+export let partitionWithIndex = predicateWithIndex => fa => {
+  let left = new Map();
+  let right = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, a] = e.value;
+    if (predicateWithIndex(k, a)) {
+      right.set(k, a);
+    } else {
+      left.set(k, a);
+    }
+  }
+  return separated(left, right);
+}; /**
+   * @since 2.10.0
+   */
+export let filterMapWithIndex = f => fa => {
+  let m = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, a] = e.value;
+    let o = f(k, a);
+    if (_.isSome(o)) {
+      m.set(k, o.value);
+    }
+  }
+  return m;
+};
+export let filterWithIndex = p => m => {
+  let out = new Map();
+  let entries = m.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, a] = e.value;
+    if (p(k, a)) {
+      out.set(k, a);
+    }
+  }
+  return out;
+};
+let _map = (fa, f) => _mapWithIndex(fa, (_, a) => f(a));
+let _filter = (fa, p) => _filterWithIndex(fa, (_, a) => p(a));
+let _filterMap = (fa, f) => _filterMapWithIndex(fa, (_, a) => f(a));
+let _partition = (fa, predicate) => _partitionWithIndex(fa, (_, a) => predicate(a));
+let _partitionMap = (fa, f) => _partitionMapWithIndex(fa, (_, a) => f(a));
+let _filterWithIndex = (fa, p) => filterWithIndex(p)(fa);
+let _filterMapWithIndex = (fa, f) => filterMapWithIndex(f)(fa);
+let _partitionWithIndex = (fa, p) => partitionWithIndex(p)(fa);
+let _partitionMapWithIndex = (fa, f) => partitionMapWithIndex(f)(fa); /**
+                                                                      * @category filtering
+                                                                      * @since 2.0.0
+                                                                      */
+export let compact = fa => {
+  let m = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, oa] = e.value;
+    if (_.isSome(oa)) {
+      m.set(k, oa.value);
+    }
+  }
+  return m;
+}; /**
+   * @category filtering
+   * @since 2.0.0
+   */
+export let filter = predicate => fa => _filter(fa, predicate); /**
+                                                               * @category filtering
+                                                               * @since 2.0.0
+                                                               */
+export let filterMap = f => fa => _filterMap(fa, f); /**
+                                                     * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                                     * use the type constructor `F` to represent some computational context.
+                                                     *
+                                                     * @category mapping
+                                                     * @since 2.0.0
+                                                     */
+export let map = f => fa => _map(fa, f); /**
+                                         * @category mapping
+                                         * @since 2.7.1
+                                         */
+export let mapWithIndex = f => fa => _mapWithIndex(fa, f); /**
+                                                           * @category filtering
+                                                           * @since 2.0.0
+                                                           */
+export let partition = predicate => fa => _partition(fa, predicate); /**
+                                                                     * @category filtering
+                                                                     * @since 2.0.0
+                                                                     */
+export let partitionMap = f => fa => _partitionMap(fa, f); /**
+                                                           * @category filtering
+                                                           * @since 2.0.0
+                                                           */
+export let separate = fa => {
+  let left = new Map();
+  let right = new Map();
+  let entries = fa.entries();
+  let e;
+  while (!(e = entries.next()).done) {
+    let [k, ei] = e.value;
+    if (_.isLeft(ei)) {
+      left.set(k, ei.left);
+    } else {
+      right.set(k, ei.right);
+    }
+  }
+  return separated(left, right);
+}; /**
+   * @category type lambdas
+   * @since 2.0.0
+   */
+export let URI = "Map"; /**
+                        * @category instances
+                        * @since 2.11.0
+                        */
+export let getUnionSemigroup = (E, S) => {
+  let unionES = union(E, S);
+  return {
+    concat: (first, second) => unionES(second)(first)
+  };
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let getUnionMonoid = (E, S) => ({
+  concat: getUnionSemigroup(E, S).concat,
+  empty: new Map()
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getIntersectionSemigroup = (E, S) => {
+  let intersectionES = intersection(E, S);
+  return {
+    concat: (first, second) => intersectionES(second)(first)
+  };
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let getDifferenceMagma = E => () => {
+  let differenceE = difference(E);
+  return {
+    concat: (first, second) => differenceE(second)(first)
+  };
+}; /**
+   * @category filtering
+   * @since 2.0.0
+   */
+export let getFilterableWithIndex = () => ({
+  URI,
+  _E: undefined,
+  map: _map,
+  mapWithIndex: _mapWithIndex,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap,
+  partitionMapWithIndex: _partitionMapWithIndex,
+  partitionWithIndex: _partitionWithIndex,
+  filterMapWithIndex: _filterMapWithIndex,
+  filterWithIndex: _filterWithIndex
+}); /**
+    * @category filtering
+    * @since 2.0.0
+    */
+export let getWitherable = O => {
+  let TWI = getTraversableWithIndex(O);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    compact,
+    separate,
+    filter: _filter,
+    filterMap: _filterMap,
+    partition: _partition,
+    partitionMap: _partitionMap,
+    reduce: TWI.reduce,
+    foldMap: TWI.foldMap,
+    reduceRight: TWI.reduceRight,
+    traverse: TWI.traverse,
+    sequence: TWI.sequence,
+    mapWithIndex: _mapWithIndex,
+    reduceWithIndex: TWI.reduceWithIndex,
+    foldMapWithIndex: TWI.foldMapWithIndex,
+    reduceRightWithIndex: TWI.reduceRightWithIndex,
+    traverseWithIndex: TWI.traverseWithIndex,
+    wilt: wiltDefault(TWI, Compactable),
+    wither: witherDefault(TWI, Compactable)
+  };
+}; /**
+   * @category folding
+   * @since 2.11.0
+   */
+export let reduce = RM.reduce; /**
+                               * @category folding
+                               * @since 2.11.0
+                               */
+export let foldMap = RM.foldMap; /**
+                                 * @category folding
+                                 * @since 2.11.0
+                                 */
+export let reduceRight = RM.reduceRight; /**
+                                         * @category folding
+                                         * @since 2.11.0
+                                         */
+export let getFoldable = O => {
+  return {
+    ...RM.getFoldable(O),
+    URI
+  };
+}; /**
+   * @category folding
+   * @since 2.11.0
+   */
+export let reduceWithIndex = RM.reduceWithIndex; /**
+                                                 * @category folding
+                                                 * @since 2.11.0
+                                                 */
+export let foldMapWithIndex = RM.foldMapWithIndex; /**
+                                                   * @category folding
+                                                   * @since 2.11.0
+                                                   */
+export let reduceRightWithIndex = RM.reduceRightWithIndex; /**
+                                                           * @category folding
+                                                           * @since 2.10.0
+                                                           */
+export let getFoldableWithIndex = O => {
+  return {
+    ...RM.getFoldableWithIndex(O),
+    URI
+  };
+}; /**
+   * @category traversing
+   * @since 2.10.0
+   */
+export let getTraversableWithIndex = O => {
+  let FWI = getFoldableWithIndex(O);
+  let keysO = keys(O);
+  let traverseWithIndex = F => {
+    return (ta, f) => {
+      let fm = F.of(new Map());
+      let ks = keysO(ta);
+      let len = ks.length;
+      for (let i = 0; i < len; i++) {
+        let key = ks[i];
+        let a = ta.get(key);
+        fm = F.ap(F.map(fm, m => b => m.set(key, b)), f(key, a));
+      }
+      return fm;
+    };
+  };
+  let traverse = F => {
+    let traverseWithIndexF = traverseWithIndex(F);
+    return (ta, f) => traverseWithIndexF(ta, (_, a) => f(a));
+  };
+  let sequence = F => {
+    let traverseWithIndexF = traverseWithIndex(F);
+    return ta => traverseWithIndexF(ta, (_, a) => a);
+  };
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    mapWithIndex: _mapWithIndex,
+    reduce: FWI.reduce,
+    foldMap: FWI.foldMap,
+    reduceRight: FWI.reduceRight,
+    reduceWithIndex: FWI.reduceWithIndex,
+    foldMapWithIndex: FWI.foldMapWithIndex,
+    reduceRightWithIndex: FWI.reduceRightWithIndex,
+    traverse,
+    sequence,
+    traverseWithIndex
+  };
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * @category mapping
+   * @since 2.10.0
+   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * @category instances
+                                               * @since 2.7.0
+                                               */
+export let Compactable = {
+  URI,
+  compact,
+  separate
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Filterable = {
+  URI,
+  map: _map,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap
+}; // -------------------------------------------------------------------------------------
+// utils
+// -------------------------------------------------------------------------------------
+let copy = m => new Map(m); /**
+                            * @since 2.11.0
+                            */
+export let union = (E, M) => {
+  let unionEM = RM.union(E, M);
+  return second => first => {
+    if (isEmpty(first)) {
+      return copy(second);
+    }
+    if (isEmpty(second)) {
+      return copy(first);
+    }
+    return unionEM(second)(first);
+  };
+}; /**
+   * @since 2.11.0
+   */
+export let intersection = (E, M) => {
+  let intersectionEM = RM.intersection(E, M);
+  return second => first => {
+    if (isEmpty(first) || isEmpty(second)) {
+      return new Map();
+    }
+    return intersectionEM(second)(first);
+  };
+}; /**
+   * @since 2.11.0
+   */
+export let difference = E => {
+  let differenceE = RM.difference(E);
+  return second => first => {
+    if (isEmpty(first)) {
+      return copy(second);
+    }
+    if (isEmpty(second)) {
+      return copy(first);
+    }
+    return differenceE(second)(first);
+  };
+}; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use a `new Map()` instead.
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let empty = /*#__PURE__*/new Map(); /**
+                                           * Use [`upsertAt`](#upsertat) instead.
+                                           *
+                                           * @category zone of death
+                                           * @since 2.0.0
+                                           * @deprecated
+                                           */
+export let insertAt = upsertAt; /**
+                                * Use [`Filterable`](#filterable) instead.
+                                *
+                                * @category zone of death
+                                * @since 2.0.0
+                                * @deprecated
+                                */
+export let map_ = Filterable;
+//# sourceMappingURL=Map.js.map

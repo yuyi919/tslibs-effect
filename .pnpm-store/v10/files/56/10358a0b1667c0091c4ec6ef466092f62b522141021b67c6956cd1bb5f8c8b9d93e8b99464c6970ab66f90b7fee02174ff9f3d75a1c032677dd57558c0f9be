@@ -1,0 +1,6 @@
+{
+  "main": "../../dist/cjs/function/helper.js",
+  "module": "../../dist/esm/function/helper.js",
+  "types": "../../dist/esm/function/helper.d.ts",
+  "sideEffects": []
+}

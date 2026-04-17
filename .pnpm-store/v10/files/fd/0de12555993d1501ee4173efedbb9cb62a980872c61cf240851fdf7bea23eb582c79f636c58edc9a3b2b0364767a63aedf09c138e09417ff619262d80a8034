@@ -1,0 +1,8 @@
+import * as disposify from "../Disposify";
+import * as proto from "../Proto";
+export declare const DisposeifyProtos: Pick<disposify.DisposifyAny, "scope" | "add">;
+export declare const Disposify: proto.TClass<disposify.DisposifyAny, [
+    fn: any,
+    out: any
+]>;
+//# sourceMappingURL=Disposify.d.ts.map

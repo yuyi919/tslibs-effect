@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/BoundedMeetSemilattice.js",
+  "module": "../dist/esm/BoundedMeetSemilattice.js",
+  "types": "../dist/esm/BoundedMeetSemilattice.d.ts",
+  "sideEffects": []
+}

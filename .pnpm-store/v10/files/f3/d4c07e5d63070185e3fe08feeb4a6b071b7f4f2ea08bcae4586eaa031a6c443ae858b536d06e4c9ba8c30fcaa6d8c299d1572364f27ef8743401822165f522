@@ -1,0 +1,9 @@
+'use strict';
+
+var u=(r,e)=>{let o=e.zero,d=(t,l)=>r.equals(l,o)?t:d(l,e.mod(t,l));return d},z=(r,e)=>{let o=e.zero,d=u(r,e);return (t,l)=>r.equals(t,o)||r.equals(l,o)?o:e.div(e.mul(t,l),d(t,l))},a={add:(r,e)=>r+e,zero:0,mul:(r,e)=>r*e,one:1,sub:(r,e)=>r-e,degree:r=>1,div:(r,e)=>r/e,mod:(r,e)=>r%e};
+
+exports.fieldNumber = a;
+exports.gcd = u;
+exports.lcm = z;
+//# sourceMappingURL=Field.js.map
+//# sourceMappingURL=Field.js.map

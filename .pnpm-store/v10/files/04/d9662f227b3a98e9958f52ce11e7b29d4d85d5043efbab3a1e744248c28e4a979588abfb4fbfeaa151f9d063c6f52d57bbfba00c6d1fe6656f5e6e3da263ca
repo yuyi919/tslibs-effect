@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Monad.js",
+  "module": "../dist/esm/Monad.js",
+  "types": "../dist/esm/Monad.d.ts",
+  "sideEffects": []
+}

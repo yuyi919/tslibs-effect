@@ -1,0 +1,21 @@
+/**
+ * A `BoundedDistributiveLattice` is a lattice that is both bounded and distributive
+ *
+ * @since 2.0.0
+ */import { getMinMaxDistributiveLattice } from "./DistributiveLattice.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category constructors
+ * @since 2.0.0
+ */
+export let getMinMaxBoundedDistributiveLattice = O => {
+  let L = getMinMaxDistributiveLattice(O);
+  return (min, max) => ({
+    join: L.join,
+    meet: L.meet,
+    zero: min,
+    one: max
+  });
+};
+//# sourceMappingURL=BoundedDistributiveLattice.js.map

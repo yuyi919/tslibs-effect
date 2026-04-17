@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/JoinSemilattice.js",
+  "module": "../dist/esm/JoinSemilattice.js",
+  "types": "../dist/esm/JoinSemilattice.d.ts",
+  "sideEffects": []
+}

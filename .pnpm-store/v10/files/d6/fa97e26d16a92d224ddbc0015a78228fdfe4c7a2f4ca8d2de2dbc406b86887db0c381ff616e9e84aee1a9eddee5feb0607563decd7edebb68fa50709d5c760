@@ -1,0 +1,268 @@
+import type { ObjectTag } from "@yuyi919/shared-proto/JsTypes";
+/** @internal */
+export declare const _makeObjTag: <const Name extends string>(name: Name) => ObjectTag<Name>;
+export declare const name: <K>(target: {
+    name: K;
+}) => K;
+/**
+ * ```ts
+ * Number
+ * ```
+ * @internal
+ */
+export declare const NUMBER: typeof Number;
+export declare const __NAME_NUMBER: "Number";
+export declare const __OBJECTTAG_NUMBER: "[object Number]";
+/**
+ * ```ts
+ * String
+ * ```
+ * @internal
+ */
+export declare const STRING: typeof String;
+export declare const __NAME_STRING: "String";
+export declare const __OBJECTTAG_STRING: "[object String]";
+/**
+ * ```ts
+ * Boolean
+ * ```
+ * @internal
+ */
+export declare const BOOLEAN: typeof Boolean;
+export declare const __NAME_BOOLEAN: "Boolean";
+export declare const __OBJECTTAG_BOOLEAN: "[object Boolean]";
+/**
+ * ```ts
+ * RegExp
+ * ```
+ * @internal
+ */
+export declare const REGEXP: typeof RegExp;
+export declare const __NAME_REGEXP: "RegExp";
+export declare const __OBJECTTAG_REGEXP: "[object RegExp]";
+/**
+ * ```ts
+ * Object
+ * ```
+ * @internal
+ */
+export declare const OBJECT: typeof Object;
+export declare const __NAME_OBJECT: "Object";
+export declare const __OBJECTTAG_OBJECT: "[object Object]";
+/**
+ * ```ts
+ * BigInt
+ * ```
+ * @internal
+ */
+export declare const BIGINT: typeof BigInt;
+export declare const __NAME_BIGINT: "BigInt";
+export declare const __OBJECTTAG_BIGINT: "[object BigInt]";
+/**
+ * ```ts
+ * Function
+ * ```
+ * @internal
+ */
+export declare const FUNCTION: typeof Function;
+export declare const __NAME_FUNCTION: "Function";
+export declare const __OBJECTTAG_FUNCTION: "[object Function]";
+/**
+ * ```ts
+ * Array
+ * ```
+ * @internal
+ */
+export declare const ARRAY: typeof Array;
+export declare const __NAME_ARRAY: "Array";
+export declare const __OBJECTTAG_ARRAY: "[object Array]";
+/**
+ * ```ts
+ * Map
+ * ```
+ * @internal
+ */
+export declare const MAP: typeof Map;
+export declare const __NAME_MAP: "Map";
+export declare const __OBJECTTAG_MAP: "[object Map]";
+/**
+ * ```ts
+ * Set
+ * ```
+ * @internal
+ */
+export declare const SET: typeof Set;
+export declare const __NAME_SET: "Set";
+export declare const __OBJECTTAG_SET: "[object Set]";
+/**
+ * ```ts
+ * Symbol
+ * ```
+ * @internal
+ */
+export declare const SYMBOL: typeof Symbol;
+export declare const __NAME_SYMBOL: "Symbol";
+export declare const __OBJECTTAG_SYMBOL: "[object Symbol]";
+/**
+ * ```ts
+ * ArrayBuffer
+ * ```
+ * @internal
+ */
+export declare const ARRAYBUFFER: typeof ArrayBuffer;
+export declare const __NAME_ARRAYBUFFER: "ArrayBuffer";
+export declare const __OBJECTTAG_ARRAYBUFFER: "[object ArrayBuffer]";
+/**
+ * ```ts
+ * DataView
+ * ```
+ * @internal
+ */
+export declare const DATAVIEW: typeof DataView;
+export declare const __NAME_DATAVIEW: "DataView";
+export declare const __OBJECTTAG_DATAVIEW: "[object DataView]";
+/**
+ * ```ts
+ * Date
+ * ```
+ * @internal
+ */
+export declare const DATE: typeof Date;
+export declare const __NAME_DATE: "Date";
+export declare const __OBJECTTAG_DATE: "[object Date]";
+/**
+ * ```ts
+ * WeakSet
+ * ```
+ * @internal
+ */
+export declare const WEAKSET: typeof WeakSet;
+export declare const __NAME_WEAKSET: "WeakSet";
+export declare const __OBJECTTAG_WEAKSET: "[object WeakSet]";
+/**
+ * ```ts
+ * WeakMap
+ * ```
+ * @internal
+ */
+export declare const WEAKMAP: typeof WeakMap;
+export declare const __NAME_WEAKMAP: "WeakMap";
+export declare const __OBJECTTAG_WEAKMAP: "[object WeakMap]";
+/**
+ * ```ts
+ * WeakRef
+ * ```
+ * @internal
+ */
+export declare const WEAKREF: typeof WeakRef;
+export declare const __NAME_WEAKREF: "WeakRef";
+export declare const __OBJECTTAG_WEAKREF: "[object WeakRef]";
+/**
+ * ```ts
+ * Error
+ * ```
+ * @internal
+ */
+export declare const ERROR: typeof Error;
+export declare const __NAME_ERROR: "Error";
+export declare const __OBJECTTAG_ERROR: "[object Error]";
+/**
+ * ```ts
+ * Uint8Array
+ * ```
+ * @internal
+ */
+export declare const UINT8ARRAY: typeof Uint8Array;
+export declare const __NAME_UINT8ARRAY: "Uint8Array";
+export declare const __OBJECTTAG_UINT8ARRAY: "[object Uint8Array]";
+/**
+ * ```ts
+ * Uint8ClampedArray
+ * ```
+ * @internal
+ */
+export declare const UINT8CLAMPEDARRAY: typeof Uint8ClampedArray;
+export declare const __NAME_UINT8CLAMPEDARRAY: "Uint8ClampedArray";
+export declare const __OBJECTTAG_UINT8CLAMPEDARRAY: "[object Uint8ClampedArray]";
+/**
+ * ```ts
+ * Uint16Array
+ * ```
+ * @internal
+ */
+export declare const UINT16ARRAY: typeof Uint16Array;
+export declare const __NAME_UINT16ARRAY: "Uint16Array";
+export declare const __OBJECTTAG_UINT16ARRAY: "[object Uint16Array]";
+/**
+ * ```ts
+ * Uint32Array
+ * ```
+ * @internal
+ */
+export declare const UINT32ARRAY: typeof Uint32Array;
+export declare const __NAME_UINT32ARRAY: "Uint32Array";
+export declare const __OBJECTTAG_UINT32ARRAY: "[object Uint32Array]";
+/**
+ * ```ts
+ * Int8Array
+ * ```
+ * @internal
+ */
+export declare const INT8ARRAY: typeof Int8Array;
+export declare const __NAME_INT8ARRAY: "Int8Array";
+export declare const __OBJECTTAG_INT8ARRAY: "[object Int8Array]";
+/**
+ * ```ts
+ * Int16Array
+ * ```
+ * @internal
+ */
+export declare const INT16ARRAY: typeof Int16Array;
+export declare const __NAME_INT16ARRAY: "Int16Array";
+export declare const __OBJECTTAG_INT16ARRAY: "[object Int16Array]";
+/**
+ * ```ts
+ * Int32Array
+ * ```
+ * @internal
+ */
+export declare const INT32ARRAY: typeof Int32Array;
+export declare const __NAME_INT32ARRAY: "Int32Array";
+export declare const __OBJECTTAG_INT32ARRAY: "[object Int32Array]";
+/**
+ * ```ts
+ * BigUint64Array
+ * ```
+ * @internal
+ */
+export declare const BIGUINT64ARRAY: typeof BigUint64Array;
+export declare const __NAME_BIGUINT64ARRAY: "BigUint64Array";
+export declare const __OBJECTTAG_BIGUINT64ARRAY: "[object BigUint64Array]";
+/**
+ * ```ts
+ * BigInt64Array
+ * ```
+ * @internal
+ */
+export declare const BIGINT64ARRAY: typeof BigInt64Array;
+export declare const __NAME_BIGINT64ARRAY: "BigInt64Array";
+export declare const __OBJECTTAG_BIGINT64ARRAY: "[object BigInt64Array]";
+/**
+ * ```ts
+ * Float32Array
+ * ```
+ * @internal
+ */
+export declare const FLOAT32ARRAY: typeof Float32Array;
+export declare const __NAME_FLOAT32ARRAY: "Float32Array";
+export declare const __OBJECTTAG_FLOAT32ARRAY: "[object Float32Array]";
+/**
+ * ```ts
+ * Float64Array
+ * ```
+ * @internal
+ */
+export declare const FLOAT64ARRAY: typeof Float64Array;
+export declare const __NAME_FLOAT64ARRAY: "Float64Array";
+export declare const __OBJECTTAG_FLOAT64ARRAY: "[object Float64Array]";
+//# sourceMappingURL=generated.d.ts.map

@@ -1,0 +1,196 @@
+import type { Callbag, DATA, END, Source, START } from "callbag"
+
+import {
+  addEventListener,
+  removeEventListener,
+} from "@yuyi919/shared-proto/dom"
+import { isFn } from "@yuyi919/shared-proto/JsTypes"
+
+import { SYMBOL, UNDEFINED } from "./constant"
+
+const START = 0 as START
+const DATA = 1 as DATA
+const END = 2 as END
+
+export type CallbagInput<I, O> =
+  // handshake:
+  | { _tag: START; _0: true; _1: Callbag<O, I> }
+  // data from source:
+  | { _tag: DATA; _0: true; error: I }
+  // pull request:
+  | { _tag: DATA; _0: false; _1: undefined }
+  // error:
+  | { _tag: END; _0: true; error: unknown }
+  // end without error:
+  | { _tag: END; _0: false; _1: undefined }
+
+export const CallbagInput: {
+  <I, O>(
+    type: START,
+    hasArgs: true,
+    talkback: Callbag<O, I>,
+  ): CallbagInput<I, O>
+  <I>(type: DATA, hasArgs: true, data: I): CallbagInput<I, never>
+  <I>(type: DATA, hasArgs: false, _1: undefined): CallbagInput<I, never>
+  <I>(type: END, hasArgs: true, error: unknown): CallbagInput<I, never>
+  <I>(type: END, hasArgs: false, _1: undefined): CallbagInput<I, never>
+} = (_tag: END | DATA | START, _0: boolean, _1: any) =>
+  ({
+    _tag,
+    _0,
+    _1,
+  }) as any
+
+// export function defineStart<T>(handler: () => ): Source<T> {
+
+// }
+
+export function MAKE_START<T>(
+  fn: (sink: Callbag<T, never>) => void,
+): Source<T> {
+  return (type, e?) => (type === START ? fn(e) : UNDEFINED)
+}
+
+export function fromEventTarget<T extends keyof HTMLElementEventMap>(
+  node: EventTarget,
+  name: T,
+  options?: boolean | AddEventListenerOptions,
+): Source<HTMLElementEventMap[T]> {
+  let count = 0
+  return MAKE_START((sink) => {
+    let disposed = false
+    const handler = (ev: Event) => sink(1, ev as HTMLElementEventMap[T])
+    sink(0, (t, _?) => {
+      if (t !== END) return
+      count--
+      disposed = true
+      removeEventListener(node, name, handler, options)
+    })
+    if (disposed) return
+    count++
+    addEventListener(node, name, handler, options)
+  })
+}
+
+export function fromIterator<T>(iterator: Iterator<T>): Source<T> {
+  return MAKE_START((sink) => {
+    let inloop = false
+    let got1 = false
+    let completed = false
+    let res: IteratorResult<T> | undefined
+    sink(0, (t, _?) => {
+      if (completed) return
+      if (t === DATA) {
+        got1 = true
+        if (!inloop && !(res && res.done)) {
+          inloop = true
+          while (got1 && !completed) {
+            got1 = false
+            res = iterator.next()
+            if (res.done) {
+              sink(2)
+              break
+            } else sink(1, res.value)
+          }
+          inloop = false
+        }
+      } else if (t === END) {
+        completed = true
+      }
+    })
+  })
+}
+export function fromIterable<T>(iterator: Iterable<T>): Source<T> {
+  return MAKE_START((sink) =>
+    fromIterator(iterator[SYMBOL.iterator]())(0, sink),
+  )
+}
+export function watch<T>(
+  operation: (data: T) => void,
+): (source: Source<T>) => Dispose {
+  return (source) => {
+    let talkback: Callbag<never, T>
+    source(0, (t, d?) => {
+      if (t === START && !talkback) talkback = d
+      if (t === DATA) operation(d!)
+      if (t === DATA || t === START) talkback(1)
+    })
+    return () => talkback?.(2)
+  }
+}
+
+export function listen<T>(
+  operation: (data: T) => void,
+): (source: Source<T>) => Dispose {
+  return (source) => {
+    let talkback: Callbag<never, T>
+    source(0, (t, d?) => {
+      if (t === START) talkback = d
+      if (t === DATA) operation(d!)
+    })
+    return () => talkback?.(2)
+  }
+}
+
+export function map<I, O>(f: (d: I) => O): (source: Source<I>) => Source<O> {
+  return (source) =>
+    MAKE_START((sink) =>
+      source(0, (t, d?) => {
+        t === DATA ? sink(t, f(d!)) : sink(t as 2, d)
+      }),
+    )
+}
+
+export function filter<I>(
+  condition: (d: I) => boolean,
+): (source: Source<I>) => Source<I> {
+  return (source) =>
+    MAKE_START((sink) => {
+      let talkback: Callbag<never, I>
+      source(0, (t, d?) => {
+        if (t === START) {
+          talkback = d
+          sink(t, d)
+        } else if (t === DATA) {
+          if (condition(d!)) sink(t, d!)
+          else talkback(1)
+        } else sink(t, d)
+      })
+    })
+}
+
+export type Listener<T> = (data: T) => any
+
+export type Subscriber<T> = {
+  next?: Listener<T>
+  error?: (err: unknown) => any
+  complete?: () => any
+}
+
+export type Dispose = () => void
+
+export function subscribe<T>(
+  listener: Listener<T> | Subscriber<T> = {},
+): (source: Source<T>) => Dispose {
+  if (isFn(listener)) {
+    listener = { next: listener }
+  }
+  return (source) => {
+    let { next, error, complete } = listener
+    let emit: Callbag<never, T>
+
+    source(0, (t, d?) => {
+      if (t === START) emit = d
+      if (t === DATA && next) next(d!)
+      if (t === DATA || t === START) emit(1) // Pull
+      if (t === END) {
+        !d && complete && complete()
+        !!d && error && error(d)
+      }
+    })
+
+    const dispose = () => emit && emit(2)
+
+    return dispose
+  }
+}

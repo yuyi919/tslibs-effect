@@ -1,0 +1,95 @@
+import { IS_ARR } from "./internal/constant/index.js";
+import * as helper from "./internal/helper.js";
+
+// type t1 = ReplaceElement<t<1>, 2>
+// type t2 = ReplaceElement<RA<1>, 2>
+// type t3 = ReplaceElement<NEA<1>, 2>
+// type t4 = ReplaceElement<RNEA<1>, 2>
+export let forEach = (self, f) => self.forEach(f);
+export let tap = (self, f) => (forEach(self, f), self);
+export let find = (self, f) => self.find(f);
+export let findLast = (self, f) => self.findLast(f);
+/**
+ * @remark check {@link ReadonlyArray.every}
+ */
+export let every = helper.every;
+export let refineEvery = (f) => (self) => every(self, f);
+// findLast([[]] as (number | string)[][], refineEvery(isNum))?.map((a) => a + 1)
+// findLast([[]] as (number[] | string[])[], refineEvery(isNum))?.map((a) => a + 1)
+// let i1 = [[0]] as Array<RNEA<number | string>>
+// let t2 = every(i1, refineEvery(isStr)) && forEach(i1, (a) => a)
+/**
+ * @remark check {@link ReadonlyArray.indexOf}
+ */
+export let indexOf = (self, searchElement, fromIndex) =>
+  self.indexOf(searchElement, fromIndex);
+/**
+ * @remark check {@link ReadonlyArray.lastIndexOf}
+ */
+export let lastIndexOf = (self, searchElement, fromIndex) =>
+  self.lastIndexOf(searchElement, fromIndex);
+/**
+ * @remark check {@link Array.splice}
+ */
+export let splice = (self, startIndex, ...others) =>
+  self.splice(startIndex, ...others);
+/**
+ * @remark check {@link ReadonlyArray.toSpliced}
+ */
+export let toSpliced = (self, startIndex, ...others) =>
+  self.toSpliced(startIndex, ...others);
+/**
+ * @remark check {@link Array.splice}
+ */
+export let removeElement = (self, startIndex, deleteCount = 1) =>
+  splice(self, startIndex, deleteCount);
+/**
+ *
+ * @param self - array
+ * @param searchElement - see {@link Array.indexOf}
+ * @param fromIndex - (DEFAULT: 0) see {@link Array.indexOf}
+ * @param deleteCount - (DEFAULT: 1) see {@link Array.slice}
+ * @returns succeed or fail
+ */
+export let removeElementByIndexOf = (
+  self,
+  searchElement,
+  fromIndex,
+  deleteCount = 1,
+) =>
+  (fromIndex = indexOf(self, searchElement, fromIndex)) > -1 &&
+  (removeElement(self, fromIndex, deleteCount), true);
+/**
+ * @remark check {@link Array.reduce} or {@link ReadonlyArray.reduce}
+ */
+export let reduce = (fa, ...args) => fa.reduce(...args);
+/**
+ * @remark check {@link Array.reduceRight} or {@link ReadonlyArray.reduceRight}
+ */
+export let reduceRight = (fa, ...args) => fa.reduceRight(...args);
+// reduceRight([1] as NEA<number>, (r, a, i, arr) => r + a)
+// reduceRight([1] as RNEA<number>, (r, a, i, arr) => r + a + "", "0")
+// reduceRight([1] as Array<number>, (r, a, i, arr) => r + a)
+// reduceRight([1] as RA<number>, (r, a, i, arr) => r + a, 0)
+// let arr = [1] as (string | number)[]
+// every(arr, isStr) && arr.forEach((a) => a)
+//
+export let includes = (self, value, fromIndex) =>
+  self.includes(value, fromIndex);
+export let join = (self, separator) => self.join(separator);
+export let filterJoin = (self, predicate, sep = ",") =>
+  reduce(
+    self,
+    (r, a, i, self) => (predicate(a, i, self) ? (r ? r + sep + a : a + "") : r),
+    "",
+  );
+/**
+ * @remark check {@link Array.filter} or {@link ReadonlyArray.filter}
+ */
+export let filter = (self, predicate) => self.filter(predicate);
+/**
+ * @remark check {@link Array.map} or {@link ReadonlyArray.map}
+ */
+export let map = (self, mapFn, thisArgs) => self.map(mapFn, thisArgs);
+export let isArray = IS_ARR;
+//# sourceMappingURL=Array.js.map

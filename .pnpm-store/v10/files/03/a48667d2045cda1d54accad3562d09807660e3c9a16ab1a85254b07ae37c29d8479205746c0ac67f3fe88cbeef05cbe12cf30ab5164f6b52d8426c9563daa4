@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/AbortSignal.js",
+  "module": "../dist/esm/AbortSignal.js",
+  "types": "../dist/esm/AbortSignal.d.ts",
+  "sideEffects": []
+}

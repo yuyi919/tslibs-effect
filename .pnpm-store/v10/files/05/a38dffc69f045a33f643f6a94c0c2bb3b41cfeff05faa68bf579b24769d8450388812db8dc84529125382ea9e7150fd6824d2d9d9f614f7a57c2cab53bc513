@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Equivalence.js",
+  "module": "../dist/esm/Equivalence.js",
+  "types": "../dist/esm/Equivalence.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/NonEmptyArray.js",
+  "module": "../dist/esm/NonEmptyArray.js",
+  "types": "../dist/esm/NonEmptyArray.d.ts",
+  "sideEffects": []
+}

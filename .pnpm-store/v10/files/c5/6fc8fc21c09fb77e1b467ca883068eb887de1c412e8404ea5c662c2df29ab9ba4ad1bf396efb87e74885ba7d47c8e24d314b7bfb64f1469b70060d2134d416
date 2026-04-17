@@ -1,0 +1,5 @@
+// 修改自 https://github.com/fp4ts/fp4ts/blob/master/packages/core
+// 遵循 MIT
+// 添加了一点函数
+export * from "./function/index.js";
+//# sourceMappingURL=Functions.js.map

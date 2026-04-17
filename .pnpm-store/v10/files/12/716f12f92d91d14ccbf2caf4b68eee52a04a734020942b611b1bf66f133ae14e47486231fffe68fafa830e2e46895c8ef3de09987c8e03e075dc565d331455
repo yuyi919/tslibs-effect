@@ -1,0 +1,304 @@
+import { __KEY_OBJ } from "./keys";
+
+export type ObjectTag<S extends string> = `[object ${S}]`;
+
+/** @internal */
+export const _makeObjTag = <const Name extends string>(
+  name: Name,
+): ObjectTag<Name> => `[${__KEY_OBJ} ${name}]`;
+export const name = <K>(target: { name: K }): K => target.name;
+/**
+ * ```ts
+ * Number
+ * ```
+ * @internal
+ */
+export const NUMBER: typeof Number = Number;
+export const __NAME_NUMBER: "Number" = name(NUMBER) as "Number";
+export const __OBJECTTAG_NUMBER: "[object Number]" = _makeObjTag(__NAME_NUMBER);
+/**
+ * ```ts
+ * String
+ * ```
+ * @internal
+ */
+export const STRING: typeof String = String;
+export const __NAME_STRING: "String" = name(STRING) as "String";
+export const __OBJECTTAG_STRING: "[object String]" = _makeObjTag(__NAME_STRING);
+/**
+ * ```ts
+ * Boolean
+ * ```
+ * @internal
+ */
+export const BOOLEAN: typeof Boolean = Boolean;
+export const __NAME_BOOLEAN: "Boolean" = name(BOOLEAN) as "Boolean";
+export const __OBJECTTAG_BOOLEAN: "[object Boolean]" =
+  _makeObjTag(__NAME_BOOLEAN);
+/**
+ * ```ts
+ * RegExp
+ * ```
+ * @internal
+ */
+export const REGEXP: typeof RegExp = RegExp;
+export const __NAME_REGEXP: "RegExp" = name(REGEXP) as "RegExp";
+export const __OBJECTTAG_REGEXP: "[object RegExp]" = _makeObjTag(__NAME_REGEXP);
+/**
+ * ```ts
+ * Object
+ * ```
+ * @internal
+ */
+export const OBJECT: typeof Object = Object;
+export const __NAME_OBJECT: "Object" = name(OBJECT) as "Object";
+export const __OBJECTTAG_OBJECT: "[object Object]" = _makeObjTag(__NAME_OBJECT);
+/**
+ * ```ts
+ * BigInt
+ * ```
+ * @internal
+ */
+export const BIGINT: typeof BigInt = BigInt;
+export const __NAME_BIGINT: "BigInt" = name(BIGINT) as "BigInt";
+export const __OBJECTTAG_BIGINT: "[object BigInt]" = _makeObjTag(__NAME_BIGINT);
+/**
+ * ```ts
+ * Function
+ * ```
+ * @internal
+ */
+export const FUNCTION: typeof Function = Function;
+export const __NAME_FUNCTION: "Function" = name(FUNCTION) as "Function";
+export const __OBJECTTAG_FUNCTION: "[object Function]" =
+  _makeObjTag(__NAME_FUNCTION);
+/**
+ * ```ts
+ * Array
+ * ```
+ * @internal
+ */
+export const ARRAY: typeof Array = Array;
+export const __NAME_ARRAY: "Array" = name(ARRAY) as "Array";
+export const __OBJECTTAG_ARRAY: "[object Array]" = _makeObjTag(__NAME_ARRAY);
+/**
+ * ```ts
+ * Map
+ * ```
+ * @internal
+ */
+export const MAP: typeof Map = Map;
+export const __NAME_MAP: "Map" = name(MAP) as "Map";
+export const __OBJECTTAG_MAP: "[object Map]" = _makeObjTag(__NAME_MAP);
+/**
+ * ```ts
+ * Set
+ * ```
+ * @internal
+ */
+export const SET: typeof Set = Set;
+export const __NAME_SET: "Set" = name(SET) as "Set";
+export const __OBJECTTAG_SET: "[object Set]" = _makeObjTag(__NAME_SET);
+/**
+ * ```ts
+ * Symbol
+ * ```
+ * @internal
+ */
+export const SYMBOL: typeof Symbol = Symbol;
+export const __NAME_SYMBOL: "Symbol" = name(SYMBOL) as "Symbol";
+export const __OBJECTTAG_SYMBOL: "[object Symbol]" = _makeObjTag(__NAME_SYMBOL);
+/**
+ * ```ts
+ * ArrayBuffer
+ * ```
+ * @internal
+ */
+export const ARRAYBUFFER: typeof ArrayBuffer = ArrayBuffer;
+export const __NAME_ARRAYBUFFER: "ArrayBuffer" = name(
+  ARRAYBUFFER,
+) as "ArrayBuffer";
+export const __OBJECTTAG_ARRAYBUFFER: "[object ArrayBuffer]" =
+  _makeObjTag(__NAME_ARRAYBUFFER);
+/**
+ * ```ts
+ * DataView
+ * ```
+ * @internal
+ */
+export const DATAVIEW: typeof DataView = DataView;
+export const __NAME_DATAVIEW: "DataView" = name(DATAVIEW) as "DataView";
+export const __OBJECTTAG_DATAVIEW: "[object DataView]" =
+  _makeObjTag(__NAME_DATAVIEW);
+/**
+ * ```ts
+ * Date
+ * ```
+ * @internal
+ */
+export const DATE: typeof Date = Date;
+export const __NAME_DATE: "Date" = name(DATE) as "Date";
+export const __OBJECTTAG_DATE: "[object Date]" = _makeObjTag(__NAME_DATE);
+/**
+ * ```ts
+ * WeakSet
+ * ```
+ * @internal
+ */
+export const WEAKSET: typeof WeakSet = WeakSet;
+export const __NAME_WEAKSET: "WeakSet" = name(WEAKSET) as "WeakSet";
+export const __OBJECTTAG_WEAKSET: "[object WeakSet]" =
+  _makeObjTag(__NAME_WEAKSET);
+/**
+ * ```ts
+ * WeakMap
+ * ```
+ * @internal
+ */
+export const WEAKMAP: typeof WeakMap = WeakMap;
+export const __NAME_WEAKMAP: "WeakMap" = name(WEAKMAP) as "WeakMap";
+export const __OBJECTTAG_WEAKMAP: "[object WeakMap]" =
+  _makeObjTag(__NAME_WEAKMAP);
+/**
+ * ```ts
+ * WeakRef
+ * ```
+ * @internal
+ */
+export const WEAKREF: typeof WeakRef = WeakRef;
+export const __NAME_WEAKREF: "WeakRef" = name(WEAKREF) as "WeakRef";
+export const __OBJECTTAG_WEAKREF: "[object WeakRef]" =
+  _makeObjTag(__NAME_WEAKREF);
+/**
+ * ```ts
+ * Error
+ * ```
+ * @internal
+ */
+export const ERROR: typeof Error = Error;
+export const __NAME_ERROR: "Error" = name(ERROR) as "Error";
+export const __OBJECTTAG_ERROR: "[object Error]" = _makeObjTag(__NAME_ERROR);
+/**
+ * ```ts
+ * Uint8Array
+ * ```
+ * @internal
+ */
+export const UINT8ARRAY: typeof Uint8Array = Uint8Array;
+export const __NAME_UINT8ARRAY: "Uint8Array" = name(UINT8ARRAY) as "Uint8Array";
+export const __OBJECTTAG_UINT8ARRAY: "[object Uint8Array]" =
+  _makeObjTag(__NAME_UINT8ARRAY);
+/**
+ * ```ts
+ * Uint8ClampedArray
+ * ```
+ * @internal
+ */
+export const UINT8CLAMPEDARRAY: typeof Uint8ClampedArray = Uint8ClampedArray;
+export const __NAME_UINT8CLAMPEDARRAY: "Uint8ClampedArray" = name(
+  UINT8CLAMPEDARRAY,
+) as "Uint8ClampedArray";
+export const __OBJECTTAG_UINT8CLAMPEDARRAY: "[object Uint8ClampedArray]" =
+  _makeObjTag(__NAME_UINT8CLAMPEDARRAY);
+/**
+ * ```ts
+ * Uint16Array
+ * ```
+ * @internal
+ */
+export const UINT16ARRAY: typeof Uint16Array = Uint16Array;
+export const __NAME_UINT16ARRAY: "Uint16Array" = name(
+  UINT16ARRAY,
+) as "Uint16Array";
+export const __OBJECTTAG_UINT16ARRAY: "[object Uint16Array]" =
+  _makeObjTag(__NAME_UINT16ARRAY);
+/**
+ * ```ts
+ * Uint32Array
+ * ```
+ * @internal
+ */
+export const UINT32ARRAY: typeof Uint32Array = Uint32Array;
+export const __NAME_UINT32ARRAY: "Uint32Array" = name(
+  UINT32ARRAY,
+) as "Uint32Array";
+export const __OBJECTTAG_UINT32ARRAY: "[object Uint32Array]" =
+  _makeObjTag(__NAME_UINT32ARRAY);
+/**
+ * ```ts
+ * Int8Array
+ * ```
+ * @internal
+ */
+export const INT8ARRAY: typeof Int8Array = Int8Array;
+export const __NAME_INT8ARRAY: "Int8Array" = name(INT8ARRAY) as "Int8Array";
+export const __OBJECTTAG_INT8ARRAY: "[object Int8Array]" =
+  _makeObjTag(__NAME_INT8ARRAY);
+/**
+ * ```ts
+ * Int16Array
+ * ```
+ * @internal
+ */
+export const INT16ARRAY: typeof Int16Array = Int16Array;
+export const __NAME_INT16ARRAY: "Int16Array" = name(INT16ARRAY) as "Int16Array";
+export const __OBJECTTAG_INT16ARRAY: "[object Int16Array]" =
+  _makeObjTag(__NAME_INT16ARRAY);
+/**
+ * ```ts
+ * Int32Array
+ * ```
+ * @internal
+ */
+export const INT32ARRAY: typeof Int32Array = Int32Array;
+export const __NAME_INT32ARRAY: "Int32Array" = name(INT32ARRAY) as "Int32Array";
+export const __OBJECTTAG_INT32ARRAY: "[object Int32Array]" =
+  _makeObjTag(__NAME_INT32ARRAY);
+/**
+ * ```ts
+ * BigUint64Array
+ * ```
+ * @internal
+ */
+export const BIGUINT64ARRAY: typeof BigUint64Array = BigUint64Array;
+export const __NAME_BIGUINT64ARRAY: "BigUint64Array" = name(
+  BIGUINT64ARRAY,
+) as "BigUint64Array";
+export const __OBJECTTAG_BIGUINT64ARRAY: "[object BigUint64Array]" =
+  _makeObjTag(__NAME_BIGUINT64ARRAY);
+/**
+ * ```ts
+ * BigInt64Array
+ * ```
+ * @internal
+ */
+export const BIGINT64ARRAY: typeof BigInt64Array = BigInt64Array;
+export const __NAME_BIGINT64ARRAY: "BigInt64Array" = name(
+  BIGINT64ARRAY,
+) as "BigInt64Array";
+export const __OBJECTTAG_BIGINT64ARRAY: "[object BigInt64Array]" =
+  _makeObjTag(__NAME_BIGINT64ARRAY);
+/**
+ * ```ts
+ * Float32Array
+ * ```
+ * @internal
+ */
+export const FLOAT32ARRAY: typeof Float32Array = Float32Array;
+export const __NAME_FLOAT32ARRAY: "Float32Array" = name(
+  FLOAT32ARRAY,
+) as "Float32Array";
+export const __OBJECTTAG_FLOAT32ARRAY: "[object Float32Array]" =
+  _makeObjTag(__NAME_FLOAT32ARRAY);
+/**
+ * ```ts
+ * Float64Array
+ * ```
+ * @internal
+ */
+export const FLOAT64ARRAY: typeof Float64Array = Float64Array;
+export const __NAME_FLOAT64ARRAY: "Float64Array" = name(
+  FLOAT64ARRAY,
+) as "Float64Array";
+export const __OBJECTTAG_FLOAT64ARRAY: "[object Float64Array]" =
+  _makeObjTag(__NAME_FLOAT64ARRAY);

@@ -1,0 +1,15 @@
+'use strict';
+
+var chunkWCQUO2EH_js = require('./chunk-WCQUO2EH.js');
+
+var t=chunkWCQUO2EH_js.a.SYMBOL.for,l=e=>`effect/${e}`,f=e=>`yui9/proto/${e}`,r=e=>t(l(e)),s=r("Equal"),c=r("Hash"),x=t("nodejs.util.inspect.custom");
+
+exports.a = t;
+exports.b = l;
+exports.c = f;
+exports.d = r;
+exports.e = s;
+exports.f = c;
+exports.g = x;
+//# sourceMappingURL=chunk-3OK5KYNT.js.map
+//# sourceMappingURL=chunk-3OK5KYNT.js.map

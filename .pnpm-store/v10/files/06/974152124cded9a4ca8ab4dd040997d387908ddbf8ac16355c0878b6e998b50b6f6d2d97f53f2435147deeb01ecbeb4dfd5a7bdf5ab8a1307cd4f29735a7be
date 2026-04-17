@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/FromIO.js",
+  "module": "../dist/esm/FromIO.js",
+  "types": "../dist/esm/FromIO.d.ts",
+  "sideEffects": []
+}

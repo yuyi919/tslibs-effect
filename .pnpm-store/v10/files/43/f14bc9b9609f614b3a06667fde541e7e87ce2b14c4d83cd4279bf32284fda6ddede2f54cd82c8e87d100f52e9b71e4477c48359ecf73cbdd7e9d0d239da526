@@ -1,0 +1,79 @@
+import { flow, pipe } from "@yuyi919/shared-proto/Functions"
+
+import * as E from "./expressive-ts"
+
+export * from "./expressive-ts"
+
+const patternCJK = E.pScript(["Han", "Hiragana", "Katakana"])
+const pattern1 = E.pattern(
+  E.chars(patternCJK, E.charAlphanum),
+  E.chars(patternCJK, E.charWord, E.char("_")),
+  E.zeroOrMore,
+)
+
+const pattern2 = E.pattern(
+  E.chars(patternCJK, E.charAlphanum, E.char("_")),
+  E.chars(patternCJK, E.charWord, E.char("_")),
+  E.oneOrMore,
+)
+
+export const IDENTIFIER = E.make(
+  flow(E.exp(pattern1), E.concatOr, E.exp(pattern2)),
+  flow(E.unicode, E.sticky),
+)
+
+export const takeUntil = (modifier: Modifiers, patterns: Patterns) =>
+  E.make(flow(E.oneOfNot(patterns), E.add(modifier), E.sticky))
+
+export type Modifiers = `${"+" | "*"}${"?" | ""}`
+export type Patterns = (string | RegExp)[]
+
+export function takeUntilClosed(
+  modifier: Modifiers,
+  closePattern: Patterns,
+): RegExp
+export function takeUntilClosed(pattern: string, closePattern: Patterns): RegExp
+export function takeUntilClosed(
+  modifier: string | Modifiers,
+  patterns: Patterns,
+): RegExp {
+  return E.make(
+    modifier.startsWith("*") || modifier.startsWith("+")
+      ? flow(E.add("."), E.add(modifier))
+      : E.add(modifier),
+    pipe(
+      patterns.length === 1 ? E.from(patterns[0]!) : E.oneOf(patterns),
+      E.withLookAhead,
+    ),
+    flow(E.sticky),
+  )
+}
+
+export const SPACE = /[ \t]+/y
+
+export const WHITESPACE = /\s+/y
+
+export const INT = /\b\d+\b/y
+
+export const FLOAT = /\b(?:\d+[.]\d*|[.]\d+)\b/y
+
+export const NUMBER = /\b(?:\d+(?:[.](?:\d+\b|(?=[\s\W]))|\b)|[.]\d+\b)/y
+
+export function ALTS(patterns: RegExp[], flags?: string): RegExp
+export function ALTS(
+  patterns: [RegExp, ...args: RegExp[]],
+  flags?: string,
+): RegExp
+export function ALTS(patterns: RegExp[], flags?: string): RegExp {
+  return pipe(
+    E.pattern(
+      patterns
+        .slice(1)
+        .reduce((r, a) => flow(r, E.concatOr, E.from(a)), E.from(patterns[0]!)),
+      flow(E.unicode, E.sticky),
+    ),
+    flags ? E.toRegexWithFlags(flags) : E.toRegex,
+  )
+}
+
+export const IDENTIFIER_OR_NUMBER = ALTS([NUMBER, IDENTIFIER], "yu")

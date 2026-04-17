@@ -1,0 +1,31 @@
+export namespace cache {
+    let _fontStyle: number;
+    let _fontVariant: number;
+    let _fontWeight: number;
+    let _fontSize: number;
+    let _fontFamily: number;
+    let _font: string;
+    let _fontHash: number;
+    let _fontHash_str: string;
+    let _letterSpacing: number;
+    let _option_id: number;
+    let _cache_measure: {
+        [k: string]: number;
+    };
+    function save(): void;
+}
+export namespace Exports {
+    export { measureTextWidth };
+    export { getTextFont };
+    export { printCache };
+    export { output };
+    export { outputStr };
+}
+export function measureTextWidth(text: any, fontStyle: any, fontVariant: any, fontWeight: any, fontSize: any, fontFamily: any, letterSpacing: any): any[];
+export function getTextFont(text: any, width: any, fontStyle: any, fontVariant: any, fontWeight: any, fontSize: any, fontFamily: any, letterSpacing: any): any[];
+export function output(key: any): any;
+export function outputStr(key: any): string | undefined;
+export function measureWidth(text: any, fontStyle: any, fontVariant: any, fontWeight: any, fontSize: any, fontFamily: any, letterSpacing: any): any[];
+export function measureWidth2(text: any): any;
+export function printCache(): void;
+//# sourceMappingURL=Font.bs.d.ts.map

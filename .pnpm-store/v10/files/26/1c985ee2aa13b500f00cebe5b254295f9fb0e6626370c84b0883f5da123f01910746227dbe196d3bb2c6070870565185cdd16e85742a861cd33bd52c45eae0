@@ -1,0 +1,99 @@
+@genType
+let r = SingleShotGen.Fiber(
+  () =>
+    SingleShotGen.constant(1)
+    ->SingleShotGen.bindTo("name")
+    ->SingleShotGen.tap(e => Console.log(e))
+    ->SingleShotGen.bind(~name="app", _ => SingleShotGen.perform(2))
+    ->SingleShotGen.tap(e => Console.log(e)),
+)
+
+@inline @genType
+let execWith = (
+  gen: SingleShotGen.fiberFactory<'perform, 'next, 'r, 'a>,
+  context: 'r,
+  getResume: 'perform => 'next,
+) => {
+  let gen = switch gen {
+  | Fiber(gen) => gen(context)
+  // | FiberUnsafe({gen}) => gen(context)
+  }
+  let rec exec = (input: 'next) => {
+    switch gen->SingleShotGen.resume(input) {
+    | Done({value: res}) => res
+    | Suspend({value: perform}) => exec(getResume(perform))
+    }
+  }
+  switch gen->SingleShotGen.init() {
+  | Done({value: res}) => res
+  | Suspend({value: perform}) => exec(getResume(perform))
+  }
+}
+
+@inline @genType
+let run = (
+  gen: SingleShotGen.fiberFactory<'perform, 'next, unit, 'a>,
+  getResume: 'perform => 'next,
+) => execWith(gen, (), getResume)
+
+let r2 = SingleShotGen.Fiber(() => SingleShotGen.constant({"app": 2, "name": 1}))
+@genType
+let test = () => {
+  @inline
+  let resume = a => a
+  run(r2, resume)->ignore
+  run(r, resume)
+}
+
+@genType
+module Perform = {
+  @genType @tag("_tag")
+  type perform<'a> =
+    | Waiting('a)
+    | Ready('a)
+
+  @genType @tag("_tag")
+  type done<'a> =
+    | Finish('a)
+    | Overload('a, int)
+
+  @genType
+  type re<'perform, 'a> = SingleShotGen.result<perform<'perform>, done<'a>>
+
+  @genType
+  type t<'perform, 'next, 'a> = SingleShotGen.t<perform<'perform>, 'next, done<'a>>
+
+  @genType
+  type proto<'perform, 'next, 'a> = SingleShotGen.proto<perform<'perform>, 'next, done<'a>>
+}
+
+module Consumer = {
+  type delay = {
+    @as("_millis") millis: int,
+    @as("_consumed") mutable consumed: int,
+    @as("_overload") mutable overload: int,
+  }
+  let make = (millis: int): delay => {
+    millis,
+    consumed: 0,
+    overload: 0,
+  }
+  let consume = (self: delay, detla: int, target: 'a): Perform.re<'a, 'a> => {
+    if self.consumed >= self.millis {
+      SingleShotGen.done(
+        self.overload > 0 ? Perform.Overload(target, self.overload) : Perform.Finish(target),
+      )
+    } else {
+      self.consumed = self.consumed + detla
+      let overload = self.consumed - self.millis
+      self.overload = overload
+      overload >= 0
+        ? SingleShotGen.done(
+            overload > 0 ? Perform.Overload(target, overload) : Perform.Finish(target),
+          )
+        : SingleShotGen.suspend(Perform.Waiting(target))
+    }
+  }
+
+  let percent = (self: delay): float => Math.min(1., I32.div_float(self.consumed, self.millis))
+}

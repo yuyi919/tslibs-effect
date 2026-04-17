@@ -1,0 +1,7 @@
+'use strict';
+
+var a=(l,e)=>{let t=e(l);for(;t._tag==="Left";)t=e(t.left);return t.right};
+
+exports.tailRec = a;
+//# sourceMappingURL=ChainRec.js.map
+//# sourceMappingURL=ChainRec.js.map

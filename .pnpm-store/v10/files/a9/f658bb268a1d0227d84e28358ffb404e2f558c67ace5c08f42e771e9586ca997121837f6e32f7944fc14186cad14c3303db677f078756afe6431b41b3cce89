@@ -1,0 +1,2 @@
+export function isProd(): boolean;
+//# sourceMappingURL=Env.bs.d.ts.map

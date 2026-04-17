@@ -1,0 +1,175 @@
+/**
+ * @since 2.0.0
+ */import { pipe } from "./function.js";
+import { flap as flap_ } from "./Functor.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * Appends a value to the accumulator
+ *
+ * @category constructors
+ * @since 2.0.0
+ */
+export let tell = w => () => [undefined, w]; // -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * Modifies the result to include the changes to the accumulator
+ *
+ * @since 2.0.0
+ */
+export let listen = fa => () => {
+  let [a, w] = fa();
+  return [[a, w], w];
+}; /**
+   * Applies the returned function to the accumulator
+   *
+   * @since 2.0.0
+   */
+export let pass = fa => () => {
+  let [[a, f], w] = fa();
+  return [a, f(w)];
+}; /**
+   * Projects a value from modifications made to the accumulator during an action
+   *
+   * @since 2.0.0
+   */
+export let listens = f => fa => () => {
+  let [a, w] = fa();
+  return [[a, f(w)], w];
+}; /**
+   * Modify the final accumulator value by applying a function
+   *
+   * @since 2.0.0
+   */
+export let censor = f => fa => () => {
+  let [a, w] = fa();
+  return [a, f(w)];
+}; /* istanbul ignore next */
+let _map = (fa, f) => map(f)(fa); /**
+                                  * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                  * use the type constructor `F` to represent some computational context.
+                                  *
+                                  * @category mapping
+                                  * @since 2.0.0
+                                  */
+export let map = f => fa => () => {
+  let [a, w] = fa();
+  return [f(a), w];
+}; /**
+   * @category type lambdas
+   * @since 2.0.0
+   */
+export let URI = "Writer"; /**
+                           * @category instances
+                           * @since 2.10.0
+                           */
+export let getPointed = M => ({
+  URI,
+  _E: undefined,
+  of: a => () => [a, M.empty]
+}); /**
+    * @category instances
+    * @since 2.10.0
+    */
+export let getApply = S => ({
+  URI,
+  _E: undefined,
+  map: _map,
+  ap: (fab, fa) => () => {
+    let [f, w1] = fab();
+    let [a, w2] = fa();
+    return [f(a), S.concat(w1, w2)];
+  }
+}); /**
+    * @category instances
+    * @since 2.10.0
+    */
+export let getApplicative = M => {
+  let A = getApply(M);
+  let P = getPointed(M);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    ap: A.ap,
+    of: P.of
+  };
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let getChain = S => {
+  let A = getApply(S);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    ap: A.ap,
+    chain: (fa, f) => () => {
+      let [a, w1] = fa();
+      let [b, w2] = f(a)();
+      return [b, S.concat(w1, w2)];
+    }
+  };
+}; /**
+   * @category instances
+   * @since 2.0.0
+   */
+export let getMonad = M => {
+  let A = getApplicative(M);
+  let C = getChain(M);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    ap: A.ap,
+    of: A.of,
+    chain: C.chain
+  };
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * @category mapping
+   * @since 2.10.0
+   */
+export let flap = /*#__PURE__*/flap_(Functor); // -------------------------------------------------------------------------------------
+// utils
+// -------------------------------------------------------------------------------------
+/**
+ * @since 2.8.0
+ */
+export let evaluate = fa => fa()[0]; /**
+                                     * @since 2.8.0
+                                     */
+export let execute = fa => fa()[1]; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use [`evaluate`](#evaluate) instead
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let evalWriter = fa => fa()[0]; /**
+                                       * Use [`execute`](#execute) instead
+                                       *
+                                       * @category zone of death
+                                       * @since 2.0.0
+                                       * @deprecated
+                                       */
+export let execWriter = fa => fa()[1]; /**
+                                       * Use [`Functor`](#functor) instead.
+                                       *
+                                       * @category zone of death
+                                       * @since 2.0.0
+                                       * @deprecated
+                                       */
+export let writer = Functor;
+//# sourceMappingURL=Writer.js.map

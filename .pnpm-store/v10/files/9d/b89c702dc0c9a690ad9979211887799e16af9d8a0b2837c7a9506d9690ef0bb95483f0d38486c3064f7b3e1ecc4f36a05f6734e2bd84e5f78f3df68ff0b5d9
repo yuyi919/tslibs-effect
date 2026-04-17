@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/AssertsT.js",
+  "module": "../dist/esm/AssertsT.js",
+  "types": "../dist/esm/AssertsT.d.ts",
+  "sideEffects": []
+}

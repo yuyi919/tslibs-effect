@@ -1,0 +1,7 @@
+export declare const ERRORS_TypeError: TypeErrorConstructor;
+export declare const ERRORS_EvalError: EvalErrorConstructor;
+export declare const ERRORS_RangeError: RangeErrorConstructor;
+export declare const ERRORS_SyntaxError: SyntaxErrorConstructor;
+export declare const ERRORS_ReferenceError: ReferenceErrorConstructor;
+export { ERROR } from "./atomic/generated";
+//# sourceMappingURL=errors.d.ts.map

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/JsTypes.shim.js",
+  "module": "../dist/esm/JsTypes.shim.js",
+  "types": "../dist/esm/JsTypes.shim.d.ts",
+  "sideEffects": []
+}

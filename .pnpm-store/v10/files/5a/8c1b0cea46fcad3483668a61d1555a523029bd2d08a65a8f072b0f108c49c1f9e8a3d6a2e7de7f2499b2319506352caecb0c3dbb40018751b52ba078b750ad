@@ -1,0 +1,9 @@
+'use strict';
+
+var chunk3Y24NWRM_js = require('./chunk-3Y24NWRM.js');
+
+var S=e=>{e.addSnapshotSerializer({serialize(r,o,p,a,n,s){return chunk3Y24NWRM_js.e(r,l=>s(l,o,p,a,n))},test:chunk3Y24NWRM_js.k});};
+
+exports.addOptionSnapshotSerializer = S;
+//# sourceMappingURL=Option.setup.js.map
+//# sourceMappingURL=Option.setup.js.map

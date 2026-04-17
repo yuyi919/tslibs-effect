@@ -1,0 +1,47 @@
+import * as NA from "fp-ts/NonEmptyArray";
+import * as Exp from "../patterns";
+import * as Parser from "./Parser";
+import * as C from "./parser-ts/char";
+export * from "./parser-ts/string";
+export declare const from: (pattern: string | RegExp) => Parser.Parser<string, string>;
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export declare function oneOfString<K extends string>(strs: [K, ...K[]]): Parser.Parser<string, K>;
+export declare function oneOfPattern<K extends string>(patterns: [K | RegExp, ...(K | RegExp)[]]): Parser.t<string, string>;
+export declare const string: <K extends string>(str: K) => Parser.t<string, K>;
+export declare const expMap: <T>(map: (matched: RegExpExecArray) => T) => (regex: Exp.ExpressionBuilder) => Parser.t<string, T>;
+export declare function regexpMap<T>(regex: RegExp, map: (matched: RegExpExecArray) => T): Parser.t<string, T>;
+export declare const exp: (regex: Exp.ExpressionBuilder, matchIndex?: number | undefined) => Parser.t<string, string>;
+export declare function regexp(regex: RegExp, matchIndex?: number | undefined): Parser.t<string, string>;
+export declare const EOF: Parser.Parser<string, string>;
+export declare const EOL: Parser.Parser<string, string>;
+export declare const MANY_SPACE_EOL: Parser.Parser<string, string>;
+export declare const TOKEN_END: Parser.Parser<string, string | C.Char>;
+export declare const castArray: <I>(parser: Parser.t<I, string>) => Parser.t<I, string[]>;
+export declare const chainConcat: <I>(i: Parser.t<I, string>) => ((a: Parser.t<I, string>) => Parser.t<I, string>);
+export declare const chainConcatLazy: <I>(i: () => Parser.t<I, string>) => ((a: Parser.t<I, string>) => Parser.t<I, string>);
+export declare const keyword: (str: string) => Parser.Parser<string, string>;
+export declare const spaces: Parser.Parser<string, string>;
+export declare const spaces1: Parser.Parser<string, string>;
+export declare const notSpaces: Parser.Parser<string, string>;
+export declare const notSpaces1: Parser.Parser<string, string>;
+export declare const spacesInline: Parser.Parser<string, string>;
+export declare const spacesInline1: Parser.Parser<string, string>;
+export declare const intS: Parser.Parser<string, string>;
+export declare const floatS: Parser.Parser<string, string>;
+export declare const _unit: Parser.Parser<unknown, string>;
+export declare const unit: <I>() => Parser.t<I, string>;
+export declare const maybeLazy: <I>(p: () => Parser.t<I, string>) => Parser.Parser<I, string>;
+export declare const betweenCat: <I>(left: Parser.t<I, string>, right: Parser.t<I, string>) => (p: Parser.t<I, string>) => Parser.Parser<I, string>;
+export declare const _betweenCat: <I>(content: Parser.t<I, string>, left: Parser.t<I, string>, right: Parser.t<I, string>) => Parser.Parser<I, string>;
+export declare function concat<I>(...all: NA.NonEmptyArray<Parser.t<I, string>>): Parser.t<I, string>;
+export declare const concatMaybe: <I>(maybe: Parser.t<I, string>) => ((content: Parser.t<I, string>) => Parser.t<I, string>);
+export declare const _concatMaybe: <I>(content: Parser.t<I, string>, maybe: Parser.t<I, string>) => Parser.t<I, string>;
+export declare const concatAll: (...strs: (string | string[])[]) => string[];
+export declare const join2: (a: string, b: string) => string;
+export declare const join3: (a: string, b: string, c: string) => string;
+export declare const joinAll: (strs: string[]) => string;
+export declare const join: (...strs: string[]) => string;
+//# sourceMappingURL=string.d.ts.map

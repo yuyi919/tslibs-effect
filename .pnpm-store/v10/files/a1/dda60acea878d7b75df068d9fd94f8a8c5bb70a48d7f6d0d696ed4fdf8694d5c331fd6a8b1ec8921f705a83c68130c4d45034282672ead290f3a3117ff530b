@@ -1,0 +1,141 @@
+export interface Lazy<A> {
+    (): A;
+}
+export declare function lazy<F extends () => any>(init: F): F;
+export declare function lazy<A>(init: () => A): Lazy<A>;
+export declare function cached<A extends object, B extends object>(f: (a: A) => B): (a: A) => B;
+/**
+ * wrapper for `ThrowStatement`
+ * @param e - throw e
+ * @return never
+ */
+export declare function raise(e: unknown): never;
+/**
+ * return an `Error(msg?, opts?)`
+ * @example
+ * raise(error("Invalid Argument"))
+ */
+export declare function error(message?: string | undefined, options?: ErrorOptions | undefined): Error;
+/**
+ * return a `TypeError(msg?, opts?)`
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export declare function typeError(message?: string | undefined, options?: ErrorOptions | undefined): Error;
+/**
+ * return a `SyntaxError(msg?, opts?)`
+ * @example
+ * raise(syntaxError("Invalid Input"))
+ */
+export declare function syntaxError(message?: string | undefined, options?: ErrorOptions | undefined): Error;
+/**
+ * alias for {@link raise}
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export declare function throwError(e: Error): never;
+/**
+ * @param a - Return value
+ * @returns `() => a`
+ */
+export declare function constant<A>(a: A): Lazy<A>;
+export declare function identity<A>(a: A): A;
+/**
+ * Casts the result to the specified type.
+ * @param a - The value to be casted to the target type.
+ */
+export declare function unsafeCoerce<B>(a: unknown): B;
+/**
+ * A function that ensures that the type of an expression matches some type,
+ * without changing the resulting type of that expression.
+ *
+ * @example
+ *
+ * const test1 = satisfies<number>()(5 as const)
+ *     //^? const test: 5
+ *     // @ts-expect-error
+ * const test2 = satisfies<string>()(5)
+ *     //^? Argument of type 'number' is not assignable to parameter of type 'string'
+ *
+ * assert.deepStrictEqual(satisfies<number>()(5), 5)
+ *
+ */
+export declare function satisfies<A>(): <B extends A>(b: B) => B;
+export declare function return1<A>(a: A, ...other: any[]): A;
+export declare function return2<B>(_a: unknown, b: B, ...other: unknown[]): B;
+export declare function return3<C>(_a: unknown, _b: unknown, c: C, ...other: unknown[]): C;
+export declare function return4<D>(_a: unknown, _b: unknown, _c: unknown, d: D, ...other: unknown[]): D;
+export declare function constantWith<F extends () => any>(expr: F): F;
+export declare function constantWith<A extends {}>(expr: () => A): Lazy<A>;
+export declare function fst<A, B>(x: readonly [A, B]): A;
+export declare function snd<A, B>(x: readonly [A, B]): B;
+export declare function flip<A extends readonly unknown[], B extends readonly unknown[], C>(f: (...a: A) => (...b: B) => C): (...b: B) => (...a: A) => C;
+export declare function flip0<A, B, C>(f: (a: A, b: B) => C): (b: B, a: A) => C;
+/**
+ * 将函数参数按顺序curry化
+ * @param f -
+ */
+export declare function curry<A, B, C>(f: (a: A, b: B) => C): (a: A) => (b: B) => C;
+/**
+ * 将函数参数按相反顺序curry化
+ * @param f -
+ */
+export declare function curryReverse<A, B, C>(f: (b: B, a: A) => C): (a: A) => (b: B) => C;
+/**
+ * 将函数参数按顺序反curry化
+ * @param f -
+ */
+export declare function uncurry<A, B, C>(f: (a: A) => (b: B) => C): (a: A, b: B) => C;
+/**
+ * 将函数参数按相反顺序反curry化
+ * @param f -
+ */
+export declare function uncurryReverse<A, B, C>(f: (b: B) => (a: A) => C): (a: A, b: B) => C;
+export declare function applyTo<A>(a: A): <B>(f: (a: A) => B) => B;
+export declare function tuple<A extends unknown[], R>(f: (...args: A) => R): (args: A) => R;
+export declare function untuple<A extends unknown[], R>(f: (args: A) => R): (...args: A) => R;
+/**
+ * The `absurd` function is a stub for cases where a value of type `never` is encountered in your code,
+ * meaning that it should be impossible for this code to be executed.
+ *
+ * This function is particularly when it's necessary to specify that certain cases are impossible.
+ *
+ */
+export declare function absurd<A>(x: never): A;
+export declare function absurd<A>(): A;
+export interface LengthLike {
+    readonly length: number;
+}
+export declare function len(target: LengthLike): number;
+export declare function lastIndex(target: LengthLike): number;
+export declare function lastElement<T>(target: ArrayLike<T>): T | undefined;
+export declare function firstElement<T>(target: ArrayLike<T>): T | undefined;
+export declare function _new<T extends {}, Args extends readonly any[]>(target: new (...args: Args) => T, args: Readonly<Args>, newTarget?: new (...args: any) => any): T;
+export declare function _new0<T extends {}>(Target: new () => T): T;
+export declare function _new1<T extends {}, Arg>(Target: new (arg: Arg) => T, arg: Arg): T;
+export declare function _new2<T extends {}, Arg, Args2>(Target: new (arg: Arg, arg2: Args2) => T, arg: Arg, arg2: Args2): T;
+export declare function makeNew<T extends {}, Args extends readonly any[]>(Target: new (...args: Args) => T): (...args: Args) => T;
+/**
+ * Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument.
+ *
+ * @example
+ *
+ * const sumTupled = tupled((x: number, y: number): number => x + y)
+ *
+ * assert.deepStrictEqual(sumTupled([1, 2]), 3)
+ *
+ */
+export declare function tupled<A extends ReadonlyArray<unknown>, B>(f: (...a: A) => B): (a: A) => B;
+/**
+ * Inverse function of `tupled`
+ *
+ * @example
+ *
+ * const getFirst = untupled(<A, B>(tuple: [A, B]): A => tuple[0])
+ *
+ * assert.deepStrictEqual(getFirst(1, 2), 1)
+ *
+ */
+export declare function untupled<A extends ReadonlyArray<unknown>, B>(f: (a: A) => B): (...a: A) => B;
+export declare function ignore(_: unknown): void;
+//# sourceMappingURL=core.d.ts.map

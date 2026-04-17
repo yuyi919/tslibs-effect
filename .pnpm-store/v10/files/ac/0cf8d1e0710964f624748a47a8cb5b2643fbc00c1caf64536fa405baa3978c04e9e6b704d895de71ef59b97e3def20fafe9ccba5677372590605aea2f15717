@@ -1,0 +1,14 @@
+'use strict';
+
+var uncrypto = require('uncrypto');
+
+
+
+Object.keys(uncrypto).forEach(function (k) {
+	if (k !== 'default' && !Object.prototype.hasOwnProperty.call(exports, k)) Object.defineProperty(exports, k, {
+		enumerable: true,
+		get: function () { return uncrypto[k]; }
+	});
+});
+//# sourceMappingURL=crypto.js.map
+//# sourceMappingURL=crypto.js.map

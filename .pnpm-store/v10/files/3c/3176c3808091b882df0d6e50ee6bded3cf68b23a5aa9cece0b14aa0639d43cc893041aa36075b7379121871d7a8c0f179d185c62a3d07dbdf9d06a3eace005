@@ -1,0 +1,20 @@
+/**
+ * `Witherable` represents data structures which can be _partitioned_ with effects in some `Applicative` functor.
+ *
+ * Adapted from https://github.com/LiamGoodacre/purescript-filterable/blob/master/src/Data/Witherable.purs
+ *
+ * @since 2.0.0
+ */import * as _ from "./internal.js";
+export let wiltDefault = (T, C) => F => {
+  let traverseF = T.traverse(F);
+  return (wa, f) => F.map(traverseF(wa, f), C.separate);
+};
+export let witherDefault = (T, C) => F => {
+  let traverseF = T.traverse(F);
+  return (wa, f) => F.map(traverseF(wa, f), C.compact);
+};
+export let filterE = W => F => {
+  let witherF = W.wither(F);
+  return predicate => ga => witherF(ga, a => F.map(predicate(a), b => b ? _.some(a) : _.none));
+};
+//# sourceMappingURL=Witherable.js.map

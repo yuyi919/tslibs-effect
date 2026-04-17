@@ -1,0 +1,17 @@
+'use strict';
+
+var l=(e,t,p)=>r=>r===-1?e():r===0?t():p(),a=l,x=e=>e===-1?1:e===1?-1:0,i={equals:(e,t)=>e===t},o={concat:(e,t)=>e!==0?e:t},n={concat:o.concat,empty:0},g=e=>e<=-1?-1:e>=1?1:0,m=x,d=o,s=i,q=n;
+
+exports.Eq = i;
+exports.Monoid = n;
+exports.Semigroup = o;
+exports.eqOrdering = s;
+exports.invert = m;
+exports.match = a;
+exports.matchW = l;
+exports.monoidOrdering = q;
+exports.reverse = x;
+exports.semigroupOrdering = d;
+exports.sign = g;
+//# sourceMappingURL=Ordering.js.map
+//# sourceMappingURL=Ordering.js.map

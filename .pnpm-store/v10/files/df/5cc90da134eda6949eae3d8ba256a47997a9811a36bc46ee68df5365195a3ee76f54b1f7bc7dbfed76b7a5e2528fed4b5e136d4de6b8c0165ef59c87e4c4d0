@@ -1,0 +1,33 @@
+'use strict';
+
+var g=t=>t;function f(t,e,r,l,o,n,m,c,d){switch(arguments.length){case 1:return t;case 2:return function(){return e(t.apply(this,arguments))};case 3:return function(){return r(e(t.apply(this,arguments)))};case 4:return function(){return l(r(e(t.apply(this,arguments))))};case 5:return function(){return o(l(r(e(t.apply(this,arguments)))))};case 6:return function(){return n(o(l(r(e(t.apply(this,arguments))))))};case 7:return function(){return m(n(o(l(r(e(t.apply(this,arguments)))))))};case 8:return function(){return c(m(n(o(l(r(e(t.apply(this,arguments))))))))};case 9:return function(){return d(c(m(n(o(l(r(e(t.apply(this,arguments)))))))))}}}var O=t=>t._tag==="Left";var N=t=>({_tag:"Left",left:t}),M=t=>({_tag:"Right",right:t});var R=(t,e)=>r=>l=>t.ap(t.map(l,o=>n=>e.ap(o,n)),r);var S=(t,e)=>r=>l=>t.map(l,o=>e.map(o,r));var u=N,x=M;var w=(t,e)=>z(e)(t),j=(t,e)=>J(e)(t);var _="Either";var z=t=>e=>i(e)?e:x(t(e.right)),A={URI:_,map:w};var I=t=>e=>i(e)?e:i(t)?t:x(e.right(t.right)),J=I,v={URI:_,map:w,ap:j};var L=(t,e)=>r=>i(r)?u(t(r.left)):x(e(r.right)),y=t=>e=>i(e)?u(t(e.left)):e;var i=O;var F=(t,e)=>r=>i(r)?t(r.left):e(r.right),D=F,s=F;var W=t=>i(t)?x(t.left):u(t.right);var b=t=>e=>e==null?u(t):x(e);var K=D(g,g);var C=t=>f(x,t.of),G=t=>f(u,t.of),H=t=>e=>t.map(e,x),Q=t=>e=>t.map(e,u),X=t=>e=>f(b(e),t.of),Y=t=>{let e=X(t);return r=>{let l=e(r);return o=>f(o,l)}},Ct=t=>{let e=T(t),r=Y(t);return l=>{let o=r(l);return n=>e(o(n))}},Z=t=>S(t,A),B=t=>R(t,v),T=t=>{let e=k(t);return r=>l=>e(l,r)},k=t=>(e,r)=>t.chain(e,l=>i(l)?t.of(l):r(l.right)),tt=t=>e=>r=>t.chain(r,l=>i(l)?e():t.of(l)),et=t=>{let e=rt(t);return (r,l)=>o=>e(o,r,l)},rt=t=>(e,r,l)=>t.map(e,L(r,l)),lt=t=>{let e=ot(t);return r=>l=>e(l,r)},ot=t=>(e,r)=>t.map(e,y(r)),Tt=(t,e)=>r=>l=>t.chain(l,s(o=>t.map(r(),y(n=>e.concat(o,n))),C(t))),qt=t=>(e,r)=>l=>t.map(l,s(e,r)),pt=t=>(e,r)=>l=>t.chain(l,s(e,r)),at=t=>e=>r=>t.chain(r,s(e,t.of)),q=t=>e=>r=>t.chain(r,l=>i(l)?e(l.left):t.of(l)),Ut=t=>{let e=nt(t);return r=>l=>e(l,r)},nt=t=>{let e=q(t);return (r,l)=>e(o=>t.map(l(o),n=>i(n)?n:u(o)))(r)},Vt=t=>e=>r=>t.chain(r,s(l=>t.map(e(l),u),l=>t.of(x(l)))),it=t=>e=>t.map(e,W),jt=t=>e=>t.map(e,K),zt=t=>{let e=B(t),r=Z(t),l=T(t),o=tt(t),n=et(t),m=lt(t),c=pt(t),d=at(t),U=q(t);return {map:(p,a)=>r(a)(p),ap:(p,a)=>e(a)(p),of:C(t),chain:(p,a)=>l(a)(p),alt:(p,a)=>o(a)(p),bimap:(p,a,E)=>n(a,E)(p),mapLeft:(p,a)=>m(a)(p),fold:(p,a,E)=>c(a,E)(p),getOrElse:(p,a)=>d(a)(p),orElse:(p,a)=>U(a)(p),swap:it(t),rightM:H(t),leftM:Q(t),left:G(t)}};
+
+exports.alt = tt;
+exports.altValidation = Tt;
+exports.ap = B;
+exports.bimap = et;
+exports.chain = T;
+exports.chainNullableK = Ct;
+exports.flatMap = k;
+exports.fromNullable = X;
+exports.fromNullableK = Y;
+exports.getEitherM = zt;
+exports.getOrElse = at;
+exports.left = G;
+exports.leftF = Q;
+exports.map = Z;
+exports.mapBoth = rt;
+exports.mapError = ot;
+exports.mapLeft = lt;
+exports.match = qt;
+exports.matchE = pt;
+exports.orElse = q;
+exports.orElseFirst = Ut;
+exports.orLeft = Vt;
+exports.right = C;
+exports.rightF = H;
+exports.swap = it;
+exports.tapError = nt;
+exports.toUnion = jt;
+//# sourceMappingURL=EitherT.js.map
+//# sourceMappingURL=EitherT.js.map

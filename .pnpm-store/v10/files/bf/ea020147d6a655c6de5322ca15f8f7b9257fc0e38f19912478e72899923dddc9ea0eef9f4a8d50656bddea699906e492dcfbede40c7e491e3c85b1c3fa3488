@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/TraversableWithIndex.js",
+  "module": "../dist/esm/TraversableWithIndex.js",
+  "types": "../dist/esm/TraversableWithIndex.d.ts",
+  "sideEffects": []
+}

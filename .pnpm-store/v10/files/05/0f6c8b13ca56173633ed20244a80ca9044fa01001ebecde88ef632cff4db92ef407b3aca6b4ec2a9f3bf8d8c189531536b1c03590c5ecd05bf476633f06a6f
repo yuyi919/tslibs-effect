@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ReadonlyTuple.js",
+  "module": "../dist/esm/ReadonlyTuple.js",
+  "types": "../dist/esm/ReadonlyTuple.d.ts",
+  "sideEffects": []
+}

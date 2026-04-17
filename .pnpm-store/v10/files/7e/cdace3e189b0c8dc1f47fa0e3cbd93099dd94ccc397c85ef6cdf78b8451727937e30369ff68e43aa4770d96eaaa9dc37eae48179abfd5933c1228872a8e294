@@ -1,0 +1,313 @@
+/**
+ * This module provides an implementation of the `Order` type class which is used to define a total ordering on some type `A`.
+ * An order is defined by a relation `<=`, which obeys the following laws:
+ *
+ * - either `x <= y` or `y <= x` (totality)
+ * - if `x <= y` and `y <= x`, then `x == y` (antisymmetry)
+ * - if `x <= y` and `y <= z`, then `x <= z` (transitivity)
+ *
+ * The truth table for compare is defined as follows:
+ *
+ * | `x <= y` | `x >= y` | Ordering |                       |
+ * | -------- | -------- | -------- | --------------------- |
+ * | `true`   | `true`   | `0`      | corresponds to x == y |
+ * | `true`   | `false`  | `< 0`    | corresponds to x < y  |
+ * | `false`  | `true`   | `> 0`    | corresponds to x > y  |
+ *
+ * @since 2.0.0
+ */ import { flip0 } from "./Functions.js";
+import { dual } from "./internal/helper.js";
+import { jsObjectKeys } from "./JsObject.js";
+import * as NonNullable from "./NonNullable.js";
+
+/**
+ * @category type class
+ * @since 2.0.0
+ */ /**
+ * @category constructors
+ * @since 2.0.0
+ */
+export let define = (compare) => compare;
+/**
+ * @category constructors
+ * @since 2.0.0
+ */
+export let make = (compare) => (self, that) =>
+  self === that ? 0 : compare(self, that);
+/**
+ * @category constructors
+ * @since 2.0.0
+ */
+export let from = (compare) => compare;
+/**
+ * @category instances
+ * @since 2.0.0
+ */
+export let string = (self, that) => (self === that ? 0 : self < that ? -1 : 1);
+/**
+ * @category instances
+ * @since 2.0.0
+ */
+export let number = (self, that) => (self === that ? 0 : self < that ? -1 : 1);
+/**
+ * @category instances
+ * @since 2.0.0
+ */
+export let boolean = (self, that) => (self === that ? 0 : self < that ? -1 : 1);
+/**
+ * @category instances
+ * @since 2.0.0
+ */
+export let bigint = (self, that) => (self === that ? 0 : self < that ? -1 : 1);
+/**
+ * @since 2.0.0
+ */
+export let reverse = flip0;
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let combine = /*#__PURE__*/ dual(
+  2,
+  (self, that) => (a1, a2) =>
+    NonNullable.nullWhen(self(a1, a2), 0) ?? that(a1, a2),
+);
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let combineMany = /*#__PURE__*/ dual(
+  2,
+  (self, collection) => (a1, a2) =>
+    NonNullable.nullWhen(self(a1, a2), 0) ??
+    NonNullable.findIterableMap(collection, (O, _) =>
+      NonNullable.nullWhen(O(a1, a2), 0),
+    ) ??
+    0,
+);
+/**
+ * @since 2.0.0
+ */
+export let empty = () => (_a, _b) => 0;
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let combineAll = (collection) => combineMany(empty(), collection);
+/**
+ * @category mapping
+ * @since 2.0.0
+ */
+export let mapInput = /*#__PURE__*/ dual(
+  2,
+  (self, f) => (b1, b2) => self(f(b1), f(b2)),
+);
+/**
+ * @category instances
+ * @since 2.0.0
+ */
+export let Date = /*#__PURE__*/ mapInput(number, (date) => date.getTime());
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let product =
+  /*#__PURE__*/
+  // readonly because invariant
+  // readonly because invariant
+  dual(2, (self, that) =>
+    make(
+      ([xa, xb], [ya, yb]) =>
+        NonNullable.nullWhen(self(xa, ya), 0) ?? that(xb, yb),
+    ),
+  );
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let all = (collection) =>
+  make((x, y) =>
+    ((len) =>
+      NonNullable.findIterableMap(collection, (O, i) =>
+        i >= len ? 0 : NonNullable.nullWhen(O(x[i], y[i]), 0),
+      ) ?? 0)(Math.min(x.length, y.length)),
+  );
+/**
+ * @category combining
+ * @since 2.0.0
+ */
+export let productMany =
+  /*#__PURE__*/
+  // readonly because invariant
+  // readonly because invariant
+  dual(2, (self, collection) =>
+    ((O) =>
+      make((x, y) =>
+        ((o) => (o !== 0 ? o : O(x.slice(1), y.slice(1))))(self(x[0], y[0])),
+      ))(all(collection)),
+  );
+/**
+ * Similar to `Promise.all` but operates on `Order`s.
+ *
+ * ```
+ * [Order<A>, Order<B>, ...] -> Order<[A, B, ...]>
+ * ```
+ *
+ * This function creates and returns a new `Order` for a tuple of values based on the given `Order`s for each element in the tuple.
+ * The returned `Order` compares two tuples of the same type by applying the corresponding `Order` to each element in the tuple.
+ * It is useful when you need to compare two tuples of the same type and you have a specific way of comparing each element
+ * of the tuple.
+ *
+ * @category combinators
+ * @since 2.0.0
+ */
+export let tuple = (...elements) => all(elements);
+/**
+ * This function creates and returns a new `Order` for an array of values based on a given `Order` for the elements of the array.
+ * The returned `Order` compares two arrays by applying the given `Order` to each element in the arrays.
+ * If all elements are equal, the arrays are then compared based on their length.
+ * It is useful when you need to compare two arrays of the same type and you have a specific way of comparing each element of the array.
+ *
+ * @category combinators
+ * @since 2.0.0
+ */
+export let array = (O) =>
+  make((a, b) =>
+    ((aLen, bLen) =>
+      NonNullable.findIterableMap(bLen < aLen ? b : a, (_, key) =>
+        NonNullable.nullWhen(O(a[key], b[key]), 0),
+      ) ?? number(aLen, bLen))(a.length, b.length),
+  );
+/**
+ * This function creates and returns a new `Order` for a struct of values based on the given `Order`s
+ * for each property in the struct.
+ *
+ * @category combinators
+ * @since 2.0.0
+ */
+export let struct = (fields) =>
+  ((keys) =>
+    make(
+      (self, that) =>
+        NonNullable.findIterableMap(keys, (key) =>
+          NonNullable.nullWhen(fields[key](self[key], that[key]), 0),
+        ) ?? 0,
+    ))(jsObjectKeys(fields));
+/**
+ * Test whether one value is _strictly less than_ another.
+ *
+ * @since 2.0.0
+ */
+export let _lessThan = (O, self, that) => O(self, that) === -1;
+/**
+ * Test whether one value is _strictly less than_ another.
+ *
+ * @since 2.0.0
+ */
+export let lessThan = (O) => dual(2, (self, that) => O(self, that) === -1);
+/**
+ * Test whether one value is _strictly less than_ another.
+ *
+ * @since 2.0.0
+ */
+export let _greaterThan = (O, self, that) => O(self, that) === 1;
+/**
+ * Test whether one value is _strictly greater than_ another.
+ *
+ * @since 2.0.0
+ */
+export let greaterThan = (O) => dual(2, (self, that) => O(self, that) === 1);
+/**
+ * Test whether one value is _non-strictly less than_ another.
+ *
+ * @since 2.0.0
+ */
+export let lessThanOrEqualTo = (O) =>
+  dual(2, (self, that) => O(self, that) !== 1);
+/**
+ * Test whether one value is _non-strictly greater than_ another.
+ *
+ * @since 2.0.0
+ */
+export let greaterThanOrEqualTo = (O) =>
+  dual(2, (self, that) => O(self, that) !== -1);
+/**
+ * Take the minimum of two values. If they are considered equal, the first argument is chosen.
+ *
+ * @since 2.0.0
+ */
+export let _min = (O, self, that) =>
+  self === that || O(self, that) < 1 ? self : that;
+/**
+ * Take the minimum of two values. If they are considered equal, the first argument is chosen.
+ *
+ * @since 2.0.0
+ */
+export let min = (O) => dual(2, (self, that) => _min(O, self, that));
+/**
+ * Take the minimum of two values. If they are considered equal, the first argument is chosen.
+ *
+ * @since 2.0.0
+ */
+export let _max = (O, self, that) =>
+  self === that || O(self, that) > -1 ? self : that;
+/**
+ * Take the maximum of two values. If they are considered equal, the first argument is chosen.
+ *
+ * @since 2.0.0
+ */
+export let max = (O) => dual(2, (self, that) => _max(O, self, that));
+/**
+ * Clamp a value between a minimum and a maximum.
+ *
+ * @example
+ * import { Order, Number } from "effect"
+ *
+ * const clamp = Order.clampWith(Number.Order)({ min: 1, max: 5 })
+ *
+ * assert.equal(clamp(3), 3)
+ * assert.equal(clamp(0), 1)
+ * assert.equal(clamp(6), 5)
+ *
+ * @since 2.0.0
+ */
+export let clampWith = (O) =>
+  dual(2, (self, options) => _min(O, options.max, _max(O, options.min, self)));
+/**
+ * Clamp a value between a minimum and a maximum.
+ *
+ * @example
+ * import { Order, Number } from "effect"
+ *
+ * const clamp = Order.clampWithArgs(Number.Order)(1, 5)
+ *
+ * assert.equal(clamp(3), 3)
+ * assert.equal(clamp(0), 1)
+ * assert.equal(clamp(6), 5)
+ *
+ * @since 2.0.0
+ */
+export let clampWithArgs = (O) =>
+  dual(3, (self, min, max) => _min(O, max, _max(O, min, self)));
+/**
+ * Test whether a value is between a minimum and a maximum (inclusive).
+ *
+ * @since 2.0.0
+ */
+export let betweenWith = (O) =>
+  dual(
+    2,
+    (self, options) =>
+      !_lessThan(O, self, options.min) && !_greaterThan(O, self, options.max),
+  );
+/**
+ * Test whether a value is between a minimum and a maximum (inclusive).
+ *
+ * @since 2.0.0
+ */
+export let betweenWithArgs = (O) =>
+  dual(
+    3,
+    (self, min, max) => !_lessThan(O, self, min) && !_greaterThan(O, self, max),
+  );
+//# sourceMappingURL=Order.js.map

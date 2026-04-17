@@ -1,0 +1,1 @@
+{"version":3,"file":"Number.js","names":[],"sources":["../src/internal/Number.js"],"sourcesContent":["export * from \"@effect/typeclass/data/Number\";\n"],"mappings":"AAAA,cAAc,+BAA+B","ignoreList":[]}

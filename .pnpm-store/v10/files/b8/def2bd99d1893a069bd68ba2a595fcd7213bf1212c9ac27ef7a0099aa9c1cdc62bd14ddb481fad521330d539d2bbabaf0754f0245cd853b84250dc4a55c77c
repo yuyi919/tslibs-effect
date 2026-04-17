@@ -1,0 +1,402 @@
+import { constant, pipe } from "@yuyi919/shared-proto/Functions";
+import { setPrototypeOf } from "@yuyi919/shared-proto/Proto";
+
+import * as P from "./internal/protoFactory.js";
+import { isArr } from "./JsTypes.js";
+
+/**
+ * @description The initial data type passed in when initializing the container.
+ */
+class Base {
+  /**
+   * @returns The size of the container.
+   * @example
+   * const container = new Vector([1, 2]);
+   * console.log(container.length); // 2
+   */
+  get length() {
+    return this._len;
+  }
+  /**
+   * @returns The size of the container.
+   * @example
+   * const container = new Vector([1, 2]);
+   * console.log(container.size()); // 2
+   */
+  size() {
+    return this._len;
+  }
+  /**
+   * @returns Whether the container is empty.
+   * @example
+   * container.clear();
+   * console.log(container.empty());  // true
+   */
+  empty() {
+    return this._len === 0;
+  }
+  constructor() {
+    /**
+     * @description Container's size.
+     * @internal
+     */
+    this._len = 0;
+  }
+}
+/**
+ * @description Clear the container.
+ * @example
+ * container.clear();
+ * console.log(container.empty());  // true
+ */
+class PriorityQueue extends Base {
+  /**
+   * @internal
+   */ /**
+   * @internal
+   */ /**
+   * @description PriorityQueue's constructor.
+   * @param container - Initialize container, must have a forEach function.
+   * @param cmp - Compare function.
+   * @param copy - When the container is an array, you can choose to directly operate on the original object of
+   *               the array or perform a shallow copy. The default is shallow copy.
+   * @example
+   * new PriorityQueue();
+   * new PriorityQueue([1, 2, 3]);
+   * new PriorityQueue([1, 2, 3], (x, y) => x - y);
+   * new PriorityQueue([1, 2, 3], (x, y) => x - y, false);
+   */
+  constructor(
+    container = [],
+    cmp = (x, y) => (x > y ? -1 : x < y ? 1 : 0),
+    copy = true,
+  ) {
+    super();
+    this._cmp = cmp;
+    if (isArr(container)) {
+      this._queue = copy ? [...container] : container;
+    } else {
+      this._queue = [];
+      container.forEach((el) => this._queue.push(el));
+    }
+    this._len = this._queue.length;
+    let halfLength = this._len >> 1;
+    for (let parent = (this._len - 1) >> 1; parent >= 0; --parent) {
+      this._pushDown(parent, halfLength);
+    }
+  }
+  /**
+   * @internal
+   */
+  _pushUp(pos) {
+    let item = this._queue[pos];
+    while (pos > 0) {
+      let parent = (pos - 1) >> 1;
+      let parentItem = this._queue[parent];
+      if (this._cmp(parentItem, item) <= 0) break;
+      this._queue[pos] = parentItem;
+      pos = parent;
+    }
+    this._queue[pos] = item;
+  }
+  /**
+   * @internal
+   */
+  _pushDown(pos, halfLength) {
+    let item = this._queue[pos];
+    while (pos < halfLength) {
+      let left = (pos << 1) | 1;
+      let right = left + 1;
+      let minItem = this._queue[left];
+      if (right < this._len && this._cmp(minItem, this._queue[right]) > 0) {
+        left = right;
+        minItem = this._queue[right];
+      }
+      if (this._cmp(minItem, item) >= 0) break;
+      this._queue[pos] = minItem;
+      pos = left;
+    }
+    this._queue[pos] = item;
+  }
+  clear() {
+    this._len = 0;
+    this._queue.length = 0;
+  }
+  /**
+   * @description Push element into a container in order.
+   * @param item - The element you want to push.
+   * @returns The size of heap after pushing.
+   * @example
+   * queue.push(1);
+   */
+  push(item) {
+    this._queue.push(item);
+    this._pushUp(this._len);
+    this._len++;
+    return this;
+  }
+  /**
+   * @description Removes the top element.
+   * @returns The element you popped.
+   * @example
+   * queue.pop();
+   */
+  pop() {
+    if (this._len === 0) return;
+    let value = this._queue[0];
+    let last = this._queue.pop();
+    this._len--;
+    if (this._len) {
+      this._queue[0] = last;
+      this._pushDown(0, this._len >> 1);
+    }
+    return value;
+  }
+  /**
+   * @description Accesses the top element.
+   * @example
+   * const top = queue.top();
+   */
+  top() {
+    return this._queue[0];
+  }
+  /**
+   * @description Check if element is in heap.
+   * @param item - The item want to find.
+   * @returns Whether element is in heap.
+   * @example
+   * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+   * const obj = { id: 1 };
+   * que.push(obj);
+   * console.log(que.has(obj));  // true
+   */
+  has(item) {
+    return this._queue.indexOf(item) >= 0;
+  }
+  /**
+   * @description Remove specified item from heap.
+   * @param item - The item want to remove.
+   * @returns Whether remove success.
+   * @example
+   * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+   * const obj = { id: 1 };
+   * que.push(obj);
+   * que.remove(obj);
+   */
+  remove(item) {
+    let index = this._queue.indexOf(item);
+    if (index < 0) return false;
+    if (index === 0) {
+      this.pop();
+    } else if (index === this._len - 1) {
+      this._queue.pop();
+      this._len--;
+    } else {
+      this._queue.splice(index, 1, this._queue.pop());
+      this._len--;
+      this._pushUp(index);
+      this._pushDown(index, this._len >> 1);
+    }
+    return true;
+  }
+  /**
+   * @description Update item and it's pos in the heap.
+   * @param item - The item want to update.
+   * @returns Whether update success.
+   * @example
+   * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+   * const obj = { id: 1 };
+   * que.push(obj);
+   * obj.id = 2;
+   * que.updateItem(obj);
+   */
+  updateItem(item) {
+    let index = this._queue.indexOf(item);
+    if (index < 0) return false;
+    this._pushUp(index);
+    this._pushDown(index, this._len >> 1);
+    return true;
+  }
+  /**
+   * @returns Return a copy array of heap.
+   * @example
+   * const arr = queue.toArray();
+   */
+  toArray() {
+    return [...this._queue];
+  }
+}
+export function PriorityQueueProto() {
+  return constant(
+    P.make(
+      P.impl("toArray", (self) => [...self._queue])(
+        P.impl("remove", (self, item) => {
+          let index = self._queue.indexOf(item);
+          if (index < 0) return false;
+          if (index === 0) {
+            self.pop();
+          } else if (index === self._len - 1) {
+            self._queue.pop();
+            self._len--;
+          } else {
+            self._queue.splice(index, 1, self._queue.pop());
+            self._len--;
+            self._pushUp(index);
+            self._pushDown(index, self._len >> 1);
+          }
+          return true;
+        })(
+          P.impl(
+            "has",
+            (self, item) => self._queue.indexOf(item) >= 0,
+          )(
+            P.impl(
+              "top",
+              (self) => self._queue[0],
+            )(
+              P.impl("updateItem", (self, item) => {
+                let index = self._queue.indexOf(item);
+                if (index < 0) return false;
+                self._pushUp(index);
+                self._pushDown(index, self._len >> 1);
+                return true;
+              })(
+                P.impl("pop", (self) => {
+                  if (self._len === 0) return;
+                  let value = self._queue[0];
+                  let last = self._queue.pop();
+                  self._len--;
+                  if (self._len) {
+                    self._queue[0] = last;
+                    self._pushDown(0, self._len >> 1);
+                  }
+                  return value;
+                })(
+                  P.method("push", (self, item) => {
+                    self._queue.push(item);
+                    self._pushUp(self._len);
+                    self._len++;
+                    return self;
+                  })(
+                    P.method("clear", (self) => {
+                      self._len = 0;
+                      self._queue.length = 0;
+                    })(
+                      P.impl(
+                        "size",
+                        (self) => self._len,
+                      )(
+                        P.impl(
+                          "empty",
+                          (self) => self._len === 0,
+                        )(
+                          P.getter(
+                            "length",
+                            (self) => self._len,
+                          )(
+                            P.raw({
+                              _pushUp(pos) {
+                                let self = this,
+                                  item = self._queue[pos],
+                                  parent = pos,
+                                  parentItem = item;
+                                while (pos > 0) {
+                                  parent = (pos - 1) >> 1;
+                                  parentItem = self._queue[parent];
+                                  if (self._cmp(parentItem, item) <= 0) break;
+                                  self._queue[pos] = parentItem;
+                                  pos = parent;
+                                }
+                                self._queue[pos] = item;
+                              },
+                              _pushDown(pos, halfLength) {
+                                let self = this,
+                                  item = self._queue[pos];
+                                let right;
+                                while (pos < halfLength) {
+                                  let left = (pos << 1) | 1;
+                                  right = left + 1;
+                                  let minItem = self._queue[left];
+                                  if (
+                                    right < self._len &&
+                                    self._cmp(minItem, self._queue[right]) > 0
+                                  ) {
+                                    left = right;
+                                    minItem = self._queue[right];
+                                  }
+                                  if (self._cmp(minItem, item) >= 0) break;
+                                  self._queue[pos] = minItem;
+                                  pos = left;
+                                }
+                                self._queue[pos] = item;
+                              },
+                            })(P.type()),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  )();
+}
+// type T = any
+// export const PriorityQueueClass = pipe(
+//   PriorityQueueProto<T>(),
+//   makeClassWith(function (compare: Order<T>) {
+//     this._cmp = compare
+//     this._len = 0
+//     this._queue = []
+//     const halfLength = this._len >> 1
+//     for (let parent = (this._len - 1) >> 1; parent >= 0; --parent) {
+//       this._pushDown(parent, halfLength)
+//     }
+//   }),
+// ) as unknown as {
+//   new <T>(compare: (x: T, y: T) => number): PriorityQueue<T>
+// }
+export let makeNum = (
+  init = [],
+  compare = (x, y) => (x > y ? -1 : x < y ? 1 : 0),
+  copy,
+) => (isArr(init) ? fromArray(init, compare, copy) : from(init, compare));
+/**
+ * @internal
+ * @param self -
+ * @returns
+ */
+let _make = (compare, init) => {
+  return setPrototypeOf(
+    {
+      _cmp: compare,
+      _len: init.length,
+      _queue: init,
+    },
+    PriorityQueueProto(),
+  );
+};
+export let make = (compare) => _make(compare, []);
+/**
+ * @internal
+ * @param self -
+ * @returns
+ */
+export let _init = (self) => {
+  let halfLength = self._len >> 1;
+  for (let parent = (self._len - 1) >> 1; parent >= 0; --parent)
+    self._pushDown(parent, halfLength);
+  return self;
+};
+export let fromArray = (init, compare, copy = true) =>
+  _init(_make(compare, copy ? [...init] : init));
+export let from = (init, compare) => {
+  let container = [];
+  init.forEach((el) => /* LAZY */ container.push(el));
+  return _init(_make(compare, container));
+};
+//# sourceMappingURL=PriorityQueue.js.map

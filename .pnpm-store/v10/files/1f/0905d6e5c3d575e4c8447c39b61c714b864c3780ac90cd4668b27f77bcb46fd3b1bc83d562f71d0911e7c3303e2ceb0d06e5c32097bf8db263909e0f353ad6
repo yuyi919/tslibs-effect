@@ -1,0 +1,135 @@
+module Break = {
+  type t
+  @unboxed
+  type result = Just(t) | @as(null) Nothing
+  @get external pos: t => int = "position"
+  @get external isRequired: t => bool = "required"
+
+  @inline
+  let chain = (fa, f) =>
+    switch fa {
+    | Just(t) => t->Identity.map(f)
+    | Nothing => Nothing
+    }
+
+  @inline
+  let filter = (fa, f) =>
+    switch fa {
+    | Just(t) => t->Identity.map(f) ? fa : Nothing
+    | Nothing => Nothing
+    }
+}
+
+module LineBreaker = {
+  type lineBreaker
+
+  %%private(
+    @module("./Text/linebreak") @new
+    external lineBreaker: string => lineBreaker = "LineBreaker"
+    @send
+    external nextBreak: lineBreaker => Break.result = "nextBreak"
+  )
+
+  type t = {
+    core: lineBreaker,
+    mutable next: Break.result,
+  }
+  let make = (text): t => lineBreaker(text)->Identity.map(core => {core, next: core->nextBreak})
+
+  let getAt = (ctx, at) => {
+    // {
+    //   position: break->Break.pos,
+    //   required: break->Break.isRequired,
+    //   lastLetterClass: ctx.text->UnicodeClasses.getClassAt(break->Break.pos - 1),
+    // }
+
+    @inline
+    let check = (at, resolved: Break.result) => {
+      switch resolved {
+      | Just(t) if t->Break.pos === at =>
+        ctx.next = ctx.core->nextBreak
+        resolved
+      | _ => Nothing
+      }
+    }
+    check(at + 1, ctx.next)
+  }
+}
+
+type splitOption = {
+  /** Adds a MIN_COST penalty to the end of the paragraph. Without it, the paragraph cannot be broken. Only turn this option off if you're adding text from inline elements to the overall paragraph the paragraph itself must always end with this penalty. */
+  addParagraphEnd: bool,
+}
+
+type t =
+  | Glue({mutable width: float, mutable stretch: float, shrink: float, pos: int, len: int})
+  | Box({mutable width: float, pos: int, len: int})
+  | Penalty({mutable width: float, cost: float, flagged: bool, pos: int, len: int})
+
+module Span = {
+  type kind = Text | Space
+  type t = {mutable break: Break.result, pos: int, mutable len: int}
+  let t = (break, pos, len): t => {break, pos, len}->Identity.id
+
+  let view = (t, str) => str->String.slice(~start=t.pos, ~end=t.pos + t.len)
+  @inline
+  let update = (t, ~break) =>
+    t->Identity.map(t => {
+      t.break = break
+      t.len = t.len + 1
+      t
+    })
+}
+
+%%private(
+  let regexGlue = %re("/[ \t\p{General_Category=Zs}\n\r]/uy")
+  let spanKind = (text, i): Span.kind => regexGlue->RegExp.testAt(text, i) ? Space : Text
+)
+
+@genType
+let split = (text, options: splitOption) => {
+  let len = text->String.length
+  let lastCharIndex = len - 1
+  let buffer: array<t> = []
+  let breaker = LineBreaker.make(text)
+
+  @inline
+  let nextBreak = (charIndex, kind: Span.kind) =>
+    breaker
+    ->LineBreaker.getAt(charIndex)
+    ->Break.filter(r =>
+      !(
+        !options.addParagraphEnd &&
+        charIndex === lastCharIndex &&
+        !(kind === Space || r->Break.isRequired)
+      )
+    )
+  let rec each = (text, charIndex, prevKind: Span.kind, cache: Span.t) => {
+    if charIndex < len {
+      let kind = text->spanKind(charIndex)
+      let point = nextBreak(charIndex, kind)
+      Js.log3(charIndex, kind, point)
+
+      @inline
+      let split = () => {
+        buffer->Array.push(
+          switch prevKind {
+          | Text => Box({width: 0., pos: cache.pos, len: cache.len})
+          | Space => Glue({width: 0., stretch: 0., shrink: 0., pos: cache.pos, len: cache.len})
+          },
+        )
+        each(text, charIndex + 1, kind, Span.t(point, charIndex, 1))
+      }
+      switch (prevKind, cache) {
+      | (prevKind, _) if prevKind !== kind => split()
+      | (Text, {break: Just(_)}) => split()
+      | (Space, {break: Just(point)}) if point->Break.isRequired => split()
+      | _ => each(text, charIndex + 1, prevKind, cache->Span.update(~break=point))
+      }
+    } else {
+      buffer
+    }
+  }
+  // 第一个字符不可能是breakpoint
+  each(text, 0, text->spanKind(0), Span.t(Nothing, 0, 0))
+}

@@ -1,0 +1,40 @@
+export function constant(a: any): (param: any) => any;
+export function mapTo(p: any, a: any): any;
+export function tap(t: any, f: any): any;
+export function constThis(): any;
+export function $$throw(e: any): never;
+export function id(a: any, id$1: any): any;
+export namespace Lazy {
+    export { from };
+    export { fromUnsafe };
+    export { Lazy_get as get };
+    export { Lazy_getUnsafe as getUnsafe };
+}
+export function Idx2(Id: any): {
+    Id: {};
+    get: (prim: any) => any;
+};
+export function Id(M: any): {
+    wrap: (f: any) => {
+        _: () => any;
+        f: (f$1: any) => any;
+    };
+    from: (f: any) => {
+        _: () => any;
+        f: (f: any) => any;
+    };
+};
+export function Id2(M: any): {
+    from: (f: any) => {
+        _: () => any;
+        f: (f: any) => any;
+    };
+};
+declare function from(__x: any): any;
+declare function fromUnsafe(f: any): {
+    _: () => any;
+};
+declare function Lazy_get(prim: any): any;
+declare function Lazy_getUnsafe(prim: any): any;
+export {};
+//# sourceMappingURL=Identity.bs.d.ts.map

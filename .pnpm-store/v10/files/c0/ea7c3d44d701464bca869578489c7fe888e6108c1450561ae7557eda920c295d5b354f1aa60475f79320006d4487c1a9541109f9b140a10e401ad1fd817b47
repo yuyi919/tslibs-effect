@@ -1,0 +1,19 @@
+/* TypeScript file generated from CompactContext.res by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+import type {f64 as Shared_f64} from './Shared.gen';
+
+import type {i32 as Shared_i32} from './Shared.gen';
+
+export type compact_context = {
+  _buffer_width: Shared_f64; 
+  _wordStartElementIndex: Shared_i32; 
+  _processingElement: Shared_i32; 
+  _startElement: Shared_i32; 
+  _buffer_row: Shared_i32; 
+  _prevIsSpace: boolean; 
+  _processing: boolean
+};
+export type ICompactContext = compact_context;

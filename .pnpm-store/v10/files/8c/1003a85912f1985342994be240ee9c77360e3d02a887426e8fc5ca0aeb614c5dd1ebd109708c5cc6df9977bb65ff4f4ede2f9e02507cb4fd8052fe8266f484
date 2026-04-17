@@ -1,0 +1,6 @@
+export function escaped(param: any): string | undefined;
+export function lowercase_ascii(c: any): any;
+export function uppercase_ascii(c: any): any;
+export function compare(c1: any, c2: any): number;
+export function equal(c1: any, c2: any): boolean;
+//# sourceMappingURL=Char.bs.d.ts.map

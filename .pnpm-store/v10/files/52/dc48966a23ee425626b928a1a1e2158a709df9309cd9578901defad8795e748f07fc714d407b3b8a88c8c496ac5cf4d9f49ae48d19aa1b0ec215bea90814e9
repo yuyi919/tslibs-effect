@@ -1,0 +1,146 @@
+/**
+ * Y组合子相关类型和实现
+ * @packageDocumentation
+ */
+
+import * as Eval from "../Eval"
+import { UNDEFINED } from "../internal/constant"
+import { lazy } from "./index"
+
+declare namespace Y {
+  /** W组合子类型 */
+  type W<R> = (arg: W<R>) => R
+  /** 函数转换器类型 */
+  type F<A extends any[], R> = (f: (...a: A) => R) => (...a: A) => R
+  type AnyF = F<A, R>
+
+  /**
+   * Y组合子类型定义
+   * 用于创建递归函数的高阶函数
+   */
+  type Y_Combinator = {
+    <FN extends (...args: any[]) => any>(f: (f: FN) => FN): FN
+    <FN extends (...args: any[]) => any>(): (f: (f: FN) => FN) => FN
+    <A extends any[], R>(): <Fa extends F<A, R>>(f: Fa) => ReturnType<Fa>
+  }
+
+  type A = any
+  type R = any
+
+  /**
+   * 带求值器的递归函数类型
+   */
+  type EvalRec<A extends any[], R> = (
+    f_rec: (...a: A) => Eval.Eval<R>,
+    struct: typeof Eval,
+  ) => (...a: A) => Eval.Eval<R>
+
+  /**
+   * 带求值器的Y组合子类型
+   */
+  type YEval = {
+    <FN extends (...args: any[]) => any>(
+      f: EvalRec<Parameters<FN>, ReturnType<FN>>,
+    ): FN
+    <FN extends (...args: any[]) => any>(): <
+      Arg extends Parameters<FN>,
+      Return extends ReturnType<FN>,
+    >(
+      f: EvalRec<Arg, Return>,
+    ) => FN
+    <A extends any[], R>(): <Fa extends EvalRec<A, R>>(f: Fa) => (...a: A) => R
+  }
+}
+
+/**
+ * W组合子实现
+ * @internal
+ */
+const _w = <R>(f: Y.W<R>): R => f(f)
+
+/**
+ * Y组合子实现
+ * 用于创建递归函数的高阶函数
+ * @example
+ * ```ts
+ * const factorial = yCombinator<(n: number) => number>(
+ *   (f) => (n) => (n <= 1 ? 1 : n * f(n - 1))
+ * )
+ * ```
+ */
+export function yCombinator<F extends (...args: any[]) => any>(
+  f: (f: F) => F,
+): F
+export function yCombinator<F extends (...args: any[]) => any>(): (
+  f: (f: F) => F,
+) => F
+export function yCombinator<Args extends any[], R>(): <Fa extends Y.F<Args, R>>(
+  f: Fa,
+) => ReturnType<Fa>
+export function yCombinator(f?: any) {
+  return f ? _y(f, UNDEFINED) : (f: any) => _y(f, UNDEFINED)
+}
+
+/**
+ * Y组合子的内部实现
+ * @internal
+ */
+function _y(f: any, _lazy: any): any {
+  return _w<any>(
+    (x) => (_lazy ||= f((...args: any[]) => /*LAZY*/ x(x)(...args))),
+  )
+}
+
+/**
+ * 带求值器的Y组合子实现
+ * 用于创建带延迟求值的递归函数
+ */
+export function yEval<FN extends (...args: any[]) => any>(
+  f: Y.EvalRec<Parameters<FN>, ReturnType<FN>>,
+): FN
+export function yEval<FN extends (...args: any[]) => any>(): <
+  Arg extends Parameters<FN>,
+  Return extends ReturnType<FN>,
+>(
+  f: Y.EvalRec<Arg, Return>,
+) => FN
+export function yEval<A extends any[], R>(): <Fa extends Y.EvalRec<A, R>>(
+  f: Fa,
+) => (...a: A) => R
+export function yEval(f?: any) {
+  return f ? _yEval<any>(f) : _yEval
+}
+
+/**
+ * 带求值器的Y组合子内部实现
+ * @internal
+ */
+const _yEval = <A extends (...args: any[]) => Eval.Eval<any>>(
+  f: (a: A, c: typeof Eval) => A,
+): any => {
+  const _eval = lazy(() => Eval.later(() => a))
+  const a: A = f(_eval().$() as A, Eval)
+  return (...args: any[]) => a(...args).value
+}
+
+/**
+ * 不动点组合子实现
+ * 用于创建递归数据结构
+ */
+export function fix<A>(f: (a: Eval.Eval<A>) => A): A {
+  const a: A = f(Eval.later(() => a))
+  return a
+}
+
+// export const yCombinator: Y.Y_Combinator = (f?: any) => {
+//   if (f) {
+//     let _lazy: any, _x: any
+//     return _w<any>(
+//       (x) => (
+//         (_x = x), (_lazy ||= f((...args: any[]) => /*LAZY*/ _x(_x)(...args)))
+//       ),
+//     )
+//   }
+
+//   return yCombinator
+// }

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/These.js",
+  "module": "../dist/esm/These.js",
+  "types": "../dist/esm/These.d.ts",
+  "sideEffects": []
+}

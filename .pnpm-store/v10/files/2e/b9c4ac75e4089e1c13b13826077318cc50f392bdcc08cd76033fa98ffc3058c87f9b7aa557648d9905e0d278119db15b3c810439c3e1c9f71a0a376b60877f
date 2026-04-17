@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Extensions.js",
+  "module": "../dist/esm/Extensions.js",
+  "types": "../dist/esm/Extensions.d.ts",
+  "sideEffects": []
+}

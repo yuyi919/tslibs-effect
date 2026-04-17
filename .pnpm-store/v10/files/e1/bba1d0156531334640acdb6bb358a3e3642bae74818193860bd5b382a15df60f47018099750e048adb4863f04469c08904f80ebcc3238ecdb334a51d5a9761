@@ -1,0 +1,18 @@
+/**
+ * @since 1.0.0
+ */ import { _new1, throwError } from "@yuyi919/shared-proto/Functions";
+
+export let getAsserts = (isMatched, uri) => ({
+  assert(value, msg = uri) {
+    if (!isMatched(value)) throwError(_new1(AssertError, msg));
+  },
+  assertWith(_value, isMatched, msg = uri) {
+    if (!isMatched) throwError(_new1(AssertError, msg));
+  },
+});
+export class AssertError extends Error {
+  constructor(msg) {
+    super(`Wrong assertion encountered` + (!msg ? "" : `: "${msg}"`));
+  }
+}
+//# sourceMappingURL=index.js.map

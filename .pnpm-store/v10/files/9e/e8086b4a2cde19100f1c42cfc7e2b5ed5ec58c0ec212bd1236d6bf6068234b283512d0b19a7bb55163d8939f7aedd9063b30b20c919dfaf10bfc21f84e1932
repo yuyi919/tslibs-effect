@@ -1,0 +1,16 @@
+'use strict';
+
+var i=e=>()=>e;var c=(e,r)=>(n,u)=>l=>e.reduce(l,n,(t,o)=>r.reduce(o,t,u)),m=(e,r)=>n=>{let u=e.foldMap(n),l=r.foldMap(n);return t=>o=>u(o,p=>l(p,t))},d=(e,r)=>(n,u)=>l=>e.reduceRight(l,n,(t,o)=>r.reduceRight(t,o,u)),w=(e,r)=>(n,u)=>l=>r.reduce(l,e.of(n),(t,o)=>e.chain(t,p=>u(p,o))),z=(e,r)=>(n,u)=>{let l=({init:t,acc:o},p)=>t?{init:!1,acc:p}:{init:!1,acc:e.concat(e.concat(o,n),p)};return r.reduce(u,{init:!0,acc:e.empty},l).acc},x=e=>r=>e.reduce(r,[],(n,u)=>(n.push(u),n)),M=(e,r)=>{let n=(l,t)=>e.ap(e.map(l,i),t),u=e.of(void 0);return (l,t)=>r.reduce(l,u,(o,p)=>n(o,t(p)))},R=(e,r)=>(n,u,l)=>r.reduce(n,e.of(u),(t,o)=>e.chain(t,p=>l(p,o))),_=x,A=(e,r)=>{let n=c(e,r),u=m(e,r),l=d(e,r);return {reduce:(t,o,p)=>n(o,p)(t),foldMap:t=>{let o=u(t);return (p,s)=>o(s)(p)},reduceRight:(t,o,p)=>l(o,p)(t)}};
+
+exports.foldM = R;
+exports.foldMap = m;
+exports.getFoldableComposition = A;
+exports.intercalate = z;
+exports.reduce = c;
+exports.reduceM = w;
+exports.reduceRight = d;
+exports.toArray = _;
+exports.toReadonlyArray = x;
+exports.traverse_ = M;
+//# sourceMappingURL=Foldable.js.map
+//# sourceMappingURL=Foldable.js.map

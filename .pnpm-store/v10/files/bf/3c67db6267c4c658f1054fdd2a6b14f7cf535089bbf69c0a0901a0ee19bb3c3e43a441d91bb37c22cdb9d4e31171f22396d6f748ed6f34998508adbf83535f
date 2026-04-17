@@ -1,0 +1,174 @@
+import { Order } from "@yuyi919/shared-proto/Order";
+/**
+ * @description The initial data type passed in when initializing the container.
+ */
+export type ReadableInterface<T> = {
+    forEach: (callback: (el: T) => void) => void;
+};
+declare abstract class Base {
+    /**
+     * @description Container's size.
+     * @internal
+     */
+    protected _len: number;
+    /**
+     * @returns The size of the container.
+     * @example
+     * const container = new Vector([1, 2]);
+     * console.log(container.length); // 2
+     */
+    get length(): number;
+    /**
+     * @returns The size of the container.
+     * @example
+     * const container = new Vector([1, 2]);
+     * console.log(container.size()); // 2
+     */
+    size(): number;
+    /**
+     * @returns Whether the container is empty.
+     * @example
+     * container.clear();
+     * console.log(container.empty());  // true
+     */
+    empty(): boolean;
+    /**
+     * @description Clear the container.
+     * @example
+     * container.clear();
+     * console.log(container.empty());  // true
+     */
+    abstract clear(): void;
+}
+declare class PriorityQueue<T> extends Base {
+    /**
+     * @internal
+     */
+    private readonly _queue;
+    /**
+     * @internal
+     */
+    private readonly _cmp;
+    /**
+     * @description PriorityQueue's constructor.
+     * @param container - Initialize container, must have a forEach function.
+     * @param cmp - Compare function.
+     * @param copy - When the container is an array, you can choose to directly operate on the original object of
+     *               the array or perform a shallow copy. The default is shallow copy.
+     * @example
+     * new PriorityQueue();
+     * new PriorityQueue([1, 2, 3]);
+     * new PriorityQueue([1, 2, 3], (x, y) => x - y);
+     * new PriorityQueue([1, 2, 3], (x, y) => x - y, false);
+     */
+    constructor(container?: ReadableInterface<T> | T[], cmp?: Order<T>, copy?: boolean);
+    /**
+     * @internal
+     */
+    private _pushUp;
+    /**
+     * @internal
+     */
+    private _pushDown;
+    clear(): void;
+    /**
+     * @description Push element into a container in order.
+     * @param item - The element you want to push.
+     * @returns The size of heap after pushing.
+     * @example
+     * queue.push(1);
+     */
+    push(item: T): this;
+    /**
+     * @description Removes the top element.
+     * @returns The element you popped.
+     * @example
+     * queue.pop();
+     */
+    pop(): T | undefined;
+    /**
+     * @description Accesses the top element.
+     * @example
+     * const top = queue.top();
+     */
+    top(): T | undefined;
+    /**
+     * @description Check if element is in heap.
+     * @param item - The item want to find.
+     * @returns Whether element is in heap.
+     * @example
+     * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+     * const obj = { id: 1 };
+     * que.push(obj);
+     * console.log(que.has(obj));  // true
+     */
+    has(item: T): boolean;
+    /**
+     * @description Remove specified item from heap.
+     * @param item - The item want to remove.
+     * @returns Whether remove success.
+     * @example
+     * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+     * const obj = { id: 1 };
+     * que.push(obj);
+     * que.remove(obj);
+     */
+    remove(item: T): boolean;
+    /**
+     * @description Update item and it's pos in the heap.
+     * @param item - The item want to update.
+     * @returns Whether update success.
+     * @example
+     * const que = new PriorityQueue([], (x, y) => x.id - y.id);
+     * const obj = { id: 1 };
+     * que.push(obj);
+     * obj.id = 2;
+     * que.updateItem(obj);
+     */
+    updateItem(item: T): boolean;
+    /**
+     * @returns Return a copy array of heap.
+     * @example
+     * const arr = queue.toArray();
+     */
+    toArray(): T[];
+}
+export type { PriorityQueue, Base };
+interface PriorityQueueProto<T> {
+    empty: () => boolean;
+    readonly length: number;
+    pop: () => T | undefined;
+    clear: () => void;
+    has: (item: T) => boolean;
+    top: () => T | undefined;
+    _queue: T[];
+    _cmp: Order<T>;
+    remove: (item: T) => boolean;
+    updateItem: (item: T) => boolean;
+    toArray: () => T[];
+    size: () => number;
+    _pushUp: (pos: number) => void;
+    _pushDown: (pos: number, halfLength: number) => void;
+    _len: number;
+    push: (item: T) => this;
+}
+export declare function PriorityQueueProto<T>(): PriorityQueueProto<T>;
+export declare function makeNum<T extends number>(init: ReadableInterface<T>, compare?: Order<T>): PriorityQueue<T>;
+export declare function makeNum<T extends number>(init?: readonly T[], compare?: Order<T>, copy?: boolean): PriorityQueue<T>;
+/**
+ * @internal
+ * @param self -
+ * @returns
+ */
+declare const _make: <T>(compare: Order<T>, init: T[]) => ReturnType<typeof PriorityQueueProto<T>>;
+export type UnsafePrototype<T> = ReturnType<typeof _make<T>>;
+export declare function make<T>(compare: Order<T>): PriorityQueue<T>;
+/**
+ * @internal
+ * @param self -
+ * @returns
+ */
+export declare const _init: <T>(self: UnsafePrototype<T>) => PriorityQueue<T>;
+export declare function fromArray<T>(init: T[], compare: Order<T>, copy?: boolean): PriorityQueue<T>;
+export declare function from<T>(init: ReadableInterface<T>, compare: Order<T>): PriorityQueue<T>;
+//# sourceMappingURL=PriorityQueue.d.ts.map

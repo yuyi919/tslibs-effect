@@ -1,0 +1,57 @@
+/**
+ * @since 2.4.0
+ */import { ap as ap_ } from "./Apply.js";
+import { flow, pipe } from "./function.js";
+import { map as map_ } from "./Functor.js";
+import * as T from "./These.js";
+export let right = F => flow(T.right, F.of);
+export let left = F => flow(T.left, F.of);
+export let both = F => flow(T.both, F.of);
+export let rightF = F => fa => F.map(fa, T.right);
+export let leftF = F => fe => F.map(fe, T.left);
+export let map = F => map_(F, T.Functor);
+export let ap = (F, S) => ap_(F, T.getApply(S));
+export let chain = (M, S) => {
+  let _left = left(M);
+  return f => ma => M.chain(ma, T.match(_left, f, (e1, a) => M.map(f(a), T.match(e2 => T.left(S.concat(e1, e2)), b => T.both(e1, b), (e2, b) => T.both(S.concat(e1, e2), b)))));
+};
+export let bimap = F => (f, g) => fea => F.map(fea, T.bimap(f, g));
+export let mapLeft = F => f => fea => F.map(fea, T.mapLeft(f));
+export let match = F => (onLeft, onRight, onBoth) => ma => F.map(ma, T.match(onLeft, onRight, onBoth));
+export let matchE = M => (onLeft, onRight, onBoth) => ma => M.chain(ma, T.match(onLeft, onRight, onBoth));
+export let swap = F => ma => F.map(ma, T.swap);
+export let toTuple2 = F => (e, a) => fa => F.map(fa, T.toTuple2(e, a)); /** @deprecated */ /* istanbul ignore next */
+export let getTheseM = M => {
+  let _map = map(M);
+  let _bimap = bimap(M);
+  let _mapLeft = mapLeft(M);
+  let _fold = matchE(M);
+  let _toTuple2 = toTuple2(M);
+  let of = right(M);
+  let mapT = (fa, f) => _map(f)(fa);
+  return {
+    map: mapT,
+    bimap: (fea, f, g) => _bimap(f, g)(fea),
+    mapLeft: (fea, f) => _mapLeft(f)(fea),
+    fold: (fa, onLeft, onRight, onBoth) => _fold(onLeft, onRight, onBoth)(fa),
+    swap: swap(M),
+    rightM: rightF(M),
+    leftM: leftF(M),
+    left: left(M),
+    right: right(M),
+    both: both(M),
+    toTuple: (fa, e, a) => _toTuple2(() => e, () => a)(fa),
+    getMonad: S => {
+      let _ap = ap(M, S);
+      let _chain = chain(M, S);
+      return {
+        _E: undefined,
+        map: mapT,
+        of,
+        ap: (fab, fa) => _ap(fa)(fab),
+        chain: (ma, f) => _chain(f)(ma)
+      };
+    }
+  };
+};
+//# sourceMappingURL=TheseT.js.map

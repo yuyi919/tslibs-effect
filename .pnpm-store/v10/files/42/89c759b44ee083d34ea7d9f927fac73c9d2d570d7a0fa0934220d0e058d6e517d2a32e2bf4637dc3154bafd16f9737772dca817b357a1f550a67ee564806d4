@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Strong.js",
+  "module": "../dist/esm/Strong.js",
+  "types": "../dist/esm/Strong.d.ts",
+  "sideEffects": []
+}

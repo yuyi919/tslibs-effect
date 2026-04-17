@@ -1,0 +1,14 @@
+/**
+ * @internal
+ */ export let _bind = (data, key, value) => ({
+  ...data,
+  [key]: value,
+});
+/**
+ * @internal
+ */
+export let _bindWith = (data, key, fn) => ({
+  ...data,
+  [key]: fn(data),
+});
+//# sourceMappingURL=bind.js.map

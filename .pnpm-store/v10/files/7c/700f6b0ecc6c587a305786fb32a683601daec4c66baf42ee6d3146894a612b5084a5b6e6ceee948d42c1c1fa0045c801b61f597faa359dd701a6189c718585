@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/MessagePipe.js",
+  "module": "../dist/esm/MessagePipe.js",
+  "types": "../dist/esm/MessagePipe.d.ts",
+  "sideEffects": []
+}

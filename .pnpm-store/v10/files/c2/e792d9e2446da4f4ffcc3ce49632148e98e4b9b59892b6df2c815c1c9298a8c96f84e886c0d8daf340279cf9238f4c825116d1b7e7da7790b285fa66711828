@@ -1,0 +1,74 @@
+export namespace emoji {
+    let log: string;
+    let success: string;
+    let info: string;
+    let error: string;
+    let warn: string;
+    let debug: string;
+    let trace: string;
+    let begin: string;
+    let end: string;
+    let time: string;
+    let cost: string;
+    let count: string;
+}
+export namespace NameStyles {
+    export { fill };
+    export { text };
+    export { dict };
+}
+export namespace colorMap {
+    export let green: string;
+    export let blue: string;
+    export let red: string;
+    export let yellow: string;
+    export let grey: string;
+    let _default: string;
+    export { _default as default };
+}
+export function logMany(logger: any, args: any): void;
+export function MakeLogger(ILogger: any): {
+    toArgs: (label: any, args: any) => any;
+    logger: any;
+    enable: any;
+    debuggerGroupCollapsed: any;
+    debug: (a: any) => void;
+    debug1: (a: any, a2: any) => void;
+    debug2: (a: any, a2: any, a3: any) => void;
+    debug3: (a: any, a2: any, a3: any, a4: any) => void;
+    debug4: (a: any, a2: any, a3: any, a4: any, a5: any) => void;
+    debug5: (a: any, a2: any, a3: any, a4: any, a5: any, a6: any) => void;
+    debug6: (a: any, a2: any, a3: any, a4: any, a5: any, a6: any, a7: any) => void;
+    banner: (a: any) => void;
+    banner1: (a: any, a2: any) => void;
+    banner2: (a: any, a2: any, a3: any) => void;
+    banner3: (a: any, a2: any, a3: any, a4: any) => void;
+    banner4: (a: any, a2: any, a3: any, a4: any, a5: any) => void;
+    banner5: (a: any, a2: any, a3: any, a4: any, a5: any, a6: any) => void;
+    log: (a: any) => void;
+    log1: (a: any, a2: any) => void;
+    log2: (a: any, a2: any, a3: any) => void;
+    log3: (a: any, a2: any, a3: any, a4: any) => void;
+    log4: (a: any, a2: any, a3: any, a4: any, a5: any) => void;
+    log5: (a: any, a2: any, a3: any, a4: any, a5: any, a6: any) => void;
+    groupCollapsed: (a: any) => void;
+    groupCollapsed1: (a: any, a1: any) => void;
+    groupCollapsed2: (a: any, a1: any, a2: any) => void;
+    groupCollapsed3: (a: any, a1: any, a2: any, a3: any) => void;
+    groupCollapsed4: (a: any, a1: any, a2: any, a3: any, a4: any) => void;
+    groupCollapsed5: (a: any, a1: any, a2: any, a3: any, a4: any, a5: any) => void;
+    groupCollapsed6: (a: any, a1: any, a2: any, a3: any, a4: any, a5: any, a6: any) => void;
+    groupCollapsed7: (a: any, a1: any, a2: any, a3: any, a4: any, a5: any, a6: any, a7: any) => void;
+    groupEnd: () => void;
+    groupEnd1: (a: any) => void;
+    groupEnd2: (a: any, a1: any) => void;
+    groupEnd3: (a: any, a1: any, a2: any) => void;
+};
+declare function fill(color: any): string;
+declare function text(color: any): string;
+declare namespace dict {
+    export { fill };
+    export { text };
+}
+export {};
+//# sourceMappingURL=Logger.bs.d.ts.map

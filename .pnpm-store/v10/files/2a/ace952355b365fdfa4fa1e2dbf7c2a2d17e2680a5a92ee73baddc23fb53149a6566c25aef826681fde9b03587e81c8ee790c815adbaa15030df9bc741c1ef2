@@ -1,0 +1,172 @@
+// Copyright (c) 2021-2023 Peter Matta
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+import * as $ from "../internal/constant/index.js";
+import { tryCatch } from "../internal/helper.js";
+
+export let lazy = (init) =>
+  ((value) => () => (init && ((value = init()), (init = $.NULL)), value))();
+export let cached = (f) => {
+  let cache = new WeakMap();
+  return (a) => {
+    if (cache.has(a)) {
+      let ref = cache.get(a);
+      let b = ref.deref();
+      if (b) return b;
+    }
+    let b = f(a);
+    cache.set(a, new WeakRef(b));
+    return b;
+  };
+};
+/**
+ * wrapper for `ThrowStatement`
+ * @param e - throw e
+ * @return never
+ */
+export let raise = (e) => {
+  throw e;
+};
+/**
+ * return an `Error(msg?, opts?)`
+ * @example
+ * raise(error("Invalid Argument"))
+ */
+export let error = $.ERROR;
+/**
+ * return a `TypeError(msg?, opts?)`
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export let typeError = $.ERRORS_TypeError;
+/**
+ * return a `SyntaxError(msg?, opts?)`
+ * @example
+ * raise(syntaxError("Invalid Input"))
+ */
+export let syntaxError = $.ERRORS_SyntaxError;
+/**
+ * alias for {@link raise}
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export let throwError = raise;
+/**
+ * @param a - Return value
+ * @returns `() => a`
+ */
+export let constant = (a) => () => a;
+export let identity = (a) => a;
+/**
+ * Casts the result to the specified type.
+ * @param a - The value to be casted to the target type.
+ */
+export let unsafeCoerce = identity;
+/**
+ * A function that ensures that the type of an expression matches some type,
+ * without changing the resulting type of that expression.
+ *
+ * @example
+ *
+ * const test1 = satisfies<number>()(5 as const)
+ *     //^? const test: 5
+ *     // @ts-expect-error
+ * const test2 = satisfies<string>()(5)
+ *     //^? Argument of type 'number' is not assignable to parameter of type 'string'
+ *
+ * assert.deepStrictEqual(satisfies<number>()(5), 5)
+ *
+ */
+export let satisfies = () => identity;
+export let return1 = identity;
+export let return2 = (_a, b) => b;
+export let return3 = (_a, _b, c) => c;
+export let return4 = (_a, _b, _c, d) => d;
+export let constantWith = (expr) =>
+  tryCatch(
+    () => constant(expr()),
+    () => lazy(expr),
+  );
+export let fst = (x) => x[0];
+export let snd = (x) => x[1];
+export let flip =
+  (f) =>
+  (...b) =>
+  (...a) =>
+    f(...a)(...b);
+export let flip0 = (f) => (b, a) => f(a, b);
+/**
+ * 将函数参数按顺序curry化
+ * @param f -
+ */
+export let curry = (f) => (x) => (y) => f(x, y);
+/**
+ * 将函数参数按相反顺序curry化
+ * @param f -
+ */
+export let curryReverse = (f) => (x) => (y) => f(y, x);
+/**
+ * 将函数参数按顺序反curry化
+ * @param f -
+ */
+export let uncurry = (f) => (x, y) => f(x)(y);
+/**
+ * 将函数参数按相反顺序反curry化
+ * @param f -
+ */
+export let uncurryReverse = (f) => (x, y) => f(y)(x);
+export let applyTo = (a) => (f) => f(a);
+export let tuple = (f) => (args) => f(...args);
+export let untuple =
+  (f) =>
+  (...args) =>
+    f(args);
+/**
+ * The `absurd` function is a stub for cases where a value of type `never` is encountered in your code,
+ * meaning that it should be impossible for this code to be executed.
+ *
+ * This function is particularly when it's necessary to specify that certain cases are impossible.
+ *
+ */
+export let absurd = (_) => raise(error("Absurd function called"));
+export let len = (target) => target.length;
+export let lastIndex = (target) => len(target) - 1;
+export let lastElement = (target) => target[lastIndex(target)];
+export let firstElement = (target) => target[0];
+export let _new = (target, args, newTarget) =>
+  $.CREATE_NEW(target, args, newTarget ?? target);
+export let _new0 = (Target) => new Target();
+export let _new1 = (Target, arg) => new Target(arg);
+export let _new2 = (Target, arg, arg2) => new Target(arg, arg2);
+export let makeNew =
+  (Target) =>
+  (...args) =>
+    _new(Target, args);
+/**
+ * Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument.
+ *
+ * @example
+ *
+ * const sumTupled = tupled((x: number, y: number): number => x + y)
+ *
+ * assert.deepStrictEqual(sumTupled([1, 2]), 3)
+ *
+ */
+export let tupled = (f) => (a) => f(...a);
+/**
+ * Inverse function of `tupled`
+ *
+ * @example
+ *
+ * const getFirst = untupled(<A, B>(tuple: [A, B]): A => tuple[0])
+ *
+ * assert.deepStrictEqual(getFirst(1, 2), 1)
+ *
+ */
+export let untupled =
+  (f) =>
+  (...a) =>
+    f(a);
+export let ignore = (_) => {};
+//# sourceMappingURL=core.js.map

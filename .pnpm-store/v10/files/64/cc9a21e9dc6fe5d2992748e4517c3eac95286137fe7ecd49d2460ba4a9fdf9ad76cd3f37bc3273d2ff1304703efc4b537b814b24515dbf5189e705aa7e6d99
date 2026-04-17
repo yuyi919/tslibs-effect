@@ -1,0 +1,34 @@
+import * as unctx from "unctx"
+
+import * as Pos from "./pos"
+
+// import { IToken } from "chevrotain";
+
+export type ParserContext = {
+  pos: Pos.Pos
+  cache: Record<string, any>
+  offset: number
+}
+
+const { use, call, tryUse } = unctx.createNamespace<ParserContext>().get("Pos")
+
+function initialContext(): ParserContext {
+  return {
+    pos: Pos.initialPos,
+    cache: {},
+    offset: 0,
+  }
+}
+
+export function run<A>(cb: () => A): A {
+  return call(initialContext(), cb)
+}
+
+export function withCtx<F extends (...args: any[]) => any>(cb: F): F {
+  return ((...args) =>
+    tryUse() ? cb(...args) : call(initialContext(), () => cb(...args))) as F
+}
+
+export function useContext(): ParserContext {
+  return use()
+}

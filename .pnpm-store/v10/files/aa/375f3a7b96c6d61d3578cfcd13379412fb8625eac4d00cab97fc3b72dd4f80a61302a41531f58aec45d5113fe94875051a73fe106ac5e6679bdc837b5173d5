@@ -1,0 +1,3 @@
+export type covariant<a, b> = (_1: a) => b;
+export type invariant<a> = (_1: a) => a;
+//# sourceMappingURL=Types.gen.d.ts.map

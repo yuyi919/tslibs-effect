@@ -1,0 +1,136 @@
+/**
+ * @internal
+ * @remark
+ **/ export let perform = function* (a) {
+  return yield a;
+};
+/**
+ * @internal
+ * @remark
+ **/
+export let lift = function* (a) {
+  yield a;
+};
+export function* map(fa, f) {
+  let a = yield* fa;
+  return f(a);
+}
+export function* mapTo(fa, b) {
+  yield* fa;
+  return b;
+}
+/** @internal */
+export function* ap(gab, ga) {
+  let resab = yield* gab;
+  return resab(yield* ga);
+}
+export let chain = function* (fa, f) {
+  var a = yield* fa;
+  return yield* f(a);
+};
+export let chainW = chain;
+export let tap = function* (ma, handle) {
+  let c = yield* ma;
+  handle(c);
+  return c;
+};
+// _map(ma, (e) => (handle(e), e));
+export function* tapE(ma, handle) {
+  let c = yield* ma;
+  yield* handle(c);
+  return c;
+}
+/**
+ * 同时迭代当前项和下一项
+ * @param stream
+ */
+export function* mapToWithNext(stream) {
+  let curr = undefined;
+  let proccessing = false;
+  for (let next of stream) {
+    if (proccessing)
+      yield {
+        item: curr,
+        next: next,
+        proccessing,
+        end: false,
+      };
+    else proccessing = true;
+    curr = next;
+  }
+  yield {
+    item: curr,
+    next: curr,
+    end: true,
+  };
+}
+export var StreamStage;
+((StreamStage) => {
+  StreamStage[(StreamStage["Begin"] = 0)] = "Begin";
+  StreamStage[(StreamStage["Content"] = 1)] = "Content";
+  StreamStage[(StreamStage["End"] = 2)] = "End";
+})(StreamStage || (StreamStage = {}));
+/**
+ * 同时迭代当前项和前一项和下一项
+ * @param stream
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => 'nothing'
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 1, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 2, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2, 3])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 3, _tag: IteratorStage.Content})
+ * => ({prev: 2, curr: 3, next: 3, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2, 3, 4, 5])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 3, _tag: IteratorStage.Content})
+ * => ({prev: 2, curr: 3, next: 4, _tag: IteratorStage.Content})
+ * => ({prev: 3, curr: 4, next: 5, _tag: IteratorStage.Content})
+ * => ({prev: 4, curr: 5, next: 5, _tag: IteratorStage.End})
+ */
+export function* mapToWithPrevAndNext(stream) {
+  let processing = false;
+  let context = {
+    prev: undefined,
+    curr: undefined,
+    next: undefined,
+    _tag: 0,
+  };
+  for (let next of stream) {
+    if (processing) {
+      context.next = next;
+      yield context;
+      if (context._tag === 0) context._tag = 1;
+      context.prev = context.curr;
+      context.curr = next;
+    } else {
+      processing = true;
+      context.prev = context.curr = next;
+    }
+  }
+  if (context.curr !== undefined) {
+    context._tag = 2;
+    if (context.next === undefined) {
+      context.next = context.curr;
+    }
+    yield context;
+  }
+}
+//# sourceMappingURL=Generator.base.js.map

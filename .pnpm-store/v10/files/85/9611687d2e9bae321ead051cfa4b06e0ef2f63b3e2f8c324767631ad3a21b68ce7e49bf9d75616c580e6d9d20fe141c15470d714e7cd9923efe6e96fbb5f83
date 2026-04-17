@@ -1,0 +1,35 @@
+'use strict';
+
+var p = require('fp-ts/Identity');
+var n = require('fp-ts/IO');
+var o = require('fp-ts/Reader');
+
+function _interopNamespace(e) {
+	if (e && e.__esModule) return e;
+	var n = Object.create(null);
+	if (e) {
+		Object.keys(e).forEach(function (k) {
+			if (k !== 'default') {
+				var d = Object.getOwnPropertyDescriptor(e, k);
+				Object.defineProperty(n, k, d.get ? d : {
+					enumerable: true,
+					get: function () { return e[k]; }
+				});
+			}
+		});
+	}
+	n.default = e;
+	return Object.freeze(n);
+}
+
+var p__namespace = /*#__PURE__*/_interopNamespace(p);
+var n__namespace = /*#__PURE__*/_interopNamespace(n);
+var o__namespace = /*#__PURE__*/_interopNamespace(o);
+
+var M={...n__namespace.Functor,liftMap:(...l)=>{let t=l.pop(),[e,f,u,a]=l;switch(l.length){case 2:return ()=>t(e(),f());case 3:return ()=>t(e(),f(),u());case 4:return ()=>t(e(),f(),u(),a());default:return ()=>t(...l.map(c=>c()))}}},m={...p__namespace.Functor,liftMap:(...l)=>{let t=l.pop(),e=l;switch(e.length){case 2:return t(e[0],e[1]);case 3:return t(e[0],e[1],e[2]);case 4:return t(e[0],e[1],e[2],e[3]);default:return t(...e)}}},d={...o__namespace.Functor,liftMap:(...l)=>{let t=l.pop(),[e,f,u,a]=l;switch(l.length){case 2:return r=>t(e(r),f(r));case 3:return r=>t(e(r),f(r),u(r));case 4:return r=>t(e(r),f(r),u(r),a(r));default:return r=>t(...l.map(i=>i(r)))}}};
+
+exports.IO = M;
+exports.Identity = m;
+exports.Reader = d;
+//# sourceMappingURL=LiftMap.js.map
+//# sourceMappingURL=LiftMap.js.map

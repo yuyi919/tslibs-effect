@@ -1,0 +1,15 @@
+import { dual } from "./internal/helper.js";
+import * as JsObject from "./JsObject.js";
+
+/**
+ * @category Extensions
+ */ /**
+ * @category Extensions
+ */ /**
+ * @category Extensions
+ */
+export let Add = /*#__PURE__*/ dual(2, (proto, exts) =>
+  JsObject.defineProperties(proto, JsObject.getOwnPropertyDescriptors(exts)),
+);
+export let AddTo = (_1) => (_2) => Add(_1, _2);
+//# sourceMappingURL=Extensions.js.map

@@ -1,0 +1,6 @@
+import { OBJ_KEYS, OBJECT_HAS_OWNPROPERTY } from "../constant/index.js";
+
+export let keys = OBJ_KEYS;
+export let ownKeys = Reflect.ownKeys;
+export let _hasOwnKey = (value, key) => OBJECT_HAS_OWNPROPERTY.call(value, key);
+//# sourceMappingURL=keys.js.map

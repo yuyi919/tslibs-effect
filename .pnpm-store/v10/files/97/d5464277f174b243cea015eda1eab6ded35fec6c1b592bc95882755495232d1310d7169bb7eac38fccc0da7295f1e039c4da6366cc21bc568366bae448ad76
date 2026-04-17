@@ -1,0 +1,129 @@
+// import { combineAll, hash, type HashValue } from "@yuyi919/shared-proto/Hash"
+import { optimize } from "effect/Hash";
+
+import { map, reduceRight } from "@yuyi919/shared-proto/Array";
+import * as JsObject from "@yuyi919/shared-proto/JsObject";
+import * as JsTypes from "@yuyi919/shared-proto/JsTypes";
+import * as Length from "@yuyi919/shared-proto/Length";
+
+import { constant } from "./function/core.js";
+import { pureMemoize } from "./function/memoized.js";
+import { isHashable } from "./Hasbable.js";
+import * as CONTSTANTS from "./internal/constant/index.js";
+import * as internal from "./internal/hash.js";
+import { dual } from "./internal/helper.js";
+import { defineReadonlyProperty } from "./internal/proto.js";
+import { HashSymbol } from "./Symbol.js";
+
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export let cachedStatic = (self, staticHash = hash(self)) =>
+  defineReadonlyProperty(self, HashSymbol, constant(staticHash));
+export let withHash = (target, another) => cachedStatic(target, hash(another));
+export let combine = (x, y, ...other) =>
+  internal.combine2(x, reduceRight(other, internal.combine2, y));
+export let combineAll = (all) => all.reduce(internal.combine2);
+export let hash = (self) => {
+  let t;
+  if (self === CONTSTANTS.UNDEFINED) {
+    return internal.HASH_UNDEFINED;
+  } else if (self === CONTSTANTS.NULL) {
+    return internal.HASH_NULL;
+  } else if (self === JsTypes.IS_TRUE) {
+    return internal.HASH_TRUE;
+  } else if (self === JsTypes.IS_FALSE) {
+    return internal.HASH_FALSE;
+  } else if (isHashable(self)) {
+    return self[HashSymbol]();
+  } else {
+    t = typeof self;
+    if (t === CONTSTANTS.__KEY_NUM) {
+      return internal.number(self);
+    } else if (t === CONTSTANTS.__KEY_BIGINT) {
+      return internal.bigInt(self);
+    } else if (t === CONTSTANTS.__KEY_SYMBOL) {
+      return internal.symbol(self);
+    } else if (t === CONTSTANTS.__KEY_STR) {
+      return internal.string(self);
+    } else if (JsTypes.isDate(self)) {
+      return hash(self.toISOString());
+    } else if (isHash(self)) {
+      return self[HashSymbol]();
+    } else if (JsTypes.isArr(self)) {
+      return arrayLike(self);
+    } else {
+      return internal.random(self);
+    }
+  }
+};
+export let arrayLike = (arr) => {
+  let h = 6151,
+    len = Length.unknownArray(arr);
+  for (let i = 0; i < len; i++) {
+    h = internal.combine2(h, hash(arr[i]));
+  }
+  return optimize(h);
+};
+export let array = arrayLike;
+/** @internal */
+export let EMPTY_STRUCTURE_KEYS = 12289;
+/** @internal */
+export let structureKeysWithCache = (target, keys, cache, zero) => {
+  let h = zero,
+    length = Length.unknownArray(keys),
+    key;
+  for (let i = 0; i < length; i++) {
+    h = internal.combine3(
+      h,
+      JsTypes.hasOwnKey(cache, (key = keys[i]))
+        ? cache[key]
+        : (cache[key] = internal.string(
+            JsTypes.isSymbol(key) ? JsTypes.toString(key) : key,
+          )),
+      hash(target[key]),
+    );
+  }
+  return optimize(h);
+};
+/** @internal */
+export let $structureEntries = (...hashs) =>
+  optimize(hashs.reduce(internal.combine2, EMPTY_STRUCTURE_KEYS));
+let keyCache = {};
+export let structureKeys = (o, keys) =>
+  structureKeysWithCache(o, keys, keyCache, EMPTY_STRUCTURE_KEYS);
+export let struct = (o) => structureKeys(o, JsObject.keys(o));
+export let object = (o) => structureKeys(o, JsObject.jsObjectKeys(o));
+export let record = (o) => structureKeys(o, JsObject.keys(o));
+/**
+ *
+ * @param name
+ * @returns
+ * ```ts
+ * combine(string("value"), hash(value))
+ * ```
+ */
+export let $value = (value) =>
+  internal.combine2(internal.HASH_VALUE, hash(value));
+export let isHash = (target) =>
+  (JsTypes.isObj(target) || JsTypes.isFn(target)) &&
+  HashSymbol in target &&
+  JsTypes.isFn(target[HashSymbol]);
+/**
+ * @since 2.0.0
+ * @category hashing
+ * @deprecated 请使用 `cachedStatic` 和 `withHash`
+ */
+export let cached = /*#__PURE__*/ dual(2, (self, hash) => {
+  return (defineReadonlyProperty(self, HashSymbol, constant(hash)), hash);
+});
+export let hashedFn = (fn, cache) =>
+  cachedStatic(
+    pureMemoize(fn, {
+      cache,
+      key: (...args) => combineAll(map(args, hash)),
+    }),
+  );
+export * from "./internal/hash.js";
+//# sourceMappingURL=Hash.js.map

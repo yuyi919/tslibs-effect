@@ -1,0 +1,13 @@
+import * as PR from "./parser-ts/ParseResult.js";
+
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export let escalateMutable = (e) => (
+  console.log("escalate", PR.getInput(e)),
+  PR.setFatal(e, true),
+  e
+);
+export * from "./parser-ts/ParseResult.js";
+//# sourceMappingURL=parserResult.js.map

@@ -1,0 +1,2 @@
+export * from "./internal/object/property";
+//# sourceMappingURL=JsPropertyDescriptor.d.ts.map

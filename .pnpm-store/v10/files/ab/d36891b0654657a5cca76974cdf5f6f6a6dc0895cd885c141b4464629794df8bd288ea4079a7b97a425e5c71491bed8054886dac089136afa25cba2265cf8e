@@ -1,0 +1,64 @@
+import { describe, expect, it } from "vitest"
+
+import { satisfies } from "effect/Function"
+
+import { pipe } from "../function"
+import * as P from "../internal/protoFactory"
+import { Pipeable, pipeArguments } from "../Pipeable"
+import { makeProto } from "../Proto"
+
+describe("ProtoFactory", () => {
+  it("basic", () => {
+    const testProto = pipe(
+      P.zero,
+      P.property("num", 1),
+      P.getter("str", (_) => _.num + ""),
+      P.method("method", (self, b: number) => [self.num + b, self.str]),
+      P.property("fnProperty", (_: "true" | "false") => _ === "true"),
+      P.propertyWith("propertyWith", (_) => _._obj.num.value! + 1),
+      P.method("toJSON", (_) => ({
+        num: _.num,
+        str: _.str,
+        propertyWith: _.propertyWith,
+      })),
+      P.make,
+    )
+    expect(testProto.num).toBe(1)
+    expect(testProto.str).toBe("1")
+    expect(testProto.method(1)).toEqual([2, "1"])
+    expect(testProto.method(4)).toEqual([5, "1"])
+    expect(testProto.fnProperty("true")).toBe(true)
+    // @ts-expect-error
+    expect(testProto.fnProperty("fa")).toBe(false)
+    testProto.num += 1
+    expect(testProto.propertyWith).toBe(2)
+    expect(testProto.toJSON()).toEqual({
+      num: 2,
+      str: "2",
+      propertyWith: 2,
+    })
+  })
+
+  it("pipe", () => {
+    const Pipeable = pipe(
+      P.type<Pipeable>(),
+      P.method("pipe", (self, ...args: ((arg: any) => any)[]) =>
+        pipeArguments(self, args),
+      ),
+      P.make,
+    ) satisfies Pipeable
+
+    class ClassA extends makeProto(Pipeable) {}
+    function ClassB(this: any) {}
+    ClassB.prototype = Pipeable
+    // Object.setPrototypeOf(ClassB.prototype, Pipeable)
+
+    const a = new ClassA()
+    // @ts-expect-error
+    const b = new ClassB()
+    expect(Pipeable.pipe).toBeFunction()
+    expect(a.pipe).toBeFunction()
+    expect(a.pipe).toBe(Pipeable.pipe)
+    expect(a.pipe((a) => b)).toBe(b)
+  })
+})

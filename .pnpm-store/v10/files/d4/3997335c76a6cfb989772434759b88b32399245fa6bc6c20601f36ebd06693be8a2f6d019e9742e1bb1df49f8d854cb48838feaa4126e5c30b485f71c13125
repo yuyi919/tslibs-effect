@@ -1,0 +1,34 @@
+import { Either } from "fp-ts/Either";
+import * as Option from "./Option";
+export * from "fp-ts/Either";
+export type { Either } from "fp-ts/Either";
+/**
+ * Extracts the value of an `Either` or throws if the `Either` is `Left`.
+ *
+ * If a default error is sufficient for your use case and you don't need to configure the thrown error, see {@link getOrThrow}.
+ *
+ * @param self - The `Either` to extract the value from.
+ * @param onLeft - A function that will be called if the `Either` is `Left`. It returns the error to be thrown.
+ *
+ * @example
+ *
+ * assert.deepStrictEqual(
+ *   Either.getOrThrowWith(Either.right(1), () => new Error('Unexpected Left')),
+ *   1
+ * )
+ * assert.throws(() => Either.getOrThrowWith(Either.left("error"), () => new Error('Unexpected Left')))
+ *
+ * @category getters
+ * @since 2.0.0
+ */
+export declare const getOrThrowWith: {
+    <L>(onLeft: (left: L) => unknown): <A>(self: Either<A, L>) => A;
+    <R, L>(self: Either<L, R>, onLeft: (left: L) => unknown): R;
+};
+export declare function toOption<L, R>(self: Either<L, R>): Option.t<R>;
+/**
+ * @category pattern matching
+ * @since 0.0.0
+ */
+export declare const match: <E, B, A, C>(ma: Either<E, A>, onRight: (a: A) => C, onLeft: (e: E) => B) => B | C;
+//# sourceMappingURL=Either.d.ts.map

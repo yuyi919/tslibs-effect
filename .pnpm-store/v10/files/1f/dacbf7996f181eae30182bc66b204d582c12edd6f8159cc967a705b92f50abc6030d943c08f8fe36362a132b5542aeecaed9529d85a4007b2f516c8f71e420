@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Const.js",
+  "module": "../dist/esm/Const.js",
+  "types": "../dist/esm/Const.d.ts",
+  "sideEffects": []
+}

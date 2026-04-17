@@ -1,0 +1,14 @@
+'use strict';
+
+var o=t=>t._tag==="Some";var l=t=>t._tag==="Right";var x=t=>e=>o(t(e)),f=t=>e=>l(t(e)),i=()=>t=>!0,m=t=>e=>!t(e),u=t=>e=>r=>e(r)||t(r),s=t=>e=>r=>e(r)&&t(r),g=()=>t=>!1,h=t=>e=>r=>e(r)&&t(r);
+
+exports.and = s;
+exports.compose = h;
+exports.fromEitherK = f;
+exports.fromOptionK = x;
+exports.id = i;
+exports.not = m;
+exports.or = u;
+exports.zero = g;
+//# sourceMappingURL=Refinement.js.map
+//# sourceMappingURL=Refinement.js.map

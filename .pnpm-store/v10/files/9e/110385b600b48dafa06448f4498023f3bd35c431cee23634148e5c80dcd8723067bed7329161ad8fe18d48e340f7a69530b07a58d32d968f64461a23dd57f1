@@ -1,0 +1,17 @@
+import { len } from "../function"
+
+export function joinWith(array: readonly string[], sep: string) {
+  return array.join(sep)
+}
+
+export function join(array: readonly string[]) {
+  return joinWith(array, "")
+}
+
+export function joinMany(a: string, array: readonly string[]) {
+  return a + join(array)
+}
+
+export function joinManyWith(a: string, array: readonly string[], sep: string) {
+  return len(array) > 0 ? a + sep + joinWith(array, sep) : a
+}

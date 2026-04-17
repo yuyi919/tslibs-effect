@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ChainRec.js",
+  "module": "../dist/esm/ChainRec.js",
+  "types": "../dist/esm/ChainRec.d.ts",
+  "sideEffects": []
+}

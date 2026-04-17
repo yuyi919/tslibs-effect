@@ -1,0 +1,226 @@
+import * as AbortSignal from "./AbortSignal.js";
+import { AbortError, TimeoutError } from "./Errors.js";
+import { constFalse, constVoid, toRaise } from "./Functions.js";
+import {
+  __requestAnimationFrame,
+  PROMISE,
+  RESOLVE,
+  SYMBOL_ASYNC_DISPOSE,
+  SYMBOL_DISPOSE,
+  VOID,
+} from "./internal/constant/index.js";
+import { tryCatch } from "./internal/helper.js";
+import {
+  __clearInterval,
+  __clearTimeout,
+  __setInterval,
+  __setTimeout,
+} from "./internal/timeout.js";
+import { isInstanceof } from "./JsTypes.js";
+import * as Ok from "./Ok.js";
+
+export let make = (executor) => new PROMISE(executor);
+export let makeWithOk = (executor) =>
+  make((resolve) =>
+    executor(
+      (v) => resolve(Ok.ok(v)),
+      (e) => resolve(Ok.no(e)),
+    ),
+  );
+export let makeController = () => {
+  let controller = {
+    _reject: toRaise(),
+    _resolve: toRaise(),
+    _resolved: Ok.no(VOID),
+    _promise: make((resolve, reject) => {
+      controller._reject = reject;
+      controller._resolve = resolve;
+    }),
+  };
+  return controller;
+};
+export let castPromiseLike = RESOLVE;
+export let castPromiseLikeReject = PROMISE.reject;
+export {
+  /**
+   * @deprecated use {@link castPromiseLike|Promisify.castPromiseLike}
+   */
+  castPromiseLike as asPromise,
+  /**
+   * @deprecated use {@link castPromiseLikeReject|Promisify.castPromiseLikeReject}
+   */
+  castPromiseLikeReject as asReject,
+  /**
+   * @deprecated use {@link make|Promisify.make}
+   */
+  make as promise,
+};
+/**
+ * 用一个延时Promise包裹值
+ * @param duration - 延时时间（毫秒）
+ * @param value - 需要延时返回的值
+ * @param options - 可选配置对象，支持传入AbortSignal处理abort逻辑
+ * @throws 如果传入signal并被abort，则会抛出{@link AbortError|AbortError<R>}
+ */
+export let delayValue = (duration, value, options = {}) => {
+  let { signal } = options;
+  if (signal && AbortSignal.isAborted(signal)) {
+    return castPromiseLikeReject(AbortSignal.error(signal));
+  }
+  return make((resolve, reject) => {
+    let timerId = __setTimeout(resolve, duration, value);
+    if (signal) {
+      AbortSignal.onAbort(signal, (reason) => {
+        __clearTimeout(timerId);
+        reject(reason);
+      });
+    }
+  });
+};
+export let reqAF = (options = {}) => {
+  let { signal } = options;
+  if (signal && AbortSignal.isAborted(signal)) {
+    return castPromiseLikeReject(AbortSignal.error(signal));
+  }
+  return make((resolve, reject) => {
+    let timerId = __requestAnimationFrame(resolve);
+    if (signal) {
+      AbortSignal.onAbort(signal, (reason) => {
+        __clearTimeout(timerId);
+        reject(reason);
+      });
+    }
+  });
+};
+/**
+ * 用一个延时Promise包裹值
+ * @param duration - 延时时间（毫秒）
+ * @param value - 需要延时返回的值
+ * @param options - 可选配置对象，支持传入AbortSignal处理abort逻辑
+ * @returns 返回{@link Ok.PromiseOk|Ok.PromiseOk<T, AbortError<R>>}
+ */
+export let delayValueOk = (duration, value, options = {}) => {
+  let { signal } = options;
+  if (signal && AbortSignal.isAborted(signal)) {
+    return castPromiseLike(Ok.no(AbortSignal.error(signal)));
+  }
+  return makeWithOk((resolve, reject) => {
+    let timerId = __setTimeout(resolve, duration, value);
+    if (signal) {
+      AbortSignal.onAbort(signal, (reason) => {
+        __clearTimeout(timerId);
+        reject(new AbortError(reason));
+      });
+    }
+  });
+};
+/**
+ * 参照{@link delay}，但延时结束后会抛出{@link TimeoutError}
+ *
+ * 若catch到{@link AbortError}则直接返回而不会抛出错误
+ * @param duration
+ * @param options
+ * @throws 通常抛出{@link TimeoutError}；若传入{@link AbortSignal}且延时后处于aborted则不会抛出
+ */
+export let timeout = async (duration, options) => {
+  try {
+    await delay(duration, options);
+  } catch (e) {
+    if (!isInstanceof(e, AbortError)) throw e;
+  }
+  if (!options?.signal?.aborted) {
+    throw new TimeoutError();
+  }
+};
+/**
+ * 创建一个延时 {@link Ok.PromiseOk|PromiseOk<void, AbortError<R>>}。
+ * @param duration - 延时时间（毫秒）
+ * @param options - 配置对象
+ * @returns Promise
+ */
+export let delayOK = (duration, options) =>
+  delayValueOk(duration, VOID, options);
+export { delayOK as sleepOK };
+/**
+ * 创建一个延时 {@link Promise}。
+ * @param duration - 延时时间（毫秒）
+ * @param options - 配置对象
+ * @returns Promise
+ */
+export let delay = (duration, options) => delayValue(duration, VOID, options);
+/**
+ * @deprecated 请使用{@link delay}
+ */
+export let sleep = delay;
+/**
+ * 手动触发一次调用（不影响时序）
+ * @returns 如果disposed或aborted，返回false，否则返回true
+ */ /**
+ * Creates a disposable scope for the resource, allowing use in `using` or `await using` statements.
+ * @param reason
+ */ /**
+ * 创建一个支持中止的定时器。
+ * @param callback - 定时执行的回调函数，参数为从0开始随着callback调用次数递增的整数
+ * @param duration - 定时间隔（毫秒）
+ * @param options - 配置对象
+ * @returns 定时器句柄
+ */
+export let makeInterval = (callback, duration, options = {}) => {
+  let { signal, immediate = false, onError } = options;
+  let timerId = null,
+    stopped = false;
+  let ctl = makeController();
+  if (signal?.aborted) {
+    ctl._resolve(Ok.no(AbortSignal.error(signal)));
+    return {
+      dispose: constVoid,
+      afterDispose: ctl._promise,
+      i: 0,
+      tick: constFalse,
+      isDisposed: true,
+      scope: (_a) => ({
+        [SYMBOL_DISPOSE]: constVoid,
+        [SYMBOL_ASYNC_DISPOSE]: constVoid,
+      }),
+    };
+  }
+  let clear = (reason) => {
+    if (timerId !== null) {
+      __clearInterval(timerId);
+      timerId = null;
+      ctl._resolve(reason);
+    }
+  };
+  let index = 0;
+  let cb = () => {
+    callback(index++);
+  };
+  let handle = {
+    dispose: (a) => clear(Ok.ok(a)),
+    afterDispose: ctl._promise,
+    tick: () => (stopped ? false : (cb(), true)),
+    get i() {
+      return index;
+    },
+    get isDisposed() {
+      return timerId === null;
+    },
+    scope: (a) => ({
+      [SYMBOL_DISPOSE]: () => handle.dispose(a),
+      [SYMBOL_ASYNC_DISPOSE]: () => handle.dispose(a),
+    }),
+  };
+  timerId = onError
+    ? __setInterval(() => tryCatch(cb, (e) => onError(e, false)), duration)
+    : __setInterval(cb, duration);
+  if (immediate) {
+    onError ? tryCatch(cb, (e) => onError(e, true)) : cb();
+  }
+  if (signal) {
+    AbortSignal.onAbort(signal, (reason) =>
+      ctl._resolve(Ok.no(new AbortError(reason))),
+    );
+  }
+  return handle;
+};
+//# sourceMappingURL=Promisify.js.map

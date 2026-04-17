@@ -1,0 +1,5 @@
+/* TypeScript file generated from LineBreak.res by genType. */ /* eslint-disable */ /* tslint:disable */ import * as LineBreakJS from "./LineBreak.bs.js";
+
+/** Adds a MIN_COST penalty to the end of the paragraph. Without it, the paragraph cannot be broken. Only turn this option off if you're adding text from inline elements to the overall paragraph the paragraph itself must always end with this penalty. */
+export let split = LineBreakJS.split;
+//# sourceMappingURL=LineBreak.gen.js.map

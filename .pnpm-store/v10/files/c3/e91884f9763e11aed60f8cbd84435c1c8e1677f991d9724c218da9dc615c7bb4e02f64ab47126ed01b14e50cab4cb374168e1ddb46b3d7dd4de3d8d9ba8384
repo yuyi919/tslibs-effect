@@ -1,0 +1,12 @@
+/* TypeScript file generated from Record.res by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+import * as RecordJS from './Record.bs.js';
+
+import type {t as Dict_t} from './Dict.gen';
+
+export type t<a> = {[id: string]: a};
+
+export const make: <T1>() => Dict_t<T1> = RecordJS.make as any;

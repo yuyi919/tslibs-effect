@@ -1,0 +1,142 @@
+/**
+ * 取得对象的所有值类型，相对于Keyof
+ * @public
+ */ /**
+    * @public
+    */ /**
+       * 参照关键字keyof，可以排除指定类型，默认排除number和symbol
+       */ /**
+          * @public
+          */ /**
+             * @public
+             */ /**
+                * @public
+                */ /**
+                   * @public
+                   */ /**
+                      * @public
+                      */ /**
+                         * @beta
+                         */ /**
+                            * @beta
+                            */ /**
+                               * @beta
+                               */ /**
+                                  * @beta
+                                  */ /**
+                                     * @beta
+                                     */ /**
+                                        * @beta
+                                        */ /**
+                                           * 类型化构造函数
+                                           * @public
+                                           */ /**
+                                              * 类型化构造函数
+                                              * @public
+                                              */ /**
+                                                 * 带构造函数的对象
+                                                 * @public
+                                                 */ /**
+                                                    * 取得构造函数的参数
+                                                    * @public
+                                                    */ /**
+                                                       * @public
+                                                       */ /**
+                                                          * @beta
+                                                          */ /**
+                                                             * @beta
+                                                             */ /**
+                                                                * @beta
+                                                                */ /**
+                                                                   * @beta
+                                                                   */ /**
+                                                                      * @beta
+                                                                      */ /**
+                                                                         * @beta
+                                                                         */ /**
+                                                                            * @beta
+                                                                            */ /**
+                                                                               * @beta
+                                                                               */ /**
+                                                                                  * @beta
+                                                                                  */ /**
+                                                                                     * `Types.Function.Base<Args, Result>`的别名
+                                                                                     * @beta
+                                                                                     */ /**
+                                                                                        * @beta
+                                                                                        */ /**
+                                                                                           * `ThenableValue`的别名
+                                                                                           * @beta
+                                                                                           */ /**
+                                                                                              * @beta
+                                                                                              */ /**
+                                                                                                 * @beta
+                                                                                                 */ /**
+                                                                                                    * @beta
+                                                                                                    */ /**
+                                                                                                       * @beta
+                                                                                                       */ /**
+                                                                                                          * @beta
+                                                                                                          */ /**
+                                                                                                             * @beta
+                                                                                                             */ /**
+                                                                                                                * @beta
+                                                                                                                */ /**
+                                                                                                                   * @beta
+                                                                                                                   */ /**
+                                                                                                                      * 包含`{ Key: T }`的Record
+                                                                                                                      */ /**
+                                                                                                                         * @beta
+                                                                                                                         */ /**
+                                                                                                                            * 包含`{ Key?: T }`的Record
+                                                                                                                            */ /**
+                                                                                                                               * @beta
+                                                                                                                               */ /**
+                                                                                                                                  * @internal
+                                                                                                                                  */ /**
+                                                                                                                                     * 深度Partial
+                                                                                                                                     * @beta
+                                                                                                                                     */ /**
+                                                                                                                                        * 深度可选键，并且允许隐式转换
+                                                                                                                                        * @example
+                                                                                                                                        * ```ts
+                                                                                                                                        * type Result = DeepImplicitConversionPartial<{ a: string,  b: { c: string } }>
+                                                                                                                                        * // => { a?: number | string,  b?: { c?: number | string }
+                                                                                                                                        * ```
+                                                                                                                                        * @beta
+                                                                                                                                        */ // export type DeepPartial<T> = T extends Function
+//   ? T
+//   : T extends object
+//   ? { [K in keyof T]?: DeepPartial<T[K]> }
+//   : T;
+/**
+ * @beta
+ */ /**
+    * @beta
+    */ /**
+       * @beta
+       */ /**
+          * @beta
+          */ /**
+             * @beta
+             */ /**
+                * @beta
+                */ /**
+                   * @beta
+                   */ /**
+                      * @beta
+                      */ /**
+                         * @beta
+                         */ /**
+                            * 排除never类型
+                            * @typeParam T - 目标类型
+                            * @typeParam Then - 不为never时返回的类型
+                            * @typeParam Catch - 为never时返回的类型
+                            * @public
+                            */export * from "./typecheck";
+export * from "./loop";
+export * from "./orType"; /**
+                          * 参照Array.prototype.sort的入参
+                          * @public
+                          */
+//# sourceMappingURL=shared.js.map

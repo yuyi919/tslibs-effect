@@ -1,0 +1,9 @@
+'use strict';
+
+var m=(e,t)=>(r,o)=>l=>e.reduce(l,r,(p,a)=>t.reduce(a,p,o)),f=(e,t)=>r=>{let o=e.foldMap(r),l=t.foldMap(r);return p=>a=>o(a,u=>l(u,p))},x=(e,t)=>(r,o)=>l=>e.reduceRight(l,r,(p,a)=>t.reduceRight(p,a,o));var i=(e,t)=>{let r=m(e,t),o=f(e,t),l=x(e,t);return {reduce:(p,a,u)=>r(a,u)(p),foldMap:p=>{let a=o(p);return (u,n)=>a(n)(u)},reduceRight:(p,a,u)=>l(a,u)(p)}};var g=(e,t)=>r=>o=>e.map(o,l=>t.map(l,r));var d=(e,t)=>{let r=g(e,t);return {map:(o,l)=>r(l)(o)}};var h=(e,t)=>r=>{let o=e.traverse(r),l=t.traverse(r);return p=>a=>o(a,u=>l(u,p))},v=(e,t)=>r=>{let o=e.sequence(r),l=t.sequence(r);return p=>o(e.map(p,l))},y=(e,t)=>{let r=d(e,t).map,o=i(e,t),l=h(e,t),p=v(e,t);return {map:r,reduce:o.reduce,foldMap:o.foldMap,reduceRight:o.reduceRight,traverse:a=>{let u=l(a);return (n,s)=>u(s)(n)},sequence:a=>{let u=p(a);return n=>u(n)}}};
+
+exports.getTraversableComposition = y;
+exports.sequence = v;
+exports.traverse = h;
+//# sourceMappingURL=Traversable.js.map
+//# sourceMappingURL=Traversable.js.map

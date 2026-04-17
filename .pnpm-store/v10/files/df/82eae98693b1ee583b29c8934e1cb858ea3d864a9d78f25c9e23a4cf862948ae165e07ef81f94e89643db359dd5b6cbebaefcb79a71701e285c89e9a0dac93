@@ -1,0 +1,1 @@
+{"version":3,"file":"JsPropertyDescriptor.js","names":[],"sources":["src/JsPropertyDescriptor.js"],"sourcesContent":["export * from \"./internal/object/property.js\";\n"],"mappings":"AAAA,cAAc,+BAA+B","ignoreList":[]}

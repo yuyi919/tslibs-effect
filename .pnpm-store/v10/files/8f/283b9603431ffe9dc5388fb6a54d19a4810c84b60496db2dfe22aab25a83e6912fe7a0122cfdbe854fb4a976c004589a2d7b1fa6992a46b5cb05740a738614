@@ -1,0 +1,4 @@
+/**
+ * Copy from {@link https://github.com/Marcisbee/messagepipe}
+ */ export * from "./internal/message-pipe/MessagePipe.js";
+//# sourceMappingURL=MessagePipe.js.map

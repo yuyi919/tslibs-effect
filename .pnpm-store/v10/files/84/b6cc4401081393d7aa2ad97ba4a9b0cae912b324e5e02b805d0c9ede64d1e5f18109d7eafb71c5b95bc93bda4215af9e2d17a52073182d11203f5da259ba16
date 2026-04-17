@@ -1,0 +1,120 @@
+module Result = {
+  @genType @tag("done")
+  type t<'perform, 'a> =
+    | @as(true) Done({value: 'a})
+    | @as(false) Suspend({value: 'perform})
+}
+
+@genType
+type result<'perform, 'a> = Result.t<'perform, 'a>
+
+let done: 'a => Result.t<'perform, 'a> = a => Result.Done({value: a})->Identity.id
+let suspend: 'perform => Result.t<'perform, 'a> = perform =>
+  Result.Suspend({value: perform})->Identity.id
+
+@genType.import("./SingleShotGen.base") @genType.as("SingleShotGen")
+type t<'perform, 'next, 'a>
+type unk = t<unknown, unknown, unknown>
+
+@genType
+type proto<'perform, 'next, 'a> = {
+  next: 'next => Result.t<'perform, 'a>,
+  return: 'a => Result.t<'perform, 'a>,
+  throw: 'e. 'e => unit,
+}
+
+external fromProto: proto<'r, 'e, 'a> => t<'r, 'e, 'a> = "%identity"
+external fromUnk: unk => t<'r, 'e, 'a> = "%identity"
+external asUnk: t<'r, 'e, 'a> => unk = "%identity"
+external toProto: t<'r, 'e, 'a> => proto<'r, 'e, 'a> = "%identity"
+
+@genType @unboxed
+type fiberFactory<'perform, 'next, 'r, 'a> =
+  // | FiberUnsafe({gen: 'performB 'nextB. 'r => t<'performB, 'nextB, 'a>})
+  | Fiber('r => t<'perform, 'next, 'a>)
+
+%%private(
+  let cache: Map.t<unknown, unk> = Map.make()
+  @send @return(nullable) external get: (Map.t<'k, 'v>, 'k) => option<'v> = "get"
+  @inline
+  let add = (map, key, value) => map->Map.set(key->Types.asUnk, value)
+)
+let constant: 'a. 'a => t<'perform, 'next, 'a> = a =>
+  {
+    next: () => done(a),
+    return: done,
+    throw: Identity.throw,
+  }
+  ->Record.fromUnsafe
+  ->Record.bindSymbol(Symbol.iterator, Identity.constThis)
+  ->Record.asUnsafe
+  ->fromProto
+
+@genType
+let constant: 'a => t<'perform, 'next, 'a> = a => {
+  switch cache->get(a->Types.asUnk) {
+  | Some(const) => const->fromUnk
+  | None => {
+      let r = constant(a)
+      cache->add(a, r->asUnk)
+      r
+    }
+  }
+}
+
+@send external init: (t<'perform, 'next, 'a>, unit) => Result.t<'perform, 'a> = "next"
+
+@send external resume: (t<'perform, 'next, 'a>, 'next) => Result.t<'perform, 'a> = "next"
+
+@send external return: (t<'perform, 'next, 'a>, 'a) => Result.t<'perform, 'a> = "return"
+
+@send external throw: (t<'perform, 'next, 'a>, 'err) => unit = "throw"
+
+@module("@piress/Generator.base")
+external map: (t<'perform, 'next, 'a>, 'a => 'b) => t<'perform, 'next, 'b> = "map"
+
+@module("@piress/Generator.base")
+external mapTo: (t<'perform, 'next, 'a>, 'b) => t<'perform, 'next, 'b> = "mapTo"
+
+@module("@piress/Generator.base")
+external perform: 'perform => t<'perform, 'next, 'next> = "perform"
+
+@module("@piress/Generator.base")
+external ap: (t<'perform, 'next, 'a => 'b>, t<'perform, 'next, 'a>) => t<'perform, 'next, 'b> = "ap"
+
+@module("@piress/Generator.base")
+external chain: (t<'perform, 'next, 'a>, 'a => t<'perform, 'next, 'b>) => t<'perform, 'next, 'b> =
+  "chain"
+
+@module("@piress/Generator.base")
+external tap: (t<'perform, 'next, 'a>, 'a => _) => t<'perform, 'next, 'a> = "tap"
+
+@module("@piress/Generator.base")
+external tapE: (t<'perform, 'next, 'a>, 'a => t<'perform, 'next, _>) => t<'perform, 'next, 'a> =
+  "tapE"
+
+@genType
+let bindTo: (t<'perform, 'next, 'a>, string) => t<'perform, 'next, Record.t<'a>> = (fa, name) =>
+  fa->map(Record.singleton(name, _))
+
+@genType
+let bind: (
+  t<'perform, 'next, Record.t<'a>>,
+  ~name: string,
+  Record.t<'a> => t<'perform, 'next, 'a>,
+) => t<'perform, 'next, Record.t<'a>> = (fa, ~name, gen) =>
+  fa->chain(record => map(gen(record), value => record->Record.bind(name, value)))
+
+@genType
+let bindS: (
+  t<'perform, 'next, {..}>,
+  ~name: string,
+  {..} => t<'perform, 'next, 'a>,
+) => t<'perform, 'next, {..}> = (fa, ~name, gen) =>
+  fa->chain(record =>
+    map(gen(record), value => {
+      let record = record->Object.copy
+      record->Object.set(name, value)
+      record
+    })
+  )

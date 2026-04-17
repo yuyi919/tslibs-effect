@@ -1,0 +1,50 @@
+/**
+ * @since 2.11.0
+ */import * as _ from "./internal.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * Returns a `Refinement` from a `Option` returning function.
+ * This function ensures that a `Refinement` definition is type-safe.
+ *
+ * @category lifting
+ * @since 2.11.0
+ */
+export let fromOptionK = getOption => {
+  return a => _.isSome(getOption(a));
+}; /**
+   * @category lifting
+   * @since 2.11.0
+   */
+export let fromEitherK = getEither => {
+  return a => _.isRight(getEither(a));
+}; /**
+   * @category constructors
+   * @since 2.11.0
+   */
+export let id = () => {
+  return _ => true;
+}; // -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * @since 2.11.0
+ */
+export let not = refinement => a => !refinement(a); /**
+                                                    * @since 2.11.0
+                                                    */
+export let or = second => first => a => first(a) || second(a); /**
+                                                               * @since 2.11.0
+                                                               */
+export let and = second => first => a => first(a) && second(a); /**
+                                                                * @since 2.11.0
+                                                                */
+export let zero = () => {
+  return _ => false;
+}; /**
+   * @since 2.11.0
+   */
+export let compose = bc => ab => {
+  return i => ab(i) && bc(i);
+};
+//# sourceMappingURL=Refinement.js.map

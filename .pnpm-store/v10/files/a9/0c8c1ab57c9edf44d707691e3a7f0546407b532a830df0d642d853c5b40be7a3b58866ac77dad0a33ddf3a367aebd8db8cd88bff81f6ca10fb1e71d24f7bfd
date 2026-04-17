@@ -1,0 +1,8 @@
+'use strict';
+
+var o=Object.prototype.hasOwnProperty;var i=()=>({concat:(r,t)=>Object.assign({},r,t)}),n=r=>t=>{let l={};for(let e in t)o.call(t,e)&&(l[e]=r[e](t[e]));return l};
+
+exports.evolve = n;
+exports.getAssignSemigroup = i;
+//# sourceMappingURL=struct.js.map
+//# sourceMappingURL=struct.js.map

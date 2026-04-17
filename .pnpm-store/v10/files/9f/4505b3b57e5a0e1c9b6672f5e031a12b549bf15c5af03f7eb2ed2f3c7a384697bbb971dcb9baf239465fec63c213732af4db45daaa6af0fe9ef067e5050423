@@ -1,0 +1,23 @@
+/**
+ * @internal
+ */
+export declare function symbolFor(name: string): symbol;
+export declare function nameForEffect(moduleName: string): string;
+export declare function signed(moduleName: string): string;
+/**
+ * @internal
+ */
+export declare function symbolForEffect(moduleName: string): symbol;
+/**
+ * @internal
+ */
+export declare const EqualSymbol: typeof import("effect/Equal").symbol;
+/**
+ * @internal
+ */
+export declare const HashSymbol: typeof import("effect/Hash").symbol;
+/**
+ * @internal
+ */
+export declare const NodeInspectSymbol: typeof import("effect/Inspectable").NodeInspectSymbol;
+//# sourceMappingURL=Symbol.d.ts.map

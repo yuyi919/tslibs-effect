@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/LiftFC.js",
+  "module": "../dist/esm/LiftFC.js",
+  "types": "../dist/esm/LiftFC.d.ts",
+  "sideEffects": []
+}

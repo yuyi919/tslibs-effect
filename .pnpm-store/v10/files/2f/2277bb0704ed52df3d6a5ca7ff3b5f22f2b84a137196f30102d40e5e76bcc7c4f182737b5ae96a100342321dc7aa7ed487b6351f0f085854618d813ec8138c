@@ -1,0 +1,37 @@
+type undefined_val = undefined;
+type null_val = null;
+type bigint_val = BigInt;
+type symbol_val = symbol;
+type object_val = object;
+type function_val = Function;
+export type { undefined_val as undefined, null_val as null, symbol_val as symbol, bigint_val as bigint, object_val as object, function_val as function, undefined_val as Types_undefined_val, null_val as Types_null_val, symbol_val as Types_symbol, bigint_val as Types_bigint_val, object_val as Types_object_val, function_val as Types_function_val, };
+export interface ArrayLike<T> {
+    readonly length: number;
+    readonly [n: number]: T;
+}
+export type { ArrayLike as Array2_array_like };
+export type $Uint8array = Uint8Array;
+export type $Uint8ClampedArray = Uint8ClampedArray;
+export type $Uint16array = Uint16Array;
+export type $Uint32array = Uint32Array;
+export type $Int32Array = Int32Array;
+export type $Int16Array = Int16Array;
+export type $Int8Array = Int8Array;
+export type $Float32Array = Float32Array;
+export type $Float64Array = Float64Array;
+export type $BigUint64Array = BigUint64Array;
+export type $BigInt64Array = BigInt64Array;
+export type TypedArray<_ = any> = Int32Array | Int16Array | Int8Array | Uint32Array | Uint16Array | Uint8Array | Uint8ClampedArray | Float32Array | Float64Array | BigInt64Array | BigUint64Array;
+export type { $Uint8array as Uint8Array };
+export type { $Uint8ClampedArray as Uint8ClampedArray };
+export type { $Uint16array as Uint16Array };
+export type { $Uint32array as Uint32Array };
+export type { $Int32Array as Int32Array };
+export type { $Int16Array as Int16Array };
+export type { $Int8Array as Int8Array };
+export type { $Float32Array as Float32Array };
+export type { $Float64Array as Float64Array };
+export type { $BigUint64Array as BigUint64Array };
+export type { $BigInt64Array as BigInt64Array };
+export type { RA, RNEA, NEA, AnyArray } from "../Array";
+//# sourceMappingURL=JsTypes.shim.d.ts.map

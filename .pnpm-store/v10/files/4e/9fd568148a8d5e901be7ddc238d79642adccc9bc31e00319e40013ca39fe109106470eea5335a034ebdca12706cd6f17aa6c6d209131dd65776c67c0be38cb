@@ -1,0 +1,273 @@
+@genType.as("ElementIdentifier") @genType.import("@piress/Text/shared") @unboxed
+type identifier = ElementIdentifier(int)
+
+@genType.as("ElementIdentifierList") @genType.import("@piress/Text/shared") @unboxed
+type elementIds = ElementIdentifiers(array<identifier>)
+
+@genType.as("CompressedElementIdentifiers") @genType.import("@piress/Text/shared") @unboxed
+type compressedIdentifiers = CompressedCharIdentifiers(array<identifier>)
+
+// @genType
+// let outputIdentifiers = (ids: identifiers): array<int> => {
+//   unsafe_cast(ids)
+// }
+
+// @genType
+// @inline
+// let unboxId = id =>
+//   switch id {
+//   | ElementIdentifier(id) => id
+//   }
+
+// @genType
+// @inline
+// let getCompressedIdentifiers = ids =>
+//   switch ids {
+//   | CompressedCharIdentifiers(ids) => ids
+//   }
+
+@genType.as("ElementObject")
+type element = {
+  mutable fontSize: float,
+  mutable character: string,
+  mutable elementType: ElementType.elementKind,
+  mutable width: float,
+  mutable height: float,
+  mutable x: float,
+  mutable y: float,
+  mutable font: string,
+  mutable style: Font.fontStyleObject,
+}
+
+@genType @genType.opaque
+type charcode = char
+
+@genType
+let getCharCode: charcode => int = (char: charcode) => char->Char.code
+
+@genType.opaque
+type element_key =
+  | @as(1) Width
+  | @as(2) Height
+  | @as(3) X
+  | @as(4) Y
+  | @as(5) FontSize
+
+@inline
+let unboxId = id =>
+  switch id {
+  | ElementIdentifier(id) => id
+  }
+
+@inline
+let isValid = id => id->unboxId > 0
+
+@inline
+let id2String = id =>
+  switch id {
+  | ElementIdentifier(id) => id->Js.Int.toString
+  }
+
+@inline
+let unboxCompressedIds = ids =>
+  switch ids {
+  | CompressedCharIdentifiers(ids) => ids
+  }
+
+@genType
+let outputIdentifiers = (ids: elementIds): array<int> => ids->__unsafe_cast
+@genType @inline
+let getCompressedIdentifiers = ids =>
+  switch ids {
+  | CompressedCharIdentifiers(ids) => ids
+  }
+
+module type Visitor = {
+  type id = identifier
+  type t
+  // let v_get: (element_key, identifier) => float
+  // let v_set: (element_key, identifier, float) => identifier
+  let create: (~character: string, ~fontSize: float) => identifier
+  let getCharacter: t => string
+  let setCharacter: (t, string) => t
+  let getFont: t => string
+  let setFont: (t, string) => t
+  let getCharCode: t => charcode
+  let getElementType: t => ElementType.elementKind
+  let setElementType: (t, ElementType.elementKind) => t
+  let getWidth: t => float
+  let getHeight: t => float
+  let getX: t => float
+  let getY: t => float
+  let getFontSize: t => float
+  let setW: (t, float) => t
+  let setH: (t, float) => t
+  let setX: (t, float) => t
+  let setY: (t, float) => t
+  let setFontSize: (t, float) => t
+  let addX: (t, float) => t
+  let setPosition: (t, float, float) => t
+  let setSize: (t, float, float) => t
+
+  let unwrap: identifier => t
+  // let action: (identifier, t => 'a) => identifier
+  let map: (identifier, t => t) => identifier
+  let out: (identifier, t => 'a) => 'a
+
+  let input: element => identifier
+  let cursor: identifier => element
+  let output: identifier => element
+
+  let grow: int => unit
+  let initlize: int => unit
+}
+
+module type ModuleFunctor = {
+  type t
+  let unwrap: identifier => t
+  let wrap: t => identifier
+  let v_get: (element_key, t) => float
+  let v_set: (element_key, t, float) => t
+  // let v_get: (element_key, identifier) => float
+  // let v_set: (element_key, identifier, float) => identifier
+  let create: (~character: string, ~fontSize: float) => identifier
+
+  let getCharacter: t => string
+  let setCharacter: (t, string) => t
+  let getFont: t => string
+  let setFont: (t, string) => t
+  let getCharCode: t => charcode
+  let getElementType: t => ElementType.elementKind
+  let setElementType: (t, ElementType.elementKind) => t
+
+  let input: element => identifier
+  let cursor: identifier => element
+  let output: identifier => element
+
+  let grow: int => unit
+  let initlize: int => unit
+}
+
+module Make = (ECS: ModuleFunctor): Visitor => {
+  include ECS
+  type id = identifier
+  let getWidth: ECS.t => float = ECS.v_get(Width, ...)
+  let getHeight: ECS.t => float = ECS.v_get(Height, ...)
+  let getX: ECS.t => float = ECS.v_get(X, ...)
+  let getY: ECS.t => float = ECS.v_get(Y, ...)
+  let getFontSize: ECS.t => float = ECS.v_get(FontSize, ...)
+
+  let getCharacter = ECS.getCharacter(_)
+  let getCharCode = ECS.getCharCode(_)
+  let getElementType = ECS.getElementType(_)
+  let setElementType = ECS.setElementType
+
+  @inline
+  let setW: (ECS.t, float) => ECS.t = (t, w) => ECS.v_set(Width, t, w)
+  @inline
+  let setH: (ECS.t, float) => ECS.t = (t, w) => ECS.v_set(Height, t, w)
+  @inline
+  let setX: (ECS.t, float) => ECS.t = (t, w) => ECS.v_set(X, t, w)
+  @inline
+  let setY: (ECS.t, float) => ECS.t = (t, w) => ECS.v_set(Y, t, w)
+  @inline
+  let setFontSize: (ECS.t, float) => ECS.t = (t, w) => ECS.v_set(FontSize, t, w)
+
+  @inline
+  let setFont: (ECS.t, string) => ECS.t = (t, w) => t->ECS.setFont(w)
+
+  // F64.add(getX(_), _)=>
+  @inline
+  let addX = (id, x) => setX(id, getX(id)->F64.add(x))
+
+  @inline
+  let setPosition = (id, x, y) => {
+    id->setX(x)->ignore
+    id->setY(y)
+  }
+
+  @inline
+  let setSize = (id, w, h) => {
+    id->setW(w)->ignore
+    id->setH(h)
+  }
+
+  // @inline
+  // let action = (id, fn) => id->ECS.unwrap->Identity.map(fn)->Identity.mapTo(id)
+  @inline
+  let map = (id, fn) => id->ECS.unwrap->Identity.map(fn)->ECS.wrap
+  @inline
+  let out = (id, fn) => id->ECS.unwrap->fn
+}
+
+module type Adapter = {
+  let create: (~character: string, ~fontSize: float) => identifier
+  let getCharacter: identifier => string
+  let getCharCode: identifier => charcode
+  let getElementType: identifier => ElementType.elementKind
+  let getWidth: identifier => float
+  let getHeight: identifier => float
+  let getX: identifier => float
+  let getY: identifier => float
+  let getFontSize: identifier => float
+  let setWidth: (identifier, float) => identifier
+  let setHeight: (identifier, float) => identifier
+  let setX: (identifier, float) => identifier
+  let setY: (identifier, float) => identifier
+  let addX: (identifier, float) => identifier
+  let setFontSize: (identifier, float) => identifier
+  let setPosition: (identifier, float, float) => identifier
+  let setSize: (identifier, float, float) => identifier
+  let input: element => identifier
+  let cursor: identifier => element
+  let output: identifier => element
+
+  let grow: int => unit
+  let initlize: int => unit
+}
+
+module ExportEcs = (ECS: Visitor): Adapter => {
+  open! ECS
+
+  let create = (~character: string, ~fontSize: float) => create(~character, ~fontSize)
+
+  let getCharacter = id => getCharacter(unwrap(id))
+  let getCharCode = id => getCharCode(unwrap(id))
+  let getElementType = id => getElementType(unwrap(id))
+  let getWidth = id => getWidth(unwrap(id))
+  let getHeight = id => getHeight(unwrap(id))
+  let getX = id => getX(unwrap(id))
+  let getY = id => getY(unwrap(id))
+  let getFontSize = id => getFontSize(unwrap(id))
+
+  let setWidth = (id, value) => setW(unwrap(id), value)->Identity.mapTo(id)
+  let setHeight = (id, value) => setH(unwrap(id), value)->Identity.mapTo(id)
+  let setX = (id, value) => setX(unwrap(id), value)->Identity.mapTo(id)
+  let setY = (id, value) => setY(unwrap(id), value)->Identity.mapTo(id)
+  let addX = (id, value) => addX(unwrap(id), value)->Identity.mapTo(id)
+  let setFontSize = (id, value) => setFontSize(unwrap(id), value)->Identity.mapTo(id)
+  let setPosition = (id, x, y) => setPosition(unwrap(id), x, y)->Identity.mapTo(id)
+  let setSize = (id, width, height) => setSize(unwrap(id), width, height)->Identity.mapTo(id)
+
+  let input = t => input(t)
+  let cursor = t => cursor(t)
+  let output = t => output(t)
+
+  let initlize = t => initlize(t)
+  let grow = t => grow(t)
+}
+
+// type pos = Position(int, int) | Vector(int, int, int)
+
+// let x = pos =>
+//   switch pos {
+//   | Position(x, _) => x
+//   | Vector(x, _, _) => x
+//   }
+
+// let x2 = pos => {
+//   let Position(x, _) | Vector(x, _, _) = pos
+//   x
+// }
+
+// let r = x(Position(10, 0))

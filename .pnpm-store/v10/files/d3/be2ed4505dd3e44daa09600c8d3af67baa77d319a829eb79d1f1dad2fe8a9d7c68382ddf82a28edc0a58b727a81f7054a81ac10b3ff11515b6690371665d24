@@ -1,0 +1,32 @@
+'use strict';
+
+var u=e=>()=>e,s=u(!0);var a={equals:(e,t)=>e===t};var c=e=>(t,r)=>t===r||e(t,r)===0,n=e=>({equals:c(e),compare:(t,r)=>t===r?0:e(t,r)}),g=(...e)=>n((t,r)=>{let o=0;for(;o<e.length-1;o++){let l=e[o].compare(t[o],r[o]);if(l!==0)return l}return e[o].compare(t[o],r[o])}),q=e=>n((t,r)=>e.compare(r,t)),h=(e,t)=>i(t)(e),i=e=>t=>n((r,o)=>t.compare(e(r),e(o))),y="Ord",f=()=>({concat:(e,t)=>n((r,o)=>{let l=e.compare(r,o);return l!==0?l:t.compare(r,o)})}),A=()=>({concat:f().concat,empty:n(()=>0)}),O={URI:y,contramap:h},F={equals:s,compare:u(0)},I=e=>t=>r=>r===t||e.compare(r,t)===0,S=e=>(t,r)=>e.compare(t,r)===-1,v=e=>(t,r)=>e.compare(t,r)===1,R=e=>(t,r)=>e.compare(t,r)!==1,k=e=>(t,r)=>e.compare(t,r)!==-1,w=e=>(t,r)=>t===r||e.compare(t,r)<1?t:r,E=e=>(t,r)=>t===r||e.compare(t,r)>-1?t:r,K=e=>{let t=w(e),r=E(e);return (o,l)=>p=>r(t(p,l),o)},V=e=>{let t=S(e),r=v(e);return (o,l)=>p=>!(t(p,o)||r(p,l))},G=g,H=q,J=O,z=(e,t)=>e<t?-1:e>t?1:0,m={equals:a.equals,compare:z},L=m,P=m,d=m,Q=i(e=>e.valueOf())(d);
+
+exports.Contravariant = O;
+exports.URI = y;
+exports.between = V;
+exports.clamp = K;
+exports.contramap = i;
+exports.equals = I;
+exports.equalsDefault = c;
+exports.fromCompare = n;
+exports.geq = k;
+exports.getDualOrd = H;
+exports.getMonoid = A;
+exports.getSemigroup = f;
+exports.getTupleOrd = G;
+exports.gt = v;
+exports.leq = R;
+exports.lt = S;
+exports.max = E;
+exports.min = w;
+exports.ord = J;
+exports.ordBoolean = L;
+exports.ordDate = Q;
+exports.ordNumber = d;
+exports.ordString = P;
+exports.reverse = q;
+exports.trivial = F;
+exports.tuple = g;
+//# sourceMappingURL=Ord.js.map
+//# sourceMappingURL=Ord.js.map

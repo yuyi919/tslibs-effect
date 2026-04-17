@@ -1,0 +1,442 @@
+import * as assert from "node:assert"
+import { describe, it } from "vitest"
+
+import { number } from "fp-ts"
+import { pipe } from "fp-ts/function"
+import { none, some } from "fp-ts/Option"
+
+import { char as C, parser as P, string as S } from "."
+import { Char } from "./char"
+import { errorResult, succeedResult } from "./ParseResult"
+import * as Stream from "./Stream"
+
+describe("Parser", () => {
+  it("eof", () => {
+    const parser = P.eof<C.Char>()
+    assert.deepStrictEqual(
+      S.run("")(parser),
+      succeedResult(undefined, Stream.from(""), Stream.from("")),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ["end of file"]),
+    )
+  })
+
+  it("cut", () => {
+    const parser = P.cut(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("a", Stream.from(["a", "b"], 1), Stream.from(["a", "b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("bb")(parser),
+      errorResult(Stream.from(["b", "b"]), ['"a"'], true),
+    )
+  })
+
+  it("either", () => {
+    const parser1 = P.either(C.char("a"), () => C.char("b"))
+    assert.deepStrictEqual(
+      S.run("a")(parser1),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("b")(parser1),
+      succeedResult("b", Stream.from(["b"], 1), Stream.from(["b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("c")(parser1),
+      errorResult(Stream.from(["c"]), ['"a"', '"b"']),
+    )
+
+    const parser2 = P.either(P.cut(C.char("a")), () => C.char("b"))
+    assert.deepStrictEqual(
+      S.run("c")(parser2),
+      errorResult(Stream.from(["c"]), ['"a"'], true),
+    )
+
+    const parser3 = P.either(S.string("aa"), () => C.char("b"))
+    assert.deepStrictEqual(
+      S.run("ab")(parser3),
+      errorResult(Stream.from(["a", "b"], 1), ['"aa"']),
+    )
+
+    const parser4 = P.either(C.char("a"), () => S.string("bb"))
+    assert.deepStrictEqual(
+      S.run("bc")(parser4),
+      errorResult(Stream.from(["b", "c"], 1), ['"bb"']),
+    )
+  })
+
+  it("map", () => {
+    const parser = P.map(() => "b")(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("b", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+  })
+
+  it("ap", () => {
+    const parser = P.ap(C.char("a"))(P.of((s) => s.length))
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult(1, Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+  })
+
+  it("apFirst", () => {
+    const parser = P.apFirst(S.spaces)(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("a ")(parser),
+      succeedResult("a", Stream.from(["a", " "], 2), Stream.from(["a", " "])),
+    )
+  })
+
+  it("apSecond", () => {
+    const parser = P.apSecond(S.spaces)(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("a ")(parser),
+      succeedResult(" ", Stream.from(["a", " "], 2), Stream.from(["a", " "])),
+    )
+  })
+
+  it("flatten", () => {
+    const parser = P.of<Char, P.Parser<Char, Char>>(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("a")(P.flatten(parser)),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+  })
+
+  it("cutWith", () => {
+    const parser = P.cutWith(C.char("a"), C.char("b"))
+    assert.deepStrictEqual(
+      S.run("ac")(parser),
+      errorResult(Stream.from(["a", "c"], 1), ['"b"'], true),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("b", Stream.from(["ab"], 2), Stream.from(["ab"])),
+    )
+  })
+
+  it("sepBy", () => {
+    const parser = P.sepByF(
+      C.char(","),
+      P.sat((c) => c !== ","),
+    )
+    assert.deepStrictEqual(
+      S.run("")(parser),
+      succeedResult([], Stream.from(""), Stream.from("")),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult(["a"], Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("a,b")(parser),
+      succeedResult(
+        ["a", "b"],
+        Stream.from(["a", ",", "b"], 3),
+        Stream.from(["a", ",", "b"]),
+      ),
+    )
+  })
+
+  it("sepBy1", () => {
+    const parser = P.sepBy1F(C.char(","), C.char("a"))
+    assert.deepStrictEqual(
+      S.run("")(parser),
+      errorResult(Stream.from(""), ['"a"']),
+    )
+    assert.deepStrictEqual(
+      S.run("a,b")(parser),
+      succeedResult(
+        ["a"],
+        Stream.from(["a", ",", "b"], 1),
+        Stream.from(["a", ",", "b"]),
+      ),
+    )
+  })
+
+  it("sepByCut", () => {
+    const parser = P.sepByCut(C.char(","), C.char("a"))
+    assert.deepStrictEqual(
+      S.run("a,b")(parser),
+      errorResult(Stream.from(["a", ",", "b"], 2), ['"a"'], true),
+    )
+    assert.deepStrictEqual(
+      S.run("a,a")(parser),
+      succeedResult(
+        ["a", "a"],
+        Stream.from(["a", ",", "a"], 3),
+        Stream.from(["a", ",", "a"]),
+      ),
+    )
+  })
+
+  it("filter", () => {
+    const parser = P.expected(
+      pipe(
+        P.item<C.Char>(),
+        P.filter((c: C.Char) => c !== "a"),
+      ),
+      'anything except "a"',
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ['anything except "a"']),
+    )
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      succeedResult("b", Stream.from(["b"], 1), Stream.from(["b"])),
+    )
+  })
+
+  describe("between", () => {
+    it("monomorphic", () => {
+      const betweenParens = P.between(C.char("("), C.char(")"))
+      const parser = betweenParens(C.char("a"))
+      assert.deepStrictEqual(
+        S.run("(a")(parser),
+        errorResult(Stream.from(["(", "a"], 2), ['")"']),
+      )
+      assert.deepStrictEqual(
+        S.run("(a)")(parser),
+        succeedResult(
+          "a",
+          Stream.from(["(", "a", ")"], 3),
+          Stream.from(["(", "a", ")"]),
+        ),
+      )
+    })
+
+    it("polymorphic", () => {
+      const betweenParens = P.between(C.char("("), C.char(")"))
+      const parser = betweenParens(S.int)
+      assert.deepStrictEqual(
+        S.run("(1")(parser),
+        errorResult(Stream.from(["(", "1"], 2), ['")"']),
+      )
+      assert.deepStrictEqual(
+        S.run("(1)")(parser),
+        succeedResult(
+          1,
+          Stream.from(["(", "1", ")"], 3),
+          Stream.from(["(", "1", ")"]),
+        ),
+      )
+    })
+  })
+
+  describe("surroundedBy", () => {
+    it("monomorphic", () => {
+      const surroundedByPipes = P.surroundedBy(C.char("|"))
+      const parser = surroundedByPipes(C.char("a"))
+      assert.deepStrictEqual(
+        S.run("|a")(parser),
+        errorResult(Stream.from(["|", "a"], 2), ['"|"']),
+      )
+      assert.deepStrictEqual(
+        S.run("|a|")(parser),
+        succeedResult(
+          "a",
+          Stream.from(["|", "a", "|"], 3),
+          Stream.from(["|", "a", "|"]),
+        ),
+      )
+    })
+
+    it("polymorphic", () => {
+      const surroundedByPipes = P.surroundedBy(C.char("|"))
+      const parser = surroundedByPipes(S.int)
+      assert.deepStrictEqual(
+        S.run("|1")(parser),
+        errorResult(Stream.from(["|", "1"], 2), ['"|"']),
+      )
+      assert.deepStrictEqual(
+        S.run("|1|")(parser),
+        succeedResult(
+          1,
+          Stream.from(["|", "1", "|"], 3),
+          Stream.from(["|", "1", "|"]),
+        ),
+      )
+    })
+  })
+
+  it("lookAhead", () => {
+    const parser = S.fold([
+      S.string("a"),
+      P.lookAhead(S.string("b")),
+      S.string("b"),
+    ])
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"], 1), ['"b"']),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("abb", Stream.from(["a", "b"], 2), Stream.from(["a", "b"])),
+    )
+  })
+
+  it("takeUntil", () => {
+    const parser = P.takeUntil((char: C.Char) => char === "c")
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult(
+        ["a", "b"],
+        Stream.from(["a", "b"], 2),
+        Stream.from(["a", "b"]),
+      ),
+    )
+    assert.deepStrictEqual(
+      S.run("abc")(parser),
+      succeedResult(
+        ["a", "b"],
+        Stream.from(["a", "b", "c"], 2),
+        Stream.from(["a", "b", "c"]),
+      ),
+    )
+  })
+
+  it("optional", () => {
+    const parser = P.optional(P.sat((char: C.Char) => char === "a"))
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult(some("a"), Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      succeedResult(none, Stream.from(["b"], 0), Stream.from(["b"])),
+    )
+  })
+
+  it("manyTill", () => {
+    const parser = P.manyTill(C.letter, C.char("-"))
+    assert.deepStrictEqual(
+      S.run("a1-")(parser),
+      errorResult(Stream.from(["a", "1", "-"], 1), ['"-"', "a letter"]),
+    )
+    assert.deepStrictEqual(
+      S.run("-")(parser),
+      succeedResult([], Stream.from(["-"], 1), Stream.from(["-"])),
+    )
+    assert.deepStrictEqual(
+      S.run("abc-")(parser),
+      succeedResult(
+        ["a", "b", "c"],
+        Stream.from(["a", "b", "c", "-"], 4),
+        Stream.from(["a", "b", "c", "-"]),
+      ),
+    )
+  })
+
+  it("many1Till", () => {
+    const parser = P.many1Till(C.letter, C.char("-"))
+    assert.deepStrictEqual(
+      S.run("a1-")(parser),
+      errorResult(Stream.from(["a", "1", "-"], 1), ['"-"', "a letter"]),
+    )
+    assert.deepStrictEqual(
+      S.run("-")(parser),
+      errorResult(Stream.from(["-"], 0), ["a letter"]),
+    )
+    assert.deepStrictEqual(
+      S.run("abc-")(parser),
+      succeedResult(
+        ["a", "b", "c"] as const,
+        Stream.from(["a", "b", "c", "-"], 4),
+        Stream.from(["a", "b", "c", "-"]),
+      ),
+    )
+  })
+
+  it("bind", () => {
+    const parser = pipe(
+      C.char("a"),
+      P.bindTo("a"),
+      P.bind("b", () => C.char("b")),
+      P.map(({ a, b }) => [a, b]),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult(
+        ["a", "b"],
+        Stream.from(["a", "b"], 2),
+        Stream.from(["a", "b"]),
+      ),
+    )
+    assert.deepStrictEqual(
+      S.run("bc")(parser),
+      errorResult(Stream.from(["b", "c"], 0), ['"a"']),
+    )
+  })
+
+  it("bindTo", () => {
+    const parser = pipe(
+      C.char("a"),
+      P.bindTo("headingA"),
+      P.map(({ headingA }) => [headingA]),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult(["a"], Stream.from(["a", "b"], 1), Stream.from(["a", "b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("bc")(parser),
+      errorResult(Stream.from(["b", "c"], 0), ['"a"']),
+    )
+  })
+
+  it("Alt and Many", () => {
+    const lang = pipe(
+      C.many1(C.notSpace),
+      P.alt(() => S.spaces),
+    )
+    const input = "hello world mickey mouse"
+    assert.deepStrictEqual(
+      S.run(input)(P.many(lang)),
+      succeedResult(
+        ["hello", " ", "world", " ", "mickey", " ", "mouse", ""],
+        Stream.from("hello world mickey mouse", 24),
+        Stream.from("hello world mickey mouse"),
+      ),
+    )
+
+    assert.deepStrictEqual(
+      S.run("11")(
+        pipe(C.digit, P.map(parseInt), P.getMany1C(number.MonoidSum)),
+      ),
+      succeedResult(2, Stream.from("11", 2), Stream.from("11")),
+    )
+    assert.deepStrictEqual(
+      S.run("121")(
+        pipe(
+          P.getSepBy1Monoid(number.MonoidSum)(
+            pipe(C.char("2"), P.map(parseInt)),
+            pipe(C.digit, P.map(parseInt)),
+          ),
+        ),
+      ),
+      succeedResult(4, Stream.from("121", 3), Stream.from("121")),
+    )
+  })
+  it("Skip WS", () => {
+    const lang = pipe(
+      C.notSpace,
+      P.apFirst(P.scanNext<Char>(Stream.ConsumeMode.IgnoreSpace)),
+      P.many1,
+    )
+    assert.deepStrictEqual(
+      S.run("1 2 1")(lang),
+      succeedResult(
+        ["1", "2", "1"],
+        Stream.from("1 2 1", 5),
+        Stream.from("1 2 1"),
+      ),
+    )
+  })
+})

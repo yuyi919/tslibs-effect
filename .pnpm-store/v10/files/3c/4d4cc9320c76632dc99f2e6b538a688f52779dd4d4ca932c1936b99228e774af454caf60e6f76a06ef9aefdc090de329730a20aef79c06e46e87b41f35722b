@@ -1,0 +1,50 @@
+import type { Callbag, DATA, END, Source, START } from "callbag";
+declare const START: START;
+declare const DATA: DATA;
+declare const END: END;
+export type CallbagInput<I, O> = {
+    _tag: START;
+    _0: true;
+    _1: Callbag<O, I>;
+} | {
+    _tag: DATA;
+    _0: true;
+    error: I;
+} | {
+    _tag: DATA;
+    _0: false;
+    _1: undefined;
+} | {
+    _tag: END;
+    _0: true;
+    error: unknown;
+} | {
+    _tag: END;
+    _0: false;
+    _1: undefined;
+};
+export declare const CallbagInput: {
+    <I, O>(type: START, hasArgs: true, talkback: Callbag<O, I>): CallbagInput<I, O>;
+    <I>(type: DATA, hasArgs: true, data: I): CallbagInput<I, never>;
+    <I>(type: DATA, hasArgs: false, _1: undefined): CallbagInput<I, never>;
+    <I>(type: END, hasArgs: true, error: unknown): CallbagInput<I, never>;
+    <I>(type: END, hasArgs: false, _1: undefined): CallbagInput<I, never>;
+};
+export declare function MAKE_START<T>(fn: (sink: Callbag<T, never>) => void): Source<T>;
+export declare function fromEventTarget<T extends keyof HTMLElementEventMap>(node: EventTarget, name: T, options?: boolean | AddEventListenerOptions): Source<HTMLElementEventMap[T]>;
+export declare function fromIterator<T>(iterator: Iterator<T>): Source<T>;
+export declare function fromIterable<T>(iterator: Iterable<T>): Source<T>;
+export declare function watch<T>(operation: (data: T) => void): (source: Source<T>) => Dispose;
+export declare function listen<T>(operation: (data: T) => void): (source: Source<T>) => Dispose;
+export declare function map<I, O>(f: (d: I) => O): (source: Source<I>) => Source<O>;
+export declare function filter<I>(condition: (d: I) => boolean): (source: Source<I>) => Source<I>;
+export type Listener<T> = (data: T) => any;
+export type Subscriber<T> = {
+    next?: Listener<T>;
+    error?: (err: unknown) => any;
+    complete?: () => any;
+};
+export type Dispose = () => void;
+export declare function subscribe<T>(listener?: Listener<T> | Subscriber<T>): (source: Source<T>) => Dispose;
+export {};
+//# sourceMappingURL=Callbag.d.ts.map

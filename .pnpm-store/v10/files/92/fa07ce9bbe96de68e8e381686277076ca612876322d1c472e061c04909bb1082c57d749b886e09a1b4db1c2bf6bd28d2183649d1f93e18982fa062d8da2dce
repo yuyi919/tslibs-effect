@@ -1,0 +1,23 @@
+@genType @deriving(accessors)
+type t = | @as(-1) Less | @as(0) Equal | @as(1) Greater
+
+@inline let isLess = ord => ord < equal
+@inline let isEqual = ord => ord == equal
+@inline let isGreater = ord => ord > equal
+
+@inline let invert = ord => -.ord
+
+@inline let fromInt = n => n < 0 ? less : n > 0 ? greater : equal
+@inline let fromFloat = n => n < 0. ? less : n > 0. ? greater : equal
+
+external toInt: t => int = "%identity"
+external toFloat: t => float = "%identity"
+
+@inline
+let compareFloat = (a: float, b: float) => a === b ? Equal : a > b ? Greater : Less
+
+@inline
+let compareInt = (a: int, b: int) => a === b ? Equal : a > b ? Greater : Less
+
+@inline
+let compareBool = (a: bool, b: bool) => a === b ? Equal : a ? Greater : Less

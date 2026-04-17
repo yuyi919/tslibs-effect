@@ -1,0 +1,9 @@
+'use strict';
+
+var e=t=>(t.stopPropagation(),t),p=t=>(t.stopImmediatePropagation(),t),a=t=>(t.preventDefault(),t);
+
+exports.preventDefault = a;
+exports.stopImmediatePropagation = p;
+exports.stopPropagation = e;
+//# sourceMappingURL=EventTarget.js.map
+//# sourceMappingURL=EventTarget.js.map

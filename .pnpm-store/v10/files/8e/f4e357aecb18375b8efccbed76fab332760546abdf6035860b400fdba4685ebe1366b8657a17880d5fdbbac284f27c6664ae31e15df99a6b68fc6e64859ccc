@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/crypto.js",
+  "module": "../dist/esm/crypto.js",
+  "types": "../dist/esm/crypto.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,4 @@
+/**
+ * @since 2.11.0
+ */export let guard = (F, P) => b => b ? P.of(undefined) : F.zero();
+//# sourceMappingURL=Zero.js.map

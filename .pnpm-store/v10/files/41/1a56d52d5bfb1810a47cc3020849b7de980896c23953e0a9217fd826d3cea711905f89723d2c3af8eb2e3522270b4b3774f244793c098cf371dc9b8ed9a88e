@@ -1,0 +1,1004 @@
+{
+  "name": "@yuyi919/externals-fp-ts",
+  "version": "0.0.6",
+  "description": "Functional programming in TypeScript",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gcanti/fp-ts.git"
+  },
+  "sideEffects": false,
+  "author": "Giulio Canti <giulio.canti@gmail.com>",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    "./src/*": "./src/*",
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./Alt": {
+      "types": "./dist/esm/Alt.d.ts",
+      "import": "./dist/esm/Alt.js",
+      "default": "./dist/cjs/Alt.js"
+    },
+    "./Alternative": {
+      "types": "./dist/esm/Alternative.d.ts",
+      "import": "./dist/esm/Alternative.js",
+      "default": "./dist/cjs/Alternative.js"
+    },
+    "./Applicative": {
+      "types": "./dist/esm/Applicative.d.ts",
+      "import": "./dist/esm/Applicative.js",
+      "default": "./dist/cjs/Applicative.js"
+    },
+    "./Apply": {
+      "types": "./dist/esm/Apply.d.ts",
+      "import": "./dist/esm/Apply.js",
+      "default": "./dist/cjs/Apply.js"
+    },
+    "./Array": {
+      "types": "./dist/esm/Array.d.ts",
+      "import": "./dist/esm/Array.js",
+      "default": "./dist/cjs/Array.js"
+    },
+    "./Bifunctor": {
+      "types": "./dist/esm/Bifunctor.d.ts",
+      "import": "./dist/esm/Bifunctor.js",
+      "default": "./dist/cjs/Bifunctor.js"
+    },
+    "./BooleanAlgebra": {
+      "types": "./dist/esm/BooleanAlgebra.d.ts",
+      "import": "./dist/esm/BooleanAlgebra.js",
+      "default": "./dist/cjs/BooleanAlgebra.js"
+    },
+    "./Bounded": {
+      "types": "./dist/esm/Bounded.d.ts",
+      "import": "./dist/esm/Bounded.js",
+      "default": "./dist/cjs/Bounded.js"
+    },
+    "./BoundedDistributiveLattice": {
+      "types": "./dist/esm/BoundedDistributiveLattice.d.ts",
+      "import": "./dist/esm/BoundedDistributiveLattice.js",
+      "default": "./dist/cjs/BoundedDistributiveLattice.js"
+    },
+    "./BoundedJoinSemilattice": {
+      "types": "./dist/esm/BoundedJoinSemilattice.d.ts",
+      "import": "./dist/esm/BoundedJoinSemilattice.js",
+      "default": "./dist/cjs/BoundedJoinSemilattice.js"
+    },
+    "./BoundedLattice": {
+      "types": "./dist/esm/BoundedLattice.d.ts",
+      "import": "./dist/esm/BoundedLattice.js",
+      "default": "./dist/cjs/BoundedLattice.js"
+    },
+    "./BoundedMeetSemilattice": {
+      "types": "./dist/esm/BoundedMeetSemilattice.d.ts",
+      "import": "./dist/esm/BoundedMeetSemilattice.js",
+      "default": "./dist/cjs/BoundedMeetSemilattice.js"
+    },
+    "./Category": {
+      "types": "./dist/esm/Category.d.ts",
+      "import": "./dist/esm/Category.js",
+      "default": "./dist/cjs/Category.js"
+    },
+    "./Chain": {
+      "types": "./dist/esm/Chain.d.ts",
+      "import": "./dist/esm/Chain.js",
+      "default": "./dist/cjs/Chain.js"
+    },
+    "./ChainRec": {
+      "types": "./dist/esm/ChainRec.d.ts",
+      "import": "./dist/esm/ChainRec.js",
+      "default": "./dist/cjs/ChainRec.js"
+    },
+    "./Choice": {
+      "types": "./dist/esm/Choice.d.ts",
+      "import": "./dist/esm/Choice.js",
+      "default": "./dist/cjs/Choice.js"
+    },
+    "./Comonad": {
+      "types": "./dist/esm/Comonad.d.ts",
+      "import": "./dist/esm/Comonad.js",
+      "default": "./dist/cjs/Comonad.js"
+    },
+    "./Compactable": {
+      "types": "./dist/esm/Compactable.d.ts",
+      "import": "./dist/esm/Compactable.js",
+      "default": "./dist/cjs/Compactable.js"
+    },
+    "./Console": {
+      "types": "./dist/esm/Console.d.ts",
+      "import": "./dist/esm/Console.js",
+      "default": "./dist/cjs/Console.js"
+    },
+    "./Const": {
+      "types": "./dist/esm/Const.d.ts",
+      "import": "./dist/esm/Const.js",
+      "default": "./dist/cjs/Const.js"
+    },
+    "./Contravariant": {
+      "types": "./dist/esm/Contravariant.d.ts",
+      "import": "./dist/esm/Contravariant.js",
+      "default": "./dist/cjs/Contravariant.js"
+    },
+    "./Date": {
+      "types": "./dist/esm/Date.d.ts",
+      "import": "./dist/esm/Date.js",
+      "default": "./dist/cjs/Date.js"
+    },
+    "./DistributiveLattice": {
+      "types": "./dist/esm/DistributiveLattice.d.ts",
+      "import": "./dist/esm/DistributiveLattice.js",
+      "default": "./dist/cjs/DistributiveLattice.js"
+    },
+    "./Either": {
+      "types": "./dist/esm/Either.d.ts",
+      "import": "./dist/esm/Either.js",
+      "default": "./dist/cjs/Either.js"
+    },
+    "./EitherT": {
+      "types": "./dist/esm/EitherT.d.ts",
+      "import": "./dist/esm/EitherT.js",
+      "default": "./dist/cjs/EitherT.js"
+    },
+    "./Endomorphism": {
+      "types": "./dist/esm/Endomorphism.d.ts",
+      "import": "./dist/esm/Endomorphism.js",
+      "default": "./dist/cjs/Endomorphism.js"
+    },
+    "./Eq": {
+      "types": "./dist/esm/Eq.d.ts",
+      "import": "./dist/esm/Eq.js",
+      "default": "./dist/cjs/Eq.js"
+    },
+    "./Extend": {
+      "types": "./dist/esm/Extend.d.ts",
+      "import": "./dist/esm/Extend.js",
+      "default": "./dist/cjs/Extend.js"
+    },
+    "./Field": {
+      "types": "./dist/esm/Field.d.ts",
+      "import": "./dist/esm/Field.js",
+      "default": "./dist/cjs/Field.js"
+    },
+    "./Filterable": {
+      "types": "./dist/esm/Filterable.d.ts",
+      "import": "./dist/esm/Filterable.js",
+      "default": "./dist/cjs/Filterable.js"
+    },
+    "./FilterableWithIndex": {
+      "types": "./dist/esm/FilterableWithIndex.d.ts",
+      "import": "./dist/esm/FilterableWithIndex.js",
+      "default": "./dist/cjs/FilterableWithIndex.js"
+    },
+    "./Foldable": {
+      "types": "./dist/esm/Foldable.d.ts",
+      "import": "./dist/esm/Foldable.js",
+      "default": "./dist/cjs/Foldable.js"
+    },
+    "./FoldableWithIndex": {
+      "types": "./dist/esm/FoldableWithIndex.d.ts",
+      "import": "./dist/esm/FoldableWithIndex.js",
+      "default": "./dist/cjs/FoldableWithIndex.js"
+    },
+    "./FromEither": {
+      "types": "./dist/esm/FromEither.d.ts",
+      "import": "./dist/esm/FromEither.js",
+      "default": "./dist/cjs/FromEither.js"
+    },
+    "./FromIO": {
+      "types": "./dist/esm/FromIO.d.ts",
+      "import": "./dist/esm/FromIO.js",
+      "default": "./dist/cjs/FromIO.js"
+    },
+    "./FromReader": {
+      "types": "./dist/esm/FromReader.d.ts",
+      "import": "./dist/esm/FromReader.js",
+      "default": "./dist/cjs/FromReader.js"
+    },
+    "./FromState": {
+      "types": "./dist/esm/FromState.d.ts",
+      "import": "./dist/esm/FromState.js",
+      "default": "./dist/cjs/FromState.js"
+    },
+    "./FromTask": {
+      "types": "./dist/esm/FromTask.d.ts",
+      "import": "./dist/esm/FromTask.js",
+      "default": "./dist/cjs/FromTask.js"
+    },
+    "./FromThese": {
+      "types": "./dist/esm/FromThese.d.ts",
+      "import": "./dist/esm/FromThese.js",
+      "default": "./dist/cjs/FromThese.js"
+    },
+    "./Functor": {
+      "types": "./dist/esm/Functor.d.ts",
+      "import": "./dist/esm/Functor.js",
+      "default": "./dist/cjs/Functor.js"
+    },
+    "./FunctorWithIndex": {
+      "types": "./dist/esm/FunctorWithIndex.d.ts",
+      "import": "./dist/esm/FunctorWithIndex.js",
+      "default": "./dist/cjs/FunctorWithIndex.js"
+    },
+    "./Group": {
+      "types": "./dist/esm/Group.d.ts",
+      "import": "./dist/esm/Group.js",
+      "default": "./dist/cjs/Group.js"
+    },
+    "./HKT": {
+      "types": "./dist/esm/HKT.d.ts",
+      "import": "./dist/esm/HKT.js",
+      "default": "./dist/cjs/HKT.js"
+    },
+    "./HeytingAlgebra": {
+      "types": "./dist/esm/HeytingAlgebra.d.ts",
+      "import": "./dist/esm/HeytingAlgebra.js",
+      "default": "./dist/cjs/HeytingAlgebra.js"
+    },
+    "./IO": {
+      "types": "./dist/esm/IO.d.ts",
+      "import": "./dist/esm/IO.js",
+      "default": "./dist/cjs/IO.js"
+    },
+    "./IOEither": {
+      "types": "./dist/esm/IOEither.d.ts",
+      "import": "./dist/esm/IOEither.js",
+      "default": "./dist/cjs/IOEither.js"
+    },
+    "./IOOption": {
+      "types": "./dist/esm/IOOption.d.ts",
+      "import": "./dist/esm/IOOption.js",
+      "default": "./dist/cjs/IOOption.js"
+    },
+    "./IORef": {
+      "types": "./dist/esm/IORef.d.ts",
+      "import": "./dist/esm/IORef.js",
+      "default": "./dist/cjs/IORef.js"
+    },
+    "./Identity": {
+      "types": "./dist/esm/Identity.d.ts",
+      "import": "./dist/esm/Identity.js",
+      "default": "./dist/cjs/Identity.js"
+    },
+    "./Invariant": {
+      "types": "./dist/esm/Invariant.d.ts",
+      "import": "./dist/esm/Invariant.js",
+      "default": "./dist/cjs/Invariant.js"
+    },
+    "./JoinSemilattice": {
+      "types": "./dist/esm/JoinSemilattice.d.ts",
+      "import": "./dist/esm/JoinSemilattice.js",
+      "default": "./dist/cjs/JoinSemilattice.js"
+    },
+    "./Json": {
+      "types": "./dist/esm/Json.d.ts",
+      "import": "./dist/esm/Json.js",
+      "default": "./dist/cjs/Json.js"
+    },
+    "./Lattice": {
+      "types": "./dist/esm/Lattice.d.ts",
+      "import": "./dist/esm/Lattice.js",
+      "default": "./dist/cjs/Lattice.js"
+    },
+    "./Magma": {
+      "types": "./dist/esm/Magma.d.ts",
+      "import": "./dist/esm/Magma.js",
+      "default": "./dist/cjs/Magma.js"
+    },
+    "./Map": {
+      "types": "./dist/esm/Map.d.ts",
+      "import": "./dist/esm/Map.js",
+      "default": "./dist/cjs/Map.js"
+    },
+    "./MeetSemilattice": {
+      "types": "./dist/esm/MeetSemilattice.d.ts",
+      "import": "./dist/esm/MeetSemilattice.js",
+      "default": "./dist/cjs/MeetSemilattice.js"
+    },
+    "./Monad": {
+      "types": "./dist/esm/Monad.d.ts",
+      "import": "./dist/esm/Monad.js",
+      "default": "./dist/cjs/Monad.js"
+    },
+    "./MonadIO": {
+      "types": "./dist/esm/MonadIO.d.ts",
+      "import": "./dist/esm/MonadIO.js",
+      "default": "./dist/cjs/MonadIO.js"
+    },
+    "./MonadTask": {
+      "types": "./dist/esm/MonadTask.d.ts",
+      "import": "./dist/esm/MonadTask.js",
+      "default": "./dist/cjs/MonadTask.js"
+    },
+    "./MonadThrow": {
+      "types": "./dist/esm/MonadThrow.d.ts",
+      "import": "./dist/esm/MonadThrow.js",
+      "default": "./dist/cjs/MonadThrow.js"
+    },
+    "./Monoid": {
+      "types": "./dist/esm/Monoid.d.ts",
+      "import": "./dist/esm/Monoid.js",
+      "default": "./dist/cjs/Monoid.js"
+    },
+    "./NaturalTransformation": {
+      "types": "./dist/esm/NaturalTransformation.d.ts",
+      "import": "./dist/esm/NaturalTransformation.js",
+      "default": "./dist/cjs/NaturalTransformation.js"
+    },
+    "./NonEmptyArray": {
+      "types": "./dist/esm/NonEmptyArray.d.ts",
+      "import": "./dist/esm/NonEmptyArray.js",
+      "default": "./dist/cjs/NonEmptyArray.js"
+    },
+    "./Option": {
+      "types": "./dist/esm/Option.d.ts",
+      "import": "./dist/esm/Option.js",
+      "default": "./dist/cjs/Option.js"
+    },
+    "./OptionT": {
+      "types": "./dist/esm/OptionT.d.ts",
+      "import": "./dist/esm/OptionT.js",
+      "default": "./dist/cjs/OptionT.js"
+    },
+    "./Ord": {
+      "types": "./dist/esm/Ord.d.ts",
+      "import": "./dist/esm/Ord.js",
+      "default": "./dist/cjs/Ord.js"
+    },
+    "./Ordering": {
+      "types": "./dist/esm/Ordering.d.ts",
+      "import": "./dist/esm/Ordering.js",
+      "default": "./dist/cjs/Ordering.js"
+    },
+    "./Pointed": {
+      "types": "./dist/esm/Pointed.d.ts",
+      "import": "./dist/esm/Pointed.js",
+      "default": "./dist/cjs/Pointed.js"
+    },
+    "./Predicate": {
+      "types": "./dist/esm/Predicate.d.ts",
+      "import": "./dist/esm/Predicate.js",
+      "default": "./dist/cjs/Predicate.js"
+    },
+    "./Profunctor": {
+      "types": "./dist/esm/Profunctor.d.ts",
+      "import": "./dist/esm/Profunctor.js",
+      "default": "./dist/cjs/Profunctor.js"
+    },
+    "./Random": {
+      "types": "./dist/esm/Random.d.ts",
+      "import": "./dist/esm/Random.js",
+      "default": "./dist/cjs/Random.js"
+    },
+    "./Reader": {
+      "types": "./dist/esm/Reader.d.ts",
+      "import": "./dist/esm/Reader.js",
+      "default": "./dist/cjs/Reader.js"
+    },
+    "./ReaderEither": {
+      "types": "./dist/esm/ReaderEither.d.ts",
+      "import": "./dist/esm/ReaderEither.js",
+      "default": "./dist/cjs/ReaderEither.js"
+    },
+    "./ReaderIO": {
+      "types": "./dist/esm/ReaderIO.d.ts",
+      "import": "./dist/esm/ReaderIO.js",
+      "default": "./dist/cjs/ReaderIO.js"
+    },
+    "./ReaderT": {
+      "types": "./dist/esm/ReaderT.d.ts",
+      "import": "./dist/esm/ReaderT.js",
+      "default": "./dist/cjs/ReaderT.js"
+    },
+    "./ReaderTask": {
+      "types": "./dist/esm/ReaderTask.d.ts",
+      "import": "./dist/esm/ReaderTask.js",
+      "default": "./dist/cjs/ReaderTask.js"
+    },
+    "./ReaderTaskEither": {
+      "types": "./dist/esm/ReaderTaskEither.d.ts",
+      "import": "./dist/esm/ReaderTaskEither.js",
+      "default": "./dist/cjs/ReaderTaskEither.js"
+    },
+    "./ReadonlyArray": {
+      "types": "./dist/esm/ReadonlyArray.d.ts",
+      "import": "./dist/esm/ReadonlyArray.js",
+      "default": "./dist/cjs/ReadonlyArray.js"
+    },
+    "./ReadonlyMap": {
+      "types": "./dist/esm/ReadonlyMap.d.ts",
+      "import": "./dist/esm/ReadonlyMap.js",
+      "default": "./dist/cjs/ReadonlyMap.js"
+    },
+    "./ReadonlyNonEmptyArray": {
+      "types": "./dist/esm/ReadonlyNonEmptyArray.d.ts",
+      "import": "./dist/esm/ReadonlyNonEmptyArray.js",
+      "default": "./dist/cjs/ReadonlyNonEmptyArray.js"
+    },
+    "./ReadonlyRecord": {
+      "types": "./dist/esm/ReadonlyRecord.d.ts",
+      "import": "./dist/esm/ReadonlyRecord.js",
+      "default": "./dist/cjs/ReadonlyRecord.js"
+    },
+    "./ReadonlySet": {
+      "types": "./dist/esm/ReadonlySet.d.ts",
+      "import": "./dist/esm/ReadonlySet.js",
+      "default": "./dist/cjs/ReadonlySet.js"
+    },
+    "./ReadonlyTuple": {
+      "types": "./dist/esm/ReadonlyTuple.d.ts",
+      "import": "./dist/esm/ReadonlyTuple.js",
+      "default": "./dist/cjs/ReadonlyTuple.js"
+    },
+    "./Record": {
+      "types": "./dist/esm/Record.d.ts",
+      "import": "./dist/esm/Record.js",
+      "default": "./dist/cjs/Record.js"
+    },
+    "./Refinement": {
+      "types": "./dist/esm/Refinement.d.ts",
+      "import": "./dist/esm/Refinement.js",
+      "default": "./dist/cjs/Refinement.js"
+    },
+    "./Ring": {
+      "types": "./dist/esm/Ring.d.ts",
+      "import": "./dist/esm/Ring.js",
+      "default": "./dist/cjs/Ring.js"
+    },
+    "./Semigroup": {
+      "types": "./dist/esm/Semigroup.d.ts",
+      "import": "./dist/esm/Semigroup.js",
+      "default": "./dist/cjs/Semigroup.js"
+    },
+    "./Semigroupoid": {
+      "types": "./dist/esm/Semigroupoid.d.ts",
+      "import": "./dist/esm/Semigroupoid.js",
+      "default": "./dist/cjs/Semigroupoid.js"
+    },
+    "./Semiring": {
+      "types": "./dist/esm/Semiring.d.ts",
+      "import": "./dist/esm/Semiring.js",
+      "default": "./dist/cjs/Semiring.js"
+    },
+    "./Separated": {
+      "types": "./dist/esm/Separated.d.ts",
+      "import": "./dist/esm/Separated.js",
+      "default": "./dist/cjs/Separated.js"
+    },
+    "./Set": {
+      "types": "./dist/esm/Set.d.ts",
+      "import": "./dist/esm/Set.js",
+      "default": "./dist/cjs/Set.js"
+    },
+    "./Show": {
+      "types": "./dist/esm/Show.d.ts",
+      "import": "./dist/esm/Show.js",
+      "default": "./dist/cjs/Show.js"
+    },
+    "./State": {
+      "types": "./dist/esm/State.d.ts",
+      "import": "./dist/esm/State.js",
+      "default": "./dist/cjs/State.js"
+    },
+    "./StateReaderTaskEither": {
+      "types": "./dist/esm/StateReaderTaskEither.d.ts",
+      "import": "./dist/esm/StateReaderTaskEither.js",
+      "default": "./dist/cjs/StateReaderTaskEither.js"
+    },
+    "./StateT": {
+      "types": "./dist/esm/StateT.d.ts",
+      "import": "./dist/esm/StateT.js",
+      "default": "./dist/cjs/StateT.js"
+    },
+    "./Store": {
+      "types": "./dist/esm/Store.d.ts",
+      "import": "./dist/esm/Store.js",
+      "default": "./dist/cjs/Store.js"
+    },
+    "./Strong": {
+      "types": "./dist/esm/Strong.d.ts",
+      "import": "./dist/esm/Strong.js",
+      "default": "./dist/cjs/Strong.js"
+    },
+    "./Task": {
+      "types": "./dist/esm/Task.d.ts",
+      "import": "./dist/esm/Task.js",
+      "default": "./dist/cjs/Task.js"
+    },
+    "./TaskEither": {
+      "types": "./dist/esm/TaskEither.d.ts",
+      "import": "./dist/esm/TaskEither.js",
+      "default": "./dist/cjs/TaskEither.js"
+    },
+    "./TaskOption": {
+      "types": "./dist/esm/TaskOption.d.ts",
+      "import": "./dist/esm/TaskOption.js",
+      "default": "./dist/cjs/TaskOption.js"
+    },
+    "./TaskThese": {
+      "types": "./dist/esm/TaskThese.d.ts",
+      "import": "./dist/esm/TaskThese.js",
+      "default": "./dist/cjs/TaskThese.js"
+    },
+    "./These": {
+      "types": "./dist/esm/These.d.ts",
+      "import": "./dist/esm/These.js",
+      "default": "./dist/cjs/These.js"
+    },
+    "./TheseT": {
+      "types": "./dist/esm/TheseT.d.ts",
+      "import": "./dist/esm/TheseT.js",
+      "default": "./dist/cjs/TheseT.js"
+    },
+    "./Traced": {
+      "types": "./dist/esm/Traced.d.ts",
+      "import": "./dist/esm/Traced.js",
+      "default": "./dist/cjs/Traced.js"
+    },
+    "./Traversable": {
+      "types": "./dist/esm/Traversable.d.ts",
+      "import": "./dist/esm/Traversable.js",
+      "default": "./dist/cjs/Traversable.js"
+    },
+    "./TraversableWithIndex": {
+      "types": "./dist/esm/TraversableWithIndex.d.ts",
+      "import": "./dist/esm/TraversableWithIndex.js",
+      "default": "./dist/cjs/TraversableWithIndex.js"
+    },
+    "./Tree": {
+      "types": "./dist/esm/Tree.d.ts",
+      "import": "./dist/esm/Tree.js",
+      "default": "./dist/cjs/Tree.js"
+    },
+    "./Tuple": {
+      "types": "./dist/esm/Tuple.d.ts",
+      "import": "./dist/esm/Tuple.js",
+      "default": "./dist/cjs/Tuple.js"
+    },
+    "./Unfoldable": {
+      "types": "./dist/esm/Unfoldable.d.ts",
+      "import": "./dist/esm/Unfoldable.js",
+      "default": "./dist/cjs/Unfoldable.js"
+    },
+    "./ValidationT": {
+      "types": "./dist/esm/ValidationT.d.ts",
+      "import": "./dist/esm/ValidationT.js",
+      "default": "./dist/cjs/ValidationT.js"
+    },
+    "./Witherable": {
+      "types": "./dist/esm/Witherable.d.ts",
+      "import": "./dist/esm/Witherable.js",
+      "default": "./dist/cjs/Witherable.js"
+    },
+    "./Writer": {
+      "types": "./dist/esm/Writer.d.ts",
+      "import": "./dist/esm/Writer.js",
+      "default": "./dist/cjs/Writer.js"
+    },
+    "./WriterT": {
+      "types": "./dist/esm/WriterT.d.ts",
+      "import": "./dist/esm/WriterT.js",
+      "default": "./dist/cjs/WriterT.js"
+    },
+    "./Zero": {
+      "types": "./dist/esm/Zero.d.ts",
+      "import": "./dist/esm/Zero.js",
+      "default": "./dist/cjs/Zero.js"
+    },
+    "./boolean": {
+      "types": "./dist/esm/boolean.d.ts",
+      "import": "./dist/esm/boolean.js",
+      "default": "./dist/cjs/boolean.js"
+    },
+    "./function": {
+      "types": "./dist/esm/function.d.ts",
+      "import": "./dist/esm/function.js",
+      "default": "./dist/cjs/function.js"
+    },
+    "./internal": {
+      "types": "./dist/esm/internal.d.ts",
+      "import": "./dist/esm/internal.js",
+      "default": "./dist/cjs/internal.js"
+    },
+    "./number": {
+      "types": "./dist/esm/number.d.ts",
+      "import": "./dist/esm/number.js",
+      "default": "./dist/cjs/number.js"
+    },
+    "./pipeable": {
+      "types": "./dist/esm/pipeable.d.ts",
+      "import": "./dist/esm/pipeable.js",
+      "default": "./dist/cjs/pipeable.js"
+    },
+    "./string": {
+      "types": "./dist/esm/string.d.ts",
+      "import": "./dist/esm/string.js",
+      "default": "./dist/cjs/string.js"
+    },
+    "./struct": {
+      "types": "./dist/esm/struct.d.ts",
+      "import": "./dist/esm/struct.js",
+      "default": "./dist/cjs/struct.js"
+    },
+    "./void": {
+      "types": "./dist/esm/void.d.ts",
+      "import": "./dist/esm/void.js",
+      "default": "./dist/cjs/void.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "Alt": [
+        "./dist/esm/Alt.d.ts"
+      ],
+      "Alternative": [
+        "./dist/esm/Alternative.d.ts"
+      ],
+      "Applicative": [
+        "./dist/esm/Applicative.d.ts"
+      ],
+      "Apply": [
+        "./dist/esm/Apply.d.ts"
+      ],
+      "Array": [
+        "./dist/esm/Array.d.ts"
+      ],
+      "Bifunctor": [
+        "./dist/esm/Bifunctor.d.ts"
+      ],
+      "BooleanAlgebra": [
+        "./dist/esm/BooleanAlgebra.d.ts"
+      ],
+      "Bounded": [
+        "./dist/esm/Bounded.d.ts"
+      ],
+      "BoundedDistributiveLattice": [
+        "./dist/esm/BoundedDistributiveLattice.d.ts"
+      ],
+      "BoundedJoinSemilattice": [
+        "./dist/esm/BoundedJoinSemilattice.d.ts"
+      ],
+      "BoundedLattice": [
+        "./dist/esm/BoundedLattice.d.ts"
+      ],
+      "BoundedMeetSemilattice": [
+        "./dist/esm/BoundedMeetSemilattice.d.ts"
+      ],
+      "Category": [
+        "./dist/esm/Category.d.ts"
+      ],
+      "Chain": [
+        "./dist/esm/Chain.d.ts"
+      ],
+      "ChainRec": [
+        "./dist/esm/ChainRec.d.ts"
+      ],
+      "Choice": [
+        "./dist/esm/Choice.d.ts"
+      ],
+      "Comonad": [
+        "./dist/esm/Comonad.d.ts"
+      ],
+      "Compactable": [
+        "./dist/esm/Compactable.d.ts"
+      ],
+      "Console": [
+        "./dist/esm/Console.d.ts"
+      ],
+      "Const": [
+        "./dist/esm/Const.d.ts"
+      ],
+      "Contravariant": [
+        "./dist/esm/Contravariant.d.ts"
+      ],
+      "Date": [
+        "./dist/esm/Date.d.ts"
+      ],
+      "DistributiveLattice": [
+        "./dist/esm/DistributiveLattice.d.ts"
+      ],
+      "Either": [
+        "./dist/esm/Either.d.ts"
+      ],
+      "EitherT": [
+        "./dist/esm/EitherT.d.ts"
+      ],
+      "Endomorphism": [
+        "./dist/esm/Endomorphism.d.ts"
+      ],
+      "Eq": [
+        "./dist/esm/Eq.d.ts"
+      ],
+      "Extend": [
+        "./dist/esm/Extend.d.ts"
+      ],
+      "Field": [
+        "./dist/esm/Field.d.ts"
+      ],
+      "Filterable": [
+        "./dist/esm/Filterable.d.ts"
+      ],
+      "FilterableWithIndex": [
+        "./dist/esm/FilterableWithIndex.d.ts"
+      ],
+      "Foldable": [
+        "./dist/esm/Foldable.d.ts"
+      ],
+      "FoldableWithIndex": [
+        "./dist/esm/FoldableWithIndex.d.ts"
+      ],
+      "FromEither": [
+        "./dist/esm/FromEither.d.ts"
+      ],
+      "FromIO": [
+        "./dist/esm/FromIO.d.ts"
+      ],
+      "FromReader": [
+        "./dist/esm/FromReader.d.ts"
+      ],
+      "FromState": [
+        "./dist/esm/FromState.d.ts"
+      ],
+      "FromTask": [
+        "./dist/esm/FromTask.d.ts"
+      ],
+      "FromThese": [
+        "./dist/esm/FromThese.d.ts"
+      ],
+      "Functor": [
+        "./dist/esm/Functor.d.ts"
+      ],
+      "FunctorWithIndex": [
+        "./dist/esm/FunctorWithIndex.d.ts"
+      ],
+      "Group": [
+        "./dist/esm/Group.d.ts"
+      ],
+      "HKT": [
+        "./dist/esm/HKT.d.ts"
+      ],
+      "HeytingAlgebra": [
+        "./dist/esm/HeytingAlgebra.d.ts"
+      ],
+      "IO": [
+        "./dist/esm/IO.d.ts"
+      ],
+      "IOEither": [
+        "./dist/esm/IOEither.d.ts"
+      ],
+      "IOOption": [
+        "./dist/esm/IOOption.d.ts"
+      ],
+      "IORef": [
+        "./dist/esm/IORef.d.ts"
+      ],
+      "Identity": [
+        "./dist/esm/Identity.d.ts"
+      ],
+      "Invariant": [
+        "./dist/esm/Invariant.d.ts"
+      ],
+      "JoinSemilattice": [
+        "./dist/esm/JoinSemilattice.d.ts"
+      ],
+      "Json": [
+        "./dist/esm/Json.d.ts"
+      ],
+      "Lattice": [
+        "./dist/esm/Lattice.d.ts"
+      ],
+      "Magma": [
+        "./dist/esm/Magma.d.ts"
+      ],
+      "Map": [
+        "./dist/esm/Map.d.ts"
+      ],
+      "MeetSemilattice": [
+        "./dist/esm/MeetSemilattice.d.ts"
+      ],
+      "Monad": [
+        "./dist/esm/Monad.d.ts"
+      ],
+      "MonadIO": [
+        "./dist/esm/MonadIO.d.ts"
+      ],
+      "MonadTask": [
+        "./dist/esm/MonadTask.d.ts"
+      ],
+      "MonadThrow": [
+        "./dist/esm/MonadThrow.d.ts"
+      ],
+      "Monoid": [
+        "./dist/esm/Monoid.d.ts"
+      ],
+      "NaturalTransformation": [
+        "./dist/esm/NaturalTransformation.d.ts"
+      ],
+      "NonEmptyArray": [
+        "./dist/esm/NonEmptyArray.d.ts"
+      ],
+      "Option": [
+        "./dist/esm/Option.d.ts"
+      ],
+      "OptionT": [
+        "./dist/esm/OptionT.d.ts"
+      ],
+      "Ord": [
+        "./dist/esm/Ord.d.ts"
+      ],
+      "Ordering": [
+        "./dist/esm/Ordering.d.ts"
+      ],
+      "Pointed": [
+        "./dist/esm/Pointed.d.ts"
+      ],
+      "Predicate": [
+        "./dist/esm/Predicate.d.ts"
+      ],
+      "Profunctor": [
+        "./dist/esm/Profunctor.d.ts"
+      ],
+      "Random": [
+        "./dist/esm/Random.d.ts"
+      ],
+      "Reader": [
+        "./dist/esm/Reader.d.ts"
+      ],
+      "ReaderEither": [
+        "./dist/esm/ReaderEither.d.ts"
+      ],
+      "ReaderIO": [
+        "./dist/esm/ReaderIO.d.ts"
+      ],
+      "ReaderT": [
+        "./dist/esm/ReaderT.d.ts"
+      ],
+      "ReaderTask": [
+        "./dist/esm/ReaderTask.d.ts"
+      ],
+      "ReaderTaskEither": [
+        "./dist/esm/ReaderTaskEither.d.ts"
+      ],
+      "ReadonlyArray": [
+        "./dist/esm/ReadonlyArray.d.ts"
+      ],
+      "ReadonlyMap": [
+        "./dist/esm/ReadonlyMap.d.ts"
+      ],
+      "ReadonlyNonEmptyArray": [
+        "./dist/esm/ReadonlyNonEmptyArray.d.ts"
+      ],
+      "ReadonlyRecord": [
+        "./dist/esm/ReadonlyRecord.d.ts"
+      ],
+      "ReadonlySet": [
+        "./dist/esm/ReadonlySet.d.ts"
+      ],
+      "ReadonlyTuple": [
+        "./dist/esm/ReadonlyTuple.d.ts"
+      ],
+      "Record": [
+        "./dist/esm/Record.d.ts"
+      ],
+      "Refinement": [
+        "./dist/esm/Refinement.d.ts"
+      ],
+      "Ring": [
+        "./dist/esm/Ring.d.ts"
+      ],
+      "Semigroup": [
+        "./dist/esm/Semigroup.d.ts"
+      ],
+      "Semigroupoid": [
+        "./dist/esm/Semigroupoid.d.ts"
+      ],
+      "Semiring": [
+        "./dist/esm/Semiring.d.ts"
+      ],
+      "Separated": [
+        "./dist/esm/Separated.d.ts"
+      ],
+      "Set": [
+        "./dist/esm/Set.d.ts"
+      ],
+      "Show": [
+        "./dist/esm/Show.d.ts"
+      ],
+      "State": [
+        "./dist/esm/State.d.ts"
+      ],
+      "StateReaderTaskEither": [
+        "./dist/esm/StateReaderTaskEither.d.ts"
+      ],
+      "StateT": [
+        "./dist/esm/StateT.d.ts"
+      ],
+      "Store": [
+        "./dist/esm/Store.d.ts"
+      ],
+      "Strong": [
+        "./dist/esm/Strong.d.ts"
+      ],
+      "Task": [
+        "./dist/esm/Task.d.ts"
+      ],
+      "TaskEither": [
+        "./dist/esm/TaskEither.d.ts"
+      ],
+      "TaskOption": [
+        "./dist/esm/TaskOption.d.ts"
+      ],
+      "TaskThese": [
+        "./dist/esm/TaskThese.d.ts"
+      ],
+      "These": [
+        "./dist/esm/These.d.ts"
+      ],
+      "TheseT": [
+        "./dist/esm/TheseT.d.ts"
+      ],
+      "Traced": [
+        "./dist/esm/Traced.d.ts"
+      ],
+      "Traversable": [
+        "./dist/esm/Traversable.d.ts"
+      ],
+      "TraversableWithIndex": [
+        "./dist/esm/TraversableWithIndex.d.ts"
+      ],
+      "Tree": [
+        "./dist/esm/Tree.d.ts"
+      ],
+      "Tuple": [
+        "./dist/esm/Tuple.d.ts"
+      ],
+      "Unfoldable": [
+        "./dist/esm/Unfoldable.d.ts"
+      ],
+      "ValidationT": [
+        "./dist/esm/ValidationT.d.ts"
+      ],
+      "Witherable": [
+        "./dist/esm/Witherable.d.ts"
+      ],
+      "Writer": [
+        "./dist/esm/Writer.d.ts"
+      ],
+      "WriterT": [
+        "./dist/esm/WriterT.d.ts"
+      ],
+      "Zero": [
+        "./dist/esm/Zero.d.ts"
+      ],
+      "boolean": [
+        "./dist/esm/boolean.d.ts"
+      ],
+      "function": [
+        "./dist/esm/function.d.ts"
+      ],
+      "internal": [
+        "./dist/esm/internal.d.ts"
+      ],
+      "number": [
+        "./dist/esm/number.d.ts"
+      ],
+      "pipeable": [
+        "./dist/esm/pipeable.d.ts"
+      ],
+      "string": [
+        "./dist/esm/string.d.ts"
+      ],
+      "struct": [
+        "./dist/esm/struct.d.ts"
+      ],
+      "void": [
+        "./dist/esm/void.d.ts"
+      ]
+    }
+  }
+}

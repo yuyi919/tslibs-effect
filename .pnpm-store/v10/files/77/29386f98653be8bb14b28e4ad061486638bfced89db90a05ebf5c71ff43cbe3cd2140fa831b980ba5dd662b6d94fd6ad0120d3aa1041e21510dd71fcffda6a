@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Eval.js",
+  "module": "../dist/esm/Eval.js",
+  "types": "../dist/esm/Eval.d.ts",
+  "sideEffects": []
+}

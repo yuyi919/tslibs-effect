@@ -1,0 +1,3 @@
+export type f64 = number;
+export type i32 = number;
+//# sourceMappingURL=Shared.gen.d.ts.map

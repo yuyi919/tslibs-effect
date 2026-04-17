@@ -1,0 +1,32 @@
+import type {
+  JsObject,
+  JsObjectBind,
+  JsPropertyKey,
+} from "@yuyi919/shared-proto/JsObject"
+
+/**
+ * @internal
+ */
+export function _bind<T extends JsObject, P extends JsPropertyKey, const A>(
+  data: T,
+  key: P,
+  value: A,
+): JsObjectBind<T, P, A> {
+  return {
+    ...data,
+    [key]: value,
+  } as any
+}
+/**
+ * @internal
+ */
+export function _bindWith<T extends JsObject, P extends JsPropertyKey, const A>(
+  data: T,
+  key: P,
+  fn: (target: T) => A,
+): JsObjectBind<T, P, A> {
+  return {
+    ...data,
+    [key]: fn(data),
+  } as JsObjectBind<T, P, A>
+}

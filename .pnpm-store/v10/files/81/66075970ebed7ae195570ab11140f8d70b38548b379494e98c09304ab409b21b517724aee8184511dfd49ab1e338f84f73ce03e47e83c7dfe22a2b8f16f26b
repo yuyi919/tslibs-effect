@@ -1,0 +1,10 @@
+'use strict';
+
+var p=t=>({add:(e,n)=>r=>t.add(e(r),n(r)),zero:()=>t.zero,mul:(e,n)=>r=>t.mul(e(r),n(r)),one:()=>t.one}),u=t=>{let e=p(t);return {add:e.add,mul:e.mul,one:e.one,zero:e.zero,sub:(n,r)=>o=>t.sub(n(o),r(o))}};var s=(...t)=>({add:(e,n)=>t.map((r,o)=>r.add(e[o],n[o])),zero:t.map(e=>e.zero),mul:(e,n)=>t.map((r,o)=>r.mul(e[o],n[o])),one:t.map(e=>e.one),sub:(e,n)=>t.map((r,o)=>r.sub(e[o],n[o]))}),c=t=>e=>t.sub(t.zero,e),x=s,g=u;
+
+exports.getFunctionRing = g;
+exports.getTupleRing = x;
+exports.negate = c;
+exports.tuple = s;
+//# sourceMappingURL=Ring.js.map
+//# sourceMappingURL=Ring.js.map

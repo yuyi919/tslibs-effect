@@ -1,0 +1,2 @@
+export * from "./internal/Monoid.js";
+//# sourceMappingURL=Monoid.js.map

@@ -1,0 +1,296 @@
+open Shared
+
+@genType.as("ElementType") @genType.import("@piress/Text/ElementType") @genType.opaque
+type elementKind =
+  | @as(0) INVALID
+  | @as(1) UNKNOWN
+  | @as(2) CHAR
+  | @as(3) WORD
+  | @as(4) SPACE
+  | @as(5) EOL
+  | @as(6) COMMA
+  | @as(7) COLON
+  | @as(8) CONCAT
+  | @as(9) FULL_POINT
+  | @as(10) QUOTE_LEFT
+  | @as(11) QUOTE_RIGHT
+  | @as(12) QUOTE_COMMON
+  | @as(13) COMPACT_QUOTE_COMMON
+  | @as(14) COMPACT_CHAR
+  | @as(15) BRACKET_LEFT
+  | @as(16) BRACKET_RIGHT
+  | @as(17) EMOJI
+
+@genType.as("printType")
+let print = kind => {
+  switch kind {
+  | INVALID => "INVALID"
+  | UNKNOWN => "UNKNOWN"
+  | CHAR => "CHAR"
+  | WORD => "WORD"
+  | SPACE => "SPACE"
+  | EOL => "EOL"
+  | COMMA => "COMMA"
+  | COLON => "COLON"
+  | CONCAT => "CONCAT"
+  | FULL_POINT => "FULL_POINT"
+  | QUOTE_LEFT => "QUOTE_LEFT"
+  | QUOTE_RIGHT => "QUOTE_RIGHT"
+  | QUOTE_COMMON => "QUOTE_COMMON"
+  | COMPACT_QUOTE_COMMON => "COMPACT_QUOTE_COMMON"
+  | COMPACT_CHAR => "COMPACT_CHAR"
+  | BRACKET_LEFT => "BRACKET_LEFT"
+  | BRACKET_RIGHT => "BRACKET_RIGHT"
+  | EMOJI => "EMOJI"
+  }
+}
+
+@inline
+let checkCharCode = code => {
+  switch code {
+  | '\t'
+  | ' '
+  | '　' =>
+    SPACE
+  | '\r'
+  | '\n' =>
+    EOL
+  | '!'
+  | '.'
+  | '?'
+  | '—'
+  | '…'
+  | '‼'
+  | '⁇'
+  | '⸺'
+  | '。'
+  | '！'
+  | '．'
+  | '？'
+  | 'ー'
+  | '～' =>
+    FULL_POINT
+  | '"'
+  | ''' =>
+    QUOTE_COMMON
+  | ':'
+  | ';'
+  | '：'
+  | '；' =>
+    COLON
+  | '-'
+  | '\\'
+  | '/'
+  | '＼'
+  | '／'
+  | '｜'
+  | '|'
+  | '·'
+  | '・' =>
+    CONCAT
+  | '‘'
+  | '“'
+  | '「'
+  | '『' =>
+    QUOTE_LEFT
+  | '’'
+  | '”'
+  | '」'
+  | '』' =>
+    QUOTE_RIGHT
+  | ','
+  | '、'
+  | '，' =>
+    COMMA
+  | '〈'
+  | '《'
+  | '【'
+  | '〔'
+  | '〖'
+  | '（'
+  | '［'
+  | '｛' =>
+    BRACKET_LEFT
+  | '〉'
+  | '》'
+  | '】'
+  | '〕'
+  | '〗'
+  | '）'
+  | '］'
+  | '｝' =>
+    BRACKET_RIGHT
+  | _ => CHAR
+  }
+}
+// @inline
+@genType
+let checkType = (char: string) => {
+  if test(Import._EMOJI, char) {
+    EMOJI
+  } else {
+    let charType = char->charAt(0)->checkCharCode
+    switch charType {
+    | CHAR if (String.length(char) > 1 && !Shared.is32Bit(char, 0)) || !test(Import._CJK, char) =>
+      WORD
+    | _ => charType
+    }
+  }
+}
+
+@inline
+let testPrevCharIsWestern = char => Import._WESTERN_END->test(char)
+
+@inline
+let isWS = (_type: elementKind): bool => {
+  switch _type {
+  | SPACE
+  | EOL => true
+  | _ => false
+  }
+}
+
+@inline
+let isQUOTE = (_type: elementKind): bool => {
+  switch _type {
+  | QUOTE_COMMON
+  | QUOTE_LEFT
+  | QUOTE_RIGHT => true
+  | _ => false
+  }
+}
+
+@inline
+let isLEFTQUOTE = (_type: elementKind): bool => {
+  _type === QUOTE_LEFT
+}
+
+@inline
+let isBRACKET = (_type: elementKind): bool => {
+  switch _type {
+  | BRACKET_LEFT
+  | BRACKET_RIGHT => true
+  | _ => false
+  }
+}
+
+@inline
+let checkValidEndChar = (_type: elementKind): bool => {
+  switch _type {
+  | EOL
+  | COMMA
+  | COLON
+  | FULL_POINT
+  | QUOTE_RIGHT
+  | QUOTE_COMMON
+  | BRACKET_RIGHT
+  | CONCAT
+  | EMOJI => true
+  | _ => false
+  }
+}
+
+@inline
+let checkCloseable = (_type: elementKind): bool => {
+  switch _type {
+  | QUOTE_COMMON
+  | QUOTE_LEFT
+  | BRACKET_LEFT => true
+  | _ => false
+  }
+}
+
+@inline
+let checkInvalidEndChar = (_type: elementKind): bool => {
+  _type === QUOTE_LEFT ||
+  _type === QUOTE_COMMON ||
+  _type === BRACKET_LEFT ||
+  _type === SPACE ||
+  _type === EMOJI
+}
+
+@genType @inline
+let isPunctuation = elementType =>
+  elementType !== CHAR &&
+  elementType !== COMPACT_CHAR &&
+  elementType !== WORD &&
+  elementType !== EMOJI &&
+  elementType !== SPACE &&
+  elementType !== EOL &&
+  elementType !== UNKNOWN &&
+  elementType !== INVALID
+
+@inline
+let isEmoji = elementType => elementType === EMOJI
+
+@inline
+let invalidPanguClose = (kind: elementKind): bool => {
+  isPunctuation(kind) &&
+  switch kind {
+  | COMMA
+  | FULL_POINT
+  | // | QUOTE_COMMON
+  QUOTE_RIGHT
+  | CONCAT
+  | BRACKET_RIGHT => true
+  | _ => false
+  }
+}
+
+@inline
+let isCjkLeftQuote = char => '“' === char
+
+@genType.opaque
+type panguState =
+  | Unknown
+  | InWestern
+  | InCJK
+
+@genType
+type state = {
+  mutable pangu: panguState,
+  mutable kind: elementKind,
+  mutable index: int,
+}
+
+@inline
+let couldExtend = kind =>
+  switch kind {
+  | QUOTE_COMMON => true
+  | SPACE => true
+  | EOL => true
+  | COMMA => true
+  | CONCAT => true
+  | FULL_POINT => true
+  | _ => false
+  }
+
+// CJK '+ West
+// West '+ West
+
+@inline @genType
+let keepState = (state: state) =>
+  switch state {
+  | {pangu: Unknown, kind} => kind == WORD ? InWestern : kind == CHAR ? InCJK : Unknown
+  | {pangu: InWestern, kind} => kind == WORD || kind->couldExtend ? InWestern : InCJK
+  | {pangu: InCJK, kind} => kind->couldExtend ? InCJK : InWestern
+  }
+
+@genType
+let stateFor = (str: string, cb: state => unit) => {
+  let state = {kind: UNKNOWN, pangu: Unknown, index: 0}
+  if str->String.length > 0 {
+    for i in 0 to str->String.length - 1 {
+      state.index = i
+      let kind = checkType(str->charStrAt(i))
+      if kind !== state.kind {
+        state.kind = kind
+        let nextp = keepState(state)
+        if nextp !== state.pangu {
+          state.pangu = nextp
+          cb(state)
+        }
+      }
+    }
+  }
+}

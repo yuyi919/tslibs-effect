@@ -1,0 +1,183 @@
+import * as NEA from "fp-ts/NonEmptyArray";
+
+import { forEach } from "@yuyi919/shared-proto/Array";
+import { pipe } from "@yuyi919/shared-proto/Functions";
+import { isNotNil } from "@yuyi919/shared-proto/JsTypes";
+
+import * as P from "./parser-ts/Parser.js";
+import * as Stream from "./parser-ts/Stream.js";
+import * as PR from "./parserResult.js";
+import * as Pos from "./pos.js";
+
+/* eslint-disable one-var */
+export * from "./parser-ts/Parser.js";
+export let _compose = (mab, ma) =>
+  P.define((i, option) =>
+    PR.chain((b, r) =>
+      PR.switchStream(r)(P._run(mab, Stream.from(b, 0), option)),
+    )(P._run(ma, i, option)),
+  );
+export let compose = (ca) => (ab) => _compose(ab, ca);
+export let Semigroupoid = {
+  URI: P.URI,
+  compose: _compose,
+};
+export let apLookAhead = (parser) => P.apFirst(P.lookAhead(parser));
+export let getAlts =
+  // @ts-expect-error
+  () => alts;
+export let getAltAll = () => altAll;
+export let alts = (...parser) => altAll(parser);
+export let altAll = (parser) =>
+  parser.length === 1
+    ? parser[0]
+    : P.define((input, option) => {
+        let parsers = parser;
+        let cur = Stream.unsafeGet(input);
+        let errs = [];
+        if (Stream.isStringStream(input))
+          for (let i = 0; i < parsers.length; ++i) {
+            let hints = parsers[i]._START_CHARS_HINT?.[cur];
+            if (!hints || Stream.matchNext(input, hints)) {
+              let e = P._run(parsers[i], input, option);
+              if (PR.isRight(e) || PR.isFatal(e)) return e;
+              if (option.collectError) errs[i] = e;
+            }
+          }
+        else
+          for (let i = 0; i < parsers.length; ++i) {
+            let e = P._run(parsers[i], input, option);
+            if (PR.isRight(e) || PR.isFatal(e)) return e;
+            if (option.collectError) errs[i] = e;
+          }
+        return errs.length === 0
+          ? PR.failed(input, PR.EMPTY_EXPECTED, false)
+          : errs.reduce(PR.extend);
+      });
+export let withTimer =
+  (label, warmup = false) =>
+  (parser) =>
+    P.define((i, option) => {
+      warmup && P._run(parser, i, option);
+      console.time(label);
+      let r = P._run(parser, i, option);
+      console.timeEnd(label);
+      return r;
+    });
+export let altAllLazy = (...parsers) => {
+  let parser = undefined;
+  return P.define((input, option) => {
+    if (!parser)
+      parser = alts(...NEA.Functor.map(parsers, (parser) => parser()));
+    return P._run(parser, input, option);
+  });
+};
+export let withCursor = (parser) =>
+  P.mapTraceF(parser, (result, input) => [result, input]);
+export let lazy = (parser) =>
+  ((memoried) =>
+    P.define((i, option) => P._run((memoried ??= parser()), i, option)))(null);
+export let castArray = (parser, allowNil) =>
+  P.mapF(parser, (a) => (allowNil || isNotNil(a) ? [a] : [a]));
+export let chainConcat = (i, allowNil) =>
+  allowNil
+    ? P.chain((r) => P.mapF(i(), (e) => (r.push(...e), r)))
+    : P.chain((r) =>
+        P.mapF(i(), (e) => {
+          forEach(e, (a) => isNotNil(a) && r.push(a));
+          return r;
+        }),
+      );
+export let chainAndPush = (i, allowNil) =>
+  P.chain((a) =>
+    P.mapF(i(a), (b) => (allowNil || isNotNil(b) ? a.push(b) : a, a)),
+  );
+export let apPush = (i, allowNil) => (fa) =>
+  P.liftMap2(fa, i, (a, b) => (allowNil || isNotNil(b) ? a.push(b) : a, a));
+export let apConcat = (i, allowNil) => (fa) =>
+  P.liftMap2(fa, i, (a, b) => (allowNil || isNotNil(b) ? a.push(...b) : a, a));
+export let EOF = /*#__PURE__*/ P.eof();
+export let concatTuple = (i) => P.chain((r) => P.mapF(i(), (e) => [r, e]));
+export let tryChainOr = (fa, f, altResult) =>
+  P.define((i, option) => {
+    let self_ = P._run(fa, i, option);
+    if (PR.isRight(self_)) {
+      let second = P._run(
+        f(PR.getValue(self_), self_),
+        PR.getNext(self_),
+        option,
+      );
+      return PR.isRight(second) || PR.isFatal(second)
+        ? second
+        : PR.succeed(altResult(PR.getValue(self_)), PR.getNext(self_), i);
+    }
+    return self_;
+  });
+/**
+ * 在第一项解析完成后尝试解析后续内容，如果失败则退回第一项的结果
+ * @param main
+ * @param tryChain
+ * @returns
+ */
+export let _tryChain = (fa, f) =>
+  P.define((i, option) => {
+    let main = P._run(fa, i, option);
+    if (PR.isRight(main)) {
+      let second = P._run(f(PR.getValue(main), main), PR.getNext(main), option);
+      return PR.isRight(second) || PR.isFatal(second) ? second : main;
+    }
+    return main;
+  });
+/**
+ * 在解析完成后尝试继续解析，如果失败则退回第一项的结果
+ * @param tryChain
+ * @returns
+ */
+export let tryChain = (f) => (main) => _tryChain(main, f);
+/**
+ * 在解析完成后尝试继续解析(使用alts)，如果失败则退回第一项的结果
+ * @param main
+ * @param tryChains
+ * @returns
+ */
+export let tryChainAlts = (fa, fs) =>
+  P.define((start, option) => {
+    let self_ = P._run(fa, start, option);
+    let res = self_;
+    if (PR.isRight(self_)) {
+      for (let i = 0; i < fs.length; ++i) {
+        let second = P._run(
+          fs[i](PR.getValue(self_), self_),
+          PR.getNext(self_),
+          option,
+        );
+        if (PR.isRight(second) || PR.isFatal(second)) {
+          res = second;
+          break;
+        }
+      }
+    }
+    // eslint-disable-next-line no-labels
+    match: while (PR.isRight(res)) {
+      let curRes;
+      // 进行一轮匹配
+      for (let i = 0; i < fs.length; ++i) {
+        curRes = P._run(fs[i](PR.getValue(res), res), PR.getNext(res), option);
+        if (PR.isRight(curRes)) {
+          res = curRes;
+          continue match;
+        } else if (PR.isFatal(curRes)) {
+          // 成功时就继续匹配操作符
+          break match;
+        }
+      }
+      // 失败时退出操作符匹配流程
+      // 匹配错误就继续
+      if (PR.isLeft(curRes)) break;
+      else res = curRes;
+    }
+    return res;
+  });
+export let offsetWith = (source, cursor) => {};
+export let updatePosWithImage = Pos.updateWithImage;
+//# sourceMappingURL=Parser.js.map

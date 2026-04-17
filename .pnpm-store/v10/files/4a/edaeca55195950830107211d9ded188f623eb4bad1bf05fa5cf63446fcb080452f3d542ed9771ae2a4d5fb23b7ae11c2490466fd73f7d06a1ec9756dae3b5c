@@ -1,0 +1,77 @@
+import { controller as abortController } from "../AbortSignal.js";
+import { timeout } from "../Disposify.js";
+import { addEventListener } from "../dom.js";
+import * as Ok from "../Ok.js";
+import { make as promise } from "../Promisify.js";
+import { UNDEFINED } from "./constant/index.js";
+import * as internal from "./timeout.js";
+
+export let delay = (duration, arg) => _sleepWithOk(duration, false, arg);
+export let delayThrow = (duration, arg) => _sleepWithOk(duration, true, arg);
+let _sleepWith = (duration, isThrow, arg) => {
+  let controller;
+  let handle;
+  let knock;
+  let abort;
+  return {
+    get controller() {
+      if (!controller) {
+        controller = abortController();
+        addEventListener(controller.signal, "abort", () => {
+          handle.dispose();
+          knock(arg);
+        });
+      }
+      return controller;
+    },
+    wait: promise((resolve, reject) => {
+      abort = reject;
+      knock = resolve;
+      internal.__setTimeout(
+        (arg) => {
+          (isThrow ? reject : resolve)(arg);
+        },
+        duration,
+        arg,
+      );
+      handle = timeout(isThrow ? reject : resolve, duration, arg);
+    }),
+    abort: (arg) => abort?.(arg),
+    knock: (arg) => knock?.(arg),
+  };
+};
+let _sleepWithOk = (duration, isThrow, arg) =>
+  ((_resolve, _reject, id) => ({
+    force(value) {
+      if (id === UNDEFINED || !_resolve) return false;
+      _resolve(Ok.ok(value));
+      internal.__clearTimeout(id);
+      return true;
+    },
+    knock(value) {
+      if (id === UNDEFINED || !_resolve) return false;
+      _resolve(Ok.no(value));
+      internal.__clearTimeout(id);
+      return true;
+    },
+    abort(reason) {
+      if (id === UNDEFINED || !_reject) return false;
+      _reject(reason);
+      internal.__clearTimeout(id);
+      return true;
+    },
+    promise: isThrow
+      ? promise((_, reject) => {
+          _reject = reject;
+          id = internal.__setTimeout(reject, duration, arg);
+        })
+      : promise((resolve, _) => {
+          _resolve = resolve;
+          id = internal.__setTimeout(
+            (arg) => resolve(Ok.ok(arg)),
+            duration,
+            arg,
+          );
+        }),
+  }))(UNDEFINED, UNDEFINED, UNDEFINED);
+//# sourceMappingURL=controller.js.map

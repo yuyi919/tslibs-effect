@@ -1,0 +1,412 @@
+type logger = {
+  log: JsTypes.function,
+  info: JsTypes.function,
+  error: JsTypes.function,
+  warn: JsTypes.function,
+  debug: JsTypes.function,
+} // abstract type for a logger object
+
+let emoji: dict<string> = Record.from({
+  "log": "🗯️",
+  "success": "✔️",
+  "info": "ℹ️",
+  "error": "❌",
+  "warn": "⚠️",
+  "debug": "⚙️",
+  "trace": "🔎",
+  "begin": "🔥",
+  "end": "😊",
+  "time": "⏳",
+  "cost": "⌛",
+  "count": "⏲️",
+})
+
+module NameStyles = {
+  @inline
+  let fill = (color: string) =>
+    `background:${color};border-radius:0.2em;color:white;font-weight:bold;padding:2px 0.5em;margin-right:4px;`
+  @inline
+  let text = (color: string) => `color:${color};font-weight:bold;margin-right:4px;`
+
+  let dict = {
+    "fill": fill,
+    "text": text,
+  }
+}
+
+type colorMap = {
+  green: string,
+  blue: string,
+  red: string,
+  yellow: string,
+  grey: string,
+  default: string,
+}
+let colorMap: colorMap = {
+  green: "mediumseagreen",
+  blue: "#00bbee",
+  red: "#c0392b",
+  yellow: "#f39c12",
+  grey: "#999",
+  default: "#999",
+}
+
+@val external logger: logger = "console"
+
+@send external debug: (logger, 'a) => unit = "debug"
+@send external debug1: (logger, 'a, 'a1) => unit = "debug"
+@send external debug2: (logger, 'a, 'a1, 'a2) => unit = "debug"
+@send external debug3: (logger, 'a, 'a1, 'a2, 'a3) => unit = "debug"
+@send external debug4: (logger, 'a, 'a1, 'a2, 'a3, 'a4) => unit = "debug"
+@send external debug5: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = "debug"
+@send external debug6: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6) => unit = "debug"
+
+@send external banner: (logger, 'a) => unit = "banner"
+@send external banner1: (logger, 'a, 'a1) => unit = "banner"
+@send external banner2: (logger, 'a, 'a1, 'a2) => unit = "banner"
+@send external banner3: (logger, 'a, 'a1, 'a2, 'a3) => unit = "banner"
+@send external banner4: (logger, 'a, 'a1, 'a2, 'a3, 'a4) => unit = "banner"
+@send external banner5: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = "banner"
+
+@send external log: (logger, 'a) => unit = "log"
+@send external log1: (logger, 'a, 'a1) => unit = "log"
+@send external log2: (logger, 'a, 'a1, 'a2) => unit = "log"
+@send external log3: (logger, 'a, 'a1, 'a2, 'a3) => unit = "log"
+@send external log4: (logger, 'a, 'a1, 'a2, 'a3, 'a4) => unit = "log"
+@send external log5: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = "log"
+@inline let logMany: (logger, array<'a>) => unit = (logger, args) => logger.log.apply(null, args)
+
+@send external groupCollapsed: (logger, 'a) => unit = "groupCollapsed"
+@send external groupCollapsed1: (logger, 'a, 'a1) => unit = "groupCollapsed"
+@send external groupCollapsed2: (logger, 'a, 'a1, 'a2) => unit = "groupCollapsed"
+@send external groupCollapsed3: (logger, 'a, 'a1, 'a2, 'a3) => unit = "groupCollapsed"
+@send external groupCollapsed4: (logger, 'a, 'a1, 'a2, 'a3, 'a4) => unit = "groupCollapsed"
+@send external groupCollapsed5: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = "groupCollapsed"
+@send
+external groupCollapsed6: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6) => unit = "groupCollapsed"
+@send
+external groupCollapsed7: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6, 'a7) => unit = "groupCollapsed"
+
+@send external group: (logger, 'a) => unit = "group"
+@send external group1: (logger, 'a, 'a1) => unit = "group"
+@send external group2: (logger, 'a, 'a1, 'a2) => unit = "group"
+@send external group3: (logger, 'a, 'a1, 'a2, 'a3) => unit = "group"
+@send external group4: (logger, 'a, 'a1, 'a2, 'a3, 'a4) => unit = "group"
+@send external group5: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = "group"
+@send external group6: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6) => unit = "group"
+@send external group7: (logger, 'a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6, 'a7) => unit = "group"
+
+@send external groupEnd: logger => unit = "groupEnd"
+@send external groupEnd1: (logger, 'a) => unit = "groupEnd"
+@send external groupEnd2: (logger, 'a, 'a1) => unit = "groupEnd"
+@send external groupEnd3: (logger, 'a, 'a1, 'a2) => unit = "groupEnd"
+@send external groupEnd4: (logger, 'a, 'a1, 'a2, 'a3) => unit = "groupEnd"
+
+@unboxed
+type loggerLabel = Tag(string) | Text({name: string}) | @as(undefined) None
+
+@unboxed
+type logArg = String(string) | Unknown(int)
+external asArg: 't => logArg = "%identity"
+external asArgArray: array<'t> => array<logArg> = "%identity"
+
+module type ILoggerOption = {
+  let enable: bool
+  let groupCollapsed: bool
+}
+module type IFullLoggerOption = {
+  include ILoggerOption
+  let label: loggerLabel
+  let logger: logger
+}
+
+module MakeLogger = (ILogger: IFullLoggerOption) => {
+  let toArgs: (loggerLabel, array<logArg>) => array<logArg> = (label, args) => {
+    let args = switch label {
+    | Tag(label) =>
+      switch args[0] {
+      | Some(String(tmpl)) =>
+        [
+          String("%c%s%c " ++ tmpl),
+          String(NameStyles.fill(colorMap.blue)),
+          String(label),
+          String(""),
+        ]->Array.concat(args->Array.sliceToEnd(~start=1))
+      | _ =>
+        [
+          String("%c%s%c %s"),
+          String(NameStyles.fill(colorMap.blue)),
+          String(label),
+          String(""),
+        ]->Array.concat(args)
+      }
+
+    | Text(_) => args
+    | None => args
+    }
+    args->asArgArray
+  }
+
+  let logger = ILogger.logger
+  let enable = ILogger.enable
+  let debuggerGroupCollapsed = ILogger.groupCollapsed
+
+  @inline
+  let debug: 'a => unit = a =>
+    if enable {
+      logger->debug(a)
+    }
+  @inline
+  let debug1: ('a, 'a1) => unit = (a, a2) =>
+    if enable {
+      logger->debug1(a, a2)
+    }
+  @inline
+  let debug2: ('a, 'a1, 'a2) => unit = (a, a2, a3) =>
+    if enable {
+      logger->debug2(a, a2, a3)
+    }
+  @inline
+  let debug3: ('a, 'a1, 'a2, 'a3) => unit = (a, a2, a3, a4) =>
+    if enable {
+      logger->debug3(a, a2, a3, a4)
+    }
+  @inline
+  let debug4 = (a, a2, a3, a4, a5) =>
+    if enable {
+      logger->debug4(a, a2, a3, a4, a5)
+    }
+  @inline
+  let debug5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = (a, a2, a3, a4, a5, a6) =>
+    if enable {
+      logger->debug5(a, a2, a3, a4, a5, a6)
+    }
+  @inline
+  let debug6: ('a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6) => unit = (a, a2, a3, a4, a5, a6, a7) =>
+    if enable {
+      logger->debug6(a, a2, a3, a4, a5, a6, a7)
+    }
+
+  @inline
+  let banner: 'a => unit = a =>
+    if enable {
+      logger->banner(a)
+    }
+  @inline
+  let banner1: ('a, 'a1) => unit = (a, a2) =>
+    if enable {
+      logger->banner1(a, a2)
+    }
+  @inline
+  let banner2: ('a, 'a1, 'a2) => unit = (a, a2, a3) =>
+    if enable {
+      logger->banner2(a, a2, a3)
+    }
+  @inline
+  let banner3: ('a, 'a1, 'a2, 'a3) => unit = (a, a2, a3, a4) =>
+    if enable {
+      logger->banner3(a, a2, a3, a4)
+    }
+  @inline
+  let banner4: ('a, 'a1, 'a2, 'a3, 'a4) => unit = (a, a2, a3, a4, a5) =>
+    if enable {
+      logger->banner4(a, a2, a3, a4, a5)
+    }
+  @inline
+  let banner5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = (a, a2, a3, a4, a5, a6) =>
+    if enable {
+      logger->banner5(a, a2, a3, a4, a5, a6)
+    }
+
+  @inline
+  let log: 'a => unit = a =>
+    if enable {
+      logger->log(a)
+    }
+  @inline
+  let log1: ('a, 'a1) => unit = (a, a2) =>
+    if enable {
+      logger->log1(a, a2)
+    }
+
+  @inline
+  let log2: ('a, 'a1, 'a2) => unit = (a, a2, a3) =>
+    if enable {
+      // let c = [...(toArgs()), Unknown(a->__unsafe_cast), Unknown(a2->__unsafe_cast), Unknown(a3->__unsafe_cast)]
+      logger->logMany(toArgs(ILogger.label, [a->asArg, a2->asArg, a3->asArg]))
+      // logger->log2(a, a2, a3)
+    }
+  @inline
+  let log3: ('a, 'a1, 'a2, 'a3) => unit = (a, a2, a3, a4) =>
+    if enable {
+      logger->log3(a, a2, a3, a4)
+    }
+  @inline
+  let log4: ('a, 'a1, 'a2, 'a3, 'a4) => unit = (a, a2, a3, a4, a5) =>
+    if enable {
+      logger->log4(a, a2, a3, a4, a5)
+    }
+  @inline
+  let log5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit = (a, a2, a3, a4, a5, a6) =>
+    if enable {
+      logger->log5(a, a2, a3, a4, a5, a6)
+    }
+
+  @inline
+  let groupCollapsed = a =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed(a)
+      } else {
+        logger->group(a)
+      }
+    }
+
+  @inline
+  let groupCollapsed1 = (a, a1) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed1(a, a1)
+      } else {
+        logger->group1(a, a1)
+      }
+    }
+
+  @inline
+  let groupCollapsed2 = (a, a1, a2) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed2(a, a1, a2)
+      } else {
+        logger->group2(a, a1, a2)
+      }
+    }
+
+  @inline
+  let groupCollapsed3 = (a, a1, a2, a3) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed3(a, a1, a2, a3)
+      } else {
+        logger->group3(a, a1, a2, a3)
+      }
+    }
+
+  @inline
+  let groupCollapsed4 = (a, a1, a2, a3, a4) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed4(a, a1, a2, a3, a4)
+      } else {
+        logger->group4(a, a1, a2, a3, a4)
+      }
+    }
+
+  @inline
+  let groupCollapsed5 = (a, a1, a2, a3, a4, a5) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed5(a, a1, a2, a3, a4, a5)
+      } else {
+        logger->group5(a, a1, a2, a3, a4, a5)
+      }
+    }
+  @inline
+  let groupCollapsed6 = (a, a1, a2, a3, a4, a5, a6) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed6(a, a1, a2, a3, a4, a5, a6)
+      } else {
+        logger->group6(a, a1, a2, a3, a4, a5, a6)
+      }
+    }
+  @inline
+  let groupCollapsed7 = (a, a1, a2, a3, a4, a5, a6, a7) =>
+    if enable {
+      if debuggerGroupCollapsed {
+        logger->groupCollapsed7(a, a1, a2, a3, a4, a5, a6, a7)
+      } else {
+        logger->group7(a, a1, a2, a3, a4, a5, a6, a7)
+      }
+    }
+
+  @inline
+  let groupEnd = () =>
+    if enable {
+      logger->groupEnd
+    }
+  @inline
+  let groupEnd1 = a =>
+    if enable {
+      logger->groupEnd1(a)
+    }
+  @inline
+  let groupEnd2 = (a, a1) =>
+    if enable {
+      logger->groupEnd2(a, a1)
+    }
+  @inline
+  let groupEnd3 = (a, a1, a2) =>
+    if enable {
+      logger->groupEnd3(a, a1, a2)
+    }
+}
+
+module type ILogger = {
+  let toArgs: (loggerLabel, array<logArg>) => array<logArg>
+  let logger: logger
+  let enable: bool
+  let debuggerGroupCollapsed: bool
+  let debug: 'a => unit
+  let debug1: ('a, 'a1) => unit
+  let debug2: ('a, 'a1, 'a2) => unit
+  let debug3: ('a, 'a1, 'a2, 'a3) => unit
+  let debug4: ('a, 'b, 'c, 'd, 'e) => unit
+  let debug5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit
+  let debug6: ('a, 'a1, 'a2, 'a3, 'a4, 'a5, 'a6) => unit
+  let banner: 'a => unit
+  let banner1: ('a, 'a1) => unit
+  let banner2: ('a, 'a1, 'a2) => unit
+  let banner3: ('a, 'a1, 'a2, 'a3) => unit
+  let banner4: ('a, 'a1, 'a2, 'a3, 'a4) => unit
+  let banner5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit
+  let log: 'a => unit
+  let log1: ('a, 'a1) => unit
+  let log2: ('a, 'a1, 'a2) => unit
+  let log3: ('a, 'a1, 'a2, 'a3) => unit
+  let log4: ('a, 'a1, 'a2, 'a3, 'a4) => unit
+  let log5: ('a, 'a1, 'a2, 'a3, 'a4, 'a5) => unit
+  let groupCollapsed: 'a => unit
+  let groupCollapsed1: ('a, 'b) => unit
+  let groupCollapsed2: ('a, 'b, 'c) => unit
+  let groupCollapsed3: ('a, 'b, 'c, 'd) => unit
+  let groupCollapsed4: ('a, 'b, 'c, 'd, 'e) => unit
+  let groupCollapsed5: ('a, 'b, 'c, 'd, 'e, 'f) => unit
+  let groupCollapsed6: ('a, 'b, 'c, 'd, 'e, 'f, 'g) => unit
+  let groupCollapsed7: ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => unit
+  let groupEnd: unit => unit
+  let groupEnd1: 'a => unit
+  let groupEnd2: ('a, 'b) => unit
+  let groupEnd3: ('a, 'b, 'c) => unit
+}
+
+// @inline
+// let make = (enable, ~label=None, ~logger=logger, ~groupCollapsed=false): module(ILogger) =>
+//   module(
+//     MakeLogger({
+//       let enable = enable
+//       let logger = logger
+//       let groupCollapsed = groupCollapsed
+//       let label = label
+//     })
+//   )
+
+// @val external node_env: string = "process.env.NODE_ENV"
+// include MakeLogger({
+//   @inline
+//   let prod = "production"
+//   let enable = node_env !== prod
+//   let logger = logger
+//   let groupCollapsed = false
+//   let label = Tag("main")
+// })

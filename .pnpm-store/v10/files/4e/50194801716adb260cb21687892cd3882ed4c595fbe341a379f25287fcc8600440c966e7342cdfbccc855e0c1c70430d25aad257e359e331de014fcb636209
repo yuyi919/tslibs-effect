@@ -1,0 +1,26 @@
+'use strict';
+
+var o=e=>e.length>0;var p=o;var x={equals:(e,t)=>e===t},i={concat:(e,t)=>e+t},a="",R={concat:i.concat,empty:a},S={equals:x.equals,compare:(e,t)=>e<t?-1:e>t?1:0},A={show:e=>JSON.stringify(e)},v=e=>typeof e=="string",E=e=>e.toUpperCase(),N=e=>e.toLowerCase(),q=(e,t)=>r=>r.replace(e,t),O=e=>e.trim(),b=e=>e.trimLeft(),w=e=>e.trimRight(),F=(e,t)=>r=>r.slice(e,t),L=e=>e.length===0,T=e=>e.length,C=e=>t=>{let r=t.split(e);return p(r)?r:[t]},k=(e,t)=>r=>r.includes(e,t),U=(e,t)=>r=>r.startsWith(e,t),j=(e,t)=>r=>r.endsWith(e,t);
+
+exports.Eq = x;
+exports.Monoid = R;
+exports.Ord = S;
+exports.Semigroup = i;
+exports.Show = A;
+exports.empty = a;
+exports.endsWith = j;
+exports.includes = k;
+exports.isEmpty = L;
+exports.isString = v;
+exports.replace = q;
+exports.size = T;
+exports.slice = F;
+exports.split = C;
+exports.startsWith = U;
+exports.toLowerCase = N;
+exports.toUpperCase = E;
+exports.trim = O;
+exports.trimLeft = b;
+exports.trimRight = w;
+//# sourceMappingURL=string.js.map
+//# sourceMappingURL=string.js.map

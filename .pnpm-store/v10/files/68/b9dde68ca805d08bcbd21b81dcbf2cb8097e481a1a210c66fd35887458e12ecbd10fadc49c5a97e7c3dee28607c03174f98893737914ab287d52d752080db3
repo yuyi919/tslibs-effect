@@ -1,0 +1,111 @@
+/* eslint-disable class-methods-use-this */ import * as pipeable from "fp-ts/pipeable";
+
+import { isArr, isStr } from "@yuyi919/shared-proto/JsTypes";
+
+export let URI = "SeqLike";
+export let from = (input) =>
+  isStr(input)
+    ? input
+    : isArr(input)
+      ? input.length > 0 && isStr(input[0])
+        ? input.length === 1
+          ? input[0]
+          : input.join("")
+        : input
+      : [input];
+export let reduceF = (fa, b, f) => {
+  let r = b;
+  for (let i = 0; i < fa.length; ++i) r = f(r, fa[i]);
+  return r;
+};
+export let foldMapF = (M) => (fa, f) => {
+  let { empty: r } = M;
+  for (let i = 0; i < fa.length; ++i) r = M.concat(r, f(fa[i]));
+  return r;
+};
+export let reduceRightF = (fa, b, f) => {
+  let r = b;
+  for (let i = 0; i < fa.length; ++i) r = f(fa[i], r);
+  return r;
+};
+export let reduceWithIndexF = (fa, b, f) => {
+  let r = b;
+  for (let i = 0; i < fa.length; ++i) r = f(i, r, fa[i]);
+  return r;
+};
+export let foldMapWithIndexF = (M) => (fa, f) => {
+  let { concat } = M;
+  let { empty: r } = M;
+  for (let i = 0; i < fa.length; ++i) r = concat(r, f(i, fa[i]));
+  return r;
+};
+export let reduceRightWithIndexF = (fa, b, f) => {
+  let r = b;
+  for (let i = 0; i < fa.length; ++i) r = f(i, fa[i], r);
+  return r;
+};
+export let Foldable = {
+  URI,
+  reduce: reduceF,
+  foldMap: foldMapF,
+  reduceRight: reduceRightF,
+  reduceWithIndex: reduceWithIndexF,
+  foldMapWithIndex: foldMapWithIndexF,
+  reduceRightWithIndex: reduceRightWithIndexF,
+};
+export let reduce = /*#__PURE__*/ pipeable.reduce(Foldable);
+export let reduceWithIndex = /*#__PURE__*/ pipeable.reduceWithIndex(Foldable);
+export let foldMap = /*#__PURE__*/ pipeable.foldMap(Foldable);
+export let foldMapWithIndex = /*#__PURE__*/ pipeable.foldMapWithIndex(Foldable);
+export let reduceRight = /*#__PURE__*/ pipeable.reduceRight(Foldable);
+export let reduceRightWithIndex =
+  /*#__PURE__*/ pipeable.reduceRightWithIndex(Foldable);
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let testNext = (buffer, match, cursor) => {
+  if (typeof buffer === "string") return testNextStr(buffer, match, cursor);
+  if (cursor < buffer.length && match.length <= buffer.length) {
+    if (match.length === 0) return true;
+    if (match.length === 1) return match[0] === buffer[cursor];
+    for (let i = 0; i < match.length; ++i)
+      if (match[i] !== buffer[cursor + i]) return false;
+    return true;
+  }
+  return false;
+};
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let takeUntil = (buffer, predicate, cursor) => {
+  if (cursor < buffer.length) {
+    let i = cursor;
+    for (; i < buffer.length; ++i) if (!predicate(buffer[i])) return i;
+  }
+  return cursor;
+};
+export let isStringSeq = (a) => typeof a === "string";
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let testNextStr = (buffer, match, cursor) => {
+  if (cursor < buffer.length && match.length <= buffer.length) {
+    return match.length === 0
+      ? true
+      : match.length === 1
+        ? match === buffer[cursor]
+        : toStr(buffer).startsWith(toStr(match), cursor);
+  }
+  return false;
+};
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let matchNextStr = (buffer, match, cursor) =>
+  testNextStr(buffer, match, cursor) ? match : "";
+export let toStr = (seq) => (typeof seq === "string" ? seq : seq.join(""));
+//# sourceMappingURL=SeqLike.js.map

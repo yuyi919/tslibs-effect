@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Date.js",
+  "module": "../dist/esm/Date.js",
+  "types": "../dist/esm/Date.d.ts",
+  "sideEffects": []
+}

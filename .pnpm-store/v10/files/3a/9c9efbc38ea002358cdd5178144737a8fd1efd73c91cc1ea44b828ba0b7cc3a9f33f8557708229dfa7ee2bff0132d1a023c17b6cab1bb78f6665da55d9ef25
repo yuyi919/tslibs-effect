@@ -1,0 +1,20 @@
+/**
+ * The `Chain` type class extends the `Apply` type class with a `chain` operation which composes computations in
+ * sequence, using the return value of one computation to determine the next computation.
+ *
+ * Instances must satisfy the following law in addition to the `Apply` laws:
+ *
+ * 1. Associativity: `F.chain(F.chain(fa, afb), bfc) <-> F.chain(fa, a => F.chain(afb(a), bfc))`
+ *
+ * Note. `Apply`'s `ap` can be derived: `(fab, fa) => F.chain(fab, f => F.map(fa, f))`
+ *
+ * @since 2.0.0
+ */export let chainFirst = M => {
+  let tapM = tap(M);
+  return f => first => tapM(first, f);
+}; /** @internal */
+export let tap = M => (first, f) => M.chain(first, a => M.map(f(a), () => a));
+export let bind = M => (name, f) => ma => M.chain(ma, a => M.map(f(a), b => Object.assign({}, a, {
+  [name]: b
+})));
+//# sourceMappingURL=Chain.js.map

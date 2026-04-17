@@ -1,0 +1,44 @@
+'use strict';
+
+var chunkD6IG7RW7_js = require('./chunk-D6IG7RW7.js');
+
+
+
+Object.defineProperty(exports, "controller", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.a; }
+});
+Object.defineProperty(exports, "error", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.f; }
+});
+Object.defineProperty(exports, "getReason", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.g; }
+});
+Object.defineProperty(exports, "isAborted", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.d; }
+});
+Object.defineProperty(exports, "make", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.b; }
+});
+Object.defineProperty(exports, "onAbort", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.h; }
+});
+Object.defineProperty(exports, "onAbortIfAlive", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.i; }
+});
+Object.defineProperty(exports, "scoped", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.c; }
+});
+Object.defineProperty(exports, "unsafe_getReason", {
+	enumerable: true,
+	get: function () { return chunkD6IG7RW7_js.e; }
+});
+//# sourceMappingURL=AbortSignal.js.map
+//# sourceMappingURL=AbortSignal.js.map

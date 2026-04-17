@@ -1,0 +1,8 @@
+import * as PR from "./parser-ts/ParseResult";
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const escalateMutable: <I>(err: PR.ParseError<I>) => PR.ParseError<I>;
+export * from "./parser-ts/ParseResult";
+//# sourceMappingURL=parserResult.d.ts.map

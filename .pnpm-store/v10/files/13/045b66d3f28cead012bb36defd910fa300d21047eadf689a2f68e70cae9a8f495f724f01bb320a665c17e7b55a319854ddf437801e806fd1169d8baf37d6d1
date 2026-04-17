@@ -1,0 +1,59 @@
+/* TypeScript file generated from TypedArrays.resi by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+import type {BigInt64Array as $$BigInt64Array_t} from '../JsTypes.shim';
+
+import type {BigUint64Array as $$BigUint64Array_t} from '../JsTypes.shim';
+
+import type {Float32Array as $$Float32Array_t} from '../JsTypes.shim';
+
+import type {Float64Array as $$Float64Array_t} from '../JsTypes.shim';
+
+import type {Int16Array as $$Int16Array_t} from '../JsTypes.shim';
+
+import type {Int32Array as $$Int32Array_t} from '../JsTypes.shim';
+
+import type {Int8Array as $$Int8Array_t} from '../JsTypes.shim';
+
+import type {Uint16Array as $$Uint16Array_t} from '../JsTypes.shim';
+
+import type {Uint32Array as $$Uint32Array_t} from '../JsTypes.shim';
+
+import type {Uint8Array as $$Uint8Array_t} from '../JsTypes.shim';
+
+import type {Uint8ClampedArray as $$Uint8ClampedArray_t} from '../JsTypes.shim';
+
+/** The `Uint8Array` typed array represents an array of 8-bit unsigned integers. See [Uint8Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) */
+export type Uint8Array_t = $$Uint8Array_t;
+
+/** The `Uint8ClampedArray` typed array represents an array of 8-bit unsigned integers clamped to 0-255. See [Uint8ClampedArray on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray) */
+export type Uint8ClampedArray_t = $$Uint8ClampedArray_t;
+
+/** The `Uint16Array` typed array represents an array of 16-bit unsigned integers in platform byte order. See [Uint16Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array) */
+export type Uint16Array_t = $$Uint16Array_t;
+
+/** The `Uint32Array` typed array represents an array of 32-bit unsigned integers in platform byte order. See [Uint32Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array) */
+export type Uint32Array_t = $$Uint32Array_t;
+
+/** The `Float32Array` typed array represents an array of 32-bit floating point numbers in platform byte order. See [Float32Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array) */
+export type Float32Array_t = $$Float32Array_t;
+
+/** The `Float64Array` typed array represents an array of 64-bit floating point numbers in platform byte order. See [Float64Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array) */
+export type Float64Array_t = $$Float64Array_t;
+
+/** The `Int8Array` typed array represents an array of twos-complement 8-bit signed integers. See [Int8Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array) */
+export type Int8Array_t = $$Int8Array_t;
+
+/** The `Int16Array` typed array represents an array of twos-complement 16-bit signed integers in platform byte order. See [Int16Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array) */
+export type Int16Array_t = $$Int16Array_t;
+
+/** The `Int32Array` typed array represents an array of twos-complemenet 32-bit signed integers in platform byte order. See [Int32Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array) */
+export type Int32Array_t = $$Int32Array_t;
+
+/** The `BigUint64Array` typed array represents an array of 64-bit unsigned integers in platform byte order. See [BigUint64Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigUint64Array) */
+export type BigUint64Array_t = $$BigUint64Array_t;
+
+/** The `BigInt64Array` typed array represents an array of 64-bit signed integers in platform byte order. See [BigInt64Array on MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt64Array) */
+export type BigInt64Array_t = $$BigInt64Array_t;

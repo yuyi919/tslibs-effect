@@ -1,0 +1,10 @@
+'use strict';
+
+var u=t=>t;var l=(t,e)=>(r,n)=>e.compose(t.right(n),t.left(r)),i=(t,e)=>{let r=l(t,e);return (n,p)=>e.compose(t.promap(e.id(),o=>o._tag==="Left"?o.left:o.right,u),r(n,p))},c=t=>l(t,t),g=t=>i(t,t);
+
+exports.fanIn = i;
+exports.fanin = g;
+exports.split = l;
+exports.splitChoice = c;
+//# sourceMappingURL=Choice.js.map
+//# sourceMappingURL=Choice.js.map

@@ -1,0 +1,353 @@
+open Shared
+
+@inline
+let getOffsetXFromFixCjkQuote = (
+  ~flag_STDWIDTH,
+  ~fixCJKLeftQuote,
+  ~lastIsPunctuation,
+  ~charFontSize,
+  ~charCode: ElementBufferFactory.charcode,
+  ~charWidth,
+) => {
+  // 这里假设引号永远是在 em 格左侧的。fix 指修复一些并非在左侧时的情况。
+  let offset: f64 =
+    !lastIsPunctuation && ElementType.isCjkLeftQuote(charCode) ? charFontSize->F64.div2 : 0.0
+  switch fixCJKLeftQuote {
+  | true
+    if ElementType.isCjkLeftQuote(charCode) && (!flag_STDWIDTH || charWidth === charFontSize) =>
+    offset->F64.diff(charFontSize->F64.div2)
+  | _ => offset
+  }
+}
+
+module type IForceGridAlignment = {
+  @inline
+  let getOffsetX: (
+    IContext.context,
+    ~currentX_before: Shared.f64,
+    ~isMultLine: bool,
+    ~startElementIndex: Shared.i32,
+    ~endElementIndex: Shared.i32,
+    ~allowPangu: bool,
+  ) => Shared.f64
+
+  @inline
+  let consumeOffsetX: IContext.context => unit
+
+  @inline
+  let buffOffsetX: (IContext.context, ~fontSize: Shared.f64, ~overflow: bool) => unit
+}
+
+module MakeForceGridAlignment = (Runtime: IContext.IRuntime) => {
+  module Context = IContext.MakeContext(Runtime)
+  module LoggerOption = {
+    let logger = Logger.logger
+    let debugger = Runtime.CompressOptions.debugger
+    let groupCollapsed = Runtime.CompressOptions.groupCollapsed
+    let enable = Env.isProd()
+    let label = Logger.Tag("compact")
+  }
+  module Logger = Logger.MakeLogger(LoggerOption)
+  module ECS = Runtime
+  module Pipe = Pipe.Use(Runtime.CompressOptions)
+
+  let env = Runtime.env
+
+  @inline
+  let processOffset = (context: Context.t, ~start, ~end, ~offset, ~isMultLine) => {
+    let {source} = context
+    if !isMultLine && offset > 0.0 {
+      Logger.debug1("currentX_offset", offset)
+      for i in start to end {
+        ECS.addX(source->ElementIdentifiers.get(i)->ECS.unwrap, offset)->ignore
+      }
+    }
+  }
+
+  @inline
+  let pipeOffset = (
+    context: Context.t,
+    ~isMultLine,
+    ~start,
+    ~end,
+    ~currentX,
+    ~currentX_before,
+    ~forceSpace,
+    allow,
+  ) =>
+    context->processOffset(
+      ~start,
+      ~end,
+      ~offset=allow
+        ? F64.diff(currentX, currentX_before)->F64.add(forceSpace)->F64.div2->F64.sub(forceSpace)
+        : (currentX -. currentX_before) /. 2.,
+      ~isMultLine,
+    )
+
+  @inline
+  let getOffsetX = (
+    context: Context.t,
+    ~currentX_before,
+    ~isMultLine,
+    ~startElementIndex,
+    ~endElementIndex,
+    ~allowPangu,
+  ) => {
+    let {forceSpace} = env
+    let gridWidth = env.gridWidth
+
+    currentX_before
+    ->F64.div(gridWidth)
+    ->F64.ceil
+    ->Pipe.action(x => Context.setCurrentX(context, x))
+    ->compute(_ => context->Context.getCurrentCol *. gridWidth)
+    ->Pipe.tap(() => Logger.debug("forceGridAlignment"))
+    ->compute(currentX =>
+      switch allowPangu {
+      | true if currentX < currentX_before +. forceSpace =>
+        context
+        // 两端总余量不足 0.5em 时，增加 1em 宽度
+        ->Context.consumeCol(1.0)
+        ->return(currentX +. gridWidth)
+        ->Pipe.action(
+          pipeOffset(
+            context,
+            ~isMultLine,
+            ~start=startElementIndex,
+            ~end=endElementIndex,
+            ~currentX=_,
+            ~currentX_before,
+            ~forceSpace,
+            true,
+          ),
+        )
+      | false if currentX < currentX_before =>
+        context
+        // 两端总余量不足 0.5em 时，增加 1em 宽度
+        ->Context.consumeCol(1.0)
+        ->return(currentX +. gridWidth)
+        ->Pipe.action(
+          pipeOffset(
+            context,
+            ~isMultLine,
+            ~start=startElementIndex,
+            ~end=endElementIndex,
+            ~currentX=_,
+            ~currentX_before,
+            ~forceSpace,
+            false,
+          ),
+        )
+      | _ => currentX
+      }
+    )
+  }
+
+  @inline
+  let consumeOffsetX = (context: Context.t) => {
+    let offsetX = context.buf_offsetX
+    if offsetX !== 0.0 {
+      offsetX
+      ->Pipe.action(Logger.debug1("consumeOffsetX", _))
+      ->Pipe.pipeIfConst(offsetX > env.gridSize, offsetX => {
+        // 当正好在行首时, 两边空格全部加到一边，可能使得总宽度大于1em，此时应该删去多出的1em宽度
+        context->Context.rollbackCol(1.0)->ignore
+        offsetX -. env.gridSize
+      })
+      ->Context.consumeXIn(context)
+      ->ignore
+    }
+  }
+
+  @inline
+  let buffOffsetX = (context: Context.t, ~fontSize, ~overflow) => {
+    let {gridWidth, gridSize} = env
+    if fontSize !== gridSize {
+      Logger.debug("gridAlignment")
+      // 强制网格对齐
+      let offset_x = (fontSize -. gridSize) /. 2.0 // 初始向右偏移
+      context.buf_offsetX =
+        context
+        ->Context.consumeCol(offset_x > 0.0 ? F64.ceil(offset_x *. 2.0 /. gridWidth) : 0.0)
+        ->Pipe.pipe(context => {
+          let offset_x =
+            offset_x
+            ->F64.mul2
+            ->F64.div(gridWidth)
+            ->F64.ceil
+            ->F64.plusplus
+            ->F64.mul(gridWidth)
+            ->F64.diff(fontSize)
+            ->F64.div2
+          context
+          ->Context.moveCursorX(offset_x)
+          ->return(overflow ? context->Context.lineWrap->return(offset_x)->F64.mul2 : offset_x)
+        })
+    }
+  }
+}
+module type ICompress = {
+  let process: (
+    IContext.context,
+    ~char: ElementBufferFactory.identifier,
+    ~charFontSize: float,
+    ~charWidth: float,
+    ~currentIsPunctuation: bool,
+    ~isEOL: bool,
+    ~isValidEndChar: bool,
+  ) => IContext.context
+  let processUncompress: (
+    IContext.context,
+    ~elementType: ElementType.elementKind,
+    ~currentIsPunctuation: bool,
+  ) => unit
+  let fixCjkLeftQuote: (
+    float,
+    ~context: IContext.context,
+    ~charFontSize: float,
+    ~charCode: char,
+    ~charWidth: float,
+  ) => float
+}
+module MakeCompress = (Runtime: IContext.IRuntime): ICompress => {
+  module CompressOptions = Runtime.CompressOptions
+  module Context = IContext.MakeContext(Runtime)
+  module LoggerOption = {
+    let logger = Logger.logger
+    let debugger = Runtime.CompressOptions.debugger
+    let groupCollapsed = Runtime.CompressOptions.groupCollapsed
+    let enable = Env.isProd()
+    let label = Logger.Tag("compact")
+  }
+  module Logger = Logger.MakeLogger(LoggerOption)
+  module ECS = Runtime
+  module Pipe = Pipe.Use(Runtime.CompressOptions)
+
+  let env = Runtime.env
+
+  // @inline
+  let isCompressableChar = char => {
+    switch char {
+    | '⁇'
+    | '‼'
+    | '…'
+    | '—'
+    | '_'
+    | '⸺'
+    | '～' => false
+    | _ => true
+    }
+  }
+  @inline
+  let checkCompressable = (char, ~currentIsPunctuation, ~isEOL, ~isValidEndChar) => {
+    switch isCompressableChar(char->ECS.out(ECS.getCharCode)) {
+    | true if isEOL && isValidEndChar => EOLCompression
+    | true if CompressOptions.inlineCompression && currentIsPunctuation => InlineCompression
+    | _ => NoCompression
+    }
+  }
+
+  @inline
+  let isCompressable = el =>
+    switch el->ECS.out(ECS.getElementType) {
+    | ElementType.BRACKET_LEFT
+    | ElementType.BRACKET_RIGHT =>
+      switch el->ECS.out(ECS.getCharCode) {
+      | '"'
+      | ''' => false
+      | _ => true
+      }
+    | ElementType.QUOTE_RIGHT
+    | ElementType.QUOTE_LEFT
+    | ElementType.FULL_POINT
+    | ElementType.COMMA
+    | ElementType.COLON => true
+    | _ => false
+    }
+
+  // @inline
+  let process = (
+    context,
+    ~char,
+    ~charFontSize,
+    ~charWidth,
+    ~currentIsPunctuation,
+    ~isEOL,
+    ~isValidEndChar,
+  ) =>
+    // 判断是否进行压缩，并更新位置
+    switch char->checkCompressable(~currentIsPunctuation, ~isEOL, ~isValidEndChar) {
+    | EOLCompression =>
+      Logger.groupCollapsed("EOLCompression")
+      //! 行尾压缩
+      context
+      ->Context.moveCursorX(charFontSize /. 2.0)
+      ->Context.consumeCol(0.5)
+      ->Pipe.tapIf(
+        @inline context => mod_float(context->Context.getCurrentCol, 1.0) !== 0.5,
+        Context.needForceWrap,
+      )
+      ->Pipe.tap(() => Logger.groupEnd())
+    | InlineCompression =>
+      if isCompressable(char) {
+        context->Context.consumePunctuation->ignore
+        Logger.groupCollapsed("InlineCompression")
+        //! 行内压缩 暂不启用
+        context
+        ->Context.moveCursorX(
+          charWidth -.
+          charFontSize /. 2.0 +.
+          env.xInterval *. (context.lastIsPunctuation ? 1.0 : 0.0),
+        )
+        ->Context.consumeCol(charWidth /. charFontSize -. 0.5)
+        ->Pipe.tap(() => Logger.groupEnd())
+      } else {
+        //! 不压缩
+        context
+        ->Pipe.tapIfConst(context.lastIsPunctuation, Context.lastIsNotPunctuation)
+        ->Context.moveCursorX(charWidth +. env.xInterval)
+        ->Context.consumeCol(charWidth /. charFontSize)
+      }
+    // context
+    // ->Context.moveCursorX(charWidth +. env.xInterval)
+    // ->Context.consumeCol(charWidth /. charFontSize)
+    | NoCompression =>
+      //! 不压缩
+      context
+      ->Pipe.tapIfConst(context.lastIsPunctuation, Context.lastIsNotPunctuation)
+      ->Context.moveCursorX(charWidth +. env.xInterval)
+      ->Context.consumeCol(charWidth /. charFontSize)
+    }
+
+  // @inline
+  let processUncompress = (context: Context.t, ~elementType, ~currentIsPunctuation) => {
+    if CompressOptions.inlineCompression {
+      // Logger.debug2("processUncompress", context.lastIsPunctuation, elementType)
+      if context.lastIsPunctuation && !currentIsPunctuation {
+        Logger.groupCollapsed2(
+          "processUncompress",
+          context.lastPunctuations,
+          ElementType.print(elementType),
+        )
+        context
+        ->Context.moveCursorX(context.lastCharWidth /. 2.0 +. env.xInterval)
+        ->Context.consumeCol(0.5)
+        ->Context.lastIsNotPunctuation
+        ->Pipe.tap(() => Logger.groupEnd())
+        ->Context.finish
+      }
+    }
+  }
+
+  @inline
+  let fixCjkLeftQuote = (currentX, ~context: Context.t, ~charFontSize, ~charCode, ~charWidth) =>
+    currentX +.
+    getOffsetXFromFixCjkQuote(
+      ~flag_STDWIDTH=env.flag_STDWIDTH,
+      ~fixCJKLeftQuote=CompressOptions.fixCJKLeftQuote,
+      ~lastIsPunctuation=context.lastIsPunctuation,
+      ~charFontSize,
+      ~charCode,
+      ~charWidth,
+    )
+}

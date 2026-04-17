@@ -1,0 +1,25 @@
+import * as monoid from "@effect/typeclass/Monoid"
+import * as semigroup from "@effect/typeclass/Semigroup"
+
+import { isArr } from "@yuyi919/shared-proto/JsTypes"
+
+import { joinMany } from "./Array"
+
+export function joinArguments(...args: string[]): string
+export function joinArguments() {
+  let len = arguments.length
+  if (len === 0) return ""
+  let r = arguments[0]
+  for (let index = 1; index < len; index++) {
+    r += arguments[index]
+  }
+  return r
+}
+
+export const Semigroup = semigroup.make<string>(
+  (a, b) => a + b,
+  (v, other) =>
+    isArr(other) ? joinMany(v, other) : v + joinArguments(...other),
+)
+
+export const Monoid = monoid.fromSemigroup(Semigroup, "")

@@ -1,0 +1,40 @@
+import { describe, expect, it } from "vitest"
+
+import * as Context from "effect/Context"
+import { getStack, tryCatch } from "src/internal/Error"
+
+const get = () => {
+  const stack = getStack(3)
+  return {
+    get stack() {
+      return stack?.split("\n")?.[3]?.match(/at (.*)/)?.[1]
+    },
+  }
+}
+const define = get()
+describe("context", () => {
+  it.skip("stack", () => {
+    class A extends Context.Tag("app")<A, A>() {}
+    expect(define.stack).toBe(
+      "D:\\workspace\\@yuyi919\\turbo-workspaces\\shared\\common\\packages\\utils\\src\\__tests__\\context.spec.ts:14:16",
+    )
+    expect(
+      tryCatch(
+        () =>
+          (Context.empty() as Context.Context<A>).pipe(
+            //
+            Context.get(A),
+          ),
+        (err) => (err as Error).stack,
+      ),
+    )
+      .toBe(`Error: Service not found: app (defined at D:\\workspace\\@yuyi919\\turbo-workspaces\\shared\\common\\packages\\utils\\src\\__tests__\\context.spec.ts:17:38)
+    at pipeArguments (file:///D:/workspace/@yuyi919/turbo-workspaces/shared/common/node_modules/.pnpm/effect@3.6.7/node_modules/effect/src/Pipeable.ts:296:21)
+    at Object.pipe (file:///D:/workspace/@yuyi919/turbo-workspaces/shared/common/node_modules/.pnpm/effect@3.6.7/node_modules/effect/src/internal/context.ts:117:12)
+    at D:\\workspace\\@yuyi919\\turbo-workspaces\\shared\\common\\packages\\utils\\src\\__tests__\\context.spec.ts:24:51
+    at Module.tryCatch (D:\\workspace\\@yuyi919\\turbo-workspaces\\shared\\common\\packages\\utils\\src\\internal\\helper.ts:265:12)
+    at D:\\workspace\\@yuyi919\\turbo-workspaces\\shared\\common\\packages\\utils\\src\\__tests__\\context.spec.ts:22:7
+    at file:///D:/workspace/@yuyi919/turbo-workspaces/shared/common/node_modules/.pnpm/@vitest+runner@2.0.5/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/workspace/@yuyi919/turbo-workspaces/shared/common/node_modules/.pnpm/@vitest+runner@2.0.5/node_modules/@vitest/runner/dist/index.js:61:7`)
+  })
+})

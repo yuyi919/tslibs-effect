@@ -1,0 +1,22 @@
+'use strict';
+
+var chunkTF234UFO_js = require('./chunk-TF234UFO.js');
+var chunk3Y24NWRM_js = require('./chunk-3Y24NWRM.js');
+var chunkWIDSNR7Y_js = require('./chunk-WIDSNR7Y.js');
+var chunk3OK5KYNT_js = require('./chunk-3OK5KYNT.js');
+var chunkCKNKKDJD_js = require('./chunk-CKNKKDJD.js');
+var chunkPR25CWXL_js = require('./chunk-PR25CWXL.js');
+var chunk6KC4BAWS_js = require('./chunk-6KC4BAWS.js');
+var chunkFB7RHMIF_js = require('./chunk-FB7RHMIF.js');
+var chunk6S2JOPCS_js = require('./chunk-6S2JOPCS.js');
+var chunkWCQUO2EH_js = require('./chunk-WCQUO2EH.js');
+
+var D=e=>new Uint8Array(e),Z=(e,t)=>h(e,t,null);function h(e,t,i){if(e===t)return !0;var s=typeof e;if(s===chunkWCQUO2EH_js.a.__KEY_NUM)return e!==e&&t!==t;var l=typeof t;if(s!==l)return !1;if(s!==chunkWCQUO2EH_js.a.__KEY_OBJ)return !1;let n=chunk6KC4BAWS_js.p(e),J=chunk6KC4BAWS_js.p(t);if(n!==J)return !1;if(n===chunk6KC4BAWS_js.m[chunkWCQUO2EH_js.a.__NAME_DATE])return !(e>t||e<t);if(n===chunk6KC4BAWS_js.m[chunkWCQUO2EH_js.a.__NAME_ARRAYBUFFER])return e.byteLength===t.byteLength&&h(D(e),D(t),null);if(n===chunk6KC4BAWS_js.m[chunkWCQUO2EH_js.a.__NAME_DATAVIEW])return e.byteLength===t.byteLength&&e.byteOffset===t.byteOffset&&h(D(e.buffer),D(t.buffer),null);if(n===chunk6KC4BAWS_js.m[chunkWCQUO2EH_js.a.__NAME_REGEXP])return e.source===t.source&&e.flags===t.flags;if(n.endsWith("Array]")){if(chunkWCQUO2EH_js.a.BUFFER&&chunkWCQUO2EH_js.a.BUFFER.isBuffer(e)!==chunkWCQUO2EH_js.a.BUFFER.isBuffer(t)||e.length!==t.length)return !1;for(let u=0;u<e.length;u++)if(e[u]!==t[u])return !1;return !0}else {i??=new Map;let u=i.get(e),d=i.get(t);if(chunkFB7RHMIF_js.y(u)&&chunkFB7RHMIF_js.y(d))return u===t;if(i.set(e,t),i.set(t,e),n===chunk6KC4BAWS_js.m.array||n===chunk6KC4BAWS_js.m.arguments){let f=e.length;if(f!==t.length)return !1;for(var y=0;;){var o=y;if(o===f)return !0;if(!h(e[o],t[o],i))return !1;y=o+1|0;}}else if(n===chunk6KC4BAWS_js.m.Map){if(e.size!==t.size)return !1;let f=[...e],a,p;for(let g=0;g<f.length;g++)if([a,p]=f[g],!t.has(a)||!h(p,t.get(a),i))return !1;return !0}else if(n===chunk6KC4BAWS_js.m.Set){if(e.size!==t.size)return !1;let f=[...e],a=[...t];for(let p=0;p<f.length;p++){let g=f[p],E=a.findIndex(_=>h(g,_,i));if(E===-1)return !1;a.splice(E,1);}return !0}else {if(!(h(e[chunkWCQUO2EH_js.a.__KEY_CONSTRUCTOR],t[chunkWCQUO2EH_js.a.__KEY_CONSTRUCTOR],i)||chunk6KC4BAWS_js.D(e)&&chunk6KC4BAWS_js.D(t)))return !1;let a=chunkPR25CWXL_js.a(e),p=a.length,g=chunkPR25CWXL_js.a(t);if(p!==g.length)return !1;let E;for(let _=0;_<p;_++)if(!g.includes(E=a[_])||!h(t[E],e[E],i))return !1;return !0}}}var te=(e,t)=>e.slice(0,t).join(".")||".",b=(e,t)=>{let{length:i}=e;for(let s=0;s<i;++s)if(e[s]===t)return s+1;return 0},re=(e,t)=>{let i=chunkFB7RHMIF_js.x(e),s=chunkFB7RHMIF_js.x(t),l=[],n=[];return function(y,o){if(chunkFB7RHMIF_js.v(o))if(l.length){let u=b(l,this);u===0?l[l.length]=this:(l.splice(u),n.splice(u)),n[n.length]=y;let d=b(l,o);if(d!==0)return s?t(y,o,te(n,d)):"[Circular]"}else l[0]=o,n[0]=y;return i?e(y,o):o}},ee=(e,t,i,s)=>JSON.stringify(e,re(t,s),i);var ie={[chunk3OK5KYNT_js.f](){return chunkWIDSNR7Y_js.T(this,chunkWIDSNR7Y_js.H(this.A))},[chunk3OK5KYNT_js.e](e){return chunkTF234UFO_js.l(e)&&chunkTF234UFO_js.L(this,e)},toString(){return chunkTF234UFO_js.a+`(${chunkTF234UFO_js.ia(this)})`},toJSON(){let{A:e}=this;return e===chunkTF234UFO_js.i?{_id:chunkTF234UFO_js.a,_tag:"Infinity"}:chunk6KC4BAWS_js.u(e)?{_id:chunkTF234UFO_js.a,_tag:"Millis",millis:e}:{_id:chunkTF234UFO_js.a,_tag:"Nanos",hrtime:chunkTF234UFO_js.B(this)}},[chunk3OK5KYNT_js.g](){return this.toJSON()}},ne=()=>{chunkTF234UFO_js.k(ie);},se=chunkWIDSNR7Y_js.v(chunk3Y24NWRM_js.a),le=chunkWIDSNR7Y_js.M(chunkWIDSNR7Y_js.v(chunk3Y24NWRM_js.b),chunkWIDSNR7Y_js.R(chunkWCQUO2EH_js.a.UNDEFINED)),oe=chunkCKNKKDJD_js.d({[chunk3OK5KYNT_js.g]:(e,t,i,s)=>chunk3Y24NWRM_js.e(e,l=>s(l,{...i,depth:t-1})),toString:e=>chunk3Y24NWRM_js.e(e,ee),[chunk3OK5KYNT_js.e]:(e,t)=>chunk3Y24NWRM_js.E(e,t,Z),[chunk3OK5KYNT_js.f]:e=>e.E?chunkWIDSNR7Y_js.M(se,chunkWIDSNR7Y_js.R(e.A)):le,toJSON:chunk3Y24NWRM_js.f}),ue=()=>chunk6S2JOPCS_js.N(chunk3Y24NWRM_js.d(oe)),$e=()=>{ue(),ne();};
+
+exports.DurationPresetExtensions = ie;
+exports.OptionPresetExtensions = oe;
+exports.addAllPreset = $e;
+exports.addDurationPreset = ne;
+exports.addOptionPreset = ue;
+//# sourceMappingURL=PresetExtensions.js.map
+//# sourceMappingURL=PresetExtensions.js.map

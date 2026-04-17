@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Endomorphism.js",
+  "module": "../dist/esm/Endomorphism.js",
+  "types": "../dist/esm/Endomorphism.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,6 @@
+{
+  "main": "../../dist/cjs/function/yExpr.js",
+  "module": "../../dist/esm/function/yExpr.js",
+  "types": "../../dist/esm/function/yExpr.d.ts",
+  "sideEffects": []
+}

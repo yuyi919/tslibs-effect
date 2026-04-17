@@ -1,0 +1,184 @@
+import * as E from "fp-ts/Either"
+import * as io from "fp-ts/IO"
+import { Monoid } from "fp-ts/Monoid"
+import * as NEA from "fp-ts/NonEmptyArray"
+import * as option from "fp-ts/Option"
+import * as R from "fp-ts/Reader"
+/* eslint-disable arrow-body-style */
+import * as RA from "fp-ts/ReadonlyArray"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+import { Semigroup } from "fp-ts/Semigroup"
+import * as these from "fp-ts/These"
+
+import { NULL, UNDEFINED } from "../internal/constant"
+import { isStr } from "../internal/helper"
+import { isError } from "../JsTypes"
+import { Fn } from "../Types"
+import { constant, error, Lazy, raise } from "./core"
+import { flow } from "./flow"
+
+export function constEmptyArray<T>() {
+  return constant([] as readonly T[])()
+}
+export function constEmptyObject<T extends {}>() {
+  return constant({} as T)()
+}
+/**
+ * A thunk that returns always `true`.
+ * @example
+ * assert.deepStrictEqual(constTrue(), true)
+ * @since 2.0.0
+ */
+export const constTrue: Lazy<boolean> = () => true
+
+/**
+ * A thunk that returns always `false`.
+ * @example
+ * assert.deepStrictEqual(constFalse(), false)
+ * @since 2.0.0
+ */
+export const constFalse: Lazy<boolean> = () => false
+
+/**
+ * A thunk that returns always `null`.
+ * @example
+ * assert.deepStrictEqual(constNull(), null)
+ * @since 2.0.0
+ */
+export const constNull: Lazy<null> = () => NULL
+
+/**
+ * A thunk that returns always `undefined`.
+ * @example
+ * assert.deepStrictEqual(constUndefined(), undefined)
+ * @since 2.0.0
+ */
+export const constUndefined: Lazy<undefined> = () => UNDEFINED
+
+/**
+ * A thunk that returns always `void`.
+ * @example
+ * assert.deepStrictEqual(constVoid(), undefined)
+ * @since 2.0.0
+ */
+export const constVoid: Lazy<void> = constUndefined
+
+export function toRaise(err: string | Error = "panic"): Fn<unknown[], never> {
+  return isStr(err) ? () => raise(error(err)) : () => raise(err)
+}
+
+export const toArgumentsFirst: {
+  <F extends (args: NEA.NonEmptyArray<any>) => any>(
+    f: F,
+  ): (...args: Parameters<F>[0]) => ReturnType<F>
+} =
+  <F extends (args: NEA.NonEmptyArray<any>) => any>(f: F) =>
+  (...args: Parameters<F>[0]): ReturnType<F> =>
+    f(args)
+
+export const toArrayArgFirst: {
+  <F extends (...args: any[]) => any>(
+    f: F,
+  ): (args: Parameters<F>) => ReturnType<F>
+} =
+  <A, B>(f: (...args: A[]) => B) =>
+  (args: A[]): B =>
+    f(...args)
+
+export const toArrayElementFirst: {
+  <A, B>(f: (...args: A[]) => B): (args: A[]) => B
+  <A, B>(f: (...args: readonly A[]) => B): (args: readonly A[]) => B
+  <A, B>(
+    f: (...args: RNEA.ReadonlyNonEmptyArray<A>) => B,
+  ): (args: RNEA.ReadonlyNonEmptyArray<A>) => B
+  <A, B>(
+    f: (...args: NEA.NonEmptyArray<A>) => B,
+  ): (args: NEA.NonEmptyArray<A>) => B
+} = toArrayArgFirst as any
+
+export const invoke = <F extends io.IO<unknown>>(fn: F): ReturnType<F> =>
+  fn() as ReturnType<F>
+
+export const getReaderEitherIO = <E, A>(): R.Reader<
+  E.Either<io.IO<E>, io.IO<A>>,
+  E.Either<E, A>
+> => E.bimap(invoke, invoke)
+
+export const getIoThese =
+  <E, A>(O: these.These<io.IO<E>, io.IO<A>>): io.IO<these.These<E, A>> =>
+  () =>
+    these.Bifunctor.bimap(O, invoke, invoke)
+
+export const toIoEither =
+  <E, A>(O: E.Either<io.IO<E>, io.IO<A>>): io.IO<E.Either<E, A>> =>
+  () =>
+    E.Bifunctor.bimap(O, invoke, invoke)
+
+export const toReaderEither =
+  <R, E, A>(
+    O: E.Either<R.Reader<R, E>, R.Reader<R, A>>,
+  ): R.Reader<R, E.Either<E, A>> =>
+  (r) =>
+    E.Bifunctor.bimap(
+      O,
+      (a) => a(r),
+      (a) => a(r),
+    )
+
+export const compactEitherIO: <Sep, A>(
+  array: NEA.NonEmptyArray<E.Either<io.IO<Sep>, io.IO<A>>>,
+) => io.IO<NEA.NonEmptyArray<E.Either<Sep, A>>> = flow(
+  NEA.map(toIoEither),
+  io.sequenceArray as unknown as <A>(
+    arr: NEA.NonEmptyArray<io.IO<A>>,
+  ) => io.IO<NEA.NonEmptyArray<A>>,
+)
+
+export const compactEitherReader: <R, Sep, A>(
+  array: NEA.NonEmptyArray<E.Either<R.Reader<R, Sep>, R.Reader<R, A>>>,
+) => R.Reader<R, NEA.NonEmptyArray<E.Either<Sep, A>>> = flow(
+  NEA.map(toReaderEither),
+  R.sequenceArray as unknown as <R, A>(
+    arr: NEA.NonEmptyArray<R.Reader<R, A>>,
+  ) => R.Reader<R, NEA.NonEmptyArray<A>>,
+)
+
+export const compactIO: <Sep, A>(
+  array: NEA.NonEmptyArray<E.Either<io.IO<Sep>, io.IO<A>>>,
+) => io.IO<ReadonlyArray<A>> = flow(
+  compactEitherIO,
+  io.map(flow(RA.map(option.getRight), RA.compact)),
+)
+
+export const compactReader: <R, Sep, A>(
+  array: NEA.NonEmptyArray<E.Either<R.Reader<R, Sep>, R.Reader<R, A>>>,
+) => R.Reader<R, ReadonlyArray<A>> = flow(
+  compactEitherReader,
+  R.map(flow(RA.map(option.getRight), RA.compact)),
+)
+export const compactIOArray: <const A>(array: io.IO<A>[]) => io.IO<A[]> =
+  (array) => () =>
+    array.map(invoke)
+
+export const compactReaderArray: <R, A>(
+  array: R.Reader<R, A>[],
+) => R.Reader<R, A[]> = R.sequenceArray as unknown as <R, A>(
+  array: R.Reader<R, A>[],
+) => R.Reader<R, A[]>
+
+export const compactRNEAEitherIO: <T>(
+  array: RNEA.ReadonlyNonEmptyArray<E.Either<io.IO<T>, io.IO<T>>>,
+) => ReadonlyArray<T> = flow(
+  RNEA.map(flow(E.bimap(invoke, invoke), option.getRight)),
+  RA.compact,
+)
+
+export const concatAllArgsS =
+  <A>(M: Semigroup<A>): ((startWith: A) => (...as: A[]) => A) =>
+  (startWith: A) =>
+  (...as: A[]) =>
+    as.reduce(M.concat, startWith)
+export const concatAllArgsM = <A>(M: Monoid<A>): ((...as: A[]) => A) =>
+  concatAllArgsS(M)(M.empty)
+
+export { cloneFn } from "../internal/helper"

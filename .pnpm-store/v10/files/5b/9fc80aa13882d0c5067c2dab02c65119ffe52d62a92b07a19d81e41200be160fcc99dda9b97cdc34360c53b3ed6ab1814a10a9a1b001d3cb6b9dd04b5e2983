@@ -1,0 +1,65 @@
+import * as Config from "effect/Config";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Scope from "effect/Scope";
+import * as Reactivity from "effect/unstable/reactivity/Reactivity";
+import * as Client from "effect/unstable/sql/SqlClient";
+import { SqlError } from "effect/unstable/sql/SqlError";
+/**
+ * @category type ids
+ * @since 1.0.0
+ */
+export declare const TypeId: TypeId;
+/**
+ * @category type ids
+ * @since 1.0.0
+ */
+export type TypeId = "~@effect/sql-sqlite-bun/SqliteClient";
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface SqliteClient extends Client.SqlClient {
+    readonly [TypeId]: TypeId;
+    readonly config: SqliteClientConfig;
+    readonly export: Effect.Effect<Uint8Array, SqlError>;
+    readonly loadExtension: (path: string) => Effect.Effect<void, SqlError>;
+    /** Not supported in sqlite */
+    readonly updateValues: never;
+}
+/**
+ * @category tags
+ * @since 1.0.0
+ */
+export declare const SqliteClient: Context.Service<SqliteClient, SqliteClient>;
+/**
+ * @category models
+ * @since 1.0.0
+ */
+export interface SqliteClientConfig {
+    readonly filename: string;
+    readonly readonly?: boolean | undefined;
+    readonly create?: boolean | undefined;
+    readonly readwrite?: boolean | undefined;
+    readonly disableWAL?: boolean | undefined;
+    readonly spanAttributes?: Record<string, unknown> | undefined;
+    readonly transformResultNames?: ((str: string) => string) | undefined;
+    readonly transformQueryNames?: ((str: string) => string) | undefined;
+}
+/**
+ * @category constructor
+ * @since 1.0.0
+ */
+export declare const make: (options: SqliteClientConfig) => Effect.Effect<SqliteClient, never, Scope.Scope | Reactivity.Reactivity>;
+/**
+ * @category layers
+ * @since 1.0.0
+ */
+export declare const layerConfig: (config: Config.Wrap<SqliteClientConfig>) => Layer.Layer<SqliteClient | Client.SqlClient, Config.ConfigError>;
+/**
+ * @category layers
+ * @since 1.0.0
+ */
+export declare const layer: (config: SqliteClientConfig) => Layer.Layer<SqliteClient | Client.SqlClient>;
+//# sourceMappingURL=SqliteClient.d.ts.map

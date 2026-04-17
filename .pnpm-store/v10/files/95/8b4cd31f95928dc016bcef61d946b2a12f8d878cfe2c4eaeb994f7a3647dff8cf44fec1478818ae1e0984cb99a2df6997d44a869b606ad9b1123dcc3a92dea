@@ -1,0 +1,45 @@
+/**
+ * `Filterable` represents data structures which can be _partitioned_/_filtered_.
+ *
+ * Adapted from https://github.com/LiamGoodacre/purescript-filterable/blob/master/src/Data/Filterable.purs
+ *
+ * @since 2.0.0
+ */import { compact, separate } from "./Compactable.js";
+import { pipe } from "./function.js";
+import { getFunctorComposition } from "./Functor.js";
+import { getLeft, getRight } from "./Option.js";
+import { not } from "./Predicate.js";
+import { separated } from "./Separated.js";
+export let filter = (F, G) => predicate => fga => F.map(fga, ga => G.filter(ga, predicate));
+export let filterMap = (F, G) => f => fga => F.map(fga, ga => G.filterMap(ga, f));
+export let partition = (F, G) => {
+  let _filter = filter(F, G);
+  return predicate => {
+    let left = _filter(not(predicate));
+    let right = _filter(predicate);
+    return fgb => separated(left(fgb), right(fgb));
+  };
+};
+export let partitionMap = (F, G) => {
+  let _filterMap = filterMap(F, G);
+  return f => fga => separated(_filterMap(a => getLeft(f(a)))(fga), _filterMap(a => getRight(f(a)))(fga));
+}; /** @deprecated */
+export let getFilterableComposition = (F, G) => {
+  let map = getFunctorComposition(F, G).map;
+  let _compact = compact(F, G);
+  let _separate = separate(F, G, G);
+  let _filter = filter(F, G);
+  let _filterMap = filterMap(F, G);
+  let _partition = partition(F, G);
+  let _partitionMap = partitionMap(F, G);
+  return {
+    map,
+    compact: _compact,
+    separate: _separate,
+    filter: (fga, f) => _filter(f)(fga),
+    filterMap: (fga, f) => _filterMap(f)(fga),
+    partition: (fga, p) => _partition(p)(fga),
+    partitionMap: (fga, f) => _partitionMap(f)(fga)
+  };
+};
+//# sourceMappingURL=Filterable.js.map

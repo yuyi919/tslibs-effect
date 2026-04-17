@@ -1,0 +1,47 @@
+import { Pipeable } from "@yuyi919/shared-proto/Pipeable";
+import type { IParseOption } from "./options";
+import { Char } from "../char";
+import * as PR from "../ParseResult";
+import * as Stream from "../Stream";
+import { Parser } from "./core";
+export declare class ParserImpl<I, A> extends Pipeable {
+    protected _parse: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>;
+    readonly _flows: ((value: any, result: PR.ParseSuccess<I, any>) => any)[];
+    readonly _expected: string[] | undefined;
+    readonly _fatal: boolean;
+    readonly _emit: boolean;
+    static is: <I_1 = any, A_1 = any>(parser: unknown) => parser is ParserImpl<I_1, A_1>;
+    static make: <I_1, A_1>(parse: (input: Stream.t<I_1>, env: IParseOption) => PR.ParseResult<I_1, A_1>) => ParserImpl<I_1, A_1>;
+    static makeWith: <I_1, A_1>(parse: (input: Stream.t<I_1>, env: IParseOption) => PR.ParseResult<I_1, A_1>, _flows: any[], _expected: string[] | undefined, _fatal: boolean) => ParserImpl<I_1, A_1>;
+    static clone: <I_1, A_1>(parser: ParserImpl<I_1, A_1>, emit?: boolean) => ParserImpl<I_1, A_1>;
+    static skip: <I_1, A_1>(parser: ParserImpl<I_1, A_1>, emit?: boolean) => ParserImpl<I_1, A_1>;
+    _START_CHARS_HINT: Record<string, string> | undefined;
+    protected constructor(_parse: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>, _flows: ((value: any, result: PR.ParseSuccess<I, any>) => any)[], _expected: string[] | undefined, _fatal: boolean, _emit: boolean);
+    _emitMap(result: PR.ParseSuccess<I, any>): PR.ParseSuccess<I, any>;
+    _run(input: Stream.t<I>, option: IParseOption, emit: boolean): PR.ParseResult<I, A>;
+    _map<B>(f: (a: A) => B): ParserImpl<I, any>;
+    _mapTo<B>(b: B): ParserImpl<I, any>;
+    _withExpected(message: string): ParserImpl<I, A>;
+    _withStartHintAll(char: Char[]): Parser<I, A>;
+}
+export declare const define: {
+    <I, A>(parser: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>, lamdba?: false): Parser<I, A>;
+    <I, R extends PR.ParseResult<I, any>>(parser: (input: Stream.t<I>, env: IParseOption) => R, lamdba?: false): Parser<I, PR.ParseValue<R>>;
+    <P extends Parser<any, any>>(P: P, lamdba: true): P;
+};
+export declare function defineLambda<A>(parser: <I>($: typeof define) => Parser<I, A>, lazy: true): <I>() => Parser<I, I>;
+export declare function defineLambda<A>(parser: Parser<any, A>, lazy?: false): <I>() => Parser<I, A>;
+export declare function defineLambda<A>(parser: (input: Stream.t<any>, env: IParseOption) => PR.ParseResult<any, A>, lazy?: false): <I>() => Parser<I, A>;
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export interface ParserGen<I, A> {
+    _run(i: Stream.t<I>, env: IParseOption): Generator<any, PR.ParseResult<I, A>, any>;
+    void?: boolean;
+    startCharacterHint?: Record<string, true>;
+}
+export declare function _run<I, A>(parser: Parser<I, A>, input: Stream.t<I>, env: IParseOption, emit?: boolean): PR.ParseResult<I, A>;
+export declare function _run<I, A>(parser: ParserGen<I, A>, input: Stream.t<I>, env: IParseOption): Generator<any, PR.ParseResult<I, A>, any>;
+export declare const run: <I, A>(parser: Parser<I, A>) => (input: Stream.IStream<I>, env: IParseOption, emit?: boolean) => PR.ParseResult<I, A>;
+//# sourceMappingURL=impl.d.ts.map

@@ -1,0 +1,51 @@
+type function = {apply: 'this 'args. ('this, array<'args>) => unit}
+
+type object = Js.Types.obj_val
+
+type symbol = Js.Types.symbol
+
+/** This type has only one value `undefined` */
+type undefined = Js.Types.undefined_val
+
+/** This type has only one value `null` */
+type null = Js.Types.null_val
+
+type rec t<'t> =
+  | @as("undefined") Undefined: t<undefined>
+  | @as("null") Null: t<null>
+  | @as("boolean") Boolean: t<bool>
+  | @as("number") Number: t<float>
+  | @as("string") String: t<string>
+  | @as("function") Function: t<function>
+  | @as("object") Object: t<object>
+  | @as("symbol") Symbol: t<symbol>
+  | @as("bigint") BigInt: t<bigint>
+
+module Make = () => {
+  let string: t<string> = String->Identity.id
+  let number: t<float> = Number->Identity.id
+
+  external unsafe: t<'a> => t<'b> = "%identity"
+
+  external typeof: 't => t<'a> = "#typeof"
+
+  @inline
+  let isStr: 'a => bool = a => typeof(a) === string
+
+  let test = (type a, x: 'a, v: t<a>): bool =>
+    switch v {
+    | Number => typeof(x) == number
+    | Boolean => Js.typeof(x) == "boolean"
+    | Undefined => Js.typeof(x) == "undefined"
+    | Null => x === Obj.magic(Js_null.empty)
+    | String => typeof(x) === string
+    | Function => Js.typeof(x) == "function"
+    | Object => Js.typeof(x) == "object"
+    | Symbol => Js.typeof(x) == "symbol"
+    | BigInt => Js.typeof(x) == "bigint"
+    }
+
+  let typeof = (a: 'a): t<'b> => test(a, Null) ? Null->unsafe : typeof(a)
+}
+
+include Make()

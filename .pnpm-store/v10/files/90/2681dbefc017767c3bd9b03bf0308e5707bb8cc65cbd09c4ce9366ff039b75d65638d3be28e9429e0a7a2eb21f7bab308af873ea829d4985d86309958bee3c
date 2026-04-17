@@ -1,0 +1,9 @@
+'use strict';
+
+var p={_tag:"None"},f=t=>({_tag:"Some",value:t});var s=(t,r)=>e=>{let o=t.traverse(e);return (a,l)=>e.map(o(a,l),r.separate)},u=(t,r)=>e=>{let o=t.traverse(e);return (a,l)=>e.map(o(a,l),r.compact)},h=t=>r=>{let e=t.wither(r);return o=>a=>e(a,l=>r.map(o(l),i=>i?f(l):p))};
+
+exports.filterE = h;
+exports.wiltDefault = s;
+exports.witherDefault = u;
+//# sourceMappingURL=Witherable.js.map
+//# sourceMappingURL=Witherable.js.map

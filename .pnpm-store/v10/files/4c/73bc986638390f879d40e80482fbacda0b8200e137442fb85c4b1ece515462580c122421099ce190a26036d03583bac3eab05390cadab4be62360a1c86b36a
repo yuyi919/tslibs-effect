@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Eq.js",
+  "module": "../dist/esm/Eq.js",
+  "types": "../dist/esm/Eq.d.ts",
+  "sideEffects": []
+}

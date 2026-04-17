@@ -1,0 +1,7 @@
+'use strict';
+
+var n=t=>t._tag==="Left",f=t=>t._tag==="Right",a=t=>({_tag:"Left",left:t}),m=t=>({_tag:"Right",right:t});var g=(t,e)=>r=>o=>t.ap(t.map(o,l=>p=>e.ap(l,p)),r);var M=(t,e)=>r=>o=>t.map(o,l=>e.map(l,r));var d=(t,e)=>{let r=M(t,e);return {map:(o,l)=>r(l)(o)}};var _=(t,e)=>{let r=d(t,e).map,o=g(t,e);return {map:r,of:l=>t.of(e.of(l)),ap:(l,p)=>o(p)(l)}};var O=a,s=m;var R=(t,e)=>S(e)(t);var y="Either";var E=t=>({URI:y,_E:void 0,map:R,ap:(e,r)=>u(e)?u(r)?O(t.concat(e.left,r.left)):e:u(r)?r:s(e.right(r.right)),of:A});var S=t=>e=>u(e)?e:s(t(e.right));var A=s;var u=n;var et=(t,e)=>{let r=_(e,E(t));return {map:r.map,ap:r.ap,of:r.of,chain:(o,l)=>e.chain(o,p=>n(p)?e.of(a(p.left)):l(p.right)),alt:(o,l)=>e.chain(o,p=>f(p)?e.of(p):e.map(l(),x=>n(x)?a(t.concat(p.left,x.left)):x))}};
+
+exports.getValidationM = et;
+//# sourceMappingURL=ValidationT.js.map
+//# sourceMappingURL=ValidationT.js.map

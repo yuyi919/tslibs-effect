@@ -1,0 +1,21 @@
+import * as Monoid from "@effect/typeclass/Monoid";
+import * as Semigroup from "@effect/typeclass/Semigroup";
+import * as FpTsMonoid from "fp-ts/Monoid";
+import { Nilable } from "../Types";
+import * as ComplexSemigroup from "./Semigroup";
+export interface ComplexMonoid<A> extends Monoid.Monoid<A>, ComplexSemigroup.ComplexSemigroupOrMonoid<A> {
+    _tag: "Monoid";
+    readonly empty: A;
+    readonly combineAll: (collection: Iterable<A>) => A;
+}
+export declare function toComplex<A>(m: Monoid.Monoid<A>): ComplexMonoid<A>;
+export declare function fromSemigroup<A>(m: Semigroup.Semigroup<A>, empty: A): ComplexMonoid<A>;
+export declare function fromFpTs<A>(m: FpTsMonoid.Monoid<A>): ComplexMonoid<A>;
+export declare function getEmpty<A>(m: FpTsMonoid.Monoid<A>): A;
+export declare function getArrayMonoid<A>(): ComplexMonoid<ReadonlyArray<A>>;
+export declare function getArrayMonoidFpTs<A>(): ComplexMonoid<readonly A[]>;
+export declare const UndefinedMonoid: ComplexMonoid<undefined>;
+export declare const VoidMonoid: ComplexMonoid<void>;
+export declare const NullMonoid: ComplexMonoid<null>;
+export declare function getNilableMonoid<A>(monoid: ComplexMonoid<A>): ComplexMonoid<Nilable<A>>;
+//# sourceMappingURL=Monoid.d.ts.map

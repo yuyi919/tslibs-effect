@@ -1,0 +1,35 @@
+/**
+ * TODO
+ * @since 0.0.0
+ */
+
+import { OBJECT_HAS_OWNPROPERTY } from "@yuyi919/shared-constant"
+
+import type { Types } from "./namespaces"
+
+/**
+ *
+ * 等价于
+ * ```ts
+ * Object.prototype.hasOwnProperty.call(target, key)
+ * ```
+ * @param target -
+ * @param key -
+ * @example
+ * ```ts
+ * const o = new Object();
+ * o.prop = "exists";
+ * o.hasOwnProperty("prop");             // 返回 true
+ * o.hasOwnProperty("toString");         // 返回 false
+ * o.hasOwnProperty("hasOwnProperty");   // 返回 false
+ * ```
+ * @public
+ */
+export function hasOwnKey<Key extends string | symbol, T = any>(
+  target: any,
+  key: Key,
+): target is Types.RecordWithKey<Key, T> {
+  return !!target && OBJECT_HAS_OWNPROPERTY.call(target, key)
+}
+
+export * from "./checker/index"

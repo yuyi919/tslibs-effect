@@ -1,0 +1,244 @@
+import { toArray as castArray } from "../JsTypes.js";
+
+class SimpleStruct {
+  constructor(args, typed, typeName, hash = [...args].sort().join(",")) {
+    this.args = args;
+    this.typed = typed;
+    this.typeName = typeName;
+    this.hash = hash;
+  }
+  bump(args) {
+    return new SimpleStruct(args, this.typed, this.typeName);
+  }
+  toCall(callName, mapToRaw) {
+    let { args, typed, typeName } = this;
+    return `const ${callName} = (${args.map(getLabel).join(", ")}) => ${args.reduce(
+      (call, o) => {
+        let key = mapToRaw(o);
+        let value = getLabel(o);
+        if (JSON.stringify(value) === key) {
+          return value;
+        }
+        return `appendDefine(${key}, ${value})(${call})`;
+      },
+      typed ? `define(${mapToRaw("$type")}, ${mapToRaw(typeName)})\n` : "{}",
+    )}`;
+  }
+  toExtendCall(callName, mapToRaw, lastCallName, last) {
+    let { args } = this;
+    return `const ${callName} = (${args.map(getLabel).join(", ")}) => ${args
+      .filter((o) => !last.args.includes(o))
+      .reduce(
+        (result, o) => {
+          let key = mapToRaw(o);
+          let value = getLabel(o);
+          if (JSON.stringify(value) === key) {
+            return value;
+          }
+          return `appendDefine(${key}, ${value})(${result})`;
+        },
+        `${lastCallName}(${last.args.map(getLabel).join(", ")})`,
+      )}`;
+  }
+}
+let sortArgsBump = (args, next, undefinedRaw) => {
+  // return next.map(o=> o).sort((a, b) => args.includes(a) ? args.includes(b) ? 0 : -1 : 1)
+  let first = args.map((name) => {
+    return [name, next.find((o) => o[0] === name)?.[1] ?? undefinedRaw];
+  });
+  return first.concat(next.filter((o) => !first.some((t) => t[0] === o[0])));
+};
+class Automic {
+  constructor(input) {
+    this.structs = [];
+    this.structs.push(...castArray(input));
+  }
+  static from(args, typed, typeName) {
+    return new Automic(new SimpleStruct(args, typed, typeName));
+  }
+  findIndex(fn) {
+    return this.structs.findIndex(fn);
+  }
+  append(index, args) {
+    this.structs.push(this.structs[index].bump(args));
+  }
+  bump(callName, kvs, mapToRaw) {
+    let args = kvs.map((o) => o[0]);
+    let nextHash = [...args].sort().join(",");
+    let match = this.structs.findIndex((struct) => nextHash === struct.hash);
+    // 先寻找形状相似的
+    if (match === -1) {
+      let i = this.structs.length - 1;
+      let last = this.structs[i];
+      kvs = sortArgsBump(last.args, kvs, mapToRaw(undefined));
+      // 找不到就继承之前的，再次寻找之前是否已有继承过的形状
+      args = kvs.map((o) => o[0]);
+      nextHash = [...args].sort().join(",");
+      match = this.structs.findIndex((struct) => nextHash === struct.hash);
+    }
+    if (match === -1) {
+      // 找不到就生成新的形状，如果之前进行过扩张
+      let i = this.structs.length - 1;
+      let last = this.structs[i];
+      this.structs.push(last.bump(kvs.map((o) => o[0])));
+      let nextI = i + 1;
+      callName += "_" + nextI;
+    } else if (match > 0) {
+      callName += "_" + match;
+    }
+    return `${callName}(${this.toCallParams(match, kvs).join(", ")})`;
+  }
+  toCallParams(match, struts) {
+    return this.structs[match]
+      ? this.structs[match].args.map(
+          (name) => struts.find((o) => o[0] === name)[1],
+        )
+      : struts.map((value) => value[1]);
+  }
+  outputDefine(fnName) {
+    return this.structs.map((define, index) => [
+      index === 0 ? fnName : fnName + "_" + index,
+      define,
+    ]);
+  }
+}
+let macro = /*#__PURE__*/ new Map([
+  [
+    "ParserRule",
+    {
+      args: [
+        {
+          name: "name",
+          default: "undefined",
+        },
+        {
+          name: "definesHiddenTokens",
+          default: "false",
+        },
+        {
+          name: "entry",
+          default: "false",
+        },
+        {
+          name: "fragment",
+          default: "false",
+        },
+        {
+          name: "hiddenTokens",
+          default: "[]",
+        },
+        {
+          name: "parameters",
+          default: "[]",
+        },
+        {
+          name: "wildcard",
+          default: "false",
+        },
+        {
+          name: "definition",
+          default: "undefined",
+        },
+        {
+          name: "dataType",
+          default: "undefined",
+        },
+        {
+          name: "inferredType",
+          default: "undefined",
+        },
+        {
+          name: "returnType",
+          default: "undefined",
+        },
+      ],
+      typed: true,
+      typeName: "ParserRule",
+    },
+  ],
+  [
+    "RuleCall",
+    {
+      args: [
+        {
+          name: "rule",
+          default: "undefined",
+        },
+        {
+          name: "arguments",
+          default: "[]",
+        },
+        {
+          name: "cardinality",
+          default: "undefined",
+        },
+      ],
+      typed: true,
+      typeName: "RuleCall",
+    },
+  ],
+]);
+let labelNames = {
+  true: "true_",
+  false: "false_",
+  arguments: "arguments_",
+  function: "function_",
+  let: "let_",
+};
+let getLabel = (name) =>
+  !labelNames[name] || labelNames[name] === name ? name : labelNames[name];
+export let compressToFactory = (data, mapToRaw = JSON.stringify) => {
+  let each = (data) => {
+    if (data instanceof Array) return "[" + data.map(each).join(",") + "]";
+    let keys = Object.keys(data);
+    let name = keys.find((o) => o === "$type" || o === "$ref");
+    if (name) {
+      let values = [];
+      for (let key of keys) {
+        if (key == "$type") continue;
+        values.push([key, each(data[key])]);
+      }
+      // values.sort(([an], [bn]) => an.localeCompare(bn));
+      let args = values.map((value) => value[0]);
+      let callName = name !== "$type" ? name : data[name];
+      let exsist = macro.get(callName);
+      if (!exsist) {
+        macro.set(callName, Automic.from(args, name === "$type", data[name]));
+        let params = values.map((value) => value[1]);
+        return `${callName}(${params.join(", ")})`;
+      } else if (exsist instanceof Automic) {
+        return exsist.bump(callName, values, mapToRaw);
+      } else {
+        return `${callName}(${exsist.args.map((p) => (args.includes(p.name) ? values.find((o) => o[0] === p.name)[1] : mapToRaw(p.default === "undefined" ? undefined : p.default))).join(", ")})`;
+      }
+    }
+    return mapToRaw(data);
+  };
+  let content = each(data);
+  let macros = Array.from(macro.entries())
+    .flatMap(([name, define]) => {
+      if (define instanceof Automic) {
+        return define.outputDefine(name);
+      }
+      return [
+        [
+          name,
+          new SimpleStruct(
+            define.args.map((o) => o.name),
+            define.typed,
+            define.typeName,
+            "",
+          ),
+        ],
+      ];
+    })
+    .map(([name, define], i, list) => {
+      if (i > 0 && list[i - 1][1].typeName === define.typeName) {
+        let [lastName, last] = list[i - 1];
+        return define.toExtendCall(name, mapToRaw, lastName, last);
+      }
+      return define.toCall(name, mapToRaw);
+    });
+  return [macros, content];
+};
+//# sourceMappingURL=json-compress.js.map

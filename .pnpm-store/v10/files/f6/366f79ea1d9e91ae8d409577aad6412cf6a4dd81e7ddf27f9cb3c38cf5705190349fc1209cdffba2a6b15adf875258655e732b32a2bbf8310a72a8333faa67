@@ -1,0 +1,112 @@
+import { describe, expect, it } from "vitest"
+
+import * as Doc from "@effect/printer/Doc"
+import * as DocTree from "@effect/printer/DocTree"
+import * as Layout from "@effect/printer/Layout"
+import * as PageWidth from "@effect/printer/PageWidth"
+import { Monoid } from "@effect/typeclass/data/String"
+import * as ReadonlyArray from "effect/Array"
+import { pipe } from "effect/Function"
+import * as Module from "effect/KeyedPool"
+import { stripMargin } from "effect/String"
+
+import { codeFrameColumns } from "../parser/CodeFrame"
+
+describe("getType", () => {
+  it("toBeTruthy", () => {
+    expect(codeFrameColumns(`\nABC`, { start: { line: 2, column: 2 } })).toBe(
+      stripMargin(
+        `|  1 |
+         |> 2 | ABC
+         |    |  ^`,
+      ),
+    )
+  })
+})
+
+// import * as String from "@effect/typeclass/data/String";
+// import ts from "typescript"
+
+describe("", () => {
+  it("", () => {
+    const prettyTypes = (types: ReadonlyArray<string>): Doc.Doc<any> => {
+      const symbolDocuments = pipe(
+        ReadonlyArray.makeBy(types.length - 1, () => Doc.text("->")),
+        ReadonlyArray.prepend(pipe(Doc.text("::"), Doc.annotate("red"))),
+      )
+      const typeDocuments = types.map(Doc.text)
+      const documents = pipe(
+        symbolDocuments,
+        ReadonlyArray.zipWith(typeDocuments, (left, right) =>
+          Doc.catWithSpace(left, right),
+        ),
+        Doc.seps,
+        Doc.align,
+      )
+      return documents
+    }
+
+    const prettyDeclaration = (
+      name: string,
+      types: ReadonlyArray<string>,
+    ): Doc.Doc<any> =>
+      pipe(Doc.text(name), Doc.catWithSpace(prettyTypes(types)))
+
+    const dashes = Doc.pageWidth((width) =>
+      Doc.text(
+        "-".repeat(PageWidth.isAvailablePerLine(width) ? width.lineWidth : 24),
+      ),
+    )
+
+    const name = "example"
+    const types = ["Int", "Bool", "Char", "Char", "IO ()"]
+    const doc: Doc.Doc<any> = prettyDeclaration(name, types)
+    const docStream = pipe(
+      Doc.vsep([dashes, doc, dashes]),
+      Doc.annotate("red" as const),
+      Layout.pretty(Layout.options(PageWidth.availablePerLine(24, 1))),
+      // DocStream.reAnnotate((a) => (console.log(a), "<red/>")),
+    )
+    expect(
+      pipe(
+        DocTree.treeForm(docStream),
+        DocTree.renderSimplyDecorated(
+          Monoid,
+          // eslint-disable-next-line no-sequences
+          (str) => (console.log("1", JSON.stringify(str)), str),
+          (_, x) => (
+            console.log("2", JSON.stringify(_), JSON.stringify(x)),
+            `${x}`
+          ),
+        ),
+      ),
+    ).toBe(
+      stripMargin(
+        `|------------------------
+         |example :: Int
+         |        -> Bool
+         |        -> Char
+         |        -> Char
+         |        -> IO ()
+         |------------------------`,
+      ),
+    )
+
+    // expect(
+    //   ts
+    //     .createPrinter({ omitTrailingSemicolon: true, noEmitHelpers: true })
+    //     .printNode(
+    //       ts.EmitHint.Expression,
+    //       ts.factory.createArrowFunction(
+    //         [],
+    //         [],
+    //         [],
+    //         undefined,
+    //         undefined,
+    //         ts.factory.createBlock([], true),
+    //       ),
+    //       ts.createSourceFile("", "() => {}", ts.ScriptTarget.ESNext),
+    //     ),
+    // ).toMatchSnapshot()
+  })
+})

@@ -1,0 +1,223 @@
+import { removeElementByIndexOf } from "./Array"
+import { constant, pipe, unsafeCoerce } from "./function"
+import { UNDEFINED } from "./internal/constant"
+import { _hasOwnKey } from "./internal/object"
+import * as P from "./internal/protoFactory"
+import * as Optional from "./Optional"
+import * as Proto from "./Proto"
+
+export type EventType = string | symbol
+export type EventTypeMap = Record<EventType, unknown>
+
+export type GenericEventHandler<Events extends EventTypeMap> =
+  | Handler<Events[keyof Events]>
+  | WildcardHandler<Events>
+// An event handler can take an optional event argument
+// and should not return a value
+export type Handler<T = unknown> = (event: T) => void
+export type HandlerFrom<T extends EventTypeMap> = Handler<
+  T[Extract<keyof T, EventType>]
+>
+export type WildcardHandler<T = Record<string, unknown>> = (
+  type: keyof T,
+  event: T[keyof T],
+) => void
+
+// An array of all currently registered event handlers for a type
+export type EventHandlerList<T = unknown> = Array<Handler<T>>
+export type WildCardEventHandlerList<T = Record<string, unknown>> = Array<
+  WildcardHandler<T>
+>
+
+// A map of event types and their corresponding event handlers.
+export type EventHandlerMap<Events extends EventTypeMap> = {
+  [K in keyof Events]: EventHandlerList<Events[keyof Events]>
+} & { "*"?: WildCardEventHandlerList<Events> }
+
+export type GenericEventHandlerMap<Events extends EventTypeMap> = Record<
+  EventType,
+  GenericEventHandler<Events>[]
+>
+
+export interface EventHost<Events extends EventTypeMap> {
+  on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): this
+  on(type: "*", handler: WildcardHandler<Events>): this
+
+  off<Key extends keyof Events>(type: Key, handler?: Handler<Events[Key]>): this
+  off(type: "*", handler: WildcardHandler<Events>): this
+
+  emit<Key extends keyof Events>(type: Key, event: Events[Key]): this
+  emit<Key extends keyof Events>(
+    type: undefined extends Events[Key] ? Key : never,
+  ): this
+
+  clear(): this
+}
+
+const getOwnOrSet: <T, K extends keyof T, V extends T[K]>(
+  o: T,
+  key: K,
+  defaultTo: V,
+) => T[K] = unsafeCoerce((o: any, key: string | symbol, set: any) =>
+  _hasOwnKey(o, key) ? (o[key] ||= set) : ((o[key] as any) = set),
+)
+const getOwn = (o: any, key: string | symbol) =>
+  _hasOwnKey(o, key) ? o[key] : UNDEFINED
+
+// const proto = (<Events extends EventRecord>() => ({
+//   on(
+//     this: Proto<Events>,
+//     type: EventType,
+//     handler?: GenericEventHandler<Events>,
+//   ) {
+//     return (
+//       getOwnOrSet(this._, type, []).push(handler as Handler & WildcardHandler),
+//       this
+//     )
+//   },
+//   off(
+//     this: Proto<Events>,
+//     type: EventType,
+//     handler?: GenericEventHandler<Events>,
+//   ) {
+//     return (
+//       ((handlers) =>
+//         handlers &&
+//         (handler
+//           ? handlers.splice(
+//               indexOf(handlers, handler as Handler & WildcardHandler) >>> 0,
+//               1,
+//             )
+//           : // @ts-ignore
+//             (this._[type as keyof Events] = [])))(
+//         _hasOwnKey(this._, type) && this._[type as keyof Events],
+//       ),
+//       this
+//     )
+//   },
+//   emit(this: Proto<Events>, type: EventType, evt?: Events[EventType]) {
+//     return (
+//       Optional.forEach(
+//         getOwn(this._, type) as EventHandlerList<Events[keyof Events]>,
+//         (h) => h(evt!),
+//       ),
+//       Optional.forEach(this._["*"] as WildCardEventHandlerList<Events>, (h) =>
+//         h(type, evt!),
+//       ),
+//       this
+//     )
+//   },
+//   clear(this: Proto<Events>) {
+//     this._ = {} as EventHandlerMap<Events>
+//     return this
+//   },
+// }))()
+export interface EventProto<Events extends EventTypeMap>
+  extends EventHost<Events> {
+  _: GenericEventHandlerMap<Events>
+}
+
+export function getProto<Events extends EventTypeMap>(): EventProto<Events> {
+  return constant(
+    pipe(
+      P.type<EventProto<Events>>(),
+      P.method(
+        "on",
+        (self, type: EventType, handler: GenericEventHandler<Events>) => (
+          getOwnOrSet(self._, type, []).push(handler),
+          self
+        ),
+      ),
+      P.method(
+        "off",
+        (self, type: EventType, handler?: GenericEventHandler<Events>) => (
+          ((handlers) =>
+            handlers &&
+            (handler
+              ? removeElementByIndexOf(
+                  handlers,
+                  handler as Handler & WildcardHandler,
+                )
+              : (self._[type] = [])))(_hasOwnKey(self._, type) && self._[type]),
+          self
+        ),
+      ),
+      P.method(
+        "emit",
+        (self, type: EventType, evt?: Events[EventType]) => (
+          Optional.forEach(
+            getOwn(self._, type) as EventHandlerList<Events[keyof Events]>,
+            (h) => h(evt!),
+          ),
+          Optional.forEach(
+            self._["*"] as WildCardEventHandlerList<Events>,
+            (h) => h(type, evt!),
+          ),
+          self
+        ),
+      ),
+      P.method(
+        "clear",
+        (self) => ((self._ = {} as EventHandlerMap<Events>), self),
+      ),
+      P.make,
+    ),
+  )()
+}
+
+// export const proto = (<Events extends EventRecord>() =>
+//   Proto.makeStructProto({
+//     on: (
+//       self: Proto<Events>,
+//       type: EventType,
+//       handler: GenericEventHandler<Events>,
+//     ) => (
+//       getOwnOrSet(self._, type, []).push(handler as Handler & WildcardHandler),
+//       self
+//     ),
+//     off: (
+//       self: Proto<Events>,
+//       type: EventType,
+//       handler?: GenericEventHandler<Events>,
+//     ) => (
+//       ((handlers) =>
+//         handlers &&
+//         (handler
+//           ? handlers.splice(
+//               indexOf(handlers, handler as Handler & WildcardHandler) >>> 0,
+//               1,
+//             )
+//           : // @ts-ignore
+//             (self._[type as keyof Events] = [])))(
+//         _hasOwnKey(self._, type) && self._[type as keyof Events],
+//       ),
+//       self
+//     ),
+//     clear: (self: Proto<Events>) => (
+//       (self._ = {} as EventHandlerMap<Events>), self
+//     ),
+//     emit: (self: Proto<Events>, type: EventType, evt?: Events[EventType]) => (
+//       Optional.forEach(
+//         getOwn(self._, type) as EventHandlerList<Events[keyof Events]>,
+//         (h) => h(evt!),
+//       ),
+//       Optional.forEach(self._["*"] as WildCardEventHandlerList<Events>, (h) =>
+//         h(type, evt!),
+//       ),
+//       self
+//     ),
+//   }))()
+
+export function make<Events extends EventTypeMap>(
+  all: EventHandlerMap<Events> = {} as EventHandlerMap<Events>,
+): EventHost<Events> {
+  return Proto.setPrototypeOf(
+    {
+      /**
+       * A Map of event names to registered handler functions.
+       */
+      _: all,
+    },
+    getProto(),
+  ) as any
+}

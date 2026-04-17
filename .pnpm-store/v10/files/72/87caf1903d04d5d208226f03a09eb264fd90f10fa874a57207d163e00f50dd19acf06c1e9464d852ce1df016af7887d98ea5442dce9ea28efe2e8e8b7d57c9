@@ -1,0 +1,8 @@
+'use strict';
+
+var x=(t,e)=>p=>o=>t.map(o,m=>e.map(m,p));var a=(t,e)=>{let p=x(t,e);return {map:(o,m)=>p(m)(o)}};var d=(t,e)=>p=>o=>t.mapWithIndex(o,(m,r)=>e.mapWithIndex(r,(i,n)=>p([m,i],n))),I=(t,e)=>{let p=a(t,e).map,o=d(t,e);return {map:p,mapWithIndex:(m,r)=>o(r)(m)}};
+
+exports.getFunctorWithIndexComposition = I;
+exports.mapWithIndex = d;
+//# sourceMappingURL=FunctorWithIndex.js.map
+//# sourceMappingURL=FunctorWithIndex.js.map

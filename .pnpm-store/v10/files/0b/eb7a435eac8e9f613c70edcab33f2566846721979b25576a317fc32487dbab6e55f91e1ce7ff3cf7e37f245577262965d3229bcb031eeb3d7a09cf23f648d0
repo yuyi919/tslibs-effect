@@ -1,0 +1,376 @@
+import * as E from "fp-ts/Either";
+import { Kind, URIS } from "fp-ts/HKT";
+import { Monoid } from "fp-ts/Monoid";
+import * as NEA from "fp-ts/NonEmptyArray";
+import * as O from "fp-ts/Option";
+import { Predicate } from "fp-ts/Predicate";
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray";
+import { Refinement } from "fp-ts/Refinement";
+import { Semigroup } from "fp-ts/Semigroup";
+import { Zero1 } from "fp-ts/Zero";
+import { Char } from "../char";
+import * as Stream from "../Stream";
+import * as core from "./core";
+import { IParseOption } from "./options";
+export type WithOption<I> = Partial<Omit<IParseOption<I>, "stream">>;
+/**
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function withOption<I>(env: WithOption<I>): <A>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+/**
+ * A parser combinator which returns the provided parser unchanged, except
+ * that if it fails, the provided error message will be returned in the
+ * ParseError`.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function expected<I, A>(parser: core.Parser<I, A>, message: string): core.Parser<I, A>;
+export declare function withExpected<I, A>(message: string): (parser: core.Parser<I, A>) => core.Parser<I, A>;
+export declare function withStartHintMany(char: Char[]): <I, A>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+export declare function withStartHint(char: Char, ...args: readonly Char[]): <I, A>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+/**
+ * The `cut` parser combinator takes a parser and produces a new parser for
+ * which all errors are fatal, causing either to stop trying further
+ * parsers and return immediately with a fatal error.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function cut<I, A>(parser: core.Parser<I, A>): core.Parser<I, A>;
+/**
+ * Takes two parsers `p1` and `p2`, returning a parser which will match
+ * `p1` first, discard the result, then either match `p2` or produce a fatal
+ * error.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function cutWith<I, A, B>(p1: core.Parser<I, A>, p2: core.Parser<I, B>): core.Parser<I, B>;
+/**
+ * The `seq` combinator takes a parser, and a function which will receive
+ * the result of that parser if it succeeds, and which should return another
+ * parser, which will be run immediately after the initial parser. In this
+ * way, you can join parsers together in a sequence, producing more complex
+ * parsers.
+ *
+ * This is equivalent to the monadic `chain` operation.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function seq<I, A, B>(fa: core.Parser<I, A>, f: (a: A) => core.Parser<I, B>): core.Parser<I, B>;
+export declare function seqTrace<I, A, B>(fa: core.Parser<I, A>, f: (a: A, next: Stream.t<I>, start: Stream.t<I>) => core.Parser<I, B>): core.Parser<I, B>;
+/**
+ * The `either` combinator takes two parsers, runs the first on the input
+ * stream, and if that fails, it will backtrack and attempt the second
+ * parser on the same input. Basically, try parser 1, then try parser 2.
+ *
+ * If the first parser fails with an error flagged as fatal (see `cut`),
+ * the second parser will not be attempted.
+ *
+ * This is equivalent to the `alt` operation.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare function either<I, A, B = A>(parser: core.Parser<I, A>, f: () => core.Parser<I, B>): core.Parser<I, A | B>;
+export declare const eitherConst: <I, A, B = A>(parser: core.Parser<I, A>, f: core.Parser<I, B>) => core.Parser<I, A | B>;
+/**
+ * Converts a parser into one which will return the point in the stream where
+ * it started parsing in addition to its parsed value.
+ *
+ * Useful if you want to keep track of where in the input stream a parsed
+ * token came from.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const withStart: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, [A, Stream.t<I>]>;
+export type MaybeC<T> = <I, A extends T>(parser: core.Parser<I, A>, zero?: core.Parser<any, A>) => core.Parser<I, A>;
+export type MaybeMC<M extends URIS, T> = <I, A extends T>(parser: core.Parser<I, Kind<M, A>>, zero?: core.Parser<any, Kind<M, A>>) => core.Parser<I, Kind<M, A>>;
+export type MaybeM<M extends URIS> = <I, A>(parser: core.Parser<I, Kind<M, A>>, zero?: core.Parser<any, Kind<M, A>>) => core.Parser<I, Kind<M, A>>;
+export type Maybe = <I, A>(parser: core.Parser<I, A>, zero?: core.Parser<any, A>) => core.Parser<I, A>;
+export declare const isZero: (zero: any) => zero is Zero1<any>;
+/**
+ * The `maybe` parser combinator creates a parser which will run the provided
+ * parser on the input, and if it fails, it will returns the empty value (as
+ * defined by `empty`) as a result, without consuming any input.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const maybe: {
+    <T>(M: Monoid<T>): MaybeC<T>;
+    <T>(zero: () => T): MaybeC<T>;
+    <M extends URIS>(M: Zero1<M>): MaybeM<M>;
+};
+/**
+ * Matches the end of the stream.
+ *
+ * @category constructor
+ * @since 0.6.0
+ */
+export declare const eofWith: <A>(mapTo: A, isExpected?: boolean) => <I>() => core.Parser<I, A>;
+export declare const EOF: <I>() => core.Parser<I, void>;
+export declare const EOF_EXPECTED: <I>() => core.Parser<I, void>;
+/**
+ * Matches the end of the stream.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const eof: <I>(isExpected?: boolean) => core.Parser<I, void>;
+export declare function getManyC_<I, A>(monoid: Monoid<A>, expectFailed: Predicate<A>, parser: core.Parser<I, A>): core.Parser<I, A>;
+export declare function getMany1C_<I, A>(monoid: Semigroup<A>, parser: core.Parser<I, A>): core.Parser<I, A>;
+export declare const getLeastF: {
+    <I, A, B extends A>(min: number, parser: core.Parser<I, A>, requirement?: Refinement<A, B>): core.Parser<I, A[]>;
+    <I, A>(min: number, parser: core.Parser<I, A>, predicate?: Predicate<A>): core.Parser<I, A[]>;
+};
+export declare const fromParseGen: <I, A>(parser: core.ParserGen<I, A>) => core.Parser<I, A>;
+export declare const getLeast: (min: number) => <I, A>(parser: core.Parser<I, A>) => core.Parser<I, A[]>;
+/**
+ * The `many` combinator takes a parser, and returns a new parser which will
+ * run the parser repeatedly on the input stream until it fails, returning
+ * a list of the result values of each parse operation as its result, or the
+ * empty list if the parser never succeeded.
+ *
+ * Read that as "match this parser zero or more times and give me a list of
+ * the results."
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const many: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, A[]>;
+/**
+ * The `leastOne` combinator is just like the `many` combinator, except it
+ * requires its wrapped parser to match at least once. The resulting list is
+ * thus guaranteed to contain at least one value.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const many1: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, NEA.NonEmptyArray<A>>;
+export declare function getManyC<T>(M: Monoid<T>): <I, A extends T>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+export declare const getMany1C: {
+    <T>(M: Semigroup<T>): <I, A extends T>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+};
+export declare const manyConcat: <I, A>(parser: core.Parser<I, A[]>) => core.Parser<I, A[]>;
+export declare const many1Concat: <I, A>(parser: core.Parser<I, A[]>) => core.Parser<I, NEA.NonEmptyArray<A>>;
+export declare const getZeroM: <T>(monoid: Monoid<T>) => core.Parser<unknown, T>;
+/**
+ * Matches the provided parser `parser` zero or more times, but requires the
+ * parser `sep` to match once in between each match of `parser`. In other words,
+ * use `sep` to match separator characters in between matches of `parser`.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const getSepByMonoid: <T>(monoid: Monoid<T>) => <I, A extends T>(sep: core.Parser<I, A>, parser: core.Parser<I, A>) => core.Parser<I, A>;
+export declare const getSepBy1Monoid: <T>(monoid: Monoid<T>) => <I, A extends T>(sep: core.Parser<I, A>, parser: core.Parser<I, A>) => core.Parser<I, A>;
+export type SepByParser<I, A, Least extends number> = core.Parser<I, Least extends 0 ? A[] : NEA.NonEmptyArray<A>>;
+export type SepByF<Least extends number> = <I, A, B>(sep: core.Parser<I, A>, parser: core.Parser<I, B>) => SepByParser<I, B, Least>;
+export type SepBy<Least extends number> = <I, A>(sep: core.Parser<I, A>) => <B>(parser: core.Parser<I, B>) => SepByParser<I, B, Least>;
+/**
+ * Matches the provided parser `parser` zero or more times, but requires the
+ * parser `sep` to match once in between each match of `parser`. In other words,
+ * use `sep` to match separator characters in between matches of `parser`.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const sepByF: SepByF<0>;
+export declare const sepBy: SepBy<0>;
+/**
+ * Matches the provided parser `parser` one or more times, but requires the
+ * parser `sep` to match once in between each match of `parser`. In other words,
+ * use `sep` to match separator characters in between matches of `parser`.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const sepBy1F: SepByF<1>;
+/**
+ *
+ * @param sep
+ * @returns
+ */
+export declare const sepBy1: SepBy<1>;
+export type SepSeqParser<I, Sep, A, Least extends number> = core.Parser<I, Least extends 0 ? E.Either<Sep, A>[] : NEA.NonEmptyArray<E.Either<Sep, A>>>;
+export type SepSeq<Least extends number> = <I, Sep>(sep: core.Parser<I, Sep>) => <A>(parser: core.Parser<I, A>) => SepSeqParser<I, Sep, A, Least>;
+export type SepSeqF<Least extends number> = <I, Sep, A>(sep: core.Parser<I, Sep>, parser: core.Parser<I, A>) => SepSeqParser<I, Sep, A, Least>;
+export declare function sepSeq1F<I, Sep, A>(sep: core.Parser<I, Sep>, parser: core.Parser<I, A>): SepSeqParser<I, Sep, A, 1>;
+export declare const sepSeq1: SepSeq<1>;
+/**
+ * Like `sepBy1`, but cut on the separator, so that matching a `sep` not
+ * followed by a `parser` will cause a fatal error.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const sepByCut: <I, A, B>(sep: core.Parser<I, A>, parser: core.Parser<I, B>) => core.Parser<I, NEA.NonEmptyArray<B>>;
+/**
+ * Filters the result of a parser based upon a `Refinement` or a `Predicate`.
+ *
+ * @example
+ * import { pipe } from 'fp-ts/function'
+ * import { run } from 'parser-ts/code-frame'
+ * import * as C from 'parser-ts/char'
+ * import * as P from 'parser-ts/Parser'
+ *
+ * const parser = P.expected(
+ *   pipe(
+ *     item<C.Char>(),
+ *     filter((c) => c !== 'a')
+ *   ),
+ *  'anything except "a"'
+ * )
+ *
+ * run(parser, 'a')
+ * // {  _tag: 'Left', left: '> 1 | a\n    | ^ Expected: anything except "a"' }
+ *
+ * run(parser, 'b')
+ * // { _tag: 'Right', right: 'b' }
+ *
+ * @category combinators
+ * @since 0.6.10
+ */
+export declare const filter: {
+    <A, B extends A>(refinement: Refinement<A, B>): <I>(parser: core.Parser<I, A>) => core.Parser<I, B>;
+    <A>(predicate: Predicate<A>): <I>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+};
+/**
+ * Matches the provided parser `parser` that occurs between the provided `left` and `right` parsers.
+ *
+ * `parser` is polymorphic in its return type, because in general bounds and actual parser could return different types.
+ *
+ * @category combinators
+ * @since 0.6.4
+ */
+export declare const between: <I, A>(left: core.Parser<I, A>, right: core.Parser<I, A>) => <B>(parser: core.Parser<I, B>) => core.Parser<I, B>;
+export declare const betweenContact: <I, AL, AR>(left: core.Parser<I, AL>, right: core.Parser<I, AR>) => <B>(C: core.Parser<I, B>) => core.Parser<I, [AL, B, AR]>;
+export declare const rightBy: <I, A>(bound: core.Parser<I, A>) => <B>(parser: core.Parser<I, B>) => core.Parser<I, B>;
+/**
+ * Matches the provided parser `parser` that is surrounded by the `bound` parser. Shortcut for `between(bound, bound)`.
+ *
+ * @category combinators
+ * @since 0.6.4
+ */
+export declare const surroundedBy: <I, A>(bound: core.Parser<I, A>) => <B>(parser: core.Parser<I, B>) => core.Parser<I, B>;
+/**
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const withScanMode: <I>(scanMode?: Stream.ConsumeMode) => <A>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+/**
+ * Takes a `Parser` and tries to match it without consuming any input.
+ *
+ * @example
+ * import { run } from 'parser-ts/code-frame'
+ * import * as P from 'parser-ts/Parser'
+ * import * as S from 'parser-ts/string'
+ *
+ * const parser = S.fold([
+ *   S.string('hello '),
+ *    lookAhead(S.string('world')),
+ *    S.string('wor')
+ * ])
+ *
+ * run(parser, 'hello world')
+ * // { _tag: 'Right', right: 'hello worldwor' }
+ *
+ * @category combinators
+ * @since 0.6.6
+ */
+export declare const lookAhead: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, A>;
+/**
+ * Takes a `Predicate` and continues parsing until the given `Predicate` is satisfied.
+ *
+ * @example
+ * import * as C from 'parser-ts/char'
+ * import { run } from 'parser-ts/code-frame'
+ * import * as P from 'parser-ts/Parser'
+ *
+ * const parser = takeUntil((c: C.Char) => c === 'w')
+ *
+ * run(parser, 'hello world')
+ * // { _tag: 'Right', right: [ 'h', 'e', 'l', 'l', 'o', ' ' ] }
+ *
+ * @category combinators
+ * @since 0.6.6
+ */
+export declare const takeUntil: <I>(predicate: Predicate<I>) => core.Parser<I, Array<I>>;
+/**
+ * Returns `Some<A>` if the specified parser succeeds, otherwise returns `None`.
+ *
+ * @example
+ * import * as C from 'parser-ts/char'
+ * import { run } from 'parser-ts/code-frame'
+ * import * as P from 'parser-ts/Parser'
+ *
+ * const a = sat((c: C.Char) => c === 'a')
+ * const parser = optional(a)
+ *
+ * run(parser, 'a')
+ * // { _tag: 'Right', right: { _tag: 'Some', value: 'a' } }
+ *
+ * run(parser, 'b')
+ * // { _tag: 'Left', left: { _tag: 'None' } }
+ *
+ * @category combinators
+ * @since 0.6.10
+ */
+export declare const optional: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, O.Option<A>>;
+export declare const constTrue: <I>() => core.Parser<I, boolean>;
+export declare const constFalse: <I>() => core.Parser<I, boolean>;
+export declare const optionBindBool: <I, A>(parser: core.Parser<I, A>) => core.Parser<I, boolean>;
+/**
+ * The `manyTill` combinator takes a value `parser` and a `terminator` parser, and
+ * returns a new parser that will run the value `parser` repeatedly on the input
+ * stream, returning a list of the result values of each parse operation as its
+ * result, or the empty list if the parser never succeeded.
+ *
+ * @example
+ * import * as C from 'parser-ts/char'
+ * import { run } from 'parser-ts/code-frame'
+ * import * as P from 'parser-ts/Parser'
+ *
+ * const parser = manyTill(C.letter, C.char('-'))
+ *
+ * run(parser, 'abc-')
+ * // { _tag: 'Right', right: [ 'a', 'b', 'c' ] }
+ *
+ * run(parser, '-')
+ * // { _tag: 'Right', right: [] }
+ *
+ * @category combinators
+ * @since 0.6.11
+ */
+export declare const manyTill: <I, A, B>(parser: core.Parser<I, A>, terminator: core.Parser<I, B>) => core.Parser<I, ReadonlyArray<A>>;
+/**
+ * The `many1Till` combinator is just like the `manyTill` combinator, except it
+ * requires the value `parser` to match at least once before the `terminator`
+ * parser. The resulting list is thus guaranteed to contain at least one value.
+ *
+ * @example
+ * import * as C from 'parser-ts/char'
+ * import { run } from 'parser-ts/code-frame'
+ * import * as P from 'parser-ts/Parser'
+ *
+ * const parser = many1Till(C.letter, C.char('-'))
+ *
+ * run(parser, 'abc-')
+ * // { _tag: 'Right', right: [ 'a', 'b', 'c' ] }
+ *
+ * run(parser, '-')
+ * // { _tag: 'Left', left: '> 1 | -\n    | ^ Expected: a letter' }
+ *
+ * @category combinators
+ * @since 0.6.11
+ */
+export declare const many1Till: <I, A, B>(parser: core.Parser<I, A>, terminator: core.Parser<I, B>) => core.Parser<I, RNEA.ReadonlyNonEmptyArray<A>>;
+export declare const sequence: <E, A>(ta: RNEA.ReadonlyNonEmptyArray<core.Parser<E, A>>) => core.Parser<E, RNEA.ReadonlyNonEmptyArray<A>>;
+//# sourceMappingURL=combinators.d.ts.map

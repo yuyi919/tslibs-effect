@@ -1,0 +1,43 @@
+'use strict';
+
+var d=e=>e;var g=e=>({equals:(l,t)=>l===t||e(l,t)});var m=e=>l=>!e(l);var c=(e,l)=>({left:e,right:l});var J=e=>new Set(e),Q=e=>new Set([e]),_=e=>l=>{let t=l.length,r=new Set,o=p(e);for(let n=0;n<t;n++){let u=l[n];o(u,r)||r.add(u);}return r},W=e=>new Set(e),X=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{let u=t(n);l(u,o)||o.add(u);}),o}},Y=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{t(n).forEach(u=>{l(u,o)||o.add(u);});}),o}},h=e=>l=>{let t=l.values(),r,o=new Set;for(;!(r=t.next()).done;){let n=r.value;e(n)&&o.add(n);}return o},Z=e=>l=>{let t=l.values(),r,o=new Set,n=new Set;for(;!(r=t.next()).done;){let u=r.value;e(u)?o.add(u):n.add(u);}return c(n,o)},S=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let n=S(e);return u=>n(t,u)}if(x(t))return r;if(x(r))return t;let o=new Set(t);return r.forEach(n=>{l(n,o)||o.add(n);}),o}},w=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let n=w(e);return u=>n(u,t)}if(x(t)||x(r))return E;let o=new Set;return t.forEach(n=>{l(n,r)&&o.add(n);}),o}},B=(e,l)=>t=>r=>{let o=r.values(),n,u=new Set,a=new Set,q=p(e),R=p(l);for(;!(n=o.next()).done;){let i=t(n.value);switch(i._tag){case"Left":q(i.left,u)||u.add(i.left);break;case"Right":R(i.right,a)||a.add(i.right);break}}return c(u,a)},y=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let o=y(e);return n=>o(n,t)}return h(o=>!l(o,r))(t)}},b=e=>{let l=f(e);return (t,r)=>o=>l(o).reduce(r,t)},ee=(e,l)=>{let t=f(e);return r=>o=>t(o).reduce((n,u)=>l.concat(n,r(u)),l.empty)},te=e=>{let l=f(e);return (t,r)=>o=>l(o).reduceRight((n,u)=>r(u,n),t)},z=e=>{let l=p(e);return t=>r=>{if(l(t)(r))return r;{let o=new Set(r);return o.add(t),o}}},M=e=>l=>t=>h(r=>!e.equals(l,r))(t),re=e=>{let l=p(e),t=M(e),r=z(e);return o=>n=>(l(o,n)?t:r)(o)(n)},le=e=>U(e)(d),oe=(e,l)=>t=>{let r=p(e),o=p(l),n=new Set,u=new Set;return t.forEach(a=>{switch(a._tag){case"Left":r(a.left,n)||n.add(a.left);break;case"Right":o(a.right,u)||u.add(a.right);break}}),c(n,u)},U=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{let u=t(n);u._tag==="Some"&&!l(u.value,o)&&o.add(u.value);}),o}},E=new Set,x=e=>e.size===0,ne=e=>e.size,k=e=>l=>{let t=l.values(),r,o=!1;for(;!o&&!(r=t.next()).done;)o=e(r.value);return o},C=e=>m(k(m(e))),v=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let o=v(e);return n=>o(n,t)}return C(o=>l(o,r))(t)}},p=e=>(l,t)=>{if(t===void 0){let u=p(e);return a=>u(l,a)}let r=t.values(),o,n=!1;for(;!n&&!(o=r.next()).done;)n=e.equals(l,o.value);return n},f=e=>l=>{let t=[];return l.forEach(r=>t.push(r)),t.sort(e.compare)},ue="ReadonlySet",pe=e=>({show:l=>{let t=[];return l.forEach(r=>{t.push(e.show(r));}),`new Set([${t.sort().join(", ")}])`}}),ae=e=>{let l=v(e);return g((t,r)=>l(t,r)&&l(r,t))},I=e=>({concat:S(e)}),ie=e=>({concat:I(e).concat,empty:E}),se=e=>({concat:w(e)}),ce=e=>({concat:y(e)}),xe=_;
+
+exports.URI = ue;
+exports.chain = Y;
+exports.compact = le;
+exports.difference = y;
+exports.elem = p;
+exports.empty = E;
+exports.every = C;
+exports.filter = h;
+exports.filterMap = U;
+exports.foldMap = ee;
+exports.fromArray = xe;
+exports.fromReadonlyArray = _;
+exports.fromSet = J;
+exports.getDifferenceMagma = ce;
+exports.getEq = ae;
+exports.getIntersectionSemigroup = se;
+exports.getShow = pe;
+exports.getUnionMonoid = ie;
+exports.getUnionSemigroup = I;
+exports.insert = z;
+exports.intersection = w;
+exports.isEmpty = x;
+exports.isSubset = v;
+exports.map = X;
+exports.partition = Z;
+exports.partitionMap = B;
+exports.reduce = b;
+exports.reduceRight = te;
+exports.remove = M;
+exports.separate = oe;
+exports.singleton = Q;
+exports.size = ne;
+exports.some = k;
+exports.toReadonlyArray = f;
+exports.toSet = W;
+exports.toggle = re;
+exports.union = S;
+//# sourceMappingURL=ReadonlySet.js.map
+//# sourceMappingURL=ReadonlySet.js.map

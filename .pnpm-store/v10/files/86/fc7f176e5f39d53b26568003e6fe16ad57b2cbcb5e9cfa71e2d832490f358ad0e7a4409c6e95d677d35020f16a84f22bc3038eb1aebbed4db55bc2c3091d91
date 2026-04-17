@@ -1,0 +1,191 @@
+module Use = () => {
+  open! ElementBufferFactory
+  module F64 = F64Array.Make()
+  module I32 = I32Array.Make()
+
+  @new /** takes length. initializes elements to 0 */
+  external makeBuf: int => ArrayBuffer.t = "ArrayBuffer"
+
+  type t = int
+  type buf = {
+    @as("_max") mutable max: int,
+    @as("_max_id") mutable max_id: int,
+    @as("_buff") mutable buff: ArrayBuffer.t,
+    @as("_position") mutable position: F64.t,
+    @as("_font") mutable font: F64.t,
+    @as("_meta") mutable meta: I32.t,
+    @as("_characters") mutable characters: array<string>,
+    @as("_fontstr") mutable fontstr: array<string>,
+  }
+
+  let buf: buf = {
+    let max = 1000
+    let buff = makeBuf(max * 4 * 8 + max * 4 * 8 + max * 2 * 4)
+    {
+      max,
+      max_id: 1,
+      buff,
+      meta: I32.fromBufferRange(buff, ~offset=0, ~length=max * 2),
+      position: F64.fromBufferRange(buff, ~offset=max * 2 * 4, ~length=max * 4),
+      font: F64.fromBufferRange(buff, ~offset=max * 2 * 4 + max * 4 * 8, ~length=max * 4),
+      characters: Array.make(~length=max, ""),
+      fontstr: Array.make(~length=max, ""),
+    }
+  }
+
+  @inline
+  let initlize = max => {
+    let _max = max
+    let _buff = makeBuf(_max * 4 * 8 + _max * 4 * 8 + _max * 2 * 4)
+    buf.max = max
+    buf.buff = _buff
+    buf.meta = I32.fromBufferRange(_buff, ~offset=0, ~length=_max * 2)
+    buf.position = F64.fromBufferRange(_buff, ~offset=_max * 2 * 4, ~length=_max * 4)
+    buf.font = F64.fromBufferRange(_buff, ~offset=_max * 2 * 4 + _max * 4 * 8, ~length=_max * 4)
+    buf.characters = Array.make(~length=max, "")
+    buf.fontstr = Array.make(~length=max, "")
+    // Js.log(buf)
+  }
+
+  @inline
+  let grow = max => {
+    if max > buf.max {
+      initlize(max)
+    }
+    buf.max_id = 1
+  }
+
+  @inline
+  let unwrap = (id: ElementBufferFactory.identifier): t => id->ElementBufferFactory.unboxId
+
+  @inline
+  let wrap = (id: t): ElementBufferFactory.identifier => id->ElementBufferFactory.ElementIdentifier
+
+  @inline
+  let _v_get = (char: t, prop: ElementBufferFactory.element_key): float =>
+    switch prop {
+    | X => buf.position->F64.get(char * 4)
+    | Y => buf.position->F64.get(char * 4 + 1)
+    | Width => buf.position->F64.get(char * 4 + 2)
+    | Height => buf.position->F64.get(char * 4 + 3)
+    | FontSize => buf.font->F64.get(char * 4 + 4)
+    }
+
+  @inline
+  let _v_set = (char: t, prop: ElementBufferFactory.element_key, value: float) =>
+    switch prop {
+    | X => buf.position->F64.set(char * 4, value)
+    | Y => buf.position->F64.set(char * 4 + 1, value)
+    | Width => buf.position->F64.set(char * 4 + 2, value)
+    | Height => buf.position->F64.set(char * 4 + 3, value)
+    | FontSize => buf.font->F64.set(char * 4 + 4, value)
+    }
+
+  @inline
+  let v_get = (prop, char: t) => char->_v_get(prop)
+  @inline
+  let v_set = (prop, char: t, value) => {
+    _v_set(char, prop, value)
+    char
+  }
+
+  @inline
+  let getCharacter: t => string = char => buf.characters->ArrayUtil.get(char)
+  @inline
+  let setCharacter = (char: t, str: string) => {
+    buf.characters->ArrayUtil.set(char, str)
+    char
+  }
+  @inline
+  let setFont = (char, str) => {
+    buf.fontstr->ArrayUtil.set(char, str)
+    char
+  }
+  @inline
+  let getFont: t => string = char => buf.fontstr->ArrayUtil.get(char)
+
+  @inline
+  let getCharCode: t => char = char => buf.characters->ArrayUtil.get(char)->Shared.charAt(0)
+
+  @inline
+  let getElementType: t => ElementType.elementKind = char =>
+    buf.meta->I32.get(char * 2 + 1)->__unsafe_cast
+
+  @inline
+  let setElementType = (char: t, elementType: ElementType.elementKind) => {
+    buf.meta->I32.set(char * 2 + 1, elementType->__unsafe_cast)->ignore
+    char
+  }
+
+  @inline
+  let create = (~character, ~fontSize) => {
+    let id = ElementIdentifier(buf.max_id)
+    buf.max_id = buf.max_id + 1
+    id
+    ->unwrap
+    ->Identity.map(v_set(X, _, 0.0))
+    ->Identity.map(v_set(Y, _, 0.0))
+    ->Identity.map(v_set(Width, _, 0.0))
+    ->Identity.map(v_set(Height, _, 0.0))
+    ->Identity.map(v_set(FontSize, _, fontSize))
+    ->setCharacter(character)
+    ->Identity.mapTo(id)
+  }
+
+  @inline
+  let input = ({character, fontSize}) => {
+    create(~character, ~fontSize)
+  }
+
+  let _cursor: ElementBufferFactory.element = {
+    x: 0.0,
+    y: 0.0,
+    width: 0.0,
+    height: 0.0,
+    fontSize: 0.0,
+    character: "",
+    elementType: ElementType.INVALID,
+    font: "",
+    style: {
+      fontStyle: #normal,
+      fontVariant: #normal,
+      fontWeight: #normal,
+      fontSize: 0.0,
+      fontFamily: "",
+      letterSpacing: 0.0,
+      id: "p0",
+    },
+  }
+  @inline
+  let cursor = char => {
+    let id = char->unwrap
+    let fontId = getFont(id)
+    _cursor.x = v_get(X, id)
+    _cursor.y = v_get(Y, id)
+    _cursor.width = v_get(Width, id)
+    _cursor.height = v_get(Height, id)
+    _cursor.fontSize = v_get(FontSize, id)
+    _cursor.character = getCharacter(id)
+    _cursor.font = Font.outputStr(fontId)
+    _cursor.style = Font.output(fontId)
+    _cursor.elementType = getElementType(id)
+    _cursor
+  }
+
+  @inline
+  let output = char => {
+    let id = char->unwrap
+    let fontId = getFont(id)
+    {
+      x: v_get(X, id),
+      y: v_get(Y, id),
+      width: v_get(Width, id),
+      height: v_get(Height, id),
+      fontSize: v_get(FontSize, id),
+      character: getCharacter(id),
+      font: Font.outputStr(fontId),
+      elementType: getElementType(id),
+      style: Font.output(fontId),
+    }
+  }
+}

@@ -1,0 +1,11 @@
+'use strict';
+
+var l=c=>({concat:(e,t)=>c.concat(t,e)}),r=c=>e=>({concat:(t,o)=>c(t)?e.concat(t,o):o}),p=c=>e=>({concat:(t,o)=>c(o)?e.concat(t,o):t}),x=c=>e=>({concat:(t,o)=>e.concat(c(t),c(o))}),d=c=>e=>t=>t.reduce((o,a)=>c.concat(o,a),e);
+
+exports.concatAll = d;
+exports.endo = x;
+exports.filterFirst = r;
+exports.filterSecond = p;
+exports.reverse = l;
+//# sourceMappingURL=Magma.js.map
+//# sourceMappingURL=Magma.js.map

@@ -1,0 +1,205 @@
+import type Types from "..";
+import type { DynamicString } from "../namespaces/shared";
+import type {
+  EsModuleLike,
+  EsModuleLikeWithDefault,
+} from "../namespaces/module";
+declare const types: readonly [
+  "boolean",
+  "number",
+  "string",
+  "function",
+  "array",
+  "object",
+  "symbol",
+];
+declare const TYPES: readonly ["Date", "RegExp", "Error", "ArrayBuffer"];
+/**
+ *
+ * @public
+ */
+export type BuiltinTypes =
+  | (typeof types)[number]
+  | (typeof TYPES)[number]
+  | "null"
+  | "NaN"
+  | "TypedArray"
+  | "undefined"
+  | "bigint";
+/**
+ *
+ * @param target -
+ * @beta
+ */
+export declare function getType(target: any): BuiltinTypes | DynamicString;
+/**
+ *
+ * @param target -
+ * @beta
+ */
+export declare function getTypeTag(target: any): `[object ${string}]`;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isPrimitive(target: any): target is Types.Primitive;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isArr<T>(target: any): target is T[];
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isNum(target: any): target is number;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isStr(target: any): target is string;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isObj<T extends object>(target: any): target is T;
+/**
+ * {@inheritdoc (isObj:1)}
+ * @public
+ */
+export declare function isObj(target: any): target is object;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isBool(target: any): target is boolean;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isFn<Func extends Types.Fn = Types.Fn>(
+  target: Func,
+): target is Func;
+/**
+ * {@inheritdoc (isFn:1)}
+ * @public
+ */
+export declare function isFn<Func extends Types.Fn = Types.Fn>(
+  target: any,
+): target is Func;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isUndefined(target: any): target is undefined;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isNull(target: any): target is null;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isEmpty(target: any): boolean;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isNil(target: any): target is null | undefined;
+/**
+ * 严格检查一个NaN数值
+ * @param target -
+ * @public
+ * @example
+ * ```ts
+ * isNaN(NaN) // => true
+ * globalThis.isNaN(NaN) // => true
+ * isNaN({}) // => false
+ * globalThis.isNaN({}) // => true
+ * isNaN(undefined) // => false
+ * globalThis.isNaN(undefined) // => true
+ * ```
+ */
+export declare function isNaN(target: any): target is number;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isSymbol(target: any): target is symbol;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isBigInt(target: any): target is BigInt;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isRegExp(target: any): target is RegExp;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isDate(target: any): target is Date;
+/**
+ * 判断一个对象是否为Promise
+ * @param target -
+ * @public
+ */
+export declare function isPromise<T>(target: any): target is Promise<T>;
+/**
+ * 判断一个对象是否为`Promise`或`PromiseLike`
+ * @param target -
+ * @public
+ */
+export declare function isThenable<T>(target: any): target is PromiseLike<T>;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isArguments(target: any): target is IArguments;
+/**
+ *
+ * @param target -
+ * @public
+ */
+export declare function isError(target: any): target is Error;
+/**
+ * 判断是否是EsModule的导入
+ * @param target - 目标对象
+ * @param expectNull - 是否先进行非空判断，默认为true
+ * @alpha
+ */
+export declare function isEsModule<T>(
+  target: any,
+  expectNull?: boolean,
+): target is EsModuleLike<{}, T>;
+/**
+ * 判断是否是包含默认导出的EsModule导入
+ * @param target - 目标对象
+ * @param expectNull - 是否先进行非空判断，默认为true
+ * @alpha
+ */
+export declare function isEsModuleWithDefaultExport<T>(
+  target: any,
+  expectNull?: boolean,
+): target is EsModuleLikeWithDefault<{}, T>;
+export {};
+//# sourceMappingURL=checker.d.ts.map

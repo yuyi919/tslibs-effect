@@ -1,0 +1,16 @@
+'use strict';
+
+var chunkP5MTIGTA_js = require('./chunk-P5MTIGTA.js');
+
+
+
+Object.defineProperty(exports, "AbortError", {
+	enumerable: true,
+	get: function () { return chunkP5MTIGTA_js.b; }
+});
+Object.defineProperty(exports, "TimeoutError", {
+	enumerable: true,
+	get: function () { return chunkP5MTIGTA_js.a; }
+});
+//# sourceMappingURL=Errors.js.map
+//# sourceMappingURL=Errors.js.map

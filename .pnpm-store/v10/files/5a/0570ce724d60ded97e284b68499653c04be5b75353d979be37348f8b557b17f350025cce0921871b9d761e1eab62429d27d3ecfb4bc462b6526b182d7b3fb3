@@ -1,0 +1,179 @@
+// import * as ast from "@advscript/generated/generated/ast";
+// import * as option from "fp-ts/option";
+// import { constFalse, constTrue, constant, flow, pipe } from "@yuyi919/shared-proto/Functions";
+// import { SAFE_ID, getExpression } from "../fountain/expression";
+// import * as P from "./Parser";
+// import * as C from "./parser-ts/char";
+// import * as S from "./string";
+
+// const optionalBool = flow(
+//   P.optional,
+//   P.map(option.fold(constFalse, constTrue)),
+// );
+// const optionalProperty: <P extends string>(
+//   key: P,
+// ) => <I, A>(parser: P.Parser<I, A>) => P.Parser<I, Record<P, boolean>> = <
+//   P extends string,
+// >(
+//   key: P,
+// ) => flow(optionalBool, P.bindTo(key));
+
+// // const keyword = C.many1(C.notSpace);
+// const split = C.char("\n");
+// type Dest = { id: string; prefix?: boolean } | { ws: string };
+
+// const ws: P.Parser<string, Dest> = pipe(S.spaces1, P.bindTo("ws"));
+
+// const Character = C.char("@");
+// const id = pipe(
+//   P.sat<string>((a) => a !== " " && a !== "@" && a !== "\n"),
+//   C.many1,
+// );
+
+// const ID = pipe(
+//   Character,
+//   // optional, P.bindTo("prefix"),
+//   optionalProperty("prefix"),
+//   P.bind("id", constant(id)),
+// );
+// const lang: P.Parser<string, Dest[]> = pipe(
+//   ID,
+//   P.alt(constant(ws)),
+//   P.many1,
+//   P.apFirst(P.eof()),
+// );
+
+// // const input = `@hello world @hello world`;
+// // runCode.run(lang, `@hello @hello world world`.repeat(200));
+// // console.time("parse");
+// // const res = runCode.runEither(lang, input);
+// // console.timeEnd("parse");
+
+// // if (res._tag === "Left") {
+// //   console.error(res.left);
+// // } else {
+// //   console.log(res.right);
+// // }
+// const dash = C.char("-");
+// // const doubleDash = S.oneOfString(["--"]);
+// const equals = C.char("=");
+// // const identifier = pipe(
+// //   // id,
+// //   SAFE_ID,
+// //   P.withToken(tokens.use("SAFE_ID")),
+// // );
+// // const eol = pipe(S.EOL, P.withToken(tokens.use("END")));
+// // const key = pipe(S.keyword("world"), P.withToken(tokens.use("SAFE_ID")));
+
+// // const parser3 = pipe(
+// //   P.alts(key, identifier, eol),
+// //   P.many1,
+// //   P.apLookAhead(S.EOF),
+// // );
+
+// const exprs = getExpression();
+// // const EOL = cst.use("END");
+// // const COMMON_ID = cst.use("SAFE_ID");
+// // const lexer = new Lexer([EOL, COMMON_ID]);
+// // console.log(lexer.tokenize("world\nas"));/
+// // console.log(runCode.runThrow(expr, "(exp)"));
+// // console.log(runCode.runThrow(expr, "(exp)"));
+// // console.log(
+// //   JSON.stringify(
+// //     runCode.runThrow(pipe(expr, P.apFirst(P.eof())), `1||3+2/5`),
+// //     undefined,
+// //     2,
+// //   ),
+// // );
+// type MParam = Value | Flag;
+// type Value = {
+//   _tag: "Value";
+//   name: string;
+//   exp: ast.Expression;
+// };
+// type Flag = {
+//   _tag: "Flag";
+//   name: string;
+// };
+
+// const named: P.Parser<string, string> = P.cutWith(dash, SAFE_ID);
+// // pipe(
+// //   dash,
+// //   P.apSecond(SAFE_ID),
+// //   // P.lookAheadVirtual(P.optional(equals)),
+// // );
+
+// // const lookAheadParamStop = P.altAll(
+// //   S.TOKEN_END,
+// //   // pipe(S.spaces1, P.apSecond(namedWithEq)),
+// //   pipe(S.spaces1, P.apSecond(named)),
+// // );
+
+// // pipe(
+// //   named,
+// //   P.apFirst(equals),
+// //   P.chain((name) =>
+// //     P.Functor.map(
+// //       pipe(P.altAll(exprs.EPrimary)),
+// //       (exp) => ({ name, exp, _tag: "Value" } as Value),
+// //     ),
+// //   ),
+// // );
+
+// // runCode.runThrow(MParam, `-a=(('1'a+2)+3`);
+// // runCode.runThrow(exprs.innerExpr, `(('1'+2)+3)>a1`);
+// // runCode.runThrow(exprs.innerExpr, `(('1'+2)+3)>a1`);
+// // runCode.runThrow(exprs.innerExpr, `(('1'+2)+3)>a1`);
+// // (() => {
+// //   const input = "(('1'+2)+3)>".repeat(200) + "3";
+// //   console.time("parse");
+// //   // // // runCode.runThrow(parser3, "world\nas");
+// //   runCode.runThrow(pipe(exprs.innerExpr, P.apFirst(P.eof())), input);
+// //   console.timeEnd("parse");
+// // })();
+
+// type Command = {
+//   label: string;
+//   content?: string;
+//   args: MParam[];
+// };
+
+// const MParam: P.Parser<string, MParam> = pipe(
+//   P.tryChainW(
+//     named,
+//     (name) =>
+//       P.liftMap(
+//         equals,
+//         P.alts(
+//           exprs.EPrimary,
+//           S.regexpMap(/[^$]+/my, ([text]) => ast.makeStringLiteral(text)),
+//         ),
+//         (_, exp) => ({
+//           name,
+//           exp,
+//           _tag: "Value",
+//         }),
+//       ),
+//     (name) => ({ name, _tag: "Flag" }) as MParam,
+//   ),
+// );
+
+// const Content = pipe(
+//   S.regexp(/[^-]+/y),
+//   P.map((s) => s.trim()),
+// );
+// export const Label: P.Parser<string, Command> = P.tryChainW(
+//   S.regexp(/([^:]*):/y, 1),
+//   (label) =>
+//     P.liftMap(
+//       Content,
+//       P.sepByF(S.TOKEN_END, MParam),
+//       (content, args) => ({ label, content, args }) as Command,
+//     ),
+//   (label) => ({ label, content: undefined, args: [] }) as Command,
+// );
+
+// export const webGal = pipe(
+//   Label,
+//   // P.bind("args", () => P.sepBy(S.TOKEN_END, MParam)),
+// );

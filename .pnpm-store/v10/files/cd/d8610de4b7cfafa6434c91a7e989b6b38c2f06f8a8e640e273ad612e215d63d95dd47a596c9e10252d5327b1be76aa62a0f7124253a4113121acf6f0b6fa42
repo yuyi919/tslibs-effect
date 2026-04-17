@@ -1,0 +1,14 @@
+/**
+ * The `MonadThrow` type class represents those monads which support errors via
+ * `throwError`, where `throwError(e)` halts, yielding the error `e`.
+ *
+ * Laws:
+ *
+ * - Left zero: `M.chain(M.throwError(e), f) = M.throwError(e)`
+ *
+ * @since 2.0.0
+ */ /**
+    * @category model
+    * @since 2.0.0
+    */export {};
+//# sourceMappingURL=MonadThrow.js.map

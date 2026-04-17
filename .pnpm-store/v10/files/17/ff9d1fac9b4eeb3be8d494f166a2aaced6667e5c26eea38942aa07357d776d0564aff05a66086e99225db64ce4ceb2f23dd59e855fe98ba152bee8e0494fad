@@ -1,0 +1,6 @@
+declare function $$delete$1(dict: any, string: any): void;
+export function forEach(dict: any, f: any): void;
+export function forEachWithKey(dict: any, f: any): void;
+export function mapValues(dict: any, f: any): {};
+export { $$delete$1 as $$delete };
+//# sourceMappingURL=Dict.bs.d.ts.map

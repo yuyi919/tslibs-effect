@@ -1,0 +1,6 @@
+import * as monoid from "@effect/typeclass/Monoid";
+import * as semigroup from "@effect/typeclass/Semigroup";
+export declare function joinArguments(...args: string[]): string;
+export declare const Semigroup: semigroup.Semigroup<string>;
+export declare const Monoid: monoid.Monoid<string>;
+//# sourceMappingURL=String.d.ts.map

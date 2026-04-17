@@ -1,0 +1,36 @@
+'use strict';
+
+var chunkEXTVPXG5_js = require('./chunk-EXTVPXG5.js');
+
+
+
+Object.defineProperty(exports, "clear", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.g; }
+});
+Object.defineProperty(exports, "empty", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.a; }
+});
+Object.defineProperty(exports, "get", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.b; }
+});
+Object.defineProperty(exports, "getOrInit", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.e; }
+});
+Object.defineProperty(exports, "remove", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.f; }
+});
+Object.defineProperty(exports, "set", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.d; }
+});
+Object.defineProperty(exports, "unsafeGet", {
+	enumerable: true,
+	get: function () { return chunkEXTVPXG5_js.c; }
+});
+//# sourceMappingURL=JsMap.js.map
+//# sourceMappingURL=JsMap.js.map

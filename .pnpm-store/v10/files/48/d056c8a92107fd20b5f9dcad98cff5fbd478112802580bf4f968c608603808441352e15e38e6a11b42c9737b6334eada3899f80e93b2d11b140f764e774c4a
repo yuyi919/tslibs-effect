@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/pkg.js",
+  "module": "../dist/esm/pkg.js",
+  "types": "../dist/esm/pkg.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,6 @@
+export type t = RegExp;
+export type Result_t = {
+    readonly index: number;
+    readonly input: string;
+};
+//# sourceMappingURL=RegExp.gen.d.ts.map

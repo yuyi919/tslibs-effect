@@ -1,0 +1,20 @@
+/**
+ * @since 1.0.0
+ */
+import type { FileSystem } from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import type { Path } from "effect/Path";
+import type { Stdio } from "effect/Stdio";
+import type { Terminal } from "effect/Terminal";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
+/**
+ * @since 1.0.0
+ * @category models
+ */
+export type BunServices = ChildProcessSpawner | FileSystem | Path | Terminal | Stdio;
+/**
+ * @since 1.0.0
+ * @category layer
+ */
+export declare const layer: Layer.Layer<BunServices>;
+//# sourceMappingURL=BunServices.d.ts.map

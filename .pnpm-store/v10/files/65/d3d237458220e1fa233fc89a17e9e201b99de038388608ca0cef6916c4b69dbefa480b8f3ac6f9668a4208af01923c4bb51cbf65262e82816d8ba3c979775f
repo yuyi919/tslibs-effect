@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Group.js",
+  "module": "../dist/esm/Group.js",
+  "types": "../dist/esm/Group.d.ts",
+  "sideEffects": []
+}

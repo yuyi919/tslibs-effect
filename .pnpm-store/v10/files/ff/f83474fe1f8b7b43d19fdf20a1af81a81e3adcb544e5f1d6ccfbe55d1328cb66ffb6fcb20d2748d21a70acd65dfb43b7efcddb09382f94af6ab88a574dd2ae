@@ -1,0 +1,65 @@
+// import * as Random from 'effect/Random'
+// import * as Micro from "effect/Micro"
+import * as MApply from "fp-ts/Apply";
+import * as S from "fp-ts/State";
+
+import { pipe } from "@yuyi919/shared-proto/Functions";
+
+let _seed = /*#__PURE__*/ Date.now();
+let _start = _seed;
+let rng = (next) => (
+  (_seed = (next * 9301 + 49297) % 233280),
+  _seed / 233280.0
+);
+/**
+ * @param seed - 不为0的数字
+ * @alpha
+ */
+export let randomRNG = (seed) => {
+  if (seed && _start !== seed) {
+    _seed = seed;
+    _start = _seed;
+  }
+  return rng(_seed);
+};
+export let randomInt = (min, max) => {
+  var f = randomRNG() * ((max - min) | 0);
+  return ((Math.floor(f) | 0) + min) | 0;
+};
+/**
+ * The Random type represents a State<number, A>
+ * which represents a function, (n: number) => [A, number]
+ */
+let a = 1839567234;
+let m = 8239451023;
+let c = 972348567;
+/**
+ * An implementation of a [Linear Congruential (pseudo-random) Generator](https://en.wikipedia.org/wiki/Linear_congruential_generator).
+ *
+ * Generates a random number given a seed.
+ */
+export let random = (seed) => {
+  let nextSeed = (a * seed + c) % m;
+  return [nextSeed, nextSeed];
+};
+/**
+ * Generates a rondom number in the specified range
+ * @param max The max value, exclusive
+ * @param min The minimum value, inclusive
+ */
+export let randomInRange = (max, min) =>
+  S.map((num) => min + Math.floor((num / m) * (max - min)))(random);
+/**
+ * Picks a random value from the specified array.
+ * @param arr
+ */
+export let randomIn = (arr) =>
+  S.map((index) => arr[index])(randomInRange(0, arr.length));
+// @ts-expect-error
+export let struct = /*#__PURE__*/ MApply.sequenceS(S.Apply);
+export let sequence = /*#__PURE__*/ MApply.sequenceT(S.Apply);
+// eslint-disable-next-line prefer-destructuring
+export let sequenceArray = S.sequenceArray;
+// eslint-disable-next-line prefer-destructuring
+export let evaluate = S.evaluate;
+//# sourceMappingURL=random.js.map

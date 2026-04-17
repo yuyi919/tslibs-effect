@@ -1,0 +1,6 @@
+import { tryCatch } from "./helper";
+export declare const setStackTraceLimit: (size: number) => number;
+export declare const getStackTraceLimit: () => number;
+export declare function getStack(size: number): string | undefined;
+export { tryCatch };
+//# sourceMappingURL=Error.d.ts.map

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Proto.js",
+  "module": "../dist/esm/Proto.js",
+  "types": "../dist/esm/Proto.d.ts",
+  "sideEffects": []
+}

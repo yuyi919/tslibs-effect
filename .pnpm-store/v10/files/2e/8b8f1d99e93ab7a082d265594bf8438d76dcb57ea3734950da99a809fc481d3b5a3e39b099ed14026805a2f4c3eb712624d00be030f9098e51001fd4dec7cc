@@ -1,0 +1,2 @@
+export declare function compressToFactory(data: Record<string, any>, mapToRaw?: (arg: any) => string): readonly [string[], string];
+//# sourceMappingURL=json-compress.d.ts.map

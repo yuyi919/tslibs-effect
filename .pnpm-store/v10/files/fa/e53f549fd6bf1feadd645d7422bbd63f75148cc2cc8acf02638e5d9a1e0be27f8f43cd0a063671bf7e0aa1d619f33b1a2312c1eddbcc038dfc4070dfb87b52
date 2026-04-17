@@ -1,0 +1,103 @@
+import { error, pipe } from "@yuyi919/shared-proto/Functions";
+
+import * as cf from "./CodeFrame.js";
+import * as Context from "./context.js";
+import * as stream from "./parser-ts/Stream.js";
+import * as P from "./Parser.js";
+import * as PR from "./parserResult.js";
+
+export let getLocation = (source, cursor) => {
+  let endln = /\r?\n/g;
+  let position = cursor;
+  let lastPos = 0;
+  let result;
+  let line = 0;
+  while ((result = endln.exec(source))) {
+    if (result.index > position) break;
+    lastPos = result.index + result[0].length;
+    line++;
+  }
+  return {
+    start: {
+      line: line + 1,
+      column: (line === 0 ? position : position - lastPos) + 1,
+    },
+  };
+};
+/**
+ * Returns a pretty printed error message using `@babel/code-frame`
+ *
+ * @since 0.6.0
+ */
+export let codeFrame = (err, source) =>
+  cf.codeFrameColumns(source, getLocation(source, PR.getErrorCursor(err)), {
+    message: `Expected: ${PR.getExpected(err).join(", ")}`,
+  });
+export let run = (p, source, startCursor = 0) => {
+  let result = P._run(
+    p,
+    stream.stream(source, startCursor),
+    P.EmptyParseOption,
+  );
+  return PR.getStruct(result);
+};
+export let printExecResult = (res, source = PR.getSource(res.result)) => {
+  let loca = getLocation(
+    stream.seq2str(source),
+    PR.getResultCursor(res.result),
+  );
+  return cf.codeFrameColumns(stream.seq2str(source), loca);
+};
+export let isExecResult = (res) =>
+  typeof res === "object" && !!res && res._tag === "ExecResult";
+export let execF = (parser, source, startCursor = 0) => {
+  let result = P._run(
+    parser,
+    stream.stream(source, startCursor),
+    P.EmptyParseOption,
+  );
+  let success = PR.isRight(result);
+  let nextCursor = success
+    ? PR.getNextCursor(result)
+    : PR.getErrorCursor(result);
+  return {
+    _tag: "ExecResult",
+    next: nextCursor,
+    success,
+    value: success ? PR.getValue(result) : undefined,
+    start: startCursor,
+    end: nextCursor === source.length,
+    result: PR.getStruct(result),
+    expected: success ? undefined : PR.getExpected(result),
+  };
+};
+export let exec = (p, source, startCursor = 0) => execF(p, source, startCursor);
+export let runEitherF = (p, source, startCursor = 0) =>
+  PR.bimapEither(
+    (e) => e,
+    PR.getValue,
+  )(P._run(p, stream.stream(source, startCursor), P.EmptyParseOption));
+export let runEither = /*#__PURE__*/ Context.withCtx(
+  (p, source, startCursor = 0) => runEitherF(p, source, startCursor),
+);
+export let runThrow = /*#__PURE__*/ Context.withCtx(
+  (p, source, startCursor = 0, debug = false) => {
+    let result = P._run(
+      p,
+      stream.stream(source, startCursor),
+      P.EmptyParseOption,
+    );
+    if (PR.isRight(result)) {
+      if (debug) {
+        console.log("输入　　 |", source);
+        if (PR.getNextCursor(result) < source.length) {
+          console.log("未处理流 |", source.slice(PR.getNextCursor(result)));
+        }
+      }
+      return PR.getValue(result);
+    }
+    debug && console.error(result);
+    throw error(codeFrame(result, source).replace(/\n/g, "\n       "));
+  },
+);
+//# sourceMappingURL=runCode.js.map

@@ -1,0 +1,7 @@
+'use strict';
+
+var f="{",y="}",j="|",D=",",E=":",d="\\",m=(t,l)=>{throw new Error("Unexpected char `"+t+"` at "+l)},M=([t,l=!0])=>""+t+":"+l,v=(t,[l,...p])=>"b."+l.trim()+"("+t+(p.length?(t.trim()?"":"void 0")+",{"+p.map(M).join()+"}":"")+")",k=t=>{let l=[],p="",h="",i=n=>{let r="",s=[],c=-1,x=o=>{let e=r.trim(),g=e?e[0]==="["?"a"+e:"a."+e:"",u=s.reduce(v,g);return {index:o,output:u}};for(let o=n;o<t.length;o++){let e=t[o],g=h===d;if(h=e,e!==d){if(j===e){c+=1,s[c]=[""];continue}if(f===e&&c===-1&&!g){let u=i(o+1);o=u.index,r[r.length-1]==="."&&(r=r.slice(0,-1)),r+="["+u.output+"]";continue}if(y===e)return x(o);if(c>-1){let u=s[c],a=u[u.length-1];if(D===e){u.push([""]);continue}if(Array.isArray(a)){if(E===e){a.push("");continue}if(f===e&&!g){let S=i(o+1);o=S.index,a[a.length-1]+=S.output;continue}a[a.length-1]+=e;continue}f===e&&!g&&m(e,o),u[u.length-1]+=e;continue}f===e&&m(e,o),r+=e;}}m(f,n);};for(let n=0;n<t.length;n++){let r=t[n],s=h===d;if(h=r,r!==d){if(f===r&&!s){l.push(JSON.stringify(p)),p="";let c=i(n+1);n=c.index,l.push(c.output.replaceAll(/([{:,])[ ]+/g,"$1"));continue}p+=r;}}return l.concat(JSON.stringify(p))};var P={},A={},O=(t={},{disableCache:l=!1}={})=>({compileRaw:i=>{if(!l&&P[i])return P[i];let n=Function("b","return (a)=>["+k(i).join(",")+"]");return l?n(t):P[i]=n(t)},compile:i=>{if(!l&&A[i])return A[i];let n=Function("b","return (a)=>"+k(i).join("+"));return l?n(t):A[i]=n(t)}});
+
+exports.MessagePipe = O;
+//# sourceMappingURL=MessagePipe.js.map
+//# sourceMappingURL=MessagePipe.js.map

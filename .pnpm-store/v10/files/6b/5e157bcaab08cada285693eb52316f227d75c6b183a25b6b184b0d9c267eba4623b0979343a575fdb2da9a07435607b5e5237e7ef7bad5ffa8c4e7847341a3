@@ -1,0 +1,30 @@
+'use strict';
+
+var l=(t,n)=>{let o=typeof t=="number"?e=>e.length>=t:t;return function(){let e=Array.from(arguments);return o(arguments)?n.apply(this,e):r=>n(r,...e)}};var s=t=>t._tag==="None",c=t=>t._tag==="Some",h={_tag:"None"},y=t=>({_tag:"Some",value:t}),M=t=>t._tag==="Left",d=t=>t._tag==="Right",p=t=>({_tag:"Left",left:t}),u=t=>({_tag:"Right",right:t}),_=t=>[t],E=t=>t.length>0,N=t=>t[0],R=t=>t.slice(1),w=[],z={},O=Object.prototype.hasOwnProperty,S=t=>[t[0],...t.slice(1)],i=t=>(n,o)=>(...e)=>{let r=n(...e);return t.fromEither(r==null?p(o(...e)):u(r))},m=t=>(n,o)=>(...e)=>{let r=n(...e);return t.fromEither(s(r)?p(o(...e)):u(r.value))},A=(t,n)=>l(3,(o,e,r)=>n.flatMap(o,i(t)(e,r))),j=(t,n)=>l(3,(o,e,r)=>n.flatMap(o,m(t)(e,r))),L=(t,n)=>l(2,(o,e)=>n.flatMap(o,r=>t.fromEither(e(r)))),T=(t,n)=>l(2,(o,e)=>n.flatMap(o,r=>t.fromIO(e(r)))),k=(t,n)=>l(2,(o,e)=>n.flatMap(o,r=>t.fromTask(e(r)))),v=(t,n)=>l(2,(o,e)=>n.flatMap(o,r=>t.fromReader(e(r))));
+
+exports.emptyReadonlyArray = w;
+exports.emptyRecord = z;
+exports.flatMapEither = L;
+exports.flatMapIO = T;
+exports.flatMapNullable = A;
+exports.flatMapOption = j;
+exports.flatMapReader = v;
+exports.flatMapTask = k;
+exports.fromReadonlyNonEmptyArray = S;
+exports.has = O;
+exports.head = N;
+exports.isLeft = M;
+exports.isNonEmpty = E;
+exports.isNone = s;
+exports.isRight = d;
+exports.isSome = c;
+exports.left = p;
+exports.liftNullable = i;
+exports.liftOption = m;
+exports.none = h;
+exports.right = u;
+exports.singleton = _;
+exports.some = y;
+exports.tail = R;
+//# sourceMappingURL=internal.js.map
+//# sourceMappingURL=internal.js.map

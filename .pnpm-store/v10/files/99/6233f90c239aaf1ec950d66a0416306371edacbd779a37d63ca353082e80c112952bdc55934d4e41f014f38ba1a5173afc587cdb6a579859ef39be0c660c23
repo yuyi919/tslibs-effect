@@ -1,0 +1,25 @@
+import { PresetExtensions } from "./Extensions";
+export interface DurationPresetExtensions extends PresetExtensions {
+}
+declare module "./Duration" {
+    interface Duration extends DurationPresetExtensions {
+    }
+}
+export declare const DurationPresetExtensions: DurationPresetExtensions;
+export declare function addDurationPreset(): void;
+export interface OptionPresetExtensions<T> extends PresetExtensions {
+}
+declare module "./Option" {
+    interface OptionExtensions<T> extends OptionPresetExtensions<T> {
+        toJSON(this: SomeValue<T>): OptionJsonSome<T>;
+        toJSON(this: NoneValue): OptionJsonNone;
+        toJSON(this: Option<T>): OptionJson<T>;
+    }
+}
+/**
+ * @internal
+ */
+export declare const OptionPresetExtensions: OptionPresetExtensions<any>;
+export declare function addOptionPreset(): void;
+export declare function addAllPreset(): void;
+//# sourceMappingURL=PresetExtensions.d.ts.map

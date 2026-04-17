@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Newtype.js",
+  "module": "../dist/esm/Newtype.js",
+  "types": "../dist/esm/Newtype.d.ts",
+  "sideEffects": []
+}

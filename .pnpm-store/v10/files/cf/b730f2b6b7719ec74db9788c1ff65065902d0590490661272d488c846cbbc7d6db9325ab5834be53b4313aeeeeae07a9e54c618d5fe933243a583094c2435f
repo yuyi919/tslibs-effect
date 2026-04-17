@@ -1,0 +1,1 @@
+{"version":3,"file":"Math.js","names":["round","floor","Math"],"sources":["../src/internal/Math.js"],"sourcesContent":["export const { round, floor } = Math;\n"],"mappings":"AAAA,OAAO,IAAM;EAAEA,KAAK;EAAEC;AAAM,CAAC,GAAGC,IAAI","ignoreList":[]}

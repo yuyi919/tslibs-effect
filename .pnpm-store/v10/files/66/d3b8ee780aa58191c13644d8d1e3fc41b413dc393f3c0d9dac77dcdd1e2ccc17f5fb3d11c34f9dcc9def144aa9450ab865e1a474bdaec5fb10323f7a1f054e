@@ -1,0 +1,9 @@
+'use strict';
+
+var a=(e,t)=>r=>l=>e.map(l,p=>t.map(p,r));var x=(e,t)=>{let r=a(e,t);return {map:(l,p)=>r(p)(l)}};var n={_tag:"None"},m=e=>({_tag:"Some",value:e});var u=(e,t)=>({left:e,right:t});var f=n,s=m;var d=e=>e._tag==="Right"?f:s(e.left),h=e=>e._tag==="Left"?f:s(e.right);var c=(e,t)=>r=>e.map(r,t.compact),v=(e,t,r)=>{let l=c(e,t),p=a(e,r);return i=>u(l(p(d)(i)),l(p(h)(i)))},T=(e,t)=>({map:x(e,t).map,compact:c(e,t),separate:v(e,t,t)});
+
+exports.compact = c;
+exports.getCompactableComposition = T;
+exports.separate = v;
+//# sourceMappingURL=Compactable.js.map
+//# sourceMappingURL=Compactable.js.map

@@ -1,0 +1,8 @@
+import { CLEAR_INTERVAL, CLEAR_TIMEOUT, SET_INTERVAL, SET_TIMEOUT } from "./constant"
+
+export { SET_TIMEOUT as __setTimeout, CLEAR_TIMEOUT as __clearTimeout }
+
+export type SetTimeoutHandle = ReturnType<typeof setTimeout>
+export type SetIntervalHandle = ReturnType<typeof setInterval>
+
+export { SET_INTERVAL as __setInterval, CLEAR_INTERVAL as __clearInterval }

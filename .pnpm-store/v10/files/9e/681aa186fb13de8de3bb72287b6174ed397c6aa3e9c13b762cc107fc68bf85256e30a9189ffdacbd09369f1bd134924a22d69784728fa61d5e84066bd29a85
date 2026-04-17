@@ -1,0 +1,84 @@
+/**
+ * @since 1.0.0
+ */
+import type { ServerWebSocket } from "bun";
+import * as Config from "effect/Config";
+import type { ConfigError } from "effect/Config";
+import * as Deferred from "effect/Deferred";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import type * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import type * as Path from "effect/Path";
+import * as Scope from "effect/Scope";
+import * as Etag from "effect/unstable/http/Etag";
+import type { HttpClient } from "effect/unstable/http/HttpClient";
+import type { HttpPlatform } from "effect/unstable/http/HttpPlatform";
+import * as Server from "effect/unstable/http/HttpServer";
+import * as ServerRequest from "effect/unstable/http/HttpServerRequest";
+import type * as ServerResponse from "effect/unstable/http/HttpServerResponse";
+import * as Socket from "effect/unstable/socket/Socket";
+import * as BunServices from "./BunServices.ts";
+/**
+ * @since 1.0.0
+ * @category Options
+ */
+export type ServeOptions<R extends string> = (Bun.Serve.UnixServeOptions<WebSocketContext> | Bun.Serve.HostnamePortServeOptions<WebSocketContext>) & {
+    readonly routes?: Bun.Serve.Routes<WebSocketContext, R>;
+};
+/**
+ * @since 1.0.0
+ * @category Constructors
+ */
+export declare const make: <R extends string>(options: ServeOptions<R> & {
+    readonly disablePreemptiveShutdown?: boolean | undefined;
+    readonly gracefulShutdownTimeout?: Duration.Input | undefined;
+}) => Effect.Effect<{
+    readonly serve: {
+        <E, R_1>(effect: Effect.Effect<ServerResponse.HttpServerResponse, E, R_1>): Effect.Effect<void, never, Exclude<R_1, ServerRequest.HttpServerRequest> | Scope.Scope>;
+        <E, R_2, App extends Effect.Effect<ServerResponse.HttpServerResponse, any, any>>(effect: Effect.Effect<ServerResponse.HttpServerResponse, E, R_2>, middleware: import("effect/unstable/http/HttpMiddleware").HttpMiddleware.Applied<App, E, R_2>): Effect.Effect<void, never, Exclude<R_2, ServerRequest.HttpServerRequest> | Scope.Scope>;
+    };
+    readonly address: Server.Address;
+}, never, Scope.Scope>;
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export declare const layerServer: <R extends string>(options: ServeOptions<R> & {
+    readonly disablePreemptiveShutdown?: boolean | undefined;
+    readonly gracefulShutdownTimeout?: Duration.Input | undefined;
+}) => Layer.Layer<Server.HttpServer>;
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export declare const layerHttpServices: Layer.Layer<HttpPlatform | Etag.Generator | BunServices.BunServices>;
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export declare const layer: <R extends string>(options: ServeOptions<R> & {
+    readonly disablePreemptiveShutdown?: boolean | undefined;
+    readonly gracefulShutdownTimeout?: Duration.Input | undefined;
+}) => Layer.Layer<Server.HttpServer | HttpPlatform | Etag.Generator | BunServices.BunServices>;
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export declare const layerTest: Layer.Layer<Server.HttpServer | HttpPlatform | FileSystem.FileSystem | Etag.Generator | Path.Path | HttpClient>;
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export declare const layerConfig: <R extends string>(options: Config.Wrap<ServeOptions<R> & {
+    readonly disablePreemptiveShutdown?: boolean | undefined;
+    readonly gracefulShutdownTimeout?: Duration.Input | undefined;
+}>) => Layer.Layer<Server.HttpServer | HttpPlatform | FileSystem.FileSystem | Etag.Generator | Path.Path, ConfigError>;
+interface WebSocketContext {
+    readonly deferred: Deferred.Deferred<ServerWebSocket<WebSocketContext>>;
+    readonly closeDeferred: Deferred.Deferred<void, Socket.SocketError>;
+    readonly buffer: Array<Uint8Array | string>;
+    run: (_: Uint8Array | string) => void;
+}
+export {};
+//# sourceMappingURL=BunHttpServer.d.ts.map

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ValidationT.js",
+  "module": "../dist/esm/ValidationT.js",
+  "types": "../dist/esm/ValidationT.d.ts",
+  "sideEffects": []
+}

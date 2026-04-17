@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Store.js",
+  "module": "../dist/esm/Store.js",
+  "types": "../dist/esm/Store.d.ts",
+  "sideEffects": []
+}

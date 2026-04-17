@@ -1,0 +1,15 @@
+/**
+ * @since 2.0.0
+ */ /**
+    * @since 2.0.0
+    */export let log = a => () => console.log(a); /**
+                                                  * @since 2.0.0
+                                                  */
+export let warn = a => () => console.warn(a); /**
+                                              * @since 2.0.0
+                                              */
+export let error = a => () => console.error(a); /**
+                                                * @since 2.0.0
+                                                */
+export let info = a => () => console.info(a);
+//# sourceMappingURL=Console.js.map

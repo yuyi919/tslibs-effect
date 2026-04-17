@@ -1,0 +1,6 @@
+{
+  "main": "../../dist/cjs/function/pipe.js",
+  "module": "../../dist/esm/function/pipe.js",
+  "types": "../../dist/esm/function/pipe.d.ts",
+  "sideEffects": []
+}

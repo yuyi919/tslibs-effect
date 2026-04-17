@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Refinement.js",
+  "module": "../dist/esm/Refinement.js",
+  "types": "../dist/esm/Refinement.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,60 @@
+export let $$RangeError: any;
+export function first(arr: any): any;
+export function initlize(): {
+    _gridSize: number;
+    _yInterval: number;
+    _xInterval: number;
+    _spaceWidth: number;
+    _maxRow: number;
+    _maxCol: number;
+    _lastCol: number;
+    _letterSpacing: number;
+    _forceSpace: number;
+    _maxWidth: number;
+    _paddingLeft: number;
+    _hasLeftQuote: boolean;
+    _firstChar: number;
+    _flag_STDWIDTH: boolean;
+    _gridWidth: number;
+};
+export function update(env: any, options: any, forceSpaceBetweenCJKAndWestern: any, firstChar: any, hasLeftQuote: any, paddingLeft: any): any;
+export function Extend(Runtime: any): {
+    CompressOptions: any;
+    env: any;
+    compressOptions: {
+        inlineCompression: any;
+        forceGridAlignment: any;
+        westernCharacterFirst: any;
+        forceSpaceBetweenCJKAndWestern: any;
+        fixCJKLeftQuote: any;
+    };
+    initlize: (env: any, options: any, firstChar: any, hasLeftQuote: any, paddingLeft: any) => any;
+};
+export function Initlize(CompressOptions: any): {
+    env: {
+        _gridSize: number;
+        _yInterval: number;
+        _xInterval: number;
+        _spaceWidth: number;
+        _maxRow: number;
+        _maxCol: number;
+        _lastCol: number;
+        _letterSpacing: number;
+        _forceSpace: number;
+        _maxWidth: number;
+        _paddingLeft: number;
+        _hasLeftQuote: boolean;
+        _firstChar: number;
+        _flag_STDWIDTH: boolean;
+        _gridWidth: number;
+    };
+    compressOptions: {
+        inlineCompression: any;
+        forceGridAlignment: any;
+        westernCharacterFirst: any;
+        forceSpaceBetweenCJKAndWestern: any;
+        fixCJKLeftQuote: any;
+    };
+    initlize: (env: any, options: any, firstChar: any, hasLeftQuote: any, paddingLeft: any) => any;
+};
+//# sourceMappingURL=IEnv.bs.d.ts.map

@@ -1,0 +1,7 @@
+'use strict';
+
+var l=new Map,o=(e,t)=>(l.has(e)||l.set(e,t()),l.get(e));
+
+exports.globalValue = o;
+//# sourceMappingURL=GlobalValue.js.map
+//# sourceMappingURL=GlobalValue.js.map

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Choice.js",
+  "module": "../dist/esm/Choice.js",
+  "types": "../dist/esm/Choice.d.ts",
+  "sideEffects": []
+}

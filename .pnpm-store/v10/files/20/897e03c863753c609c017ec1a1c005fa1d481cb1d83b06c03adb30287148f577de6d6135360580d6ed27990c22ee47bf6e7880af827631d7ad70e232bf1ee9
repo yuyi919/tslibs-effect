@@ -1,0 +1,6 @@
+import type { t as Dict_t } from './Dict.gen';
+export type t<a> = {
+    [id: string]: a;
+};
+export declare const make: <T1>() => Dict_t<T1>;
+//# sourceMappingURL=Record.gen.d.ts.map

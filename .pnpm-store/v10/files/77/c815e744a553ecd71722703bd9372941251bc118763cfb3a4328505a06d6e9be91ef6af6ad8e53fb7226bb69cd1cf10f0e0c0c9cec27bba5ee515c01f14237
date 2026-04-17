@@ -1,0 +1,1 @@
+{"version":3,"file":"RegExp.gen.js","names":[],"sources":["../../src/internal/rescript/RegExp.gen.js"],"sourcesContent":["/* TypeScript file generated from RegExp.res by genType. */ /* eslint-disable */ /* tslint:disable */ export { };\n"],"mappings":"AAAA,4DAA4D,qBAAqB,oBAAqB","ignoreList":[]}

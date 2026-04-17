@@ -1,0 +1,20 @@
+'use strict';
+
+var chunkWCQUO2EH_js = require('./chunk-WCQUO2EH.js');
+
+var i=e=>typeof e,p=(e,t)=>i(e)===t,l=e=>t=>p(t,e),T=(e,t)=>o=>p(o,e)||p(o,t);var h=l(chunkWCQUO2EH_js.a.__KEY_FUNC),F=l(chunkWCQUO2EH_js.a.__KEY_STR),m=(e,t,...o)=>chunkWCQUO2EH_js.a.FUNCTION.bind.call(e,t,...o),u=(e,t)=>m(chunkWCQUO2EH_js.a.CALLER,e[chunkWCQUO2EH_js.a.__KEY_PROTOTYPE][t]);var y=u(chunkWCQUO2EH_js.a.ARRAY,"every");var _=(e,t)=>function(...o){return f(o)>=e?t.apply(this,o):x=>t(x,...o)},A=_(2,y);var a=(e,t)=>{try{return e()}catch(o){return t(o)}},f=e=>e.length,n=(e,t)=>new chunkWCQUO2EH_js.a.FUNCTION(...t,e),E=a(()=>!!n("return 1",[]),e=>!1),C=(e,t)=>E?n(`"${Date.now()}";return (${t?t():e})`,[])():e;
+
+exports.a = i;
+exports.b = p;
+exports.c = l;
+exports.d = T;
+exports.e = h;
+exports.f = F;
+exports.g = _;
+exports.h = A;
+exports.i = a;
+exports.j = f;
+exports.k = n;
+exports.l = C;
+//# sourceMappingURL=chunk-3W4RDHSO.js.map
+//# sourceMappingURL=chunk-3W4RDHSO.js.map

@@ -1,0 +1,102 @@
+import type { Simplify } from "./Types"
+import { dual } from "./internal/helper"
+import { _bind, _bindWith, fromEntries, ownKeys } from "./internal/object"
+
+export {
+  _bind,
+  _bindWith,
+  _hasOwnKey,
+  _map,
+  _mapI,
+  assign,
+  defineProperties,
+  entries,
+  fromEntries,
+  getOwnPropertyDescriptor,
+  getOwnPropertyDescriptors,
+  getOwnPropertySymbols,
+  keys,
+  ownKeys,
+  singleton,
+} from "./internal/object"
+
+export type JsPropertyKey<A extends PropertyKey = PropertyKey> = Exclude<
+  A,
+  number
+>
+
+export type JsObjectKey<A extends {}> = JsPropertyKey<keyof A>
+export type JsObjectValues<A extends {}> = A[keyof A]
+export type JsObjectParitalMap<A extends {}, V> = {
+  [k in JsObjectKey<A>]?: V
+}
+export type JsObjectEntries<A extends {}> = {
+  [K in JsObjectKey<A>]: readonly [key: K, value: A[K]]
+}[JsObjectKey<A>]
+
+export type JsObject<A = any, K extends JsPropertyKey = JsPropertyKey> = Record<
+  K,
+  A
+>
+export type ReadonlyObject<A = any, K extends JsPropertyKey = JsPropertyKey> = {
+  readonly [k in K]: A
+}
+
+export function jsObjectKeys<T extends JsObject>(
+  target: NonNullable<T>,
+): JsObjectKey<T>[]
+export function jsObjectKeys(target: object): (string | symbol)[]
+export function jsObjectKeys(target: any) {
+  return ownKeys(target)
+}
+
+export type Records<K extends JsPropertyKey, A> = {
+  [key in K]: A
+}
+
+export type JsObjectBind<
+  T extends JsObject,
+  P extends JsPropertyKey,
+  A,
+> = Simplify<{
+  [K in keyof T | P]: K extends P ? A : T[K]
+}>
+
+export function bind<
+  T extends JsObject,
+  Property extends JsPropertyKey,
+  const Value,
+>(data: T, key: Property, value: Value): JsObjectBind<T, Property, Value>
+export function bind<
+  T extends JsObject,
+  Property extends JsPropertyKey,
+  const Value,
+>(key: Property, value: Value): (data: T) => JsObjectBind<T, Property, Value>
+export function bind(...args: [any, any, any?]) {
+  return dual(3, _bind)(...args)
+}
+
+export function bindWith<
+  T extends JsObject,
+  Property extends JsPropertyKey,
+  const A,
+>(
+  key: Property,
+  fn: (target: T) => A,
+): (data: T) => JsObjectBind<T, Property, A>
+export function bindWith<
+  T extends JsObject,
+  Property extends JsPropertyKey,
+  const A,
+>(data: T, key: Property, fn: (target: T) => A): JsObjectBind<T, Property, A>
+export function bindWith(a: any, b: any, c?: any) {
+  return !c ? (z: any) => _bindWith(z, a, b) : _bindWith(a, b, c)
+}
+
+export function keyStruct<const K extends string | number>(
+  key: readonly K[],
+): {
+  [key in K extends number ? `${K}` : K]: key
+} {
+  return fromEntries(key.map((k) => [k, k])) as any
+}

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/OptionT.js",
+  "module": "../dist/esm/OptionT.js",
+  "types": "../dist/esm/OptionT.d.ts",
+  "sideEffects": []
+}

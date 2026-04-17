@@ -1,0 +1,132 @@
+// import { createTokenInstance, IToken, TokenType } from "chevrotain"
+// import { pipe } from "@yuyi919/shared-proto/Functions"
+// import { Kind, Kind2, URIS, URIS2 } from "fp-ts/HKT"
+// import * as identity from "fp-ts/Identity"
+// import * as NEA from "fp-ts/NonEmptyArray"
+// import * as SGOID from "fp-ts/Semigroupoid"
+
+// import * as Context from "./context"
+// import * as P from "./parser-ts/Parser"
+// import * as Stream from "./parser-ts/Stream"
+// import * as PR from "./parserResult"
+// import * as Pos from "./pos"
+
+// export type TToken<A = undefined> = Omit<IToken, "payload"> & { payload: A }
+
+// export const withToken: {
+//   <A>(
+//     tokenType: TokenType | ((result: A) => TokenType),
+//     mapTo: (result: A) => string,
+//   ): <I>(perser: P.Parser<I, A>) => P.Parser<I, TToken<A | undefined>>
+//   (
+//     tokenType: TokenType | ((result: string) => TokenType),
+//   ): <I>(perser: P.Parser<I, string>) => P.Parser<I, TToken<undefined>>
+// } = <A>(
+//   tokenType: TokenType | ((result: A) => TokenType),
+//   mapTo?: (result: A) => string,
+// ): ((parser: P.Parser<any, any>) => P.Parser<any, any>) =>
+//   mapTo
+//     ? (parser: P.Parser<any, A>) =>
+//         P.define((input: Stream.IStream<any>, option) =>
+//           PR.mapF(P._run(parser, input, option), (value) =>
+//             toTokenPayload(
+//               typeof tokenType === "function"
+//                 ? tokenType(value as A)
+//                 : tokenType,
+//               input,
+//               value,
+//               mapTo(value),
+//             ),
+//           ),
+//         ) as P.Parser<any, TToken<A>>
+//     : (parser: P.Parser<any, string>) =>
+//         P.define((input: Stream.IStream<any>, option) =>
+//           PR.mapF<any, string, TToken>(P._run(parser, input, option), (value) =>
+//             toToken(
+//               typeof tokenType === "function"
+//                 ? tokenType(value as A)
+//                 : tokenType,
+//               input,
+//               value,
+//             ),
+//           ),
+//         ) as P.Parser<any, TToken>
+
+// export const withTokens =
+//   (tokenType: TokenType) =>
+//   <I>(parser: P.Parser<I, string>): P.Parser<I, TToken<undefined>[]> =>
+//     P.mapF(withToken(tokenType)(parser), (token) => [token])
+
+// export const getNextPos = <I, A = undefined>(
+//   tokenType: TokenType,
+//   stream: Stream.IStream<I>,
+//   image: string,
+//   payload?: A,
+// ): TToken<A> => {
+//   const ctx = Context.useContext()
+//   const cursor = Stream.getCursor(stream)
+//   // eslint-disable-next-line prefer-template
+//   const hashKey = cursor + "," + image.length
+//   const data = ctx.cache[hashKey]
+//   if (data) return data as TToken<A>
+//   const start = ctx.offset
+//   if (start < cursor) {
+//     // const diff = cursor - ctx.offset;
+//     // const diffImage = (buf as any).slice(ctx.offset, ctx.offset + diff);
+//     // console.log(
+//     //   "getNextPos diff",
+//     //   tokenType.name,
+//     //   JSON.stringify(image),
+//     //   cursor,
+//     //   ctx.offset,
+//     //   JSON.stringify(diffImage),
+//     // );
+//     // updatePosWithImage(diffImage, true, ctx);
+//     Pos.updateWithCursorDiff(
+//       stream as Stream.IStream<string>,
+//       start,
+//       cursor,
+//       ctx,
+//     )
+//   }
+//   const len = image.length - 1
+//   const token = genToken(tokenType, ctx.pos, image, cursor, len, payload)
+//   if (image.length > 0) Pos.updateWithImage(image, tokenType.LINE_BREAKS, ctx)
+//   ctx.cache[hashKey] = token
+//   return token as TToken<A>
+// }
+
+// export const genToken = <I, A = undefined>(
+//   tokenType: TokenType,
+//   pos: Pos.Pos,
+//   image: string,
+//   cursor: number,
+//   len: number,
+//   payload?: A,
+// ) => {
+//   const token = createTokenInstance(
+//     tokenType,
+//     image,
+//     cursor,
+//     cursor + len,
+//     pos.line,
+//     pos.line,
+//     pos.col,
+//     pos.col + len,
+//   )
+//   token.payload = payload
+//   return token
+// }
+// export const toTokenPayload = <I, A>(
+//   tokenType: TokenType,
+//   stream: Stream.IStream<I>,
+//   result: A,
+//   image: string,
+// ) => getNextPos(tokenType, stream, image, result)
+
+// export const toToken = <I>(
+//   tokenType: TokenType,
+//   stream: Stream.IStream<I>,
+//   image: string,
+// ): TToken<undefined> =>
+//   getNextPos<I, undefined>(tokenType, stream, image, undefined)

@@ -1,0 +1,263 @@
+import * as rx from "rxjs";
+import type * as Types from "./Types";
+import * as AssertsT from "./AssertsT";
+import * as Either from "./Either";
+import * as Option from "./Option";
+/**
+ * Internal symbol to mark Newtype identity.
+ * @internal
+ */
+export declare const newtypeId: unique symbol;
+export type newtypeId = typeof newtypeId;
+/**
+ * Internal symbol to mark Branded types.
+ * @internal
+ */
+export declare const brandedId: unique symbol;
+export type brandedId = typeof brandedId;
+/**
+ * Type to mark a Newtype with a specific ID.
+ */
+export type NewtypeID<Id> = {
+    readonly [newtypeId]: Id;
+};
+/**
+ * Internal type to represent a Brand with a specific key.
+ * @template K - The brand identifier (string or symbol).
+ */
+export type _Brand<in out K extends string | symbol> = {
+    readonly [brandedId]: {
+        readonly [k in K]: K;
+    };
+};
+/**
+ * Combines a base type A with a Brand K.
+ * @template A - The base type.
+ * @template K - The brand identifier (string or symbol).
+ */
+export type BrandedType<A, K extends string | symbol> = A & _Brand<K>;
+/**
+ * Interface for a Newtype, combining a base type with a unique identifier and brand.
+ * @template T - The base type.
+ * @template ID - The unique identifier for the Newtype.
+ */
+export interface Newtype<T, ID extends string | symbol> extends NewtypeID<T>, _Brand<ID> {
+}
+/**
+ * Represents a list of refinement errors.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface NewtypeErrors extends Array<RefinementError> {
+}
+/**
+ * Represents an error that occurs when the provided value of the branded type does not pass the refinement predicate.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface RefinementError {
+    readonly meta: unknown;
+    readonly message: string;
+}
+/**
+ * Type alias for any Newtype.
+ */
+export type AnyNewtype = Newtype<any, any>;
+/**
+ * Type alias for an `Option` wrapping a Newtype.
+ * @template A - The Newtype.
+ */
+export type NewtypeOption<A extends AnyNewtype> = Option.Option<A>;
+/**
+ * Type alias for an `Either` wrapping a Newtype or validation errors.
+ * @template A - The Newtype.
+ */
+export type NewtypeEither<A extends AnyNewtype> = Either.Either<NewtypeErrors, A>;
+export interface NewtypeConstructor<in out A extends AnyNewtype> {
+    /**
+     * Constructs a branded type from a value of type `A`, throwing an error if
+     * the provided `A` is not valid.
+     */
+    (args: Resolve<A>): A;
+    /**
+     * Constructs a branded type from a value of type `A`, returning `Some<A>`
+     * if the provided `A` is valid, `None` otherwise.
+     */
+    option(args: Resolve<A>): NewtypeOption<A>;
+    /**
+     * Constructs a branded type from a value of type `A`, returning `Right<A>`
+     * if the provided `A` is valid, `Left<BrandError>` otherwise.
+     */
+    either(args: Resolve<A>): NewtypeEither<A>;
+    /**
+     * Attempts to refine the provided value of type `A`, returning `true` if
+     * the provided `A` is valid, `false` otherwise.
+     */
+    is(a: Resolve<A>): a is Resolve<A> & A;
+    /**
+     * Extracts the original value.
+     */
+    unbox(args: A): Resolve<A>;
+}
+export declare namespace Newtype {
+    type Constructor<A extends AnyNewtype> = NewtypeConstructor<A>;
+    /**
+     * A utility type to extract a branded type from a `Brand.Constructor`.
+     *
+     * @since 2.0.0
+     * @category models
+     */
+    type FromConstructor<A> = A extends Newtype.Constructor<infer B> ? Resolve<B> : never;
+    /**
+     * A utility type to extract the value type from a brand.
+     *
+     * @since 2.0.0
+     * @category models
+     */
+    type Unbranded<P> = P extends infer Q & Brands<P> ? Q : P;
+    /**
+     * A utility type to extract the brands from a branded type.
+     *
+     * @since 2.0.0
+     * @category models
+     */
+    type Brands<P> = P extends AnyNewtype ? Types.UnionToIntersection<{
+        [k in keyof P[newtypeId]]: k extends string | symbol ? NewtypeID<k> : never;
+    }[keyof P[newtypeId]]> : never;
+    /**
+     * A utility type that checks that all brands have the same base type.
+     *
+     * @since 2.0.0
+     * @category models
+     */
+    type EnsureCommonBase<Brands extends readonly [
+        Newtype.Constructor<any>,
+        ...Array<Newtype.Constructor<any>>
+    ]> = {
+        [B in keyof Brands]: Newtype.Unbranded<Newtype.FromConstructor<Brands[0]>> extends Newtype.Unbranded<Newtype.FromConstructor<Brands[B]>> ? Newtype.Unbranded<Newtype.FromConstructor<Brands[B]>> extends Newtype.Unbranded<Newtype.FromConstructor<Brands[0]>> ? Brands[B] : Brands[B] : "ERROR: All brands should have the same base type";
+    };
+}
+type ExcludeUnknown<A, B> = [unknown] extends [A] ? B : A;
+/**
+ * Converts a Newtype to a Branded type compatible with the `effect/Brand` library.
+ * @template A - The Newtype.
+ */
+export type ToBranded<A extends AnyNewtype> = A extends Newtype<infer A, infer K> ? ExcludeUnknown<import("effect/Brand").Branded<A, K>, BrandedType<A, K>> : never;
+/**
+ * Extracts the base type from a Newtype.
+ * @template A - The Newtype.
+ */
+export type Resolve<A extends AnyNewtype> = A extends NewtypeID<infer ID> ? ID : never;
+/**
+ * Returns a `BrandErrors` that contains a single `RefinementError`.
+ *
+ * @since 2.0.0
+ * @category constructors
+ */
+export declare const error: (message: string, meta?: unknown) => NewtypeErrors;
+/**
+ * Takes a variable number of `BrandErrors` and returns a single `BrandErrors` that contains all refinement errors.
+ *
+ * @since 2.0.0
+ * @category constructors
+ */
+export declare const errors: (...errors: Array<NewtypeErrors>) => NewtypeErrors;
+/**
+ * Extracts the base value from a branded type.
+ * @template T - The Newtype.
+ * @param type - The branded type.
+ * @returns The base value.
+ */
+export declare function unbox<T extends AnyNewtype>(type: T): Resolve<T>;
+/**
+ * Creates an unsafe Newtype constructor without validation.
+ * @template A - The Newtype.
+ * @returns A NewtypeConstructor that bypasses validation.
+ */
+export declare const unsafeNewtype: <A extends AnyNewtype>() => NewtypeConstructor<A>;
+/**
+ * Returns a `NewtypeConstructor` that can construct a branded type from an unbranded value using the provided `refinement`
+ * predicate as validation of the input data.
+ *
+ * If you don't want to perform any validation but only distinguish between two values of the same type but with different meanings,
+ * see {@link nominal}.
+ *
+ * @param refinement - The refinement predicate to apply to the unbranded value.
+ * @param onFailure - Takes the unbranded value that did not pass the `refinement` predicate and returns a `BrandErrors`.
+ *
+ * @example
+ * type Int = Newtype.Newtype<number, "Int">
+ *
+ * const Int = Newtype.strictNewtype<Int>(
+ *   (n) => Number.isInteger(n),
+ *   (n) => Newtype.error(`Expected ${n} to be an integer`)
+ * )
+ *
+ * assert.strictEqual(Int(1), 1)
+ * assert.throws(() => Int(1.1))
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare function strictNewtype<A extends AnyNewtype>(f: (unbranded: Resolve<A>) => Option.Option<NewtypeErrors>): NewtypeConstructor<A>;
+export declare function strictNewtype<A extends AnyNewtype>(refinement: Types.Predicate<Resolve<A>>, onFailure: (unbranded: Resolve<A>) => NewtypeErrors): NewtypeConstructor<A>;
+export declare function all<NamedType extends AnyNewtype>(...brands: NewtypeConstructor<Newtype<Resolve<NamedType>, any>>[]): NewtypeConstructor<NamedType>;
+/**
+ * Combines two or more brands together to form a single branded type.
+ * This API is useful when you want to validate that the input data passes multiple brand validators.
+ *
+ * @example
+ * import { Newtype } from "effect"
+ *
+ * type Int = number & Newtype.Newtype<"Int">
+ * const Int = Newtype.refined<Int>(
+ *   (n) => Number.isInteger(n),
+ *   (n) => Newtype.error(`Expected ${n} to be an integer`)
+ * )
+ * type Positive = number & Newtype.Newtype<"Positive">
+ * const Positive = Newtype.refined<Positive>(
+ *   (n) => n > 0,
+ *   (n) => Newtype.error(`Expected ${n} to be positive`)
+ * )
+ *
+ * const PositiveInt = Newtype.all(Int, Positive)
+ *
+ * assert.strictEqual(PositiveInt(1), 1)
+ * assert.throws(() => PositiveInt(1.1))
+ *
+ * @since 2.0.0
+ * @category combining
+ */
+export declare function all<Brands extends readonly [
+    Newtype.Constructor<any>,
+    ...Array<Newtype.Constructor<any>>
+]>(...brands: Newtype.EnsureCommonBase<Brands>): Newtype.Constructor<Types.UnionToIntersection<{
+    [B in keyof Brands]: Newtype.FromConstructor<Brands[B]>;
+}[number]> extends infer X extends AnyNewtype ? X : AnyNewtype>;
+/**
+ * Lifts a function to work with branded types.
+ * @template T - The Newtype.
+ * @template BrandedValue - The branded type.
+ * @returns A function that accepts branded types and applies the original function.
+ */
+export declare function liftF<T extends AnyNewtype, BrandedValue = ToBranded<T>>(): <Args extends BrandedValue[], R>(fn: (...args: Args) => R) => ((...args: { [_ in keyof Args]: T; }) => R);
+/**
+ * Creates an RxJS operator to construct a branded type.
+ * @template T - The Newtype.
+ * @returns An RxJS OperatorFunction to convert base values to branded types.
+ */
+export declare function rxConstruct<T extends AnyNewtype>(): rx.OperatorFunction<Resolve<T>, T>;
+/**
+ * Creates an RxJS operator to unbox a branded type.
+ * @template T - The Newtype.
+ * @returns An RxJS OperatorFunction to extract base values from branded types.
+ */
+export declare function rxUnbox<T extends AnyNewtype>(): rx.OperatorFunction<T, Resolve<T>>;
+/**
+ * @since 0.2.0
+ */
+export declare function getAsserts<S extends AnyNewtype>(R: NewtypeConstructor<S>): AssertsT.AssertsId<S>;
+export {};
+//# sourceMappingURL=Newtype.d.ts.map

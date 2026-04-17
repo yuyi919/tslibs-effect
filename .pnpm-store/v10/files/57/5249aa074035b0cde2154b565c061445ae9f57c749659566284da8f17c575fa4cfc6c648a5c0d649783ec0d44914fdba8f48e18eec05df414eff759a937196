@@ -1,0 +1,44 @@
+export namespace Break {
+    export { chain };
+    export { filter };
+}
+export namespace LineBreaker {
+    export { make };
+    export { getAt };
+}
+export namespace Span {
+    export { t };
+    export { view };
+    export { update };
+}
+export function split(text: any, options: any): ({
+    TAG: string;
+    width: number;
+    pos: number;
+    len: number;
+    stretch?: undefined;
+    shrink?: undefined;
+} | {
+    TAG: string;
+    width: number;
+    stretch: number;
+    shrink: number;
+    pos: number;
+    len: number;
+})[];
+declare function chain(fa: any, f: any): any;
+declare function filter(fa: any, f: any): any;
+declare function make(text: any): {
+    core: any;
+    next: any;
+};
+declare function getAt(ctx: any, at: any): any;
+declare function t($$break: any, pos: any, len: any): {
+    break: any;
+    pos: any;
+    len: any;
+};
+declare function view(t: any, str: any): any;
+declare function update(t: any, $$break: any): any;
+export {};
+//# sourceMappingURL=LineBreak.bs.d.ts.map

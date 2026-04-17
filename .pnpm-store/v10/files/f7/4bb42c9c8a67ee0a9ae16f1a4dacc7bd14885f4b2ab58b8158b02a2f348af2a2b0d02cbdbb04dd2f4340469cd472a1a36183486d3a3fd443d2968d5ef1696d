@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/StateT.js",
+  "module": "../dist/esm/StateT.js",
+  "types": "../dist/esm/StateT.d.ts",
+  "sideEffects": []
+}

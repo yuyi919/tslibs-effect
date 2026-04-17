@@ -1,0 +1,690 @@
+/**
+ * @since 2.10.0
+ */import { apFirst as apFirst_, apS as apS_, apSecond as apSecond_ } from "./Apply.js";
+import * as chainable from "./Chain.js";
+import { compact as compact_, separate as separate_ } from "./Compactable.js";
+import { filter as filter_, filterMap as filterMap_, partition as partition_, partitionMap as partitionMap_ } from "./Filterable.js";
+import { chainEitherK as chainEitherK_, fromEitherK as fromEitherK_, tapEither as tapEither_ } from "./FromEither.js";
+import { fromIOK as fromIOK_, tapIO as tapIO_ } from "./FromIO.js";
+import { fromTaskK as fromTaskK_, tapTask as tapTask_ } from "./FromTask.js";
+import { dual, flow, identity, pipe, SK } from "./function.js";
+import { as as as_, asUnit as asUnit_, bindTo as bindTo_, flap as flap_, let as let__ } from "./Functor.js";
+import * as _ from "./internal.js";
+import * as O from "./Option.js";
+import * as OT from "./OptionT.js";
+import * as T from "./Task.js";
+import { guard as guard_ } from "./Zero.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category constructors
+ * @since 2.10.0
+ */
+export let some = /*#__PURE__*/OT.some(T.Pointed); /**
+                                                   * @category lifting
+                                                   * @since 2.10.0
+                                                   */
+export let fromPredicate = /*#__PURE__*/OT.fromPredicate(T.Pointed); // -------------------------------------------------------------------------------------
+// conversions
+// -------------------------------------------------------------------------------------
+/**
+ * @category conversions
+ * @since 2.10.0
+ */
+export let fromOption = T.of; /**
+                              * @category conversions
+                              * @since 2.10.0
+                              */
+export let fromEither = /*#__PURE__*/OT.fromEither(T.Pointed); /**
+                                                               * @category conversions
+                                                               * @since 2.10.0
+                                                               */
+export let fromIO = ma => fromTask(T.fromIO(ma)); /**
+                                                  * @category conversions
+                                                  * @since 2.10.0
+                                                  */
+export let fromTask = /*#__PURE__*/OT.fromF(T.Functor); /**
+                                                        * @category conversions
+                                                        * @since 2.11.0
+                                                        */
+export let fromTaskEither = /*#__PURE__*/T.map(O.fromEither); /**
+                                                              * @category pattern matching
+                                                              * @since 2.10.0
+                                                              */
+export let match = /*#__PURE__*/OT.match(T.Functor); /**
+                                                     * Less strict version of [`match`](#match).
+                                                     *
+                                                     * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+                                                     *
+                                                     * @category pattern matching
+                                                     * @since 2.10.0
+                                                     */
+export let matchW = match; /**
+                           * The `E` suffix (short for **E**ffect) means that the handlers return an effect (`Task`).
+                           *
+                           * @category pattern matching
+                           * @since 2.10.0
+                           */
+export let matchE = /*#__PURE__*/OT.matchE(T.Chain); /**
+                                                     * Alias of [`matchE`](#matche).
+                                                     *
+                                                     * @category pattern matching
+                                                     * @since 2.10.0
+                                                     */
+export let fold = matchE; /**
+                          * Less strict version of [`matchE`](#matche).
+                          *
+                          * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+                          *
+                          * @category pattern matching
+                          * @since 2.10.0
+                          */
+export let matchEW = matchE; /**
+                             * Alias of [`matchEW`](#matchew).
+                             *
+                             * @category pattern matching
+                             * @since 2.10.0
+                             */
+export let foldW = matchEW; /**
+                            * @category error handling
+                            * @since 2.10.0
+                            */
+export let getOrElse = /*#__PURE__*/OT.getOrElse(T.Monad); /**
+                                                           * Less strict version of [`getOrElse`](#getorelse).
+                                                           *
+                                                           * The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+                                                           *
+                                                           * @category error handling
+                                                           * @since 2.10.0
+                                                           */
+export let getOrElseW = getOrElse; /**
+                                   * @category conversions
+                                   * @since 2.10.0
+                                   */
+export let fromNullable = /*#__PURE__*/OT.fromNullable(T.Pointed); /**
+                                                                   * Transforms a `Promise` that may reject to a `Promise` that never rejects and returns an `Option` instead.
+                                                                   *
+                                                                   * See also [`tryCatchK`](#trycatchk).
+                                                                   *
+                                                                   * @category interop
+                                                                   * @since 2.10.0
+                                                                   */
+export let tryCatch = f => async () => {
+  try {
+    return await f().then(_.some);
+  } catch (reason) {
+    return _.none;
+  }
+}; /**
+   * Converts a function returning a `Promise` to one returning a `TaskOption`.
+   *
+   * @category interop
+   * @since 2.10.0
+   */
+export let tryCatchK = f => (...a) => tryCatch(() => f(...a)); /**
+                                                               * @category lifting
+                                                               * @since 2.10.0
+                                                               */
+export let fromNullableK = /*#__PURE__*/OT.fromNullableK(T.Pointed); /**
+                                                                     * @category sequencing
+                                                                     * @since 2.10.0
+                                                                     */
+export let chainNullableK = /*#__PURE__*/OT.chainNullableK(T.Monad); // -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * @category lifting
+ * @since 2.10.0
+ */
+export let fromOptionK = /*#__PURE__*/OT.fromOptionK(T.Pointed); /**
+                                                                 * @category sequencing
+                                                                 * @since 2.10.0
+                                                                 */
+export let chainOptionK = /*#__PURE__*/OT.chainOptionK(T.Monad); /**
+                                                                 * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                                                 * use the type constructor `F` to represent some computational context.
+                                                                 *
+                                                                 * @category mapping
+                                                                 * @since 2.10.0
+                                                                 */
+export let map = /*#__PURE__*/OT.map(T.Functor); /**
+                                                 * @since 2.10.0
+                                                 */
+export let ap = /*#__PURE__*/OT.ap(T.ApplyPar); /**
+                                                * @category constructors
+                                                * @since 2.10.0
+                                                */
+export let of = some; /** @internal */
+let _FromIO = {
+  fromIO
+}; /** @internal */
+let _FromTask = {
+  fromTask
+}; /**
+   * @category sequencing
+   * @since 2.14.0
+   */
+export let flatMap = /*#__PURE__*/dual(2, /*#__PURE__*/OT.flatMap(T.Monad)); /** @internal */
+let _FlatMap = {
+  flatMap
+}; /**
+   * @category sequencing
+   * @since 2.16.0
+   */
+export let flatMapIO = /*#__PURE__*/_.flatMapIO(_FromIO, _FlatMap); /**
+                                                                    * @category sequencing
+                                                                    * @since 2.16.0
+                                                                    */
+export let flatMapTask = /*#__PURE__*/_.flatMapTask(_FromTask, _FlatMap); /**
+                                                                          * @category sequencing
+                                                                          * @since 2.10.0
+                                                                          */
+export let flatten = /*#__PURE__*/flatMap(identity); /**
+                                                     * @category error handling
+                                                     * @since 2.10.0
+                                                     */
+export let alt = /*#__PURE__*/OT.alt(T.Monad); /**
+                                               * Less strict version of [`alt`](#alt).
+                                               *
+                                               * The `W` suffix (short for **W**idening) means that the return types will be merged.
+                                               *
+                                               * @category error handling
+                                               * @since 2.10.0
+                                               */
+export let altW = alt; /**
+                       * @since 2.10.0
+                       */
+export let zero = /*#__PURE__*/OT.zero(T.Pointed); /**
+                                                   * @category constructors
+                                                   * @since 2.10.0
+                                                   */
+export let none = /*#__PURE__*/zero(); /**
+                                       * @category filtering
+                                       * @since 2.10.0
+                                       */
+export let compact = /*#__PURE__*/compact_(T.Functor, O.Compactable); /**
+                                                                      * @category filtering
+                                                                      * @since 2.10.0
+                                                                      */
+export let separate = /*#__PURE__*/separate_(T.Functor, O.Compactable, O.Functor); /**
+                                                                                   * @category filtering
+                                                                                   * @since 2.10.0
+                                                                                   */
+export let filter = /*#__PURE__*/filter_(T.Functor, O.Filterable); /**
+                                                                   * @category filtering
+                                                                   * @since 2.10.0
+                                                                   */
+export let filterMap = /*#__PURE__*/filterMap_(T.Functor, O.Filterable); /**
+                                                                         * @category filtering
+                                                                         * @since 2.10.0
+                                                                         */
+export let partition = /*#__PURE__*/partition_(T.Functor, O.Filterable); /**
+                                                                         * @category filtering
+                                                                         * @since 2.10.0
+                                                                         */
+export let partitionMap = /*#__PURE__*/partitionMap_(T.Functor, O.Filterable); // -------------------------------------------------------------------------------------
+// instances
+// -------------------------------------------------------------------------------------
+let _map = (fa, f) => map(f)(fa);
+let _ap = (fab, fa) => ap(fa)(fab); /* istanbul ignore next */
+let _alt = (fa, that) => alt(that)(fa); /* istanbul ignore next */
+let _filter = (fa, predicate) => filter(predicate)(fa); /* istanbul ignore next */
+let _filterMap = (fa, f) => filterMap(f)(fa); /* istanbul ignore next */
+let _partition = (fa, predicate) => partition(predicate)(fa); /* istanbul ignore next */
+let _partitionMap = (fa, f) => partitionMap(f)(fa); /**
+                                                    * @category type lambdas
+                                                    * @since 2.10.0
+                                                    */
+export let URI = "TaskOption"; /**
+                               * @category instances
+                               * @since 2.10.0
+                               */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * Maps the `Some` value of this `TaskOption` to the specified constant value.
+   *
+   * @category mapping
+   * @since 2.16.0
+   */
+export let as = /*#__PURE__*/dual(2, /*#__PURE__*/as_(Functor)); /**
+                                                                 * Maps the `Some` value of this `TaskOption` to the void constant value.
+                                                                 *
+                                                                 * @category mapping
+                                                                 * @since 2.16.0
+                                                                 */
+export let asUnit = /*#__PURE__*/asUnit_(Functor); /**
+                                                   * @category mapping
+                                                   * @since 2.10.0
+                                                   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * @category instances
+                                               * @since 2.10.0
+                                               */
+export let Pointed = {
+  URI,
+  of
+}; /**
+   * Runs computations in parallel.
+   *
+   * @category instances
+   * @since 2.10.0
+   */
+export let ApplyPar = {
+  URI,
+  map: _map,
+  ap: _ap
+}; /**
+   * Combine two effectful actions, keeping only the result of the first.
+   *
+   * @since 2.10.0
+   */
+export let apFirst = /*#__PURE__*/apFirst_(ApplyPar); /**
+                                                      * Combine two effectful actions, keeping only the result of the second.
+                                                      *
+                                                      * @since 2.10.0
+                                                      */
+export let apSecond = /*#__PURE__*/apSecond_(ApplyPar); /**
+                                                        * Runs computations in parallel.
+                                                        *
+                                                        * @category instances
+                                                        * @since 2.10.0
+                                                        */
+export let ApplicativePar = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of
+};
+let _apSeq = (fab, fa) => flatMap(fab, f => map(f)(fa)); /**
+                                                         * Runs computations sequentially.
+                                                         *
+                                                         * @category instances
+                                                         * @since 2.10.0
+                                                         */
+export let ApplySeq = {
+  URI,
+  map: _map,
+  ap: _apSeq
+}; /**
+   * Runs computations sequentially.
+   *
+   * @category instances
+   * @since 2.10.0
+   */
+export let ApplicativeSeq = {
+  URI,
+  map: _map,
+  ap: _apSeq,
+  of
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Chain = {
+  URI,
+  map: _map,
+  ap: _ap,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let FromEither = {
+  URI,
+  fromEither
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let FromIO = {
+  URI,
+  fromIO
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let FromTask = {
+  URI,
+  fromIO,
+  fromTask
+}; /**
+   * Composes computations in sequence, using the return value of one computation to determine the next computation and
+   * keeping only the result of the first.
+   *
+   * @category combinators
+   * @since 2.15.0
+   */
+export let tap = /*#__PURE__*/dual(2, /*#__PURE__*/chainable.tap(Chain)); /**
+                                                                          * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                          * keeping only the result of the first.
+                                                                          *
+                                                                          * @example
+                                                                          * import { pipe } from 'fp-ts/function'
+                                                                          * import * as TO from 'fp-ts/TaskOption'
+                                                                          * import * as O from 'fp-ts/Option'
+                                                                          * import * as E from 'fp-ts/Either'
+                                                                          *
+                                                                          * const compute = (value: number) => pipe(
+                                                                          *   TO.of(value),
+                                                                          *   TO.tapEither((value) => value > 0 ? E.right('ok') : E.left('error')),
+                                                                          * )
+                                                                          *
+                                                                          * async function test() {
+                                                                          *   assert.deepStrictEqual(await compute(1)(), O.of(1))
+                                                                          *   assert.deepStrictEqual(await compute(-1)(), O.none)
+                                                                          * }
+                                                                          *
+                                                                          * test()
+                                                                          *
+                                                                          * @category combinators
+                                                                          * @since 2.16.0
+                                                                          */
+export let tapEither = /*#__PURE__*/dual(2, /*#__PURE__*/tapEither_(FromEither, Chain)); /**
+                                                                                         * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                                         * keeping only the result of the first.
+                                                                                         *
+                                                                                         * @example
+                                                                                         * import { pipe } from 'fp-ts/function'
+                                                                                         * import * as TO from 'fp-ts/TaskOption'
+                                                                                         * import * as O from 'fp-ts/Option'
+                                                                                         * import * as Console from 'fp-ts/Console'
+                                                                                         *
+                                                                                         *
+                                                                                         * // Will produce `Hello, fp-ts` to the stdout
+                                                                                         * const effectA = TO.tapIO(
+                                                                                         *   TO.of(1),
+                                                                                         *   (value) => Console.log(`Hello, ${value}`)
+                                                                                         * )
+                                                                                         *
+                                                                                         * // No output to the stdout
+                                                                                         * const effectB = pipe(
+                                                                                         *   TO.none as TO.TaskOption<string>,
+                                                                                         *   TO.tapIO((value) => Console.log(`Hello, ${value}`))
+                                                                                         * )
+                                                                                         *
+                                                                                         * async function test() {
+                                                                                         *   assert.deepStrictEqual(await effectA(), O.of(1))
+                                                                                         *   assert.deepStrictEqual(await effectB(), O.none)
+                                                                                         * }
+                                                                                         *
+                                                                                         * test()
+                                                                                         *
+                                                                                         * @category combinators
+                                                                                         * @since 2.16.0
+                                                                                         */
+export let tapIO = /*#__PURE__*/dual(2, /*#__PURE__*/tapIO_(FromIO, Chain)); /**
+                                                                             * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                             * keeping only the result of the first.
+                                                                             *
+                                                                             * @example
+                                                                             * import * as TO from 'fp-ts/TaskOption'
+                                                                             * import * as O from 'fp-ts/Option'
+                                                                             * import * as T from 'fp-ts/Task'
+                                                                             *
+                                                                             * const effect = TO.tapIO(
+                                                                             *   TO.of(1),
+                                                                             *   (value) => T.of(value + 1)
+                                                                             * )
+                                                                             *
+                                                                             * async function test() {
+                                                                             *   assert.deepStrictEqual(await effect(), O.of(1))
+                                                                             * }
+                                                                             *
+                                                                             * test()
+                                                                             *
+                                                                             * @category combinators
+                                                                             * @since 2.16.0
+                                                                             */
+export let tapTask = /*#__PURE__*/dual(2, /*#__PURE__*/tapTask_(FromTask, Chain)); /**
+                                                                                   * @category instances
+                                                                                   * @since 2.10.0
+                                                                                   */
+export let Alt = {
+  URI,
+  map: _map,
+  alt: _alt
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let Zero = {
+  URI,
+  zero
+}; /**
+   * @category do notation
+   * @since 2.11.0
+   */
+export let guard = /*#__PURE__*/guard_(Zero, Pointed); /**
+                                                       * @category instances
+                                                       * @since 2.10.0
+                                                       */
+export let Alternative = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  alt: _alt,
+  zero
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Monad = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let MonadIO = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap,
+  fromIO
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let MonadTask = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap,
+  fromIO,
+  fromTask
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Compactable = {
+  URI,
+  compact,
+  separate
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Filterable = {
+  URI,
+  map: _map,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap
+}; /**
+   * @category lifting
+   * @since 2.10.0
+   */
+export let fromIOK = /*#__PURE__*/fromIOK_(FromIO); /**
+                                                    * Alias of `flatMapIO`.
+                                                    *
+                                                    * @category legacy
+                                                    * @since 2.10.0
+                                                    */
+export let chainIOK = flatMapIO; /**
+                                 * Alias of `tapIO`.
+                                 *
+                                 * @category legacy
+                                 * @since 2.10.0
+                                 */
+export let chainFirstIOK = tapIO; /**
+                                  * @category lifting
+                                  * @since 2.12.0
+                                  */
+export let fromEitherK = /*#__PURE__*/fromEitherK_(FromEither); /**
+                                                                * @category sequencing
+                                                                * @since 2.12.0
+                                                                */
+export let chainEitherK = /*#__PURE__*/chainEitherK_(FromEither, Chain); /**
+                                                                         * Alias of `tapEither`.
+                                                                         *
+                                                                         * @category legacy
+                                                                         * @since 2.12.0
+                                                                         */
+export let chainFirstEitherK = tapEither; /**
+                                          * @category lifting
+                                          * @since 2.10.0
+                                          */
+export let fromTaskK = /*#__PURE__*/fromTaskK_(FromTask); /**
+                                                          * Alias of `flatMapTask`.
+                                                          *
+                                                          * @category legacy
+                                                          * @since 2.10.0
+                                                          */
+export let chainTaskK = flatMapTask; /**
+                                     * Alias of `tapTask`.
+                                     *
+                                     * @category legacy
+                                     * @since 2.10.0
+                                     */
+export let chainFirstTaskK = tapTask; // -------------------------------------------------------------------------------------
+// do notation
+// -------------------------------------------------------------------------------------
+/**
+ * @category do notation
+ * @since 2.10.0
+ */
+export let Do = /*#__PURE__*/of(_.emptyRecord); /**
+                                                * @category do notation
+                                                * @since 2.10.0
+                                                */
+export let bindTo = /*#__PURE__*/bindTo_(Functor);
+let let_ = /*#__PURE__*/let__(Functor);
+export {
+/**
+* @category do notation
+* @since 2.13.0
+*/
+let_ as let }; /**
+               * @category do notation
+               * @since 2.10.0
+               */
+export let bind = /*#__PURE__*/chainable.bind(Chain); /**
+                                                      * @category do notation
+                                                      * @since 2.10.0
+                                                      */
+export let apS = /*#__PURE__*/apS_(ApplyPar); /**
+                                              * @since 2.11.0
+                                              */
+export let ApT = /*#__PURE__*/of(_.emptyReadonlyArray); // -------------------------------------------------------------------------------------
+// array utils
+// -------------------------------------------------------------------------------------
+/**
+ * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(ApplicativePar)`.
+ *
+ * @category traversing
+ * @since 2.11.0
+ */
+export let traverseReadonlyNonEmptyArrayWithIndex = f => flow(T.traverseReadonlyNonEmptyArrayWithIndex(f), T.map(O.traverseReadonlyNonEmptyArrayWithIndex(SK))); /**
+                                                                                                                                                                 * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativePar)`.
+                                                                                                                                                                 *
+                                                                                                                                                                 * @category traversing
+                                                                                                                                                                 * @since 2.11.0
+                                                                                                                                                                 */
+export let traverseReadonlyArrayWithIndex = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndex(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(ApplicativeSeq)`.
+   *
+   * @category traversing
+   * @since 2.11.0
+   */
+export let traverseReadonlyNonEmptyArrayWithIndexSeq = f => as => () => _.tail(as).reduce((acc, a, i) => acc.then(obs => _.isNone(obs) ? acc : f(i + 1, a)().then(ob => {
+  if (_.isNone(ob)) {
+    return ob;
+  }
+  obs.value.push(ob.value);
+  return obs;
+})), f(0, _.head(as))().then(O.map(_.singleton))); /**
+                                                   * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativeSeq)`.
+                                                   *
+                                                   * @category traversing
+                                                   * @since 2.11.0
+                                                   */
+export let traverseReadonlyArrayWithIndexSeq = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndexSeq(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+   *
+   * @category traversing
+   * @since 2.10.0
+   */
+export let traverseArrayWithIndex = traverseReadonlyArrayWithIndex; /**
+                                                                    * Equivalent to `ReadonlyArray#traverse(Applicative)`.
+                                                                    *
+                                                                    * @category traversing
+                                                                    * @since 2.10.0
+                                                                    */
+export let traverseArray = f => traverseReadonlyArrayWithIndex((_, a) => f(a)); /**
+                                                                                * Equivalent to `ReadonlyArray#sequence(Applicative)`.
+                                                                                *
+                                                                                * @category traversing
+                                                                                * @since 2.10.0
+                                                                                */
+export let sequenceArray = /*#__PURE__*/traverseArray(identity); /**
+                                                                 * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativeSeq)`.
+                                                                 *
+                                                                 * @category traversing
+                                                                 * @since 2.10.0
+                                                                 */
+export let traverseSeqArrayWithIndex = traverseReadonlyArrayWithIndexSeq; /**
+                                                                          * Equivalent to `ReadonlyArray#traverse(ApplicativeSeq)`.
+                                                                          *
+                                                                          * @category traversing
+                                                                          * @since 2.10.0
+                                                                          */
+export let traverseSeqArray = f => traverseReadonlyArrayWithIndexSeq((_, a) => f(a)); /**
+                                                                                      * Equivalent to `ReadonlyArray#sequence(ApplicativeSeq)`.
+                                                                                      *
+                                                                                      * @category traversing
+                                                                                      * @since 2.10.0
+                                                                                      */
+export let sequenceSeqArray = /*#__PURE__*/traverseSeqArray(identity); // -------------------------------------------------------------------------------------
+// legacy
+// -------------------------------------------------------------------------------------
+/**
+ * Alias of `flatMap`.
+ *
+ * @category legacy
+ * @since 2.10.0
+ */
+export let chain = flatMap; /**
+                            * Alias of `tap`.
+                            *
+                            * @category legacy
+                            * @since 2.10.0
+                            */
+export let chainFirst = tap;
+//# sourceMappingURL=TaskOption.js.map

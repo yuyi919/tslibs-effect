@@ -1,0 +1,249 @@
+// /* eslint-disable no-bitwise */
+// /**
+//  * @since 0.6.0
+//  */
+// import * as O from "fp-ts/Option"
+
+// export interface InputSeq<T> extends RelativeIndexable<T> {
+//   [key: number]: T
+//   readonly length: number
+// }
+
+// export const str2seq = (arr: string | readonly string[]): InputSeq<string> =>
+//   typeof arr === "string" ? arr : arr.join("") // [0];
+// export const seq2str = (arr: InputSeq<string>): string =>
+//   arr instanceof Array ? arr.join("") : (arr as string) // [0];
+
+// // -------------------------------------------------------------------------------------
+// // model
+// // -------------------------------------------------------------------------------------
+
+// /**
+//  * @category model
+//  * @since 0.6.0
+//  */
+// export interface Stream<A> {
+//   // readonly buffer: InputSeq<A>;
+//   // readonly cursor: number;
+//   _A?: IStream<A>
+// }
+
+// /**
+//  * @category model
+//  * @since 0.6.0
+//  */
+// export interface IStream<A> extends Stream<A> {
+//   readonly id?: number
+//   readonly buffer: InputSeq<A>
+//   readonly cursor: number
+// }
+
+// export class StreamImpl<A> {
+//   constructor(public _id: number) {}
+
+//   get buffer(): InputSeq<A> {
+//     return BUFFERS_MAP[buffers[this._id]!]!
+//   }
+
+//   get cursor() {
+//     return cursors[this._id]
+//   }
+// }
+
+// declare global {
+//   interface ArrayBufferConstructor {
+//     new (byteLength: number, options?: any): ArrayBuffer
+//   }
+//   interface ArrayBuffer {
+//     resizable?: boolean
+//     // @ts-ignore
+//     resize?(num: number): any
+//   }
+//   interface SharedArrayBuffer {
+//     resizable?: boolean
+//     // @ts-ignore
+//     resize?(num: number): any
+//   }
+// }
+
+// const curBuf = new ArrayBuffer(Int32Array.BYTES_PER_ELEMENT * 1e4, {
+//   maxByteLength: Int32Array.BYTES_PER_ELEMENT * 2e6,
+// })
+
+// let cursors = new Int32Array(curBuf)
+// const ff = new ArrayBuffer(Int32Array.BYTES_PER_ELEMENT * 1e4, {
+//   maxByteLength: Int32Array.BYTES_PER_ELEMENT * 2e6,
+// })
+// let buffers = new Int32Array(ff)
+// const BUFFERS_MAP: InputSeq<any>[] = []
+// let id = 0
+// const grow = (buf: Int32Array, len: number) => {
+//   if (buf.buffer.resizable) {
+//     buf.buffer.resize!(len * Int32Array.BYTES_PER_ELEMENT)
+//     return buf
+//   }
+//   const r = new Int32Array(len)
+//   r.set(buf, 0)
+//   return r
+// }
+// const create = <A>(buffer: InputSeq<A>, initCursor: number) => {
+//   const i = id++
+//   if (id === cursors.length) {
+//     buffers = grow(buffers, i * 10)
+//     cursors = grow(cursors, i * 10)
+//   }
+//   if (!BUFFERS_MAP.includes(buffer)) {
+//     buffers[i] = BUFFERS_MAP.length
+//     BUFFERS_MAP.push(buffer)
+//   } else {
+//     buffers[i] = BUFFERS_MAP.indexOf(buffer)
+//   }
+//   cursors[i] = initCursor
+//   return fromId<A>(i)
+// }
+// const extend = <A>(buf: number, cursor: number) => {
+//   const i = id++
+//   if (i === cursors.length) {
+//     buffers = grow(buffers, i * 10)
+//     cursors = grow(cursors, i * 10)
+//   }
+//   cursors[i] = cursor
+//   buffers[i] = buffers[buf]!
+//   return fromId<A>(i)
+// }
+
+// export const getStruct = <A>(stream: Stream<A>): NonNullable<IStream<A>> => ({
+//   // get id() {
+//   //   return toId(stream);
+//   // },
+//   buffer: getBuffer(stream),
+//   cursor: getCursor(stream),
+// })
+
+// export const toId = (stream: Stream<any>): number => stream as number
+// export const fromId = <A>(stream: number): Stream<A> => stream as any
+
+// export const plusplusCursor = <A>(
+//   stream: Stream<A>,
+//   cursor: number,
+// ): Stream<A> => ((cursors[stream as number] += cursor), stream) // stream.cursor;
+// export const getCursor = <I>(stream: Stream<I>): number =>
+//   typeof stream === "number"
+//     ? cursors[stream as number]
+//     : (stream as any).cursor // stream.cursor;
+// export const getBuffer = <A>(stream: Stream<A>): InputSeq<A> =>
+//   typeof stream === "number"
+//     ? BUFFERS_MAP[buffers[stream as number]!]
+//     : (stream as any).buffer // stream.buffer;
+// export const getBufferLength = <A>(stream: Stream<A>): number =>
+//   typeof stream === "number"
+//     ? BUFFERS_MAP[buffers[stream as number]!]!.length
+//     : (stream as any).buffer.length // stream.buffer;
+
+// // -------------------------------------------------------------------------------------
+// // constructors
+// // -------------------------------------------------------------------------------------
+
+// /**
+//  * @category constructors
+//  * @since 0.6.0
+//  */
+// export const stream: <A>(buffer: InputSeq<A>, cursor?: number) => Stream<A> = (
+//   buffer,
+//   cursor = 0,
+// ) => create(buffer, cursor)
+// // ({
+// //   buffer,
+// //   cursor,
+// // });
+
+// export const consume = <A>(i: Stream<A>, length: number): Stream<A> =>
+//   // plusplusCursor(i, length);
+//   extend(toId(i), getCursor(i) + length)
+
+// /**
+//  * 新增
+//  * @param str
+//  * @param cursor
+//  * @returns
+//  */
+// export const fromString = (str: string, cursor?: number) =>
+//   stream(str as any as string[], cursor)
+
+// /**
+//  * 新增
+//  * @param str
+//  * @param cursor
+//  * @returns
+//  */
+// export const from = (str: string | string[], cursor?: number) =>
+//   typeof str === "string"
+//     ? fromString(str, cursor)
+//     : stream(
+//         (str.length === 1 ? str[0] : str.join("")) as any as string[],
+//         cursor,
+//       )
+
+// // -------------------------------------------------------------------------------------
+// // destructors
+// // -------------------------------------------------------------------------------------
+
+// const _cursor = {
+//   _tag: "Some",
+//   value: undefined as any,
+// }
+
+// /**
+//  * @category destructors
+//  * @since 0.6.0
+//  */
+// export const get: <A>(s: Stream<A>) => O.Option<A> = (s) => {
+//   const cursor = cursors[s as number]! | 0
+//   const buf = BUFFERS_MAP[buffers[s as number]!]!
+//   if (cursor >= buf.length) return O.none
+//   _cursor.value = buf[cursor]
+//   return _cursor as O.Option<any>
+// }
+// // lookup(getCursor(s),
+// // O.fromNullable(getBuffer(s)[getCursor(s)]);
+// // );
+
+// /**
+//  * @category destructors
+//  * @since 0.6.0
+//  */
+// export const getAndNext: <A>(
+//   s: Stream<A>,
+// ) => O.Option<{ value: A; next: Stream<A> }> = (s) => {
+//   const cursor = cursors[s as number]! | 0
+//   const buf = BUFFERS_MAP[buffers[s as number]!]!
+//   if (cursor >= buf.length) return O.none
+//   _cursor.value = {
+//     value: buf[cursor],
+//     next: consume(s, 1),
+//   }
+//   return _cursor as O.Option<any>
+// }
+
+// /**
+//  * @category destructors
+//  * @since 0.6.0
+//  */
+// export const atEnd: <A>(s: Stream<A>) => boolean = (s) =>
+//   getCursor(s) >= getBufferLength(s)
+
+// // -------------------------------------------------------------------------------------
+// // instances
+// // -------------------------------------------------------------------------------------
+
+// // /**
+// //  * @category instances
+// //  * @since 0.6.0
+// //  */
+// // export const getEq: <A>(E: Eq<A>) => Eq<Stream<A>> = (E) => {
+// //   const EA = getArrayEq(E);
+// //   return fromEquals(
+// //     (x, y) =>
+// //       getCursor(x) === getCursor(y) && EA.equals(getBuffer(x), getBuffer(y)),
+// //   );
+// // };

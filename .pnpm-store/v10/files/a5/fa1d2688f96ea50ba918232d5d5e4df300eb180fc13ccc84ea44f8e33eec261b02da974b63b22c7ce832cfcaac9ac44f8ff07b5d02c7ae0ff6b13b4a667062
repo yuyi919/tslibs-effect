@@ -1,0 +1,1 @@
+{"version":3,"file":"char.js","names":[],"sources":["../../../src/internal/Parser/parser/char.js"],"sourcesContent":["export * from \"./parser-ts/char.js\";\n"],"mappings":"AAAA,cAAc,qBAAqB","ignoreList":[]}

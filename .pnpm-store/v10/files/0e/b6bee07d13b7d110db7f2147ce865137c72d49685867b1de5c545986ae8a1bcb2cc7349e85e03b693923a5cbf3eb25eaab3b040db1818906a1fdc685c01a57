@@ -1,0 +1,163 @@
+/* eslint-disable class-methods-use-this */
+import * as MFoldableWithIndex from "fp-ts/FoldableWithIndex"
+import * as pipeable from "fp-ts/pipeable"
+import { Predicate } from "fp-ts/Predicate"
+
+import { isArr, isStr } from "@yuyi919/shared-proto/JsTypes"
+
+declare module "fp-ts/HKT" {
+  interface URItoKind<A> {
+    [URI]: SeqLike<A>
+  }
+}
+
+export interface SeqLike<T> extends RelativeIndexable<T> {
+  [key: number]: T
+  readonly length: number
+}
+
+export const URI = "SeqLike"
+export type URI = typeof URI
+
+export const from = <A>(input: A | SeqLike<A>): SeqLike<A> =>
+  isStr(input)
+    ? (input as SeqLike<A>)
+    : isArr(input)
+      ? input.length > 0 && isStr(input[0])
+        ? ((input.length === 1 ? input[0] : input.join("")) as any)
+        : (input as any[])
+      : [input as A]
+
+export type Foldable = MFoldableWithIndex.FoldableWithIndex1<URI, number>
+
+export const reduceF: Foldable["reduce"] = (fa, b, f) => {
+  let r = b
+  for (let i = 0; i < fa.length; ++i) r = f(r, fa[i]!)
+  return r
+}
+
+export const foldMapF: Foldable["foldMap"] = (M) => (fa, f) => {
+  let { empty: r } = M
+  for (let i = 0; i < fa.length; ++i) r = M.concat(r, f(fa[i]!))
+  return r
+}
+
+export const reduceRightF: Foldable["reduceRight"] = (fa, b, f) => {
+  let r = b
+  for (let i = 0; i < fa.length; ++i) r = f(fa[i]!, r)
+  return r
+}
+
+export const reduceWithIndexF: Foldable["reduceWithIndex"] = (fa, b, f) => {
+  let r = b
+  for (let i = 0; i < fa.length; ++i) r = f(i, r, fa[i]!)
+  return r
+}
+
+export const foldMapWithIndexF: Foldable["foldMapWithIndex"] =
+  (M) => (fa, f) => {
+    const { concat } = M
+    let { empty: r } = M
+    for (let i = 0; i < fa.length; ++i) r = concat(r, f(i, fa[i]!))
+    return r
+  }
+
+export const reduceRightWithIndexF: Foldable["reduceRightWithIndex"] = (
+  fa,
+  b,
+  f,
+) => {
+  let r = b
+  for (let i = 0; i < fa.length; ++i) r = f(i, fa[i]!, r)
+  return r
+}
+
+export const Foldable: Foldable = {
+  URI,
+  reduce: reduceF,
+  foldMap: foldMapF,
+  reduceRight: reduceRightF,
+  reduceWithIndex: reduceWithIndexF,
+  foldMapWithIndex: foldMapWithIndexF,
+  reduceRightWithIndex: reduceRightWithIndexF,
+}
+
+export const reduce = pipeable.reduce(Foldable)
+export const reduceWithIndex = pipeable.reduceWithIndex(Foldable)
+export const foldMap = pipeable.foldMap(Foldable)
+export const foldMapWithIndex = pipeable.foldMapWithIndex(Foldable)
+export const reduceRight = pipeable.reduceRight(Foldable)
+export const reduceRightWithIndex = pipeable.reduceRightWithIndex(Foldable)
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const testNext: <A>(
+  buffer: SeqLike<A>,
+  match: SeqLike<A>,
+  cursor: number,
+) => boolean = (buffer, match, cursor) => {
+  if (typeof buffer === "string")
+    return testNextStr(buffer, match as SeqLike<string>, cursor)
+  if (cursor < buffer.length && match.length <= buffer.length) {
+    if (match.length === 0) return true
+    if (match.length === 1) return match[0] === buffer[cursor]
+    for (let i = 0; i < match.length; ++i)
+      if (match[i] !== buffer[cursor + i]) return false
+    return true
+  }
+  return false
+}
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const takeUntil: <A>(
+  buffer: SeqLike<A>,
+  predicate: Predicate<A>,
+  cursor: number,
+) => number = (buffer, predicate, cursor) => {
+  if (cursor < buffer.length) {
+    let i = cursor
+    for (; i < buffer.length; ++i) if (!predicate(buffer[i]!)) return i
+  }
+  return cursor
+}
+
+export const isStringSeq = (a: unknown): a is SeqLike<string> =>
+  typeof a === "string"
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const testNextStr: (
+  buffer: SeqLike<string>,
+  match: SeqLike<string>,
+  cursor: number,
+) => boolean = (buffer, match, cursor) => {
+  if (cursor < buffer.length && match.length <= buffer.length) {
+    return match.length === 0
+      ? true
+      : match.length === 1
+        ? match === buffer[cursor]
+        : toStr(buffer).startsWith(toStr(match), cursor)
+  }
+  return false
+}
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const matchNextStr: (
+  buffer: SeqLike<string>,
+  match: SeqLike<string>,
+  cursor: number,
+) => SeqLike<string> = (buffer, match, cursor) =>
+  testNextStr(buffer, match, cursor) ? match : ""
+
+export const toStr = (seq: SeqLike<string>) =>
+  typeof seq === "string" ? seq : (seq as string[]).join("")

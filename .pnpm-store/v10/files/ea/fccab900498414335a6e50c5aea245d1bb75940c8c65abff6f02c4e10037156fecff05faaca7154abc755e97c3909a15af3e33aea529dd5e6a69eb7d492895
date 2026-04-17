@@ -1,0 +1,1046 @@
+import type * as Types from "@yuyi919/shared-proto/Types"
+
+import type { LengthLike } from "./function"
+import { forEach } from "./Array"
+import { curry, len } from "./function/core"
+import {
+  __KEY_ARGUMENTS,
+  __KEY_ARR,
+  __KEY_BIGINT,
+  __KEY_BOOL,
+  __KEY_FUNC,
+  __KEY_NULL,
+  __KEY_NUM,
+  __KEY_OBJ,
+  __KEY_STR,
+  __KEY_SYMBOL,
+  __KEY_UNDEFINED,
+  __NAME_ARGUMENTS,
+  __NAME_ARRAYBUFFER,
+  __NAME_DATAVIEW,
+  __NAME_DATE,
+  __NAME_ERROR,
+  __NAME_MAP,
+  __NAME_REGEXP,
+  __NAME_SET,
+  __NAME_WEAKMAP,
+  __NAME_WEAKREF,
+  __NAME_WEAKSET,
+  __OBJECTTAG_OBJECT,
+  _makeObjTag,
+  ARRAYBUFFER,
+  BOOLEAN,
+  DATE,
+  ERROR,
+  IS_ARR,
+  NULL,
+  NUMBER,
+  OBJ_KEYS,
+  OBJECT_IS,
+  OBJECT_PROPOTYPE,
+  PROMISE,
+  REGEXP,
+  STRING,
+  UNDEFINED,
+} from "./internal/constant"
+import * as helper from "./internal/helper"
+import { _typeof, isTypeof, makeTypeof } from "./internal/helper"
+import { _hasOwnKey, invert } from "./internal/object"
+import { getPrototypeOf } from "./internal/proto"
+import { JsObject, JsPropertyKey } from "./JsObject"
+import { Predicate, Refinement } from "./Types"
+
+export { _typeof, isTypeof, makeTypeof }
+
+/** @internal */
+export const IS_TRUE: true = true
+
+/** @internal */
+export const IS_FALSE: false = false
+
+/**
+ * @internal
+ */
+export function EQEQ<T>(value: unknown, target: unknown): target is T {
+  return value == target
+}
+
+/**
+ * @internal
+ */
+export function EQEQEQ<T>(value: unknown, target: T): target is T {
+  return value === target
+}
+
+/**
+ * @internal
+ */
+export function makeEqEq<T>(value: T): (value: unknown) => value is T {
+  return curry(EQEQ)(value) as (value: unknown) => value is T
+}
+/**
+ * @internal
+ */
+export function makeEqEqEq<T>(value: T): (value: unknown) => value is T {
+  return curry(EQEQEQ)(value) as (value: unknown) => value is T
+}
+
+const types: (ReturnType<typeof helper._typeof> | "array" | "arguments")[] = [
+  __KEY_BOOL,
+  __KEY_NUM,
+  __KEY_STR,
+  __KEY_FUNC,
+  __KEY_ARR,
+  __KEY_OBJ,
+  __KEY_SYMBOL,
+  __KEY_ARGUMENTS,
+]
+
+/**
+ * UNSAFE
+ * @internal
+ */
+export function _instanceof<T>(
+  value: unknown,
+  constructor: abstract new (...args: any[]) => T,
+): value is T {
+  return (value instanceof constructor) as boolean
+}
+
+/**
+ * @public
+ */
+export function isInstanceof<T>(
+  value: unknown,
+  constructor: abstract new (...args: any[]) => T,
+): value is T {
+  return (!!value && _instanceof(value, constructor)) as boolean
+}
+
+/**
+ * @public
+ */
+export function makeInstanceof<T>(
+  constructor: abstract new (...args: any[]) => T,
+) {
+  return (value: unknown): value is T => isInstanceof(value, constructor)
+}
+
+export type ObjectTag<Name extends string = string> = `[object ${Name}]`
+
+const TYPES: readonly [
+  "Map",
+  "Set",
+  "WeakSet",
+  "WeakMap",
+  "WeakRef",
+  "Date",
+  "RegExp",
+  "Error",
+  "ArrayBuffer",
+  "DataView",
+] = [
+  __NAME_MAP,
+  __NAME_SET,
+  __NAME_WEAKSET,
+  __NAME_WEAKMAP,
+  __NAME_WEAKREF,
+  __NAME_DATE,
+  __NAME_REGEXP,
+  __NAME_ERROR,
+  __NAME_ARRAYBUFFER,
+  __NAME_DATAVIEW,
+] as const
+
+/** @internal */
+export const OBJECTTAG_Module: "[object Module]" = _makeObjTag("Module")
+/** @internal */
+export const OBJECTTAG_Arguments: "[object Arguments]" =
+  _makeObjTag(__NAME_ARGUMENTS)
+
+/**
+ * @public
+ */
+export type BuiltinTypes =
+  | (typeof types)[number]
+  | (typeof TYPES)[number]
+  | "null"
+  | "NaN"
+  | "TypedArray"
+  | "undefined"
+  | "bigint"
+
+/** @internal */
+export const tag2Type = /* @__PURE__ */ (() => {
+  const class2type = {} as Record<ObjectTag, BuiltinTypes>
+  forEach(
+    types,
+    (type) =>
+      (class2type[_makeObjTag(type[0]!.toUpperCase() + type.slice(1))] = type),
+  )
+  forEach(TYPES, (type) => (class2type[_makeObjTag(type)] = type))
+  return class2type
+})() as {
+  "[object ArrayBuffer]": "ArrayBuffer"
+  "[object Array]": "array"
+  "[object Boolean]": "boolean"
+  "[object DataView]": "DataView"
+  "[object Date]": "Date"
+  "[object Error]": "Error"
+  "[object Function]": "function"
+  "[object Number]": "number"
+  "[object Object]": "object"
+  "[object Set]": "Set"
+  "[object Map]": "Map"
+  "[object RegExp]": "RegExp"
+  "[object String]": "string"
+  "[object Symbol]": "symbol"
+  "[object Arguments]": "arguments"
+  "[object WeakMap]": "WeakMap"
+  "[object WeakSet]": "WeakSet"
+  "[object WeakRef]": "WeakRef"
+  [k: ObjectTag]: BuiltinTypes
+}
+
+export const type2Tag: Types.ReverseKV<{
+  "[object ArrayBuffer]": "ArrayBuffer"
+  "[object Array]": "array"
+  "[object Boolean]": "boolean"
+  "[object DataView]": "DataView"
+  "[object Date]": "Date"
+  "[object Error]": "Error"
+  "[object Function]": "function"
+  "[object Number]": "number"
+  "[object Object]": "object"
+  "[object Set]": "Set"
+  "[object Map]": "Map"
+  "[object RegExp]": "RegExp"
+  "[object String]": "string"
+  "[object Symbol]": "symbol"
+  "[object Arguments]": "arguments"
+  "[object WeakMap]": "WeakMap"
+  "[object WeakSet]": "WeakSet"
+  "[object WeakRef]": "WeakRef"
+}> = invert(tag2Type)
+
+/**
+ *
+ * @param value -
+ * @beta
+ */
+export function getType(value: any): BuiltinTypes | Types.DynamicString {
+  if (value === NULL) return __KEY_NULL
+  if (value === UNDEFINED) return __KEY_UNDEFINED
+  const typeofT = typeof value
+  if (typeofT === __KEY_NUM && value !== value) return "NaN"
+
+  const isObject = typeofT === __KEY_OBJ
+  const isFn = typeofT === __KEY_FUNC
+  return isObject || isFn ? getObjectType(value) : typeofT
+}
+
+export function getObjectType(value: object): BuiltinTypes {
+  const type = _toStringTag(value)
+  return tag2Type[type] ?? (type.endsWith("Array]") ? TYPED_ARRAY : __KEY_OBJ)
+}
+
+const _toStringTag = ((value: any) =>
+  OBJECT_PROPOTYPE.toString.call(value)) as (value?: any) => ObjectTag
+
+/**
+ *
+ * @param value -
+ * @beta
+ */
+export function getTypeTag(value: unknown): ObjectTag {
+  return _toStringTag(value)
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isPrimitive(value: any): value is Types.Primitive {
+  let type: string
+  return (
+    isNil(value) ||
+    ((type = _typeof(value)) !== __KEY_OBJ && type !== __KEY_FUNC)
+  )
+}
+
+/**
+ *
+ * @public
+ */
+export function isArr<const T extends {}>(
+  value: T,
+): value is Extract<T, unknown[]>
+export function isArr<T>(value: unknown): value is T[]
+export function isArr(value: unknown) {
+  return IS_ARR(value)
+}
+
+export const TYPED_ARRAY: "TypedArray" = "TypedArray"
+/**
+ *
+ * @public
+ */
+export function isArrLike<const T extends {}>(
+  value: T,
+): value is Extract<T, readonly unknown[]>
+export function isArrLike<T>(value: unknown): value is readonly T[]
+export function isArrLike(value: unknown) {
+  return isArr(value) || getType(value) === TYPED_ARRAY
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isNum(value: any): value is number {
+  return helper.isTypeof(value, __KEY_NUM) && value === value
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isUnsafeNum(value: any): value is number {
+  return makeTypeof(__KEY_NUM)(value)
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function instanceOfNumber(value: any): value is Number {
+  return makeInstanceof(NUMBER)(value)
+}
+
+/**
+ * @alias
+ * ```ts
+ * typeof target === 'object'
+ * ```
+ * @param target -
+ * @public
+ */
+export function isObj<T extends JsObject | (JsObject & unknown[])>(
+  target: any,
+): target is T
+export function isObj(value: any): value is object | any[] {
+  return value !== NULL && typeof value === __KEY_OBJ
+}
+
+/**
+ * Tests if a value is an `object`.
+ *
+ * @param value - The value to test.
+ *
+ * @example
+ * import { isObject } from "effect/Predicate"
+ *
+ * assert.deepStrictEqual(isObject({}), true)
+ * assert.deepStrictEqual(isObject([]), true)
+ *
+ * assert.deepStrictEqual(isObject(null), false)
+ * assert.deepStrictEqual(isObject(undefined), false)
+ *
+ * @category guards
+ * @since 2.0.0
+ */
+export function isRecord(value: unknown): value is JsObject<any> {
+  return isObj(value) && !isArr(value)
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isStr(value: unknown): value is string {
+  return helper.isStr(value)
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isStrOrNum(value: unknown): value is string {
+  return helper.makeTypeof2(__KEY_STR, __KEY_NUM)(value)
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ * @returns {boolean} - True if the value is a [Non-Empty] string, otherwise false.
+ */
+export function isNEStr(value: unknown): value is string {
+  return !!value && helper.isStr(value)
+}
+
+/**
+ * {@inheritDoc (isObj:1)}
+ * @public
+ */
+export function isJsObject(value: unknown): value is object
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isJsObject<T extends object>(value: unknown): value is T
+export function isJsObject(value: any): value is object {
+  return getType(value) === __KEY_OBJ
+}
+
+/**
+ * Checks if a given value is a plain object.
+ *
+ * @param {object} object - The value to check.
+ * @returns {boolean} - True if the value is a plain object, otherwise false.
+ *
+ * @example
+ * console.log(isPlainObject({})); // true
+ * console.log(isPlainObject([])); // false
+ * console.log(isPlainObject(null)); // false
+ * console.log(isPlainObject(Object.create(null))); // true
+ * console.log(isPlainObject(Buffer.from('hello, world'))); // false
+ */
+export function isPlainObject(object: any): object is object {
+  return (
+    isObj(object) &&
+    (getPrototypeOf(object) === NULL ||
+      (toString(object) === __OBJECTTAG_OBJECT && _isPlainObject(object)))
+  )
+}
+
+export function _isPlainObject(object: {}): object is object {
+  let proto = object
+  while (getPrototypeOf(proto) !== null) proto = getPrototypeOf(proto)
+  return getPrototypeOf(object) === proto
+}
+
+/**
+ * Checks if the given value is boolean.
+ *
+ * This function tests whether the provided value is strictly `boolean`.
+ * It returns `true` if the value is `boolean`, and `false` otherwise.
+ *
+ * This function can also serve as a type predicate in TypeScript, narrowing the type of the argument to `boolean`.
+ *
+ * @param value - The Value to test if it is boolean.
+ * @returns True if the value is boolean, false otherwise.
+ * @example
+ * expect(isBool(true)).toBe(true)
+ * expect(isBool(0)).toBe(false)
+ * expect(isBool('abc')).toBe(false)
+ *
+ */
+export function isBool(value: unknown): value is boolean {
+  return helper.makeTypeof(__KEY_BOOL)(value)
+}
+
+export function isFn<F extends (...args: any[]) => any>(value: F): value is F
+export function isFn<F extends (...args: any[]) => any>(value: any): value is F
+export function isFn<F extends (...args: any[]) => any>(
+  value: any,
+): value is F {
+  return helper.isFn(value)
+}
+
+export function isZero(value: number): value is 0 {
+  return value === 0
+}
+
+export function lengthIsZero(
+  value: LengthLike,
+): value is { readonly length: 0 } {
+  return 0 === len(value)
+}
+
+export function hasNotKeys(value: {}): value is {} {
+  return lengthIsZero(OBJ_KEYS(value as {}))
+}
+
+export function isStringEmpty(value: string): value is string {
+  return lengthIsZero((value as string).trim())
+}
+
+export function isEmptyArray(value: any[]): boolean {
+  return lengthIsZero(value as any[])
+}
+
+/**
+ * @internal
+ */
+export const isEmptyMapper: {
+  object: typeof hasNotKeys
+  array: typeof lengthIsZero
+  string: typeof isStringEmpty
+  number: typeof isZero
+} = {
+  [__KEY_OBJ]: hasNotKeys,
+  [__KEY_ARR]: lengthIsZero,
+  [__KEY_STR]: isStringEmpty,
+  [__KEY_NUM]: isZero,
+}
+
+/**
+ *
+ * @param value -
+ * @public
+ */
+export function isEmpty(value: unknown): boolean {
+  return isNil(value)
+    ? IS_TRUE
+    : (isEmptyMapper[getType(value) as keyof typeof isEmptyMapper]?.(
+        value as never,
+      ) ?? IS_FALSE)
+}
+
+/**
+ * Checks if a given value is null or undefined.
+ *
+ * This function tests whether the provided value is either `null` or `undefined`.
+ * @param x - The value to test for null or undefined.
+ * @example
+ * expect(isUndef(undefined)).toBe(true)
+ * expect(isUndef(null)).toBe(true)
+ * expect(isUndef(0)).toBe(false)
+ * @public
+ */
+export function isNil(input: unknown): input is null | undefined {
+  return input == NULL
+}
+
+/**
+ * A guard that succeeds when the input is not `null` or `undefined`.
+ *
+ * @param input - The value to test.
+ * @example
+ * expect(isNotNil({})).toBe(true)
+ * expect(isNotNil([])).toBe(true)
+ * expect(isNotNil(0)).toBe(true)
+ *
+ * expect(isNotNil(null)).toBe(false)
+ * expect(isNotNil(undefined)).toBe(false)
+ * @category guards
+ * @public
+ * @since 2.0.0
+ */
+export function isNotNil<A>(input: A): input is NonNullable<A> {
+  return input != NULL
+}
+
+/**
+ * Checks if the given value is undefined.
+ *
+ * This function tests whether the provided value is strictly equal to `undefined`.
+ * @param value - The value to test
+ * @returns true if the value is undefined, false otherwise
+ *
+ * @example
+ * expect(isUndef(undefined)).toBe(true)
+ * expect(isUndef(null)).toBe(false)
+ * expect(isUndef(0)).toBe(false)
+ * @category guards
+ */
+export function isUndef(value: unknown): value is undefined {
+  return value === UNDEFINED
+}
+/**
+ * Checks if the given value is null.
+ *
+ * This function tests whether the provided value is strictly equal to `null`.
+ * @param value - The value to test if it is null.
+ * @example
+ * expect(isNull(null)).toBe(true)
+ * expect(isNull(undefined)).toBe(false)
+ * expect(isNull(0)).toBe(false)
+ * @public
+ */
+export function isNull(input: unknown): input is null {
+  return NULL === input
+}
+
+/**
+ * Checks if `value` is a `NaN`
+ * @public
+ * @example
+ * expect(isNaN(NaN).toBe(true)
+ * expect(globalThis.isNaN(NaN).toBe(true)
+ * expect(isNaN({}).toBe(false)
+ * expect(globalThis.isNaN({}).toBe(true)
+ * expect(isNaN(undefined).toBe(false)
+ * expect(globalThis.isNaN(undefined)).toBe(true)
+ */
+export function isNaN(value: number): boolean
+export function isNaN<T>(value: T): value is Extract<T, number>
+export function isNaN(value: unknown): value is number {
+  return value !== value
+}
+
+/**
+ * {@link Number.isFinite}
+ */
+export function isFinite(value: number): boolean
+export function isFinite<T>(value: T): value is Extract<T, number>
+export function isFinite(value: unknown): value is number {
+  return NUMBER.isFinite(value)
+}
+
+/**
+ * {@link Number.isInteger}
+ */
+export function isInteger(value: number): boolean
+export function isInteger<T>(value: T): value is Extract<T, number>
+export function isInteger(value: unknown): value is number {
+  return NUMBER.isInteger(value)
+}
+
+/**
+ * {@link Number.isSafeInteger}
+ */
+export function isSafeInteger(value: unknown): value is number {
+  return NUMBER.isSafeInteger(value)
+}
+
+/**
+ * Checks if `value` is a `Symbol("...")`
+ * @public
+ */
+export function isSymbol(value: unknown): value is symbol {
+  return helper.makeTypeof(__KEY_SYMBOL)(value)
+}
+
+/**
+ * Checks if `value` is a `BigInt`
+ * @public
+ */
+export function isBigInt(value: unknown): value is bigint {
+  return helper.makeTypeof(__KEY_BIGINT)(value)
+}
+
+/**
+ * Checks if `value` is a `RegExp`
+ * @public
+ */
+export function isRegExp(value: unknown): value is RegExp {
+  return makeInstanceof(REGEXP)(value)
+}
+
+/**
+ * Checks if `value` is a `Date`
+ * @public
+ */
+export function isDate(value: unknown): value is Date {
+  return makeInstanceof(DATE)(value)
+}
+
+/**
+ * Checks if `value` is a `Promise`
+ * @public
+ */
+export function isPromise<T = unknown>(
+  value: PromiseLike<T>,
+): value is Promise<T>
+/**
+ * {@inheritDoc isPromise}
+ */
+export function isPromise<T = unknown>(value: unknown): value is Promise<T>
+export function isPromise<T = unknown>(value: unknown): value is Promise<T> {
+  return makeInstanceof(PROMISE)(value)
+}
+
+/**
+ * Checks if `value` is a `PromiseLike`
+ * @public
+ */
+export function isThenable<T>(value: any): value is PromiseLike<T> {
+  return (
+    isPromise(value) ||
+    (!!value &&
+      (typeof value === __KEY_OBJ || typeof value === __KEY_FUNC) &&
+      isFn(value.then))
+  )
+}
+
+/**
+ * Checks if `value` is a `IArguments`
+ * @public
+ */
+export function isArguments(value: unknown): value is IArguments {
+  return !!value && _toStringTag(value) === OBJECTTAG_Arguments
+}
+
+/**
+ * Checks if `value` is a `Error`
+ * @public
+ */
+export function isError(value: unknown): value is Error {
+  return makeInstanceof(ERROR)(value)
+}
+
+/**
+ * Checks if `value` is a `ArrayBuffer`
+ * @public
+ */
+export function isArrayBuffer(value: unknown): value is ArrayBuffer {
+  return makeInstanceof(ARRAYBUFFER)(value)
+}
+
+/**
+ * Checks if `value` is a EsModule
+ * @alpha
+ */
+export function isEsModule<T>(
+  value: unknown,
+): value is Types.EsModuleLike<{}, T> {
+  return (
+    (isRecord(value) && value.__esModule) ||
+    getTypeTag(value) === OBJECTTAG_Module
+  )
+}
+
+/**
+ * Checks if `value` is a EsModule with default exports
+ * @alpha
+ */
+export function isEsModuleWithDefaultExport<T>(
+  value: unknown,
+): value is Types.EsModuleLikeWithDefault<{}, T> {
+  return isRecord(value) && "default" in value && isEsModule<T>(value)
+}
+
+/**
+ * 等价于
+ * ```ts
+ * isObj(value) && Object.prototype.hasOwnProperty.call(value, key)
+ * ```
+ * @example
+ * const o = new Object();
+ * o.prop = "exists";
+ * expect(hasOwnKey(o, "prop")).toBe(true);
+ * expect(hasOwnKey(o, "toString")).toBe(false);
+ * expect(hasOwnKey(o, "hasOwnProperty")).toBe(false);
+ * @public
+ */
+export function hasOwnKey<Key extends JsPropertyKey, T = any>(
+  value: any,
+  key: Key,
+): value is Types.RecordWithKey<Key, T>
+export function hasOwnKey<Key extends PropertyKey, T = any>(
+  value: any,
+  key: Key,
+): value is Types.RecordWithKey<Exclude<Key, number>, T>
+export function hasOwnKey<Key extends string | symbol, T = any>(
+  value: any,
+  key: Key,
+): value is Types.RecordWithKey<Key, T> {
+  return isNotNil(value) && _hasOwnKey(value, key)
+}
+
+export function toString<T extends string>(source: T): T
+export function toString(source: unknown): string
+export function toString(source: unknown): string {
+  return STRING(source)
+}
+
+/**
+ * 判断一个字符串是否表示一个数字（包括 NaN）。
+ * @param source - 输入字符串
+ * @returns 是否为数字字符串（包括 "NaN"）
+ *
+ * 实现原理：
+ * - 使用 `source === "NaN"` 显式检查字符串是否为 "NaN"，因为后续的 `isStrictNumberString` 会排除 NaN。
+ * - 调用 `isStrictNumberString` 检查其他数字情况（如 "123", "123.45"）。
+ *
+ * 设计意图：
+ * - JavaScript 中 NaN 是一个特殊值，`+source === +source` 对 "NaN" 返回 false（NaN 不等于自身）。
+ * - 但在某些场景下，用户可能希望 "NaN" 被视为合法数字字符串，因此显式包含此检查。
+ * - 将 "NaN" 与其他数字分开处理，提供灵活性和清晰的语义。
+ */
+export function isNumberString(source: string): boolean {
+  // 显式检查 "NaN" 是为了扩展函数适用范围，满足特定场景（如解析用户输入时允许 "NaN"）。
+  // 否则，`isStrictNumberString` 会将其排除，逻辑更清晰。
+  return source === "NaN" || isStrictNumberString(source)
+}
+
+/**
+ * 严格判断一个字符串是否表示一个有效数字（不包括 NaN 和 BigInt）。
+ * @param source - 输入字符串
+ * @returns 是否为严格数字字符串
+ *
+ * 实现原理：
+ * - `!!source` 确保字符串非空（空字符串 "" 转为数字是 0，但这里视为无效）。
+ * - `+source === +source` 使用单目加号将字符串转为数字，并利用 NaN 不等于自身的特性：
+ *   - 如果 `+source` 是 NaN，则 `+source === +source` 为 false。
+ *   - 如果是有效数字（包括 Infinity），则相等。
+ * - 单目加号遵循 ToNumber 规则，处理 "123", "123.45", " 123 " 等。
+ *
+ * 设计意图：
+ * - 简单高效，避免函数调用（如 `isNaN`）或正则表达式，提升性能。
+ * - 排除 NaN 和 BigInt（"123n" 转为 NaN），符合严格数字定义。
+ * - 允许前导/尾随空白（如 " 123 "），因为 ToNumber 忽略空白，符合常见需求。
+ */
+export function isStrictNumberString(source: string): boolean {
+  // 使用 `+source === +source` 而非 `!isNaN(+source)`，避免函数调用开销。
+  // 不使用正则表达式（如 `/^\d+$/`），因为正则匹配性能较差且复杂。
+  return !!source && +source === +source
+}
+
+/**
+ * 判断一个字符串是否表示一个整数（可选去除首尾空白）。
+ * @param source - 输入字符串
+ * @param trim - 是否去除首尾空白，默认为 false
+ * @returns 是否为整数字符串
+ *
+ * 实现原理：
+ * - 如果 `trim` 为 true，则调用 `source.trim()` 去除首尾空白。
+ * - 委托给 `isFullIntString` 进行具体检查。
+ *
+ * 设计意图：
+ * - 通过 `trim` 参数提供灵活性，允许用户决定是否接受带空白的字符串（如 " 123 "）。
+ * - 分离空白处理逻辑和核心整数检查逻辑，便于复用和维护。
+ */
+export function isInt32String(source: string, trim?: boolean): boolean {
+  return isFullInt32String(trim ? source.trim() : source)
+}
+
+/**
+ * 判断一个字符串是否完全表示一个整数（不含小数部分）。
+ * @param source - 输入字符串
+ * @returns 是否为完整整数字符串
+ *
+ * 实现原理：
+ * - `(source as unknown as number) | 0` 将字符串视为数字并执行按位或操作：
+ *   - `| 0` 会将数字截断为 32 位整数，小数部分被丢弃（如 123.45 变为 123）。
+ *   - 如果 `source` 不是数字字符串，结果为 0。
+ * - `"" + ...` 将截断后的结果转回字符串，与原字符串比较。
+ * - 如果相等，说明原字符串表示一个整数（如 "123" 或 "-123"）。
+ *
+ * 示例：
+ * - "123" → 123 | 0 → 123 → "123" === "123" → true。
+ * - "123.45" → 123 | 0 → 123 → "123" !== "123.45" → false。
+ * - "abc" → NaN | 0 → 0 → "0" !== "abc" → false。
+ *
+ * 设计意图：
+ * - 使用按位操作快速截断小数，比 `parseInt` 或正则表达式更高效。
+ * - 通过字符串比较确保结果精确匹配，避免数字转换中的浮点误差。
+ * - 不直接用 `+source`，因为需要区分整数和小数，而 `+source` 保留小数部分。
+ */
+export function isFullInt32String(source: string): boolean {
+  // `| 0` 是经典技巧，利用 JavaScript 按位运算强制转为 32 位整数，简单高效。
+  // 直接用 `as unknown as number` 避免类型检查开销，但假定输入是字符串。
+  return "" + ((source as unknown as number) | 0) === source
+}
+
+/**
+ * 判断一个字符串是否完全表示一个整数（不含小数部分，支持 Number.MAX_SAFE_INTEGER）。
+ * @param source - 输入字符串
+ * @returns 是否为完整整数字符串
+ *
+ * 实现原理：
+ * - 使用 `Number(source)` 将字符串转换为数字，范围支持到 Number.MAX_SAFE_INTEGER（2^53 - 1）。
+ * - `num % 1 === 0` 检查转换结果是否为整数（余数为 0 表示无小数部分）。
+ * - `String(num) === source` 确保转换后的字符串与原字符串完全一致，避免空白或格式差异。
+ * - 检查 `source` 是否为空或非数字字符串（如 "abc"），排除无效输入。
+ *
+ * 示例：
+ * - "123" → Number("123") = 123，123 % 1 = 0，"123" === "123" → true。
+ * - "123.45" → Number("123.45") = 123.45，123.45 % 1 ≠ 0 → false。
+ * - "9007199254740991" → Number("9007199254740991") = 9007199254740991，余数 0 → true。
+ * - "abc" → Number("abc") = NaN，NaN % 1 = NaN ≠ 0 → false。
+ *
+ * 设计意图：
+ * - 替代 `| 0` 的 32 位限制，支持更大的安全整数范围。
+ * - 使用 `% 1 === 0` 代替 `Number.isInteger`，避免函数调用，可能提升性能。
+ * - 通过字符串比较确保精确匹配，避免浮点数转换误差。
+ */
+export function isFullSafeIntString(source: string): boolean {
+  let num: number
+  // 检查是否为整数且与原字符串完全匹配
+  // 转换为数字，支持到 Number.MAX_SAFE_INTEGER
+  return !!source && (num = +source) % 1 === 0 && "" + num === source
+}
+export function isIntString(source: string): boolean {
+  // 检查是否为整数
+  return !!source && +source % 1 === 0 && !source.includes(".")
+}
+
+export function toJSONValue<T>(
+  source: T,
+): Exclude<T, undefined | symbol | bigint> | null
+export function toJSONValue(source: any): any {
+  return isSymbol(source) || isBigInt(source) ? null : (source ?? null)
+}
+
+export function toJSONString(source: any): string {
+  return JSON.stringify(toJSONValue(source) ?? null, (k, v) => toJSONValue(v))
+}
+
+export function toBeTruthy(source: unknown): boolean {
+  return !!source
+}
+
+export function toBeFalsy(source: unknown): boolean {
+  return !source
+}
+
+export function toBool<T extends boolean>(source: T): boolean
+export function toBool(source: unknown): boolean
+export function toBool(source: unknown): boolean {
+  return BOOLEAN(source)
+}
+
+export function toNumber<T extends number>(source: T): number
+export function toNumber(source: unknown): number
+export function toNumber(source: any): number {
+  return NUMBER(source)
+}
+
+export function toArray<T>(source: T | readonly T[] | null | undefined): T[]
+export function toArray<T>(
+  source: T | undefined | null,
+): T extends readonly any[] ? T : T[]
+export function toArray(source: any): any[] {
+  return isArr(source) ? source : isNil(source) || isNaN(source) ? [] : [source]
+}
+
+export function toReadonlyArray<T>(
+  source: readonly T[] | null | undefined,
+): readonly T[]
+export function toReadonlyArray<T>(
+  source: T | undefined | null,
+): T extends readonly any[] ? readonly T[number][] : readonly T[]
+export function toReadonlyArray(source: any): any[] {
+  return toArray(source)
+}
+
+export function getPromiseValue<T>(value: PromiseLike<T>): T | undefined {
+  let e!: T | undefined
+  value.then((_e) => (e = _e))
+  return e
+}
+
+export function toBe(value: unknown, value2: unknown): boolean {
+  return isNaN(value) ? OBJECT_IS(value, value2) : value === value2
+}
+
+// let t!: number[] | undefined
+// let t1!: number[] | number
+// t1 = toArray(t1)
+// toArray(t)
+
+export function excludeNull<const T>(target: T): NonNullable<T> | undefined {
+  return target ?? UNDEFINED
+}
+
+export function excludeNaN<const T extends number>(target: T): T | undefined {
+  return exclude(target, isNaN)
+}
+
+export function filterWith<const T, const Expect extends T, A>(
+  target: T,
+  expect: Refinement<T, Expect>,
+  to: (value: Expect) => A,
+): A | undefined
+export function filterWith<T, A>(
+  target: T,
+  expect: Predicate<T>,
+  to: (value: T) => A,
+): A | undefined
+export function filterWith<const T, A>(
+  target: T,
+  expect: (a: T) => boolean,
+  to: (value: any) => A,
+): A | undefined {
+  return expect(target) ? to(target) : UNDEFINED
+}
+
+export function filterWithNot<T, Expect extends T, A>(
+  target: T,
+  expect: Refinement<T, Expect>,
+  to: (value: Exclude<T, Expect>) => A,
+): A | undefined
+export function filterWithNot<T, A>(
+  target: T,
+  expect: Predicate<T>,
+  to: (value: T) => A,
+): A | undefined
+export function filterWithNot(
+  target: unknown,
+  expect: (a: unknown) => boolean,
+  to: any,
+): unknown {
+  return expect(target) ? to(target) : UNDEFINED
+}
+
+// const t = filterWithNot(1 as number | boolean, isNaN, (a) => a)
+
+export function withNonNullable<T, R>(
+  target: T,
+  f: (val: NonNullable<T>) => R,
+): R | undefined {
+  return filterWith(target, isNotNil, f)
+}
+
+export function exclude<const T, const Expect extends T = T>(
+  target: T,
+  expect: Refinement<T, Expect>,
+): Exclude<T, Expect> | undefined
+export function exclude<const T>(target: T, expect: Predicate<T>): T | undefined
+export function exclude<
+  const T extends Types.Primitive,
+  const Expect extends T = T,
+>(target: T, expect: Expect): Exclude<T, Expect> | undefined
+export function exclude<const T>(target: T | null, expect: null): T | undefined
+export function exclude<T, T2 extends T = T>(
+  target: T,
+  expect: T2,
+): T | undefined
+export function exclude<T>(target: T, expect: unknown): T | undefined
+export function exclude<T>(target: T, expect: any): T | undefined {
+  if (isFn(expect)) {
+    return target === expect || expect(target) ? UNDEFINED : target
+  }
+  return target === expect ? UNDEFINED : target
+}
+
+export function extract<const T, const Expect extends T = T>(
+  target: T,
+  expect: Refinement<T, Expect> | Predicate<T>,
+): Extract<T, Expect> | undefined
+export function extract<
+  const T extends Types.Primitive,
+  const Expect extends T = T,
+>(target: T, expect: Expect): (T & Expect) | undefined
+export function extract<T, T2 extends T = T>(
+  target: T,
+  expect: T2,
+): T | undefined
+export function extract<T>(target: T, expect: unknown): T | undefined
+export function extract(target: any, expect: any): any {
+  if (isFn(expect)) {
+    return target === expect || expect(target) ? target : UNDEFINED
+  }
+  return target === expect ? target : UNDEFINED
+}
+
+// extract(1, 1)
+
+// declare let _tag: "None" | "Some"
+
+// let _none = extract({ a: 1 }, { a: 1 })
+// let _some = exclude({ a: 1 }, { a: 1 })
+// let _none2 = extract(_tag, (a): a is "None" => a == "None")
+// let _some2 = exclude(_tag, (a): a is "None" => a == "None")
+// let _none3 = extract(_tag, (a) => a == "None")
+// let _some3 = exclude(_tag, (a) => a == "None")

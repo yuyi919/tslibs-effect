@@ -1,0 +1,55 @@
+import { NEA } from "@yuyi919/shared-proto/Array";
+import * as JsObject from "@yuyi919/shared-proto/JsObject";
+import { MemoizeCache } from "./function/memoized";
+import { HashSymbol } from "./Symbol";
+export type HashValue = number & {};
+export interface Hash {
+    [HashSymbol](): HashValue;
+}
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export declare function cachedStatic<T extends {}>(self: T, staticHash?: HashValue): T;
+export declare function withHash<T extends object>(target: T, another: unknown): T;
+export declare function combine(x: HashValue, y: HashValue, ...other: HashValue[]): HashValue;
+export declare function combineAll(all: NEA<HashValue>): HashValue;
+export declare function hash<A>(self: A): HashValue;
+export declare function arrayLike<A>(arr: ArrayLike<A>): number;
+export declare function array<A>(arr: ReadonlyArray<A>): number;
+/** @internal */
+export declare const EMPTY_STRUCTURE_KEYS: HashValue;
+/** @internal */
+export declare function structureKeysWithCache<A extends JsObject.JsObject>(target: A, keys: ReadonlyArray<JsObject.JsObjectKey<A>>, cache: JsObject.JsObjectParitalMap<A, number>, zero: HashValue): number;
+/** @internal */
+export declare function $structureEntries(...hashs: [number, ...number[]]): number;
+export declare function structureKeys<A extends JsObject.JsObject>(o: A, keys: ReadonlyArray<JsObject.JsObjectKey<A>>): number;
+export declare function struct<A extends ReadonlyArray<any>>(o: A): never;
+export declare function struct<A extends JsObject.JsObject>(o: A): HashValue;
+export declare function object<A extends ReadonlyArray<any>>(o: A): never;
+export declare function object<A extends JsObject.JsObject>(o: A): HashValue;
+export declare function record<A extends ReadonlyArray<any>>(o: A): never;
+export declare function record<A extends JsObject.JsObject>(o: A): HashValue;
+/**
+ *
+ * @param name
+ * @returns
+ * ```ts
+ * combine(string("value"), hash(value))
+ * ```
+ */
+export declare function $value(value: unknown): number;
+export declare function isHash(target: unknown): target is Hash;
+/**
+ * @since 2.0.0
+ * @category hashing
+ * @deprecated 请使用 `cachedStatic` 和 `withHash`
+ */
+export declare function cached(self: object): (hash: HashValue) => HashValue;
+export declare function cached(self: object, hash: HashValue): HashValue;
+export declare function hashedFn<F extends (...args: NEA<any>) => any>(fn: F, cache?: MemoizeCache<HashValue, ReturnType<F>>): F & {
+    cache: MemoizeCache<HashValue, ReturnType<F>>;
+};
+export * from "./internal/hash";
+export type { Hash as T };
+//# sourceMappingURL=Hash.d.ts.map

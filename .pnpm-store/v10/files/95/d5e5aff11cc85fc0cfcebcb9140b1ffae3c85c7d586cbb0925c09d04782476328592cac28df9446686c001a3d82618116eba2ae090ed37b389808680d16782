@@ -1,0 +1,55 @@
+import { isArguments, isArr, isBigInt, isBool, isDate, isEmpty, isError, isEsModule, isFn, isNaN, isNil, isNull, isNum, isObj, isPrimitive, isPromise, isRegExp, isStr, isSymbol, isThenable, isUndefined } from "./checker";
+let checker = {
+  isArguments,
+  isArr,
+  isBigInt,
+  isBool,
+  isDate,
+  isEmpty,
+  isError,
+  isFn,
+  isNaN,
+  isNil,
+  isNull,
+  isNum,
+  isObj,
+  isPrimitive,
+  isPromise,
+  isRegExp,
+  isStr,
+  isSymbol,
+  isThenable,
+  isUndefined,
+  isEsModule
+};
+/**
+ * @public
+ */ /**
+    * @public
+    */ /**
+       * @public
+       */ /**
+          * @public
+          */ /**
+             * @public
+             * see {@link Checker}
+             */
+export let is = /* @__PURE__ */(() => {
+  let exports = {};
+  // eslint-disable-next-line guard-for-in
+  for (let key in checker) {
+    let type = /*#__PURE__*/key.replace(/^is/, "");
+    exports[type === "NaN" ? type : /*#__PURE__*/type[0].toLowerCase() + /*#__PURE__*/type.slice(1)] = checker[key];
+  }
+  return exports;
+})();
+export * from "./checker";
+/**
+ * 强制类型转换
+ *
+ * I sure hope you know what you are doing
+ * @public
+ * @param target -
+ */
+export let as = target => target;
+//# sourceMappingURL=index.js.map

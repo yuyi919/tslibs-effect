@@ -1,0 +1,121 @@
+import * as array from "fp-ts/Array";
+
+import * as util from "@yuyi919/shared-proto/Functions";
+
+import * as ParseResult from "../ParseResult.js";
+import { _run, define } from "./impl.js";
+
+export let liftMap = (...args) => {
+  switch (args.length) {
+    case 3:
+      return liftMap2(...args);
+    case 4:
+      return liftMap3(...args);
+    default: {
+      let f = args.pop();
+      return liftMapAllArgs(args, f);
+    }
+  }
+};
+export let liftMapAllArgs = (args, f) =>
+  liftMapAll(args, util.toArrayElementFirst(f));
+export let liftMapAll = (args, f) => {
+  let [fa] = args;
+  return define((start, option) => {
+    let third = _run(fa, start, option);
+    if (ParseResult.isLeft(third)) return third;
+    let prevResult = third;
+    let lastIndex = args.length - 1;
+    let result = new Array(lastIndex);
+    result[0] = ParseResult.getValue(prevResult);
+    for (let i = 1; i < args.length; ++i) {
+      prevResult = _run(args[i], ParseResult.getNext(prevResult), option);
+      if (ParseResult.isLeft(prevResult)) return prevResult;
+      result[i] = ParseResult.getValue(prevResult);
+    }
+    return ParseResult.succeed(
+      f(result),
+      ParseResult.getNext(prevResult),
+      start,
+    );
+  });
+};
+export let liftMap2 = (fa, fb, f) =>
+  define((start, option) => {
+    let first = _run(fa, start, option);
+    if (ParseResult.isLeft(first)) return first;
+    let second = _run(fb, ParseResult.getNext(first), option);
+    if (ParseResult.isLeft(second)) return second;
+    return ParseResult.liftMap2F(first, second, f);
+  });
+export let liftMap3 = (fa, fb, fc, f) =>
+  define((start, option) => {
+    let first = _run(fa, start, option);
+    if (ParseResult.isLeft(first)) return first;
+    let second = _run(fb, ParseResult.getNext(first), option);
+    if (ParseResult.isLeft(second)) return second;
+    let third = _run(fc, ParseResult.getNext(second), option);
+    if (ParseResult.isLeft(third)) return third;
+    return ParseResult.liftMap3F(first, second, third, f);
+  });
+export let liftMap4 = (fa, fb, fc, fd, f) =>
+  define((start, option) => {
+    let first = _run(fa, start, option);
+    if (ParseResult.isLeft(first)) return first;
+    let second = _run(fb, ParseResult.getNext(first), option);
+    if (ParseResult.isLeft(second)) return second;
+    let third = _run(fc, ParseResult.getNext(second), option);
+    if (ParseResult.isLeft(third)) return third;
+    let fourth = _run(fd, ParseResult.getNext(third), option);
+    if (ParseResult.isLeft(fourth)) return fourth;
+    return ParseResult.liftMap4F(first, second, third, fourth, f);
+  });
+export let getLiftMap1 = (M) => {
+  let fn2 = array.traverseWithIndex(M);
+  let fn = fn2(util.return2);
+  return (...fa) => {
+    let f = fa.pop();
+    let a = fa;
+    let ap1 = M.of((a) => (b) => f(a, b));
+    let ap2 = M.of((a) => (b) => (c) => f(a, b, c));
+    let ap3 = M.of((a) => (b) => (c) => (d) => f(a, b, c, d));
+    let apAll = M.of(util.toArrayArgFirst(f));
+    switch (a.length) {
+      case 2:
+        return liftMap2(a[0], a[1], (a, b) => M.ap(M.ap(ap1, a), b));
+      case 3:
+        return liftMap3(a[0], a[1], a[2], (a, b, c) =>
+          M.ap(M.ap(M.ap(ap2, a), b), c),
+        );
+      case 4:
+        return liftMap4(a[0], a[1], a[2], a[3], (a, b, c, d) =>
+          M.ap(M.ap(M.ap(M.ap(ap3, a), b), c), d),
+        );
+      default:
+        return liftMapAll(a, (arr) => {
+          let args = fn(arr);
+          return M.ap(apAll, args);
+        });
+    }
+  };
+};
+export let getLiftMap2 = (M) => {
+  let liftMap = util.cloneFn(M.liftMap);
+  return (...fa) => {
+    let f = fa.pop();
+    let a = fa;
+    switch (a.length) {
+      case 2:
+        return liftMap2(a[0], a[1], (a, b) => liftMap(a, b, f));
+      case 3:
+        return liftMap3(a[0], a[1], a[2], (a, b, c) => liftMap(a, b, c, f));
+      case 4:
+        return liftMap4(a[0], a[1], a[2], a[3], (a, b, c, d) =>
+          liftMap(a, b, c, d, f),
+        );
+      default:
+        return liftMapAll(a, (arr) => liftMap(...arr, f));
+    }
+  };
+};
+//# sourceMappingURL=liftmap.js.map

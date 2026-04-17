@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Browser.js",
+  "module": "../dist/esm/Browser.js",
+  "types": "../dist/esm/Browser.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"namespaces.js","names":[],"sources":["../src/namespaces/namespaces.js"],"sourcesContent":["/* eslint-disable @typescript-eslint/no-explicit-any */ export * from \"./shared\";\n"],"mappings":"AAAA,uDAAwD,cAAc,UAAU","ignoreList":[]}

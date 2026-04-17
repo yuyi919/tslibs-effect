@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/pipeable.js",
+  "module": "../dist/esm/pipeable.js",
+  "types": "../dist/esm/pipeable.d.ts",
+  "sideEffects": []
+}

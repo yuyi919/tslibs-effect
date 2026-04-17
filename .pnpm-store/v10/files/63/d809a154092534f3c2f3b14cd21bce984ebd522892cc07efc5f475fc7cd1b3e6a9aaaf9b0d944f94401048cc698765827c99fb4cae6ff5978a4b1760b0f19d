@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Compactable.js",
+  "module": "../dist/esm/Compactable.js",
+  "types": "../dist/esm/Compactable.d.ts",
+  "sideEffects": []
+}

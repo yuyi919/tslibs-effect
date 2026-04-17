@@ -1,0 +1,1 @@
+{"version":3,"file":"Unfoldable.js","names":[],"sources":["src/Unfoldable.js"],"sourcesContent":["/**\n * This class identifies data structures which can be _unfolded_, generalizing `unfold` on arrays.\n *\n * @since 2.0.0\n *//**\n * @category model\n * @since 2.0.0\n */export{};"],"mappings":"AAAA;AACA;AACA;AACA;AACA,GAJA,CAIG;AACH;AACA;AACA,MAAG","ignoreList":[]}

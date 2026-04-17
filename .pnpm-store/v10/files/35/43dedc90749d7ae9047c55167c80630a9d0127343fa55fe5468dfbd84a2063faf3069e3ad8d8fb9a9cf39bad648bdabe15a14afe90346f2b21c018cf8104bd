@@ -1,0 +1,164 @@
+import type { HashValue } from "./Hash"
+import * as EvalFunction from "./EvalFunction"
+import { unsafeCoerce } from "./Functions"
+import { hash } from "./Hash"
+import { combine3, KEYWORD_HASH, optimize } from "./internal/hash"
+import { useThis } from "./Proto"
+
+/**
+ * 高度优化的hash函数生成器
+ * @param baseHash
+ * @param evalArgs - 生成的函数参数数组
+ * @param evalSource - 迭代生成的数据源，一般是properties数组
+ * @param eachSource - 迭代{@link evalSource}
+ * @example
+ * evalHashFactory(0, ['data'], ['foo', 'bar'], (key) => ['data.' + key, Hash.string(key), key])
+ * // 生成等效代码
+ * const fooHash = Hash.string('foo')
+ * const barHash = Hash.string('bar')
+ * (data) => {
+ *   let hash = 0;
+ *   hash = combine2(hash, combine2(fooHash, data.foo));
+ *   hash = combine2(hash, combine2(barHash, data.bar));
+ *   return Hash.optimize(hash)
+ * }
+ */
+const evalHashFactory = <T>(
+  baseHash: number,
+  evalArgs: readonly string[],
+  evalSource: readonly T[],
+  eachSource: (
+    toHash: (self: string | number) => string,
+  ) => (
+    data: T,
+    index: number,
+  ) => [propertyGetter: string, keyHash: number, keyName: string],
+) => {
+  let key: string, keyHash: number
+  return EvalFunction.makeReturnArrowFunction(
+    [combine3, hash, optimize],
+    evalArgs,
+    (_evalArgs) => (combine3, toHash, optimize) =>
+      optimize(
+        evalSource.reduce(
+          (head, item, index) => (
+            ([key, keyHash] = eachSource(toHash)(item, index)),
+            combine3(head, keyHash, toHash(key))
+          ),
+          baseHash + "",
+        ),
+      ),
+  )
+}
+// `return(data)=>{let h=${base};${data.map((item, index) => {
+//   const [key, hash] = each(item, index);
+//   return `h^=c($(data${
+//     isString(key) ? `.${key}` : `[${key}]`
+//   }))(${hash})`;
+// })};return o(h)}`
+const objectHashFactory = <T>(
+  baseHash: number,
+  evalArgs: readonly string[],
+  evalSource: readonly T[],
+  eachSource: (
+    hash: (self: string | number) => string,
+  ) => (
+    data: T,
+    index: number,
+  ) => [propertyGetter: string, keyHash: number, keyName: string],
+) => {
+  if (EvalFunction.ENABLE_EVALFUNCTION) {
+    return evalHashFactory(baseHash, evalArgs, evalSource, eachSource)
+  }
+  const keyHashes = evalSource.map(eachSource(unsafeCoerce(hash)))
+  return (data: Record<any, any>) => {
+    let h = baseHash,
+      key: string,
+      keyHash: number
+    // console.log("[objectHashFactory] baseHash", baseHash)
+    for (let i = 0; i < keyHashes.length; i++) {
+      keyHash = keyHashes[i]![1]
+      key = keyHashes[i]![2]
+      h = combine3(h, keyHash, hash(data[key]))
+    }
+    return optimize(h)
+  }
+}
+
+export function makeHash(base: number, keys: readonly string[]) {
+  return objectHashFactory(base, ["_$data"], keys, (hash) => (key) => [
+    hash(EvalFunction.prop("_$data", key)),
+    KEYWORD_HASH(key),
+    key,
+  ])
+}
+
+export function makeThisHash<T extends {}>(
+  base: number,
+  keys: readonly (keyof T)[],
+): (this: T) => number
+export function makeThisHash<T extends {}>(
+  base: number,
+  keys: readonly string[],
+): (this: T) => number
+export function makeThisHash<T extends {}>(base: number, keys: readonly any[]) {
+  return ((hash) => useThis((self: T) => hash(self)))(makeHash(base, keys))
+}
+
+export function makeHashArray(base: number, keys: readonly string[]) {
+  return objectHashFactory(base, ["args"], keys, (hash) => (key, index) => [
+    hash(EvalFunction.prop("args", index)),
+    KEYWORD_HASH(key),
+    key,
+  ])
+}
+
+export function makeHashArgs(base: number, keys: readonly string[]) {
+  if (EvalFunction.ENABLE_EVALFUNCTION) {
+    return evalHashFactory(
+      base,
+      keys.map((key) => `_$${key}`),
+      keys,
+      (hash) => (key) => [hash(`_$${key}`), KEYWORD_HASH(key), key],
+    )
+  }
+  const keyHashes = keys.map((key) => KEYWORD_HASH(key))
+  return (...args: any[]) => {
+    let h = base
+    for (let i = 0; i < keyHashes.length; i++) {
+      h = combine3(h, keyHashes[i]!, hash(args[i]))
+    }
+    return optimize(h)
+  }
+}
+
+export function makeIncrementHash(
+  base: number,
+  keys: readonly string[],
+  keyHashes: HashValue[] = keys.map((key) => KEYWORD_HASH(key)),
+): (source: any, field: string | symbol, fieldHash: HashValue) => number {
+  if (EvalFunction.ENABLE_EVALFUNCTION) {
+    return evalHashFactory(
+      base,
+      ["_$src", "_$field", "_$hash"],
+      keys,
+      (hash) => (key) => [
+        `_$field === ${JSON.stringify(key)} ? ${"_$hash"} : ${hash(EvalFunction.prop("_$src", key))}`,
+        KEYWORD_HASH(key),
+        key,
+      ],
+    )
+  }
+  return (source: any, field: any, fieldHash: any) => {
+    let h = base,
+      key!: any
+    for (let i = 0; i < keys.length; i++) {
+      h = combine3(
+        h,
+        keyHashes[i]!,
+        (key = keys[i]) === field ? fieldHash : hash(source[key]!),
+      )
+    }
+    return optimize(h)
+  }
+}

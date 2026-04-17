@@ -1,0 +1,368 @@
+import * as A from "./Array.js";
+import * as Extensions from "./Extensions.js";
+import { absurd, error, flow, pipe, raise, unsafeCoerce } from "./Functions.js";
+import * as constant from "./internal/constant/index.js";
+import * as helper from "./internal/helper.js";
+import * as PF from "./internal/protoFactory.js";
+import * as JsTypes from "./JsTypes.js";
+import { isNil, isObj } from "./JsTypes.js";
+import { Pipeable, PipeableProto } from "./Pipeable.js";
+import * as Proto from "./Proto.js";
+
+export let $SOME = "Some";
+export let $NONE = "None";
+class AbstractOption extends Pipeable {
+  get exists() {
+    return this.E;
+  }
+  get value() {
+    return this.A;
+  }
+  /**
+   * Returns an Option with a value if 'some' is true, otherwise returns NONE
+   * @param some - Boolean flag to determine if the Option should have a value
+   */
+  while(some) {
+    return this.E && some ? this : _NONE;
+  }
+  /**
+   * !unsafe
+   */
+  as() {
+    return this;
+  }
+  /**
+   * Filters out nullable values from the Option
+   * @returns - Option with non-nullable value
+   */
+  excludeNil() {
+    return this.filter(JsTypes.isNotNil);
+  }
+  /**
+   * Filters the Option based on the provided function
+   * @param fn - Function used to filter the Option
+   * @returns - Option with filtered value
+   */
+  filter(fn) {
+    let is = this.E && fn(this.A);
+    return (isSome(is) ? is.A : !!is) ? this : _NONE;
+  }
+  /**
+   * Matches the Option value and returns the result of the provided function or a default value
+   * @param fn - Function to apply to the Option value
+   * @param or - Default value function if the Option is empty
+   * @returns - Option with the result of the matching function or the default value
+   */
+  match(fn, or) {
+    if (this.E) return fn(this.A);
+    return or();
+  }
+  /**
+   * Maps the Option value to a new value using the provided function
+   * @param fn - Function to map the Option value
+   * @returns - Option with the mapped value
+   */
+  map(fn) {
+    return this.chain((value) => some(fn(value)));
+  }
+  mapTry(fn) {
+    return this.chain((value) => fromTryCatch(() => fn(value)));
+  }
+  tryOr(fn) {
+    return this.mapTry(fn).orOption(() => this);
+  }
+  /**
+   * Maps the Option value to a constant value
+   * @param a - Constant value to map the Option value to
+   * @returns - Option with the constant value
+   */
+  mapTo(a) {
+    return this.map(() => a);
+  }
+  /**
+   * Returns the Option with a default value if it's empty
+   * @param fn - Default value function
+   * @returns - Option with the default value or the original value
+   */
+  or(fn) {
+    return this.orOption(() => some(fn()));
+  }
+  orOption(fn) {
+    return this.match((_) => this, fn);
+  }
+  /**
+   * Returns the Option with a constant value if it's empty
+   * @param a - Constant value
+   * @returns - Option with the constant value or the original value
+   */
+  orTo(a) {
+    return this.or(() => a);
+  }
+  /**
+   * Returns the Option with a null value if it's empty
+   * @returns - Option with the null value or the original value
+   */
+  orNull() {
+    return this.or(() => constant.NULL);
+  }
+  chain(fn) {
+    return this.match(fn, () => this);
+  }
+  // if (this.E) return fn(this.A!)
+  // return this as any
+  bindTo(name) {
+    return this.map((value) => ({
+      [name]: value,
+    }));
+  }
+  to(fn) {
+    return this.match(
+      (value) => (fn ? fn(value) : value),
+      () => constant.UNDEFINED,
+    );
+  }
+  getOrVoid() {
+    return this.getOrValue(constant.VOID);
+  }
+  getOrUndef() {
+    return this.getOrValue(constant.UNDEFINED);
+  }
+  getOrNull() {
+    return this.getOrValue(constant.NULL);
+  }
+  getOr(orArg) {
+    if (this.E) return this.A;
+    return orArg();
+  }
+  getOrValue(value) {
+    if (this.E) return this.A;
+    return value;
+  }
+  getOrThrow(msg) {
+    return this.E ? this.A : raise(error(JsTypes.isStr(msg) ? msg : msg()));
+  }
+  tap(fn) {
+    this.E && fn(this.A);
+    return this;
+  }
+  asNone() {
+    return _NONE;
+  }
+  enforce() {
+    return isNone(this) ? absurd() : this.A;
+  }
+}
+export let OptionProto = /*#__PURE__*/ PF.make(
+  /*#__PURE__*/ PF.method(
+    "asNone",
+    () => _NONE,
+  )(
+    /*#__PURE__*/ PF.method(
+      "as",
+      (_self) => _self,
+    )(
+      /*#__PURE__*/ PF.method("tap", (_self, fn) => {
+        _self.E && fn(_self.A);
+        return _self;
+      })(
+        /*#__PURE__*/ PF.method("getOrThrow", (_self, msg) => {
+          return _self.E
+            ? _self.A
+            : raise(error(JsTypes.isStr(msg) ? msg : msg()));
+        })(
+          /*#__PURE__*/ PF.method("getOrValue", (_self, value) => {
+            if (_self.E) return _self.A;
+            return value;
+          })(
+            /*#__PURE__*/ PF.method("getOr", (_self, orArg) => {
+              if (_self.E) return _self.A;
+              return orArg();
+            })(
+              /*#__PURE__*/ PF.method("getOrVoid", (_self) => {
+                return _self.getOrValue(constant.VOID);
+              })(
+                /*#__PURE__*/ PF.method("bindTo", (_self, name) => {
+                  return _self.map((value) => ({
+                    [name]: value,
+                  }));
+                })(
+                  /*#__PURE__*/ PF.method("to", (_self, fn) => {
+                    return _self.match(
+                      (value) => (fn ? fn(value) : value),
+                      () => constant.UNDEFINED,
+                    );
+                  })(
+                    /*#__PURE__*/ PF.method("orNull", (_self) => {
+                      return _self.or(() => constant.NULL);
+                    })(
+                      /*#__PURE__*/ PF.method("orTo", (_self, a) => {
+                        return _self.or(() => a);
+                      })(
+                        /*#__PURE__*/ PF.method("orOption", (_self, fn) => {
+                          return _self.match((_) => _self, fn);
+                        })(
+                          /*#__PURE__*/ PF.method("or", (_self, fn) => {
+                            return _self.orOption(() => some(fn()));
+                          })(
+                            /*#__PURE__*/ PF.method("mapTo", (_self, a) => {
+                              return _self.map(() => a);
+                            })(
+                              /*#__PURE__*/ PF.method("tryOr", (_self, fn) => {
+                                return _self.mapTry(fn).orOption(() => _self);
+                              })(
+                                /*#__PURE__*/ PF.method(
+                                  "mapTry",
+                                  (_self, fn) => {
+                                    return _self.chain((value) =>
+                                      fromTryCatch(() => fn(value)),
+                                    );
+                                  },
+                                )(
+                                  /*#__PURE__*/ PF.method(
+                                    "chain",
+                                    (_self, fn) => {
+                                      return _self.match(fn, () => _self);
+                                    },
+                                  )(
+                                    /*#__PURE__*/ PF.method(
+                                      "map",
+                                      (_self, fn) => {
+                                        return _self.chain((value) =>
+                                          some(fn(value)),
+                                        );
+                                      },
+                                    )(
+                                      /*#__PURE__*/ PF.method(
+                                        "match",
+                                        (_self, fn, or) => {
+                                          if (_self.E) return fn(_self.A);
+                                          return or();
+                                        },
+                                      )(
+                                        /*#__PURE__*/ PF.method(
+                                          "filter",
+                                          (_self, fn) => {
+                                            let is = _self.E && fn(_self.A);
+                                            return (isSome(is) ? is.A : !!is)
+                                              ? _self
+                                              : _NONE;
+                                          },
+                                        )(
+                                          /*#__PURE__*/ PF.method(
+                                            "excludeNil",
+                                            (_self) =>
+                                              _self.filter(JsTypes.isNotNil),
+                                          )(
+                                            /*#__PURE__*/ PF.method(
+                                              "while",
+                                              (_self, some) =>
+                                                _self.E && some ? _self : _NONE,
+                                            )(
+                                              /*#__PURE__*/ PF.getter(
+                                                "exists",
+                                                (self) => self.E,
+                                              )(
+                                                /*#__PURE__*/ PF.getter(
+                                                  constant.__KEY_VALUE,
+                                                  (self) => self.A,
+                                                )(
+                                                  /*#__PURE__*/ PF.from(
+                                                    /*#__PURE__*/ PipeableProto,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+);
+export let addExtensions = /*#__PURE__*/ Extensions.AddTo(OptionProto);
+let OptionClass = /*#__PURE__*/ Proto.makeProto(OptionProto);
+export let print = (option, inner = JSON.stringify) =>
+  option.E ? `${$SOME}(${inner(option.A)})` : $NONE + "()";
+let _data = (_tag, A, E) => ({
+  [constant.__KEY__TAG]: _tag,
+  A,
+  E,
+});
+export let toJSON = (self) =>
+  self.E
+    ? {
+        [constant.__KEY__TAG]: $SOME,
+        [constant.__KEY_VALUE]: self.A,
+      }
+    : {
+        [constant.__KEY__TAG]: $NONE,
+        [constant.__KEY_VALUE]: constant.UNDEFINED,
+      };
+export let SomeValue = (value) =>
+  Proto.setPrototypeOf(_data($SOME, value, true), OptionProto);
+// Proto.getProtos(AbstractOption),
+export let some = SomeValue;
+let _NONE = /*#__PURE__*/ Proto.setPrototypeOf(
+  /*#__PURE__*/ _data($NONE, constant.UNDEFINED, false),
+  OptionProto,
+);
+// Proto.getProtos(AbstractOption),
+export let None = () => _NONE;
+export let none = None;
+export let isOptionValue = (value) =>
+  isObj(value) && JsTypes._instanceof(value, OptionClass);
+// return JsTypes.isInstanceof(value, AbstractOption)
+export let isSome = (value) => isOptionValue(value) && value.E;
+export let refineSome = (option, value = option.A) =>
+  option.E && option.A === value;
+export let isNone = (value) => isOptionValue(value) && !value.E;
+export let refineNone = (value) => !value.E;
+export let fromNullable = (value) => (isNil(value) ? _NONE : some(value));
+export let fromTryCatch = (fn) => helper.tryCatch(() => some(fn()), none);
+export let nonEmptyString = (value) => fromNullable(value?.trim() || null);
+export let fromProperty = (value, property) =>
+  JsTypes.hasOwnKey(value, property) ? some(value[property]) : _NONE;
+export let fromNullableProperty = (value, property) =>
+  fromNullable(value?.[property]);
+export let findLast = (value, predicate) =>
+  fromNullable(A.findLast(value, predicate));
+export let find = (value, predicate) => fromNullable(A.find(value, predicate));
+export let fromPredicate = (value, predicate) =>
+  predicate(value) ? some(value) : _NONE;
+export let liftThrowable =
+  (fn) =>
+  (...input) =>
+    helper.tryCatch(() => some(fn(...input)), none);
+export let liftPredicate = (predicate, mapTo) => (value) =>
+  predicate(value) ? some(mapTo(value)) : _NONE;
+export let fromBoolean = (value, predicate) =>
+  predicate ? some(value) : _NONE;
+export let map = (fn) => (o) => o.map(fn);
+export let flatMap = (fn) => (o) => o.chain(fn);
+export { flatMap as chain };
+export let value = (option) => option.A;
+export let getEquivalence = (isEquivalent) => (a, b) =>
+  (!a.E && !b.E) || (a.E && b.E && isEquivalent(a.A, b.A));
+export let equals = (self, target, valueCompare) =>
+  isOptionValue(target) &&
+  (target === self ||
+    (self.E === target.E
+      ? target.A === self.A ||
+        (valueCompare ? valueCompare(self.A, target.A) : false)
+      : JsTypes.IS_FALSE));
+//# sourceMappingURL=Option.js.map

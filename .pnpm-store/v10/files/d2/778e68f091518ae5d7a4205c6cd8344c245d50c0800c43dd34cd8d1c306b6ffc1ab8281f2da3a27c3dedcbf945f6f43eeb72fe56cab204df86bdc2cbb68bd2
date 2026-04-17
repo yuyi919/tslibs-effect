@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ReaderTask.js",
+  "module": "../dist/esm/ReaderTask.js",
+  "types": "../dist/esm/ReaderTask.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,56 @@
+import { constant } from "../function/index.js";
+import { VOID } from "./constant/index.js";
+import * as Monoid from "./Monoid.js";
+import { assign } from "./object.js";
+import * as Semigroup from "./Semigroup.js";
+
+let ListenerSybmol = /*#__PURE__*/ Symbol();
+let noop = (a) => {};
+export let getFunctionSemigroup = (semigroup, emptyListener) => {
+  let { combineMany, combineAll } = semigroup;
+  return Semigroup.makeComplex((self, that) => {
+    if (self === emptyListener) return that;
+    if (that === emptyListener) return self;
+    if (self[ListenerSybmol]) {
+      if (that[ListenerSybmol]) {
+        self[ListenerSybmol].push(...that[ListenerSybmol]);
+      } else {
+        self[ListenerSybmol].push(that);
+      }
+      return self;
+    } else if (that[ListenerSybmol]) {
+      that[ListenerSybmol].push(self);
+      return that;
+    }
+    function concatMany() {
+      let [head, ...other] = fn[ListenerSybmol];
+      return combineMany(
+        head.apply(this, arguments),
+        other.map((other) => other.apply(this, arguments)),
+      );
+    }
+    function concatAll() {
+      return combineAll(
+        fn[ListenerSybmol].map((other) => other.apply(this, arguments)),
+      );
+    }
+    let fn = assign(combineAll ? concatAll : concatMany, {
+      [ListenerSybmol]: [self, that],
+    });
+    return fn;
+  });
+};
+export let getFunctionMonoid = (semigroup, empty) => {
+  if (semigroup._tag === "Monoid") {
+    empty ??= semigroup.empty === VOID ? noop : constant(semigroup.empty);
+  } else {
+    empty ??= noop;
+  }
+  return Monoid.fromSemigroup(getFunctionSemigroup(semigroup), empty);
+};
+export let AnyListenerMonoid = /*#__PURE__*/ getFunctionMonoid(
+  Semigroup.VoidSemigroup,
+);
+export let getListenerMonoid = /*#__PURE__*/ constant(AnyListenerMonoid);
+getFunctionMonoid(Semigroup.NumberAddSemigroup, constant(0));
+//# sourceMappingURL=Listeners.js.map

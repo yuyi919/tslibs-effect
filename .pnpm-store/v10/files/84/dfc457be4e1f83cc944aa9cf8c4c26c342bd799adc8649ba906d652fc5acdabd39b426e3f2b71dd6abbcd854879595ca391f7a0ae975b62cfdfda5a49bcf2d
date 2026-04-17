@@ -1,0 +1,73 @@
+import {
+  __cancelAnimationFrame,
+  __requestAnimationFrame,
+  __requestIdleCallback,
+  UNDEFINED,
+} from "./internal/constant/index.js";
+import * as internal from "./internal/Disposify.js";
+import * as internalAsync from "./internal/timeout.js";
+
+/**
+ * @typeArg T - 通常是void
+ */ /**
+ * 自定义标识
+ */ /**
+ * 释放资源
+ */ /**
+ * @alias {@link dispose}的别名
+ * @internal
+ */ /**
+ * 注册{@link AbortSignal}，当`signal`被abort时自动释放资源
+ * @param signal - 需要注册的`signal`，如果`signal`已经被`abort`则无效
+ * @returns 是否成功注册，如果`signal`已`abort`则返回`false`
+ */ /**
+ * 是否已释放
+ */
+export let make = (out, fn) => new internal.Disposify(fn, out);
+export let Disposify = internal.Disposify;
+/**
+ *
+ * @param setup
+ * @param clear
+ * @returns
+ */
+export let disposify = (setup, clear) =>
+  function () {
+    let handle = setup.apply(this, arguments);
+    return make(handle, (...args) => clear.apply(this, [handle, ...args]));
+  };
+export let all = (setup) =>
+  disposify(
+    (...args) =>
+      () =>
+        setup.map((s) => s._(...args)),
+    (handle) => handle(),
+  );
+export let timeout = /*#__PURE__*/ disposify(
+  internalAsync.__setTimeout,
+  internalAsync.__clearTimeout,
+);
+export let interval = /*#__PURE__*/ disposify(
+  internalAsync.__setInterval,
+  internalAsync.__clearInterval,
+);
+export let reqAF = __requestAnimationFrame
+  ? /*#__PURE__*/ disposify(__requestAnimationFrame, __cancelAnimationFrame)
+  : UNDEFINED;
+export let rafLoop = __requestAnimationFrame
+  ? /*#__PURE__*/ disposify(
+      (callback) => {
+        let fn = (time) => (
+            callback(time),
+            fn && (frame = __requestAnimationFrame(fn))
+          ),
+          frame = __requestAnimationFrame(fn);
+        return () => (frame && __cancelAnimationFrame(frame), (frame = null));
+      },
+      (dispose) => dispose(),
+    )
+  : UNDEFINED;
+export let reqIdle = __requestIdleCallback
+  ? /*#__PURE__*/ disposify(__requestIdleCallback, cancelIdleCallback)
+  : UNDEFINED;
+//# sourceMappingURL=Disposify.js.map

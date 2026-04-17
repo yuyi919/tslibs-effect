@@ -1,0 +1,34 @@
+/**
+ * The reader monad transformer, which adds a read-only environment to the given monad.
+ *
+ * The `of` function ignores the environment, while `chain` passes the inherited environment to both subcomputations.
+ *
+ * @since 2.0.0
+ */import { flow, pipe } from "./function.js";
+export let of = F => a => () => F.of(a);
+export let map = F => f => fa => r => F.map(fa(r), f);
+export let ap = F => fa => fab => r => F.ap(fab(r), fa(r));
+export let chain = M => {
+  let flatMapM = flatMap(M);
+  return f => ma => flatMapM(ma, f);
+}; /** @internal */
+export let flatMap = M => (ma, f) => r => M.chain(ma(r), a => f(a)(r));
+export let fromReader = F => ma => flow(ma, F.of);
+export let fromNaturalTransformation = nt => f => flow(f, nt); /** @deprecated */ /* istanbul ignore next */
+export let getReaderM = M => {
+  let _ap = ap(M);
+  let _map = map(M);
+  let _chain = chain(M);
+  return {
+    map: (fa, f) => _map(f)(fa),
+    ap: (fab, fa) => _ap(fa)(fab),
+    of: of(M),
+    chain: (ma, f) => _chain(f)(ma),
+    ask: () => M.of,
+    asks: f => flow(f, M.of),
+    local: (ma, f) => q => ma(f(q)),
+    fromReader: fromReader(M),
+    fromM: ma => () => ma
+  };
+};
+//# sourceMappingURL=ReaderT.js.map

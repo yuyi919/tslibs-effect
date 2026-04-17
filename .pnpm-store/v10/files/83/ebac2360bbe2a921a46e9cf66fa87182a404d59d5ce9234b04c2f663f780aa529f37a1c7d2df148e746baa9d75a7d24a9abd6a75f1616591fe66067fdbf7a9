@@ -1,0 +1,93 @@
+@genType.import("../JsTypes.shim") @genType.as("TypedArray")
+type t<'a>
+
+@get_index external get: (t<'a>, int) => option<'a> = ""
+@set_index external set: (t<'a>, int, 'a) => unit = ""
+
+external getUnsafe: (t<'a>, int) => 'a = "%array_unsafe_get"
+external setUnsafe: (t<'a>, int, 'a) => unit = "%array_unsafe_set"
+
+@get external buffer: t<'a> => ArrayBuffer.t = "buffer"
+@get external byteLength: t<'a> => int = "byteLength"
+@get external byteOffset: t<'a> => int = "byteOffset"
+
+let update: (t<'a>, t<'a>) => unit 
+let updateFrom: (t<'a>, t<'a>, int) => unit 
+
+let setArray: (t<'a>, array<'a>) => unit 
+let setArrayFrom: (t<'a>, array<'a>, int) => unit 
+
+@get external length: t<'a> => int = "length"
+
+let copyAllWithin: (t<'a>, ~target: int) => t<'a> 
+let copyWithinToEnd: (t<'a>, ~target: int, ~start: int) => t<'a> 
+let copyWithin: (t<'a>, ~target: int, ~start: int, ~end: int) => t<'a> 
+
+let fillAll: (t<'a>, 'a) => t<'a> 
+let fillToEnd: (t<'a>, 'a, ~start: int) => t<'a> 
+let fill: (t<'a>, 'a, ~start: int, ~end: int) => t<'a> 
+
+let reverse: t<'a> => unit 
+let toReversed: t<'a> => t<'a> 
+
+let sort: (t<'a>, ('a, 'a) => COrdering.t) => unit 
+let toSorted: (t<'a>, ('a, 'a) => COrdering.t) => t<'a> 
+
+let withAt: (t<'a>, int, 'a) => t<'a> 
+
+let includes: (t<'a>, 'a) => bool 
+
+let indexOf: (t<'a>, 'a) => int 
+let indexOfFrom: (t<'a>, 'a, int) => int 
+
+let joinWith: (t<'a>, string) => string 
+
+let lastIndexOf: (t<'a>, 'a) => int 
+let lastIndexOfFrom: (t<'a>, 'a, int) => int 
+
+let slice: (t<'a>, ~start: int, ~end: int) => t<'a> 
+let sliceToEnd: (t<'a>, ~start: int) => t<'a> 
+let copy: (t<'a>) => t<'a>
+
+let subarray: (t<'a>, ~start: int, ~end: int) => t<'a> 
+let subarrayToEnd: (t<'a>, ~start: int) => t<'a> 
+
+let toString: t<'a> => string 
+let toLocaleString: t<'a> => string 
+
+let every: (t<'a>, 'a => bool) => bool 
+let everyI: (t<'a>, ('a, int) => bool) => bool 
+
+let filter: (t<'a>, 'a => bool) => t<'a> 
+let filterI: (t<'a>, ('a, int) => bool) => t<'a> 
+
+let find: (t<'a>, 'a => bool) => option<'a> 
+let findI: (t<'a>, ('a, int) => bool) => option<'a> 
+
+let findIndex: (t<'a>, 'a => bool) => int 
+let findIndexI: (t<'a>, ('a, int) => bool) => int 
+
+let forEach: (t<'a>, 'a => unit) => unit 
+let forEachI: (t<'a>, ('a, int) => unit) => unit 
+
+let map: (t<'a>, 'a => 'b) => t<'b> 
+let mapI: (t<'a>, ('a, int) => 'b) => t<'b> 
+
+let reduce: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
+let reduceI: (t<'a>, 'b, ('b, 'a, int) => 'b) => 'b
+
+let reduceRight: (t<'a>, 'b, ('b, 'a) => 'b) => 'b
+let reduceRightI: (t<'a>, 'b, ('b, 'a, int) => 'b) => 'b
+
+let some: (t<'a>, 'a => bool) => bool 
+let someI: (t<'a>, ('a, int) => bool) => bool 
+
+let indexOfOpt: (t<'a>, 'a) => option<int>
+let lastIndexOfOpt: (t<'a>, 'a) => option<int>
+let findIndexOpt: (t<'a>, 'a => bool) => option<int>
+
+let getSymbol: (t<'a>, JsTypes.symbol) => option<'b>
+let getSymbolUnsafe: (t<'a>, JsTypes.symbol) => 'b
+let setSymbol: (t<'a>, JsTypes.symbol, 'b) => unit
+
+let swap: (t<'a>, int, int) => unit

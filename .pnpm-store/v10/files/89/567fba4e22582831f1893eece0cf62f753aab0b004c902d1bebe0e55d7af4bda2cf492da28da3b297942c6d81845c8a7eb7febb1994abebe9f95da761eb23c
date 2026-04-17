@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Json.js",
+  "module": "../dist/esm/Json.js",
+  "types": "../dist/esm/Json.d.ts",
+  "sideEffects": []
+}

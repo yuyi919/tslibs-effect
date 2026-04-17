@@ -1,0 +1,115 @@
+/**
+ * @since 0.6.0
+ */
+import type { Foldable, Foldable1 } from "fp-ts/Foldable";
+import type { HKT, Kind, URIS } from "fp-ts/HKT";
+import * as P from "../Parser";
+import * as C from "./char";
+import * as PR from "./ParseResult";
+import * as Stream from "./Stream";
+/**
+ * Matches the exact string provided.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const string: (match: C.Char) => P.Parser<C.Char, C.Char>;
+/**
+ * Matches the exact string provided.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const matchBuffer: <I>(match: Stream.SeqLike<I>) => P.Parser<I, Stream.SeqLike<I>>;
+/**
+ * Matches one of a list of strings.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare function oneOf<F extends URIS>(F: Foldable1<F>): (ss: Kind<F, string>) => P.Parser<C.Char, C.Char>;
+export declare function oneOf<F>(F: Foldable<F>): (ss: HKT<F, string>) => P.Parser<C.Char, C.Char>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const fold: <I>(as: Array<P.Parser<I, string>>) => P.Parser<I, string>;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const maybe: <I>(parser: P.Parser<I, string>) => P.Parser<I, string>;
+/**
+ * Matches the given parser zero or more times, returning a string of the
+ * entire match
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const many: <I>(parser: P.Parser<I, string>) => P.Parser<I, string>;
+/**
+ * Matches the given parser one or more times, returning a string of the
+ * entire match
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const many1: <I>(parser: P.Parser<I, string>) => P.Parser<I, string>;
+/**
+ * Matches zero or more whitespace characters.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const spaces: P.Parser<C.Char, string>;
+/**
+ * Matches one or more whitespace characters.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const spaces1: P.Parser<C.Char, string>;
+/**
+ * Matches zero or more non-whitespace characters.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const notSpaces: P.Parser<C.Char, string>;
+/**
+ * Matches one or more non-whitespace characters.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const notSpaces1: P.Parser<C.Char, string>;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const int: P.Parser<C.Char, number>;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const float: P.Parser<C.Char, number>;
+/**
+ * Parses a double quoted string, with support for escaping double quotes
+ * inside it, and returns the inner string. Does not perform any other form
+ * of string escaping.
+ *
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const doubleQuotedString: P.Parser<C.Char, C.Char>;
+/**
+ * @summary
+ * Creates a stream from `string` and runs the parser.
+ *
+ * @category combinators
+ * @since 0.6.8
+ */
+export declare function run(string: string, option?: P.ParseOption): <A>(parser: P.Parser<C.Char, A>) => PR.ParseResult<C.Char, A>;
+export declare const sepByF: <I, A extends string>(sep: P.Parser<I, A>, parser: P.Parser<I, A>) => P.Parser<I, A>;
+export declare const sepBy: <I>(sep: P.Parser<I, C.Char>) => (content: P.Parser<I, C.Char>) => P.Parser<I, C.Char>;
+//# sourceMappingURL=string.d.ts.map

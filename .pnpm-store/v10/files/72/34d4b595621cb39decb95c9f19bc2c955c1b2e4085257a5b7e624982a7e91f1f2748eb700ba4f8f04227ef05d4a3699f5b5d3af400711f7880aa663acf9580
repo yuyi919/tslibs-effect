@@ -1,0 +1,20 @@
+import * as Monoid from "@effect/typeclass/Monoid";
+import * as Semigroup from "@effect/typeclass/Semigroup";
+
+let empty = [];
+let ArraySemigroup = /*#__PURE__*/ Semigroup.make((x, y) =>
+  x.length === 0
+    ? y.length === 0
+      ? empty
+      : y
+    : y.length === 0
+      ? x
+      : [...x, ...y],
+);
+export let toFpTs = (m) => ({
+  ...m,
+  concat: m.combine,
+});
+let _ArrayMonoid = /*#__PURE__*/ Monoid.fromSemigroup(ArraySemigroup, empty);
+export let getArrayMonoid = () => toFpTs(_ArrayMonoid);
+//# sourceMappingURL=getArrayMonoid.js.map

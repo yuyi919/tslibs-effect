@@ -1,0 +1,47 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`app > matchs3 1`] = `
+{
+  "_tag": "ExecResult",
+  "end": false,
+  "expected": undefined,
+  "next": 15,
+  "result": ParseSuccess {
+    "next": StringStream {
+      "buffer": "Microsoft365真垃圾 ",
+      "cursor": 15,
+    },
+    "start": StringStream {
+      "buffer": "Microsoft365真垃圾 ",
+      "cursor": 0,
+    },
+    "value": "Microsoft365真垃圾",
+  },
+  "start": 0,
+  "success": true,
+  "value": "Microsoft365真垃圾",
+}
+`;
+
+exports[`app matchs3 1`] = `
+{
+  "_tag": "ExecResult",
+  "end": false,
+  "expected": undefined,
+  "next": 15,
+  "result": ParseSuccess {
+    "next": StringStream {
+      "buffer": "Microsoft365真垃圾 ",
+      "cursor": 15,
+    },
+    "start": StringStream {
+      "buffer": "Microsoft365真垃圾 ",
+      "cursor": 0,
+    },
+    "value": "Microsoft365真垃圾",
+  },
+  "start": 0,
+  "success": true,
+  "value": "Microsoft365真垃圾",
+}
+`;

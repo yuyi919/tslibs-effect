@@ -1,0 +1,13 @@
+'use strict';
+
+var l=Object.prototype.hasOwnProperty;var i=t=>({show:o=>{let e="{";for(let r in t)l.call(t,r)&&(e+=` ${r}: ${t[r].show(o[r])},`);return e.length>1&&(e=e.slice(0,-1)+" "),e+="}",e}}),f=(...t)=>({show:o=>`[${o.map((e,r)=>t[r].show(e)).join(", ")}]`}),x=f,s=i,h={show:t=>JSON.stringify(t)},g={show:t=>JSON.stringify(t)},m={show:t=>JSON.stringify(t)};
+
+exports.getStructShow = s;
+exports.getTupleShow = x;
+exports.showBoolean = h;
+exports.showNumber = m;
+exports.showString = g;
+exports.struct = i;
+exports.tuple = f;
+//# sourceMappingURL=Show.js.map
+//# sourceMappingURL=Show.js.map

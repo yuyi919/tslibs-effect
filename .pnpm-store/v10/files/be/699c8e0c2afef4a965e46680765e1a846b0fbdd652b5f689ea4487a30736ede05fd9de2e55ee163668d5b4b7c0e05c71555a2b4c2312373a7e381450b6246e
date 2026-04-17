@@ -1,0 +1,650 @@
+/**
+ * @since 2.3.0
+ */import { getApplicativeMonoid } from "./Applicative.js";
+import { apFirst as apFirst_, apS as apS_, apSecond as apSecond_, getApplySemigroup as getApplySemigroup_ } from "./Apply.js";
+import * as chainable from "./Chain.js";
+import { fromIOK as fromIOK_, tapIO as tapIO_ } from "./FromIO.js";
+import { ask as ask_, asks as asks_, fromReaderK as fromReaderK_, tapReader as tapReader_ } from "./FromReader.js";
+import { fromTaskK as fromTaskK_, tapTask as tapTask_ } from "./FromTask.js";
+import { dual, flow, identity, pipe, SK } from "./function.js";
+import { as as as_, asUnit as asUnit_, bindTo as bindTo_, flap as flap_, let as let__ } from "./Functor.js";
+import * as _ from "./internal.js";
+import * as R from "./Reader.js";
+import * as RT from "./ReaderT.js";
+import * as T from "./Task.js"; // -------------------------------------------------------------------------------------
+// conversions
+// -------------------------------------------------------------------------------------
+/**
+ * @category conversions
+ * @since 2.3.0
+ */
+export let fromReader = /*#__PURE__*/RT.fromReader(T.Pointed); /**
+                                                               * @category conversions
+                                                               * @since 2.3.0
+                                                               */
+export let fromTask = R.of; /**
+                            * @category conversions
+                            * @since 2.3.0
+                            */
+export let fromIO = /*#__PURE__*/flow(T.fromIO, fromTask); /**
+                                                           * @category conversions
+                                                           * @since 2.13.0
+                                                           */
+export let fromReaderIO = /*#__PURE__*/R.map(T.fromIO); // -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * Changes the value of the local context during the execution of the action `ma` (similar to `Contravariant`'s
+ * `contramap`).
+ *
+ * @since 2.3.0
+ */
+export let local = R.local; /**
+                            * Less strict version of [`asksReaderTask`](#asksreadertask).
+                            *
+                            * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                            *
+                            * @category constructors
+                            * @since 2.11.0
+                            */
+export let asksReaderTaskW = R.asksReaderW; /**
+                                            * Effectfully accesses the environment.
+                                            *
+                                            * @category constructors
+                                            * @since 2.11.0
+                                            */
+export let asksReaderTask = asksReaderTaskW;
+let _map = (fa, f) => map(f)(fa);
+let _apPar = (fab, fa) => ap(fa)(fab);
+let _apSeq = (fab, fa) => flatMap(fab, f => map(f)(fa)); /**
+                                                         * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                                         * use the type constructor `F` to represent some computational context.
+                                                         *
+                                                         * @category mapping
+                                                         * @since 2.3.0
+                                                         */
+export let map = /*#__PURE__*/RT.map(T.Functor); /**
+                                                 * @since 2.3.0
+                                                 */
+export let ap = /*#__PURE__*/RT.ap(T.ApplyPar); /**
+                                                * Less strict version of [`ap`](#ap).
+                                                *
+                                                * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                                *
+                                                * @since 2.8.0
+                                                */
+export let apW = ap; /**
+                     * @category constructors
+                     * @since 2.3.0
+                     */
+export let of = /*#__PURE__*/RT.of(T.Pointed); /**
+                                               * @category sequencing
+                                               * @since 2.14.0
+                                               */
+export let flatMap = /*#__PURE__*/dual(2, /*#__PURE__*/RT.flatMap(T.Monad)); /**
+                                                                             * Less strict version of [`flatten`](#flatten).
+                                                                             *
+                                                                             * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                                                             *
+                                                                             * @category sequencing
+                                                                             * @since 2.11.0
+                                                                             */
+export let flattenW = /*#__PURE__*/flatMap(identity); /**
+                                                      * @category sequencing
+                                                      * @since 2.3.0
+                                                      */
+export let flatten = flattenW; /**
+                               * @category type lambdas
+                               * @since 2.3.0
+                               */
+export let URI = "ReaderTask"; /**
+                               * @category instances
+                               * @since 2.7.0
+                               */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * Maps the value to the specified constant value.
+   *
+   * @category mapping
+   * @since 2.16.0
+   */
+export let as = /*#__PURE__*/dual(2, /*#__PURE__*/as_(Functor)); /**
+                                                                 * Maps the value to the void constant value.
+                                                                 *
+                                                                 * @category mapping
+                                                                 * @since 2.16.0
+                                                                 */
+export let asUnit = /*#__PURE__*/asUnit_(Functor); /**
+                                                   * @category mapping
+                                                   * @since 2.10.0
+                                                   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * @category instances
+                                               * @since 2.10.0
+                                               */
+export let Pointed = {
+  URI,
+  of
+}; /**
+   * Runs computations in parallel.
+   *
+   * @category instances
+   * @since 2.10.0
+   */
+export let ApplyPar = {
+  URI,
+  map: _map,
+  ap: _apPar
+}; /**
+   * Combine two effectful actions, keeping only the result of the first.
+   *
+   * @since 2.3.0
+   */
+export let apFirst = /*#__PURE__*/apFirst_(ApplyPar); /**
+                                                      * Combine two effectful actions, keeping only the result of the second.
+                                                      *
+                                                      * @since 2.3.0
+                                                      */
+export let apSecond = /*#__PURE__*/apSecond_(ApplyPar); /**
+                                                        * Runs computations in parallel.
+                                                        *
+                                                        * @category instances
+                                                        * @since 2.7.0
+                                                        */
+export let ApplicativePar = {
+  URI,
+  map: _map,
+  ap: _apPar,
+  of
+}; /**
+   * Runs computations sequentially.
+   *
+   * @category instances
+   * @since 2.10.0
+   */
+export let ApplySeq = {
+  URI,
+  map: _map,
+  ap: _apSeq
+}; /**
+   * Runs computations sequentially.
+   *
+   * @category instances
+   * @since 2.7.0
+   */
+export let ApplicativeSeq = {
+  URI,
+  map: _map,
+  ap: _apSeq,
+  of
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Chain = {
+  URI,
+  map: _map,
+  ap: _apPar,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Monad = {
+  URI,
+  map: _map,
+  of,
+  ap: _apPar,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let MonadIO = {
+  URI,
+  map: _map,
+  of,
+  ap: _apPar,
+  chain: flatMap,
+  fromIO
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let MonadTask = {
+  URI,
+  map: _map,
+  of,
+  ap: _apPar,
+  chain: flatMap,
+  fromIO,
+  fromTask
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let FromIO = {
+  URI,
+  fromIO
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let FromTask = {
+  URI,
+  fromIO,
+  fromTask
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let FromReader = {
+  URI,
+  fromReader
+}; /** @internal */
+let _FlatMap = {
+  flatMap
+}; /** @internal */
+let _FromIO = {
+  fromIO: FromIO.fromIO
+}; /** @internal */
+let _FromTask = {
+  fromTask
+}; /** @internal */
+let _FromReader = {
+  fromReader
+}; /**
+   * @category sequencing
+   * @since 2.16.0
+   */
+export let flatMapIO = /*#__PURE__*/_.flatMapIO(_FromIO, _FlatMap); /**
+                                                                    * @category sequencing
+                                                                    * @since 2.16.0
+                                                                    */
+export let flatMapTask = /*#__PURE__*/_.flatMapTask(_FromTask, _FlatMap); /**
+                                                                          * @category sequencing
+                                                                          * @since 2.16.0
+                                                                          */
+export let flatMapReader = /*#__PURE__*/_.flatMapReader(_FromReader, _FlatMap); /**
+                                                                                * @category sequencing
+                                                                                * @since 2.16.0
+                                                                                */
+export let flatMapReaderIO = /*#__PURE__*/dual(2, (self, f) => flatMap(self, fromReaderIOK(f))); /**
+                                                                                                 * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                                                 * keeping only the result of the first.
+                                                                                                 *
+                                                                                                 * @category combinators
+                                                                                                 * @since 2.15.0
+                                                                                                 */
+export let tap = /*#__PURE__*/dual(2, /*#__PURE__*/chainable.tap(Chain)); /**
+                                                                          * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                          * keeping only the result of the first.
+                                                                          *
+                                                                          * @example
+                                                                          * import { pipe } from 'fp-ts/function'
+                                                                          * import * as RT from 'fp-ts/ReaderTask'
+                                                                          * import * as Console from 'fp-ts/Console'
+                                                                          *
+                                                                          * // Will produce `Hello, fp-ts` to the stdout
+                                                                          * const effect = pipe(
+                                                                          *   RT.ask<string>(),
+                                                                          *   RT.tapIO((value) => Console.log(`Hello, ${value}`)),
+                                                                          * )
+                                                                          *
+                                                                          * async function test() {
+                                                                          *   assert.deepStrictEqual(await effect('fp-ts')(), 'fp-ts')
+                                                                          * }
+                                                                          *
+                                                                          * test()
+                                                                          *
+                                                                          * @category combinators
+                                                                          * @since 2.16.0
+                                                                          */
+export let tapIO = /*#__PURE__*/dual(2, /*#__PURE__*/tapIO_(FromIO, Chain)); /**
+                                                                             * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                             * keeping only the result of the first.
+                                                                             *
+                                                                             * @category combinators
+                                                                             * @since 2.16.0
+                                                                             */
+export let tapReader = /*#__PURE__*/dual(2, /*#__PURE__*/tapReader_(FromReader, Chain)); /**
+                                                                                         * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                                         * keeping only the result of the first.
+                                                                                         *
+                                                                                         * @example
+                                                                                         * import { pipe } from 'fp-ts/function'
+                                                                                         * import * as RT from 'fp-ts/ReaderTask'
+                                                                                         * import * as T from 'fp-ts/Task'
+                                                                                         *
+                                                                                         * const effect = pipe(
+                                                                                         *   RT.ask<number>(),
+                                                                                         *   RT.tapTask((value) => T.of(value + 1)),
+                                                                                         * )
+                                                                                         *
+                                                                                         * async function test() {
+                                                                                         *   assert.deepStrictEqual(await effect(1)(), 1)
+                                                                                         * }
+                                                                                         *
+                                                                                         * test()
+                                                                                         *
+                                                                                         * @category combinators
+                                                                                         * @since 2.16.0
+                                                                                         */
+export let tapTask = /*#__PURE__*/dual(2, /*#__PURE__*/tapTask_(FromTask, Chain)); /**
+                                                                                   * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                                   * keeping only the result of the first.
+                                                                                   *
+                                                                                   * @category combinators
+                                                                                   * @since 2.16.0
+                                                                                   */
+export let tapReaderIO = /*#__PURE__*/dual(2, (self, f) => tap(self, fromReaderIOK(f))); /**
+                                                                                         * @category lifting
+                                                                                         * @since 2.4.0
+                                                                                         */
+export let fromIOK = /*#__PURE__*/fromIOK_(FromIO); /**
+                                                    * Alias of `flatMapIO`.
+                                                    *
+                                                    * @category legacy
+                                                    * @since 2.4.0
+                                                    */
+export let chainIOK = flatMapIO; /**
+                                 * Alias of `tapIO`.
+                                 *
+                                 * @category legacy
+                                 * @since 2.10.0
+                                 */
+export let chainFirstIOK = tapIO; /**
+                                  * Reads the current context.
+                                  *
+                                  * @category constructors
+                                  * @since 2.3.0
+                                  */
+export let ask = /*#__PURE__*/ask_(FromReader); /**
+                                                * Projects a value from the global context in a `ReaderTask`.
+                                                *
+                                                * @category constructors
+                                                * @since 2.3.0
+                                                */
+export let asks = /*#__PURE__*/asks_(FromReader); /**
+                                                  * @category lifting
+                                                  * @since 2.11.0
+                                                  */
+export let fromReaderK = /*#__PURE__*/fromReaderK_(FromReader); /**
+                                                                * Alias of `flatMapReader`.
+                                                                *
+                                                                * @category legacy
+                                                                * @since 2.11.0
+                                                                */
+export let chainReaderK = flatMapReader; /**
+                                         * Alias of `flatMapReader`.
+                                         *
+                                         * Less strict version of [`chainReaderK`](#chainreaderk).
+                                         *
+                                         * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                         *
+                                         * @category legacy
+                                         * @since 2.11.0
+                                         */
+export let chainReaderKW = flatMapReader; /**
+                                          * Alias of `tapReader`.
+                                          *
+                                          * @category legacy
+                                          * @since 2.11.0
+                                          */
+export let chainFirstReaderK = tapReader; /**
+                                          * Alias of `tapReader`.
+                                          *
+                                          * Less strict version of [`chainFirstReaderK`](#chainfirstreaderk).
+                                          *
+                                          * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                          *
+                                          * @category legacy
+                                          * @since 2.11.0
+                                          */
+export let chainFirstReaderKW = tapReader; /**
+                                           * @category lifting
+                                           * @since 2.13.0
+                                           */
+export let fromReaderIOK = f => (...a) => fromReaderIO(f(...a)); /**
+                                                                 * Alias of `flatMapReaderIO`.
+                                                                 *
+                                                                 * Less strict version of [`chainReaderIOK`](#chainreaderiok).
+                                                                 *
+                                                                 * @category legacy
+                                                                 * @since 2.13.0
+                                                                 */
+export let chainReaderIOKW = flatMapReaderIO; /**
+                                              * Alias of `flatMapReaderIO`.
+                                              *
+                                              * @category legacy
+                                              * @since 2.13.0
+                                              */
+export let chainReaderIOK = flatMapReaderIO; /**
+                                             * Alias of `tapReaderIO`.
+                                             *
+                                             * Less strict version of [`chainFirstReaderIOK`](#chainfirstreaderiok).
+                                             *
+                                             * @category legacy
+                                             * @since 2.13.0
+                                             */
+export let chainFirstReaderIOKW = tapReaderIO; /**
+                                               * Alias of `tapReaderIO`.
+                                               *
+                                               * @category legacy
+                                               * @since 2.13.0
+                                               */
+export let chainFirstReaderIOK = tapReaderIO; /**
+                                              * @category lifting
+                                              * @since 2.4.0
+                                              */
+export let fromTaskK = /*#__PURE__*/fromTaskK_(FromTask); /**
+                                                          * Alias of `flatMapTask`.
+                                                          *
+                                                          * @category legacy
+                                                          * @since 2.4.0
+                                                          */
+export let chainTaskK = flatMapTask; /**
+                                     * Alias of `tapTask`.
+                                     * @category legacy
+                                     * @since 2.10.0
+                                     */
+export let chainFirstTaskK = tapTask; // -------------------------------------------------------------------------------------
+// do notation
+// -------------------------------------------------------------------------------------
+/**
+ * @category do notation
+ * @since 2.9.0
+ */
+export let Do = /*#__PURE__*/of(_.emptyRecord); /**
+                                                * @category do notation
+                                                * @since 2.8.0
+                                                */
+export let bindTo = /*#__PURE__*/bindTo_(Functor);
+let let_ = /*#__PURE__*/let__(Functor);
+export {
+/**
+* @category do notation
+* @since 2.13.0
+*/
+let_ as let }; /**
+               * @category do notation
+               * @since 2.8.0
+               */
+export let bind = /*#__PURE__*/chainable.bind(Chain); /**
+                                                      * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                                      *
+                                                      * @category do notation
+                                                      * @since 2.8.0
+                                                      */
+export let bindW = bind; /**
+                         * @category do notation
+                         * @since 2.8.0
+                         */
+export let apS = /*#__PURE__*/apS_(ApplyPar); /**
+                                              * Less strict version of [`apS`](#aps).
+                                              *
+                                              * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                              *
+                                              * @category do notation
+                                              * @since 2.8.0
+                                              */
+export let apSW = apS; /**
+                       * @since 2.11.0
+                       */
+export let ApT = /*#__PURE__*/of(_.emptyReadonlyArray); // -------------------------------------------------------------------------------------
+// array utils
+// -------------------------------------------------------------------------------------
+/**
+ * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(Applicative)`.
+ *
+ * @category traversing
+ * @since 2.11.0
+ */
+export let traverseReadonlyNonEmptyArrayWithIndex = f => flow(R.traverseReadonlyNonEmptyArrayWithIndex(f), R.map(T.traverseReadonlyNonEmptyArrayWithIndex(SK))); /**
+                                                                                                                                                                 * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+                                                                                                                                                                 *
+                                                                                                                                                                 * @category traversing
+                                                                                                                                                                 * @since 2.11.0
+                                                                                                                                                                 */
+export let traverseReadonlyArrayWithIndex = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndex(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(ApplicativeSeq)`.
+   *
+   * @category traversing
+   * @since 2.11.0
+   */
+export let traverseReadonlyNonEmptyArrayWithIndexSeq = f => flow(R.traverseReadonlyNonEmptyArrayWithIndex(f), R.map(T.traverseReadonlyNonEmptyArrayWithIndexSeq(SK))); /**
+                                                                                                                                                                       * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativeSeq)`.
+                                                                                                                                                                       *
+                                                                                                                                                                       * @category traversing
+                                                                                                                                                                       * @since 2.11.0
+                                                                                                                                                                       */
+export let traverseReadonlyArrayWithIndexSeq = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndexSeq(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+   *
+   * @category traversing
+   * @since 2.9.0
+   */
+export let traverseArrayWithIndex = traverseReadonlyArrayWithIndex; /**
+                                                                    * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+                                                                    *
+                                                                    * @category traversing
+                                                                    * @since 2.9.0
+                                                                    */
+export let traverseArray = f => traverseReadonlyArrayWithIndex((_, a) => f(a)); /**
+                                                                                * Equivalent to `ReadonlyArray#sequence(Applicative)`.
+                                                                                *
+                                                                                * @category traversing
+                                                                                * @since 2.9.0
+                                                                                */
+export let sequenceArray = /*#__PURE__*/traverseArray(identity); /**
+                                                                 * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativeSeq)`.
+                                                                 *
+                                                                 * @category traversing
+                                                                 * @since 2.10.0
+                                                                 */
+export let traverseSeqArrayWithIndex = traverseReadonlyArrayWithIndexSeq; /**
+                                                                          * Equivalent to `ReadonlyArray#traverse(ApplicativeSeq)`.
+                                                                          *
+                                                                          * @category traversing
+                                                                          * @since 2.10.0
+                                                                          */
+export let traverseSeqArray = f => traverseReadonlyArrayWithIndexSeq((_, a) => f(a)); // -------------------------------------------------------------------------------------
+// legacy
+// -------------------------------------------------------------------------------------
+/**
+ * Alias of `flatMap`.
+ *
+ * @category legacy
+ * @since 2.3.0
+ */
+export let chain = flatMap; /**
+                            * Alias of `flatMap`.
+                            *
+                            * @category legacy
+                            * @since 2.6.7
+                            */
+export let chainW = flatMap; /**
+                             * Alias of `tap`.
+                             *
+                             * @category legacy
+                             * @since 2.3.0
+                             */
+export let chainFirst = tap; /**
+                             * Alias of `tap`.
+                             *
+                             * @category legacy
+                             * @since 2.11.0
+                             */
+export let chainFirstW = tap; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use `traverseReadonlyArrayWithIndexSeq` instead.
+ *
+ * @category zone of death
+ * @since 2.10.0
+ * @deprecated
+ */
+export let sequenceSeqArray = /*#__PURE__*/traverseSeqArray(identity); /**
+                                                                       * This instance is deprecated, use small, specific instances instead.
+                                                                       * For example if a function needs a `Functor` instance, pass `RT.Functor` instead of `RT.readerTask`
+                                                                       * (where `RT` is from `import RT from 'fp-ts/ReaderTask'`)
+                                                                       *
+                                                                       * @category zone of death
+                                                                       * @since 2.3.0
+                                                                       * @deprecated
+                                                                       */
+export let readerTask = {
+  URI,
+  map: _map,
+  of,
+  ap: _apPar,
+  chain: flatMap,
+  fromIO,
+  fromTask
+}; /**
+   * This instance is deprecated, use small, specific instances instead.
+   * For example if a function needs a `Functor` instance, pass `RT.Functor` instead of `RT.readerTaskSeq`
+   * (where `RT` is from `import RT from 'fp-ts/ReaderTask'`)
+   *
+   * @category zone of death
+   * @since 2.3.0
+   * @deprecated
+   */
+export let readerTaskSeq = {
+  URI,
+  map: _map,
+  of,
+  ap: _apSeq,
+  chain: flatMap,
+  fromIO,
+  fromTask
+}; /**
+   * Use [`getApplySemigroup`](./Apply.ts.html#getapplysemigroup) instead.
+   *
+   * @category zone of death
+   * @since 2.3.0
+   * @deprecated
+   */
+export let getSemigroup = /*#__PURE__*/getApplySemigroup_(ApplySeq); /**
+                                                                     * Use [`getApplicativeMonoid`](./Applicative.ts.html#getapplicativemonoid) instead.
+                                                                     *
+                                                                     * @category zone of death
+                                                                     * @since 2.3.0
+                                                                     * @deprecated
+                                                                     */
+export let getMonoid = /*#__PURE__*/getApplicativeMonoid(ApplicativeSeq); /**
+                                                                          * @category zone of death
+                                                                          * @since 2.4.0
+                                                                          * @deprecated
+                                                                          */ /* istanbul ignore next */
+export let run = (ma, r) => ma(r)();
+//# sourceMappingURL=ReaderTask.js.map

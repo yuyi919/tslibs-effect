@@ -1,0 +1,258 @@
+/* eslint-disable max-classes-per-file */ /* eslint-disable lines-between-class-members */ /* eslint-disable no-param-reassign */
+
+/**
+ * @since 0.6.0
+ */
+import * as E from "fp-ts/Either";
+
+import { identity } from "@yuyi919/shared-proto/Functions";
+import { isInstanceof } from "@yuyi919/shared-proto/JsTypes";
+import { getArrayMonoidFpTs } from "@yuyi919/shared-proto/Monoid";
+import { Pipeable } from "@yuyi919/shared-proto/Pipeable";
+
+import * as S from "./Stream.js";
+
+// -------------------------------------------------------------------------------------
+// model
+// -------------------------------------------------------------------------------------
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export class ParseError extends Pipeable {
+  constructor(input, expected, fatal) {
+    (super(),
+      (this.input = input),
+      (this.expected = expected),
+      (this.fatal = fatal));
+  }
+  setInput(input) {
+    return failedF(input, this.expected, this.fatal);
+  }
+  setExpected(expected) {
+    return failedF(this.input, expected, this.fatal);
+  }
+  setFatal(fatal) {
+    return failedF(this.input, this.expected, fatal);
+  }
+  getErrorCursor() {
+    return S.getCursor(this.input);
+  }
+  extend(err) {
+    let l = getErrorCursor(this),
+      r = getErrorCursor(err);
+    if (l < r) return err;
+    if (l > r) return this;
+    return this.setExpected([...this.expected, ...err.expected]);
+  }
+  clone() {
+    return failedF(this.input, this.expected, this.fatal);
+  }
+}
+export let getInput = (o) => o.input;
+export let getExpected = (o) => o.expected;
+export let isFatal = (o) => o.fatal;
+export let setInput = (o, input) => o.setInput(input);
+export let setFatal = (o, fatal) => o.setFatal(fatal);
+/**
+ * @category model
+ * @since 0.6.0
+ * @seal
+ */
+export class ParseSuccess extends Pipeable {
+  constructor(value, next, start) {
+    (super(), (this.value = value), (this.next = next), (this.start = start));
+  }
+  setValue(value) {
+    return succeedF(value, this.next, this.start);
+  }
+  setNext(next) {
+    return succeedF(this.value, next, this.start);
+  }
+  setStart(start) {
+    return succeedF(this.value, this.next, start);
+  }
+  clone() {
+    return succeedF(this.value, this.next, this.start);
+  }
+  getStartCursor() {
+    return S.getCursor(this.start);
+  }
+  getNextCursor() {
+    return S.getCursor(this.next);
+  }
+  isConsumed() {
+    return S.getCursor(this.next) > S.getCursor(this.start);
+  }
+}
+export let getValue = (result) => result.value;
+export let getNext = (result) => result.next;
+export let getNextCursor = (result) => result.getNextCursor();
+export let getStart = (result) => result.start;
+export let getStartCursor = (result) => result.getStartCursor();
+export let isConsumed = (result) => result.isConsumed();
+export let setValue = (result, value) => result.setValue(value);
+export let mapValue = (result, value) => result.setValue(value(result.value));
+export let setNext = (result, next) => result.setNext(next);
+export let setStart = (result, start) => result.setStart(start);
+export let predicateValue = (o, predicate) => predicate(o.value);
+export let mapStartToF = (result, start) =>
+  isRight(result) ? setStart(result, start) : result;
+export let mapNextToF = (result, next) =>
+  isRight(result) ? setNext(result, next) : result;
+/**
+ * @category model
+ */ /**
+ * @category extractor
+ */ // type A = ParseValue<ParseError<string> | ParseResult<string, { a: string }>>;
+export let getSource = (o) =>
+  S.getBuffer(isRight(o) ? getNext(o) : getInput(o));
+export let getResultCursor = (o) =>
+  S.getCursor(isRight(o) ? getNext(o) : getInput(o));
+let isSuccess = (result) => "value" in result;
+export let getStruct = (result) => {
+  if (isSuccess(result)) {
+    return setStart(
+      setNext(result, S.getStruct(getNext(result))),
+      S.getStruct(getStart(result)),
+    );
+  }
+  return setInput(result, S.getStruct(getInput(result)));
+};
+export let getResult = (result) => {
+  if (isRight(result)) {
+    return setStart(
+      setNext(result, S.getStruct(getNext(result))),
+      S.getStruct(getStart(result)),
+    );
+  }
+  return setInput(result, S.getStruct(getInput(result)));
+};
+export let mapLeft = (f) => (fa) => mapLeftF(fa, f);
+export let mapLeftF = (fa, f) => (isInstanceof(fa, ParseError) ? f(fa) : fa);
+export let isLeft = (result) => isInstanceof(result, ParseError);
+export let isRight = (result) => isInstanceof(result, ParseSuccess);
+export let bimapEither = (f, g) => (fa) => {
+  if (isInstanceof(fa, ParseError)) return E.left(f(fa));
+  return E.right(g(fa));
+};
+export let bimap2 = (f, g) => (fa) => {
+  if (isInstanceof(fa, ParseError)) return f(fa);
+  return g(fa);
+};
+export let bimap = (f, g) => (fa) => {
+  if (isInstanceof(fa, ParseError))
+    return setInput(fa, S.mapF(getInput(fa), f));
+  return succeed(
+    g(getValue(fa)),
+    S.mapF(getNext(fa), f),
+    S.mapF(getStart(fa), f),
+  );
+};
+export let mapStream = (f) => bimap(f, identity);
+export let switchStream = (stream) => (result) => {
+  if (isLeft(result)) return setInput(result, stream);
+  return succeed(
+    getValue(result),
+    S.extendCursor(getNext(result), stream),
+    S.extendCursor(getStart(result), stream),
+  );
+};
+export let chainF = (fa, f) =>
+  isRight(fa) ? f(getValue(fa), getNext(fa), getStart(fa)) : fa;
+export let chain = (f) => (fa) => chainF(fa, f);
+export let map = (f) => (fa) => mapF(fa, f);
+export let mapF = (fa, f) =>
+  isRight(fa) ? setValue(fa, f(getValue(fa), fa)) : fa;
+export let mapTraceF = (fa, f) =>
+  isRight(fa) ? setValue(fa, f(getValue(fa), getStart(fa), getNext(fa))) : fa;
+export let mapTrace = (f) => (fa) => mapTraceF(fa, f);
+export let tapF = (fa, f) =>
+  isRight(fa) ? setValue(fa, f(getValue(fa), getNext(fa), getStart(fa))) : fa;
+export let mapWithSelf = (f) => (fa) =>
+  isRight(fa) ? setValue(fa, f(getValue(fa), fa)) : fa;
+// -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export let succeedF = (value, next, start) =>
+  new ParseSuccess(value, next, start);
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export let succeed = succeedF;
+export let liftMap2F = (fa, fb, f) =>
+  succeedF(f(fa.value, fb.value), fb.next, fa.start);
+export let liftMap3F = (fa, fb, fc, f) =>
+  succeedF(f(fa.value, fb.value, fc.value), fc.next, fa.start);
+export let liftMap4F = (ma, mb, mc, md, f) =>
+  succeedF(f(ma.value, mb.value, mc.value, md.value), md.next, ma.start);
+export let succeedResult = (value, next, start) =>
+  succeed(value, S.getStruct(next), S.getStruct(start));
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export let failedF = (input, expected = EMPTY_EXPECTED, fatal = false) =>
+  new ParseError(input, expected, fatal);
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export let failed = failedF;
+export let Expected = /*#__PURE__*/ getArrayMonoidFpTs();
+export let EMPTY_EXPECTED = Expected.empty;
+export let errorResult = (input, expected = EMPTY_EXPECTED, fatal = false) =>
+  failed(S.getStruct(input), expected, fatal);
+// -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export let withExpected = (err, expected) => err.setExpected(expected);
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export let escalate = (err) => err.setFatal(true);
+export let getErrorCursor = (err) => err.getErrorCursor();
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export let extend = (x, y) => x.extend(y);
+// export const extend = <I>(
+//   err1: ParseError<I>,
+//   err2: ParseError<I>,
+// ): ParseError<I> => getSemigroup<I>().concat(err1, err2);
+// -------------------------------------------------------------------------------------
+// instances
+// -------------------------------------------------------------------------------------
+// const getSemigroup = <I>(): Semigroup<ParseError<I>> => ({
+//   concat: (x, y) => {
+//     if (getErrorCursor(x) < getErrorCursor(y))
+//       return last<ParseError<I>>().concat(x, y);
+//     if (getErrorCursor(x) > getErrorCursor(y))
+//       return first<ParseError<I>>().concat(x, y);
+//     return struct<ParseError<I>>({
+//       input: first<IStream<I>>(),
+//       fatal: first<boolean>(),
+//       expected: getMonoid<string>(),
+//     }).concat(x, y);
+//   },
+// });
+/**
+ * @category instances
+ * @since 0.6.0
+ */
+export let URI = "ParseResult"; /**
+ * @category instances
+ * @since 0.6.0
+ */
+//# sourceMappingURL=ParseResult.js.map

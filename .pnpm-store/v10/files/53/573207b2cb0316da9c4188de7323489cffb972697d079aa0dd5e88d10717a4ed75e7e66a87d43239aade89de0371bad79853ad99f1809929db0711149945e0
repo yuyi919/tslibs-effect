@@ -1,0 +1,13 @@
+export function $$Object(M: any): {};
+export function Id(M: any): {};
+export function IdUnsafe(M: any): {};
+export function Proto(M: any): {
+    indexOfOpt: (arr: any, item: any) => any;
+    lastIndexOfOpt: (arr: any, item: any) => any;
+    findIndexOpt: (fa: any, finder: any) => any;
+    reduceI: (arr: any, init: any, f: any) => any;
+    reduce: (arr: any, init: any, f: any) => any;
+    reduceRight: (arr: any, init: any, f: any) => any;
+    reduceRightI: (arr: any, init: any, f: any) => any;
+};
+//# sourceMappingURL=NativeArray.bs.d.ts.map

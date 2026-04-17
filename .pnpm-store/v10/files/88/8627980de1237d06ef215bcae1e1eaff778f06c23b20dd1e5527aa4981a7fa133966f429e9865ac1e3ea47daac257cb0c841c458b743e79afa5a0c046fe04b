@@ -1,0 +1,10 @@
+'use strict';
+
+var a=t=>(e,r)=>t.chain(e,n=>t.map(r(n),()=>n));function l(t,e,r,n,o,u,p,s,m){switch(arguments.length){case 1:return t;case 2:return function(){return e(t.apply(this,arguments))};case 3:return function(){return r(e(t.apply(this,arguments)))};case 4:return function(){return n(r(e(t.apply(this,arguments))))};case 5:return function(){return o(n(r(e(t.apply(this,arguments)))))};case 6:return function(){return u(o(n(r(e(t.apply(this,arguments))))))};case 7:return function(){return p(u(o(n(r(e(t.apply(this,arguments)))))))};case 8:return function(){return s(p(u(o(n(r(e(t.apply(this,arguments))))))))};case 9:return function(){return m(s(p(u(o(n(r(e(t.apply(this,arguments)))))))))}}}var k=t=>e=>l(e,t.fromTask),w=(t,e)=>r=>{let n=l(r,t.fromTask);return o=>e.chain(o,n)},d=(t,e)=>{let r=c(t,e);return n=>o=>r(o,n)},c=(t,e)=>{let r=a(e);return (n,o)=>r(n,l(o,t.fromTask))};
+
+exports.chainFirstTaskK = d;
+exports.chainTaskK = w;
+exports.fromTaskK = k;
+exports.tapTask = c;
+//# sourceMappingURL=FromTask.js.map
+//# sourceMappingURL=FromTask.js.map

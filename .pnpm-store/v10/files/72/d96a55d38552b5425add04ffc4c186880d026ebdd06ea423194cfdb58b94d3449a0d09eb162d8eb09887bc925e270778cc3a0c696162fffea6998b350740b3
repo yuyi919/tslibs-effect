@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/MeetSemilattice.js",
+  "module": "../dist/esm/MeetSemilattice.js",
+  "types": "../dist/esm/MeetSemilattice.d.ts",
+  "sideEffects": []
+}

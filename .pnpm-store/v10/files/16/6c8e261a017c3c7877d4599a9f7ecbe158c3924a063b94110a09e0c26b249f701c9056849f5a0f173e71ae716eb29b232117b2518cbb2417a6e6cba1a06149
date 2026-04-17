@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Set.js",
+  "module": "../dist/esm/Set.js",
+  "types": "../dist/esm/Set.d.ts",
+  "sideEffects": []
+}

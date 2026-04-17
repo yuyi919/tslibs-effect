@@ -1,0 +1,26 @@
+'use strict';
+
+var I=t=>()=>({concat:(e,r)=>o=>t.concat(e(o),r(o))}),i=t=>{let e=I(t);return ()=>({concat:e().concat,empty:()=>t.empty})};var x=t=>t;function g(t,e,r,o,l,n,c,m,z){switch(arguments.length){case 1:return t;case 2:return function(){return e(t.apply(this,arguments))};case 3:return function(){return r(e(t.apply(this,arguments)))};case 4:return function(){return o(r(e(t.apply(this,arguments))))};case 5:return function(){return l(o(r(e(t.apply(this,arguments)))))};case 6:return function(){return n(l(o(r(e(t.apply(this,arguments))))))};case 7:return function(){return c(n(l(o(r(e(t.apply(this,arguments)))))))};case 8:return function(){return m(c(n(l(o(r(e(t.apply(this,arguments))))))))};case 9:return function(){return z(m(c(n(l(o(r(e(t.apply(this,arguments)))))))))}}}var j=()=>({concat:(t,e)=>g(t,e)}),s=()=>({concat:j().concat,empty:x});var a=Object.prototype.hasOwnProperty;var y=t=>({concat:(e,r)=>t.concat(r,e)});var S=t=>e=>r=>r.reduce((o,l)=>t.concat(o,l),e);var d=t=>(e,r)=>e===r||t.compare(e,r)<1?e:r,h=t=>(e,r)=>e===r||t.compare(e,r)>-1?e:r;var M=t=>({concat:d(t)}),q=t=>({concat:h(t)}),P=t=>({concat:()=>t}),O=y,_=t=>({concat:(e,r)=>{let o={};for(let l in t)a.call(t,l)&&(o[l]=t[l].concat(e[l],r[l]));return o}}),A=(...t)=>({concat:(e,r)=>t.map((o,l)=>o.concat(e[l],r[l]))});var E=S,v=P(void 0);var R={concat:(t,e)=>t&&e},N={concat:(t,e)=>t||e};var w={concat:(t,e)=>t+e},T={concat:(t,e)=>t+e},D={concat:(t,e)=>t*e};var V=t=>({concat:M(t).concat,empty:t.top}),J=t=>({concat:q(t).concat,empty:t.bottom}),F=t=>({concat:O(t).concat,empty:t.empty}),K=t=>{let e={};for(let r in t)a.call(t,r)&&(e[r]=t[r].empty);return {concat:_(t).concat,empty:e}},G=(...t)=>({concat:A(...t).concat,empty:t.map(e=>e.empty)}),H=t=>E(t)(t.empty),ct={concat:v.concat,empty:void 0},ut=G,mt=K,it=F,xt=J,gt=V,st=H,ft={concat:R.concat,empty:!0},yt={concat:N.concat,empty:!1},St=i,dt=()=>F(s()),ht={concat:w.concat,empty:""},Mt={concat:T.concat,empty:0},qt={concat:D.concat,empty:1};
+
+exports.concatAll = H;
+exports.fold = st;
+exports.getDualMonoid = it;
+exports.getEndomorphismMonoid = dt;
+exports.getFunctionMonoid = St;
+exports.getJoinMonoid = xt;
+exports.getMeetMonoid = gt;
+exports.getStructMonoid = mt;
+exports.getTupleMonoid = ut;
+exports.max = J;
+exports.min = V;
+exports.monoidAll = ft;
+exports.monoidAny = yt;
+exports.monoidProduct = qt;
+exports.monoidString = ht;
+exports.monoidSum = Mt;
+exports.monoidVoid = ct;
+exports.reverse = F;
+exports.struct = K;
+exports.tuple = G;
+//# sourceMappingURL=Monoid.js.map
+//# sourceMappingURL=Monoid.js.map

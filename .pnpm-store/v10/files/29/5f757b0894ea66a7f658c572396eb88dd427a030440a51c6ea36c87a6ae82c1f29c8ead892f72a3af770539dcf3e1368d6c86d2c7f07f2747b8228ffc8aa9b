@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/boolean.js",
+  "module": "../dist/esm/boolean.js",
+  "types": "../dist/esm/boolean.d.ts",
+  "sideEffects": []
+}

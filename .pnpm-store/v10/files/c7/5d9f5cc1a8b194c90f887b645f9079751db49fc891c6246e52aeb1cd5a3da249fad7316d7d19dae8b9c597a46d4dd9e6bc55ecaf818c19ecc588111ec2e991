@@ -1,0 +1,33 @@
+import type { Either } from "fp-ts/Either";
+import type { Option } from "fp-ts/Option";
+import type { Fn, Predicate, Refinement } from "./Types";
+/**
+ * Represents an `Ok` value.
+ */
+export type Ok<A, E = never> = {
+    ok: true;
+    data: A;
+    reason: undefined;
+} | {
+    ok: false;
+    data: undefined;
+    reason: E;
+};
+/**
+ * Represents an {@link Ok} `Promise` value.
+ */
+export type PromiseOk<A, E = never> = Promise<Ok<A, E>>;
+/**
+ * Creates an `Ok` value.
+ */
+export declare function ok<A, E = never>(value: A): Ok<A, E>;
+/**
+ * Creates a `No` value.
+ */
+export declare function no<E, A = never>(value: E): Ok<A, E>;
+export declare function tryWithOk<F extends Fn>(fn: F): <E = unknown>(...args: Parameters<F>) => Ok<ReturnType<Fn>, E>;
+export declare function liftPredicate<A, B extends A>(fn: Refinement<A, B>): (input: A) => Ok<B, void>;
+export declare function liftPredicate<A>(fn: Predicate<A>): (input: A) => Ok<A>;
+export declare function fromEither<E, A>(e: Either<E, A>): Ok<A, E>;
+export declare function fromOption<A>(e: Option<A>): Ok<A>;
+//# sourceMappingURL=Ok.d.ts.map

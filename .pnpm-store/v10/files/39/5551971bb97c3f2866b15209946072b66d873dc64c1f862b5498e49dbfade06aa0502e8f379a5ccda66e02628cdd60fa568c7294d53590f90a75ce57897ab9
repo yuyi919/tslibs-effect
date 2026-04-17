@@ -1,0 +1,23 @@
+'use strict';
+
+var chunk6FK5C7RP_js = require('./chunk-6FK5C7RP.js');
+var chunk3Y24NWRM_js = require('./chunk-3Y24NWRM.js');
+var chunkVWZLWV4E_js = require('./chunk-VWZLWV4E.js');
+var chunkFB7RHMIF_js = require('./chunk-FB7RHMIF.js');
+var chunk6S2JOPCS_js = require('./chunk-6S2JOPCS.js');
+var chunk3O6RAPAW_js = require('./chunk-3O6RAPAW.js');
+
+var w=(r,i)=>[{message:r,meta:i}],y=(...r)=>r.flat(1),a=chunk3O6RAPAW_js.n,L=()=>chunkFB7RHMIF_js.p(r=>r,{option:chunk3Y24NWRM_js.h,either:void 0,is:r=>!0,unbox:a}),R=(...r)=>{let i=r.length===2?t=>r[0](t)?(void 0)(t):(void 0)(r[1](t)):t=>r[0](t).match(void 0,()=>(void 0)(t));return chunkFB7RHMIF_js.p(t=>chunk6FK5C7RP_js.a(i(t),chunk3O6RAPAW_js.m),{option:t=>chunk6FK5C7RP_js.b(i(t)),either:i,is:t=>(void 0)(i(t)),unbox:a})},T=(...r)=>{let i=t=>{let o=(void 0)(t);for(let c of r){let l=c.either(t);(void 0)(o)&&(void 0)(l)?o=(void 0)([...o.left,...l.left]):o=(void 0)(o)?o:l;}return o};return chunkFB7RHMIF_js.p(t=>chunk6FK5C7RP_js.c(i(t),chunk3O6RAPAW_js.m,chunk6S2JOPCS_js.c),{option:t=>chunk6FK5C7RP_js.b(i(t)),either:i,is:t=>(void 0)(i(t))})},C=()=>chunk3O6RAPAW_js.n,N=()=>chunk3O6RAPAW_js.n,F=()=>chunk3O6RAPAW_js.n,U=r=>chunkVWZLWV4E_js.a(r.is);
+
+exports.all = T;
+exports.error = w;
+exports.errors = y;
+exports.getAsserts = U;
+exports.liftF = C;
+exports.rxConstruct = N;
+exports.rxUnbox = F;
+exports.strictNewtype = R;
+exports.unbox = a;
+exports.unsafeNewtype = L;
+//# sourceMappingURL=Newtype.js.map
+//# sourceMappingURL=Newtype.js.map

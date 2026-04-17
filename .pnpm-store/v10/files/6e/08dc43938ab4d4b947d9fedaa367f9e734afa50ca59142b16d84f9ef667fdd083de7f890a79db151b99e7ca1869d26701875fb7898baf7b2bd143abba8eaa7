@@ -1,0 +1,321 @@
+import type * as equivalence from "@yuyi919/shared-proto/Equivalence";
+import type { Pipeable } from "@yuyi919/shared-proto/Pipeable";
+import * as Option from "./Option";
+import * as order from "./Order";
+export declare const $Duration = "Duration";
+export declare const TypeId: unique symbol;
+/**
+ * @since 0.0.0
+ * @category symbol
+ */
+export type TypeId = typeof TypeId;
+/**
+ * @category models
+ */
+export interface DurationExtensions {
+}
+/**
+ * @category models
+ */
+export interface DurationProto extends Pipeable {
+    readonly [TypeId]: (_: unknown) => void;
+}
+/**
+ * @category models
+ */
+export interface Duration extends DurationProto, DurationExtensions {
+    readonly A: DurationValue;
+}
+export type DurationValue = number | bigint;
+export declare function isInfinity(value: unknown): value is DurationValue;
+export declare function isNanos(value: DurationValue): value is bigint;
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type Unit = "nano" | "nanos" | "micro" | "micros" | "milli" | "millis" | "second" | "seconds" | "minute" | "minutes" | "hour" | "hours" | "day" | "days" | "week" | "weeks";
+export type ShortcutUnit = "d" | "h" | "m" | "s" | "ms" | "µs" | "ns";
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type DurationInput = Duration | number | bigint | [seconds: number, nanos: number] | DurationInputString;
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type DurationInputString = `${number} ${Unit}` | `${number}${ShortcutUnit}`;
+/**
+ * @since 0.0.0
+ */
+export declare function decode(input: DurationInput): Duration;
+export declare function parse(input: DurationInputString): Duration;
+/**
+ * @since 0.0.0
+ */
+export declare const decodeUnknown: (u: unknown) => Option.Option<Duration>;
+export declare const zeroValue: DurationValue;
+export declare const infinityValue: DurationValue;
+export declare const DurationProto: DurationProto;
+export declare function addExtensions<Extends extends {}>(exts: Partial<DurationProto> & Extends): DurationProto & Extends;
+/**
+ * @since 0.0.0
+ * @category guards
+ */
+export declare const isDuration: (u: unknown) => u is Duration;
+/**
+ * @since 0.0.0
+ * @category guards
+ */
+export declare function isZero(duration: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const zero: Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const infinity: Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const nanos: (nanos: bigint) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const micros: (micros: bigint) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const millis: (millis: number) => Duration;
+export { millis as ms };
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const seconds: (seconds: number) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const minutes: (minutes: number) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const hours: (hours: number) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const days: (days: number) => Duration;
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export declare const weeks: (weeks: number) => Duration;
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export declare function toMillis(self: Duration): number;
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export declare function toSeconds(self: Duration): number;
+/**
+ * Get the duration in nanoseconds as a bigint.
+ *
+ * If the duration is infinite, it throws an error.
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export declare function unsafeToNanos(self: Duration): bigint;
+/**
+ * Get the duration in nanoseconds as a bigint.
+ *
+ * If the duration is infinite, returns `Option.none()`
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export declare function toNanos(self: Duration): Option.Option<bigint>;
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export declare function toHrTime(self: Duration): [seconds: number, nanos: number];
+export declare function _match<A, B>(self: Duration, onMillis: (millis: number) => A, onNanos: (nanos: bigint) => B): A | B;
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export declare const match: {
+    <A, B>(onMillis: (millis: number) => A, onNanos: (nanos: bigint) => B): (self: Duration) => A | B;
+    <A, B>(self: Duration, onMillis: (millis: number) => A, onNanos: (nanos: bigint) => B): A | B;
+};
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export declare const decodeAndMatch: {
+    <A, B>(onMillis: (millis: number) => A, onNanos: (nanos: bigint) => B): (self: DurationInput) => A | B;
+    <A, B>(self: DurationInput, onMillis: (millis: number) => A, onNanos: (nanos: bigint) => B): A | B;
+};
+export declare function _matchWith<A, B>(self: Duration, that: Duration, onMillis: (self: number, that: number) => A, onNanos: (self: bigint, that: bigint) => B): A | B;
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export declare const decodeAndMatchWith: {
+    <A, B>(that: DurationInput, onMillis: (self: number, that: number) => A, onNanos: (self: bigint, that: bigint) => B): (self: DurationInput) => A | B;
+    <A, B>(self: DurationInput, that: DurationInput, onMillis: (self: number, that: number) => A, onNanos: (self: bigint, that: bigint) => B): A | B;
+};
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export declare const matchWith: {
+    <A, B>(that: Duration, onMillis: (self: number, that: number) => A, onNanos: (self: bigint, that: bigint) => B): (self: Duration) => A | B;
+    <A, B>(self: Duration, that: Duration, onMillis: (self: number, that: number) => A, onNanos: (self: bigint, that: bigint) => B): A | B;
+};
+/**
+ * @category instances
+ * @since 0.0.0
+ */
+export declare const Order: order.Order<Duration>;
+/**
+ * Checks if a `Duration` is between a `minimum` and `maximum` value.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export declare const between: {
+    (min: Duration, max: Duration): (self: Duration) => boolean;
+    (self: Duration, min: Duration, max: Duration): boolean;
+};
+/**
+ * Checks if a `Duration` is between a `minimum` and `maximum` value.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export declare const betweenInput: {
+    (min: DurationInput, max: DurationInput): (self: DurationInput) => boolean;
+    (self: DurationInput, min: DurationInput, max: DurationInput): boolean;
+};
+/**
+ * @category instances
+ * @since 0.0.0
+ */
+export declare const Equivalence: equivalence.Equivalence<Duration>;
+export declare function min(that: Duration): (self: Duration) => Duration;
+export declare function min(self: Duration, that: Duration): Duration;
+export declare function max(that: Duration): (self: Duration) => Duration;
+export declare function max(self: Duration, that: Duration): Duration;
+export declare function clamp(min: Duration, max: Duration): (self: Duration) => Duration;
+export declare function clamp(self: Duration, min: Duration, max: Duration): Duration;
+/**
+ * @since 0.0.0
+ */
+export declare function clampInput(min: DurationInput, max: DurationInput): (self: DurationInput) => Duration;
+export declare function clampInput(self: DurationInput, min: DurationInput, max: DurationInput): Duration;
+export declare function _divide(self: Duration, by: number): Option.Option<Duration>;
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export declare const divide: {
+    (by: number): (self: Duration) => Option.Option<Duration>;
+    (self: Duration, by: number): Option.Option<Duration>;
+};
+export declare function _unsafeDivide(self: Duration, by: number): Duration;
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export declare function unsafeDivide(by: number): (self: Duration) => Duration;
+export declare function unsafeDivide(self: Duration, by: number): Duration;
+export declare function _times(self: Duration, times: number): Duration;
+export declare function times(times: number): (self: Duration) => Duration;
+export declare function times(self: Duration, times: number): Duration;
+export declare function _subtract(self: Duration, that: Duration): Duration;
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export declare function subtract(that: Duration): (self: Duration) => Duration;
+export declare function subtract(self: Duration, that: Duration): Duration;
+export declare function _sum(self: Duration, that: Duration): Duration;
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export declare function sum(that: Duration): (self: Duration) => Duration;
+export declare function sum(self: Duration, that: Duration): Duration;
+export declare function _lessThan(self: Duration, that: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export declare function lessThan(that: Duration): (self: Duration) => boolean;
+export declare function lessThan(self: Duration, that: Duration): boolean;
+export declare function _lessThanOrEqualTo(self: Duration, that: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export declare function lessThanOrEqualTo(that: Duration): (self: Duration) => boolean;
+export declare function lessThanOrEqualTo(self: Duration, that: Duration): boolean;
+export declare function _greaterThan(self: Duration, that: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export declare function greaterThan(that: Duration): (self: Duration) => boolean;
+export declare function greaterThan(self: Duration, that: Duration): boolean;
+export declare function _greaterThanOrEqualTo(self: Duration, that: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export declare function greaterThanOrEqualTo(that: Duration): (self: Duration) => boolean;
+export declare function greaterThanOrEqualTo(self: Duration, that: Duration): boolean;
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export declare function equals(that: Duration): (self: Duration) => boolean;
+export declare function equals(self: Duration, that: Duration): boolean;
+/**
+ * Converts a `Duration` to its parts.
+ *
+ * @since 0.0.0
+ * @category conversions
+ */
+export declare function parts(self: DurationInput): {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    millis: number;
+    nanos: number;
+};
+/**
+ * Converts a `Duration` to a human readable string.
+ * @since 0.0.0
+ *
+ * @example
+ *
+ * toDurationString(Duration.millis(1000)) // "1s"
+ * toDurationString(Duration.millis(1001)) // "1s 1ms"
+ */
+export declare function toDurationString(self: DurationInput): string;
+//# sourceMappingURL=Duration.d.ts.map

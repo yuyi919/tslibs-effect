@@ -1,0 +1,7 @@
+'use strict';
+
+var d=l=>e=>t=>t.reduce((a,r)=>l.alt(a,()=>r),e);
+
+exports.altAll = d;
+//# sourceMappingURL=Alt.js.map
+//# sourceMappingURL=Alt.js.map

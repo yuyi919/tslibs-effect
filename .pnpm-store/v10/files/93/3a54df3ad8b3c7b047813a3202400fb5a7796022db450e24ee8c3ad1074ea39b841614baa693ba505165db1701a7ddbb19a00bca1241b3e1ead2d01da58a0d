@@ -1,0 +1,16 @@
+'use strict';
+
+var chunk3O6RAPAW_js = require('./chunk-3O6RAPAW.js');
+
+var y=n=>`${chunk3O6RAPAW_js.a.__KEY_RETURN} ${n}`;var f=chunk3O6RAPAW_js.e(()=>!!chunk3O6RAPAW_js.g(y("1"),[]),n=>!1);var m=(n,r)=>n+(chunk3O6RAPAW_js.d(r)?`.${r}`:`[${r}]`);var x=(n,r)=>chunk3O6RAPAW_js.d(r)?`(${n})=>${r}`:`(${n})=>{
+  ${r.flat(1).join(`
+  `)}
+}`;function _(n,r,e){return l(n,(...o)=>y(x(r,e(r)(...o))))}function l(n,r){let e=n.map((s,i)=>`$${s.name??"arg"}$`+i),o=e.map((s,i)=>chunk3O6RAPAW_js.c(n[i])?(...c)=>`${s}(
+  ${c.join(",")}
+)`:s);return chunk3O6RAPAW_js.g(r(...o),e)(...n)}
+
+exports.a = f;
+exports.b = m;
+exports.c = _;
+//# sourceMappingURL=chunk-ZC2FFBV6.js.map
+//# sourceMappingURL=chunk-ZC2FFBV6.js.map

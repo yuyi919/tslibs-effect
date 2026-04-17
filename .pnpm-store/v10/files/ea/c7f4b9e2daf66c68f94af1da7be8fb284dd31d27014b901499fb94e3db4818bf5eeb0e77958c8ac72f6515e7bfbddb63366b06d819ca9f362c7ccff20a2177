@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Apply.js",
+  "module": "../dist/esm/Apply.js",
+  "types": "../dist/esm/Apply.d.ts",
+  "sideEffects": []
+}

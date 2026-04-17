@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Witherable.js",
+  "module": "../dist/esm/Witherable.js",
+  "types": "../dist/esm/Witherable.d.ts",
+  "sideEffects": []
+}

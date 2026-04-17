@@ -1,0 +1,65 @@
+/**
+ * @since 2.0.0
+ */import { ap as ap_ } from "./Apply.js";
+import { constant, flow, pipe } from "./function.js";
+import { map as map_ } from "./Functor.js";
+import * as O from "./Option.js";
+export let some = F => flow(O.some, F.of);
+export let zero = F => constant(F.of(O.none));
+export let fromF = F => ma => F.map(ma, O.some);
+export let fromNullable = F => flow(O.fromNullable, F.of);
+export let fromNullableK = F => {
+  let fromNullableF = fromNullable(F);
+  return f => flow(f, fromNullableF);
+};
+export let chainNullableK = M => {
+  let chainM = chain(M);
+  let fromNullableKM = fromNullableK(M);
+  return f => chainM(fromNullableKM(f));
+};
+export let fromOptionK = F => f => flow(f, F.of);
+export let chainOptionK = M => {
+  let chainM = chain(M);
+  let fromOptionKM = fromOptionK(M);
+  return f => chainM(fromOptionKM(f));
+};
+export let fromPredicate = F => predicate => a => F.of(O.fromPredicate(predicate)(a));
+export let fromEither = F => flow(O.fromEither, F.of);
+export let match = F => (onNone, onSome) => ma => F.map(ma, O.match(onNone, onSome));
+export let matchE = M => (onNone, onSome) => ma => M.chain(ma, O.match(onNone, onSome));
+export let getOrElse = M => onNone => fa => M.chain(fa, O.match(onNone, M.of));
+export let map = F => map_(F, O.Functor);
+export let ap = F => ap_(F, O.Apply);
+export let chain = M => {
+  let flatMapM = flatMap(M);
+  return f => ma => flatMapM(ma, f);
+}; /** @internal */
+export let flatMap = M => {
+  let zeroM = zero(M);
+  return (ma, f) => M.chain(ma, O.match(() => zeroM(), f));
+};
+export let alt = M => {
+  let _some = some(M);
+  return second => first => M.chain(first, O.match(second, _some));
+}; /** @deprecated */
+export let getOptionM = M => {
+  let apM = ap(M);
+  let mapM = map(M);
+  let chainM = chain(M);
+  let altM = alt(M);
+  let foldM = matchE(M);
+  let getOrElseM = getOrElse(M);
+  let zeroM = zero(M);
+  return {
+    map: (fa, f) => mapM(f)(fa),
+    ap: (fab, fa) => apM(fa)(fab),
+    of: some(M),
+    chain: (ma, f) => chainM(f)(ma),
+    alt: (fa, that) => altM(that)(fa),
+    fold: (fa, onNone, onSome) => foldM(onNone, onSome)(fa),
+    getOrElse: (fa, onNone) => getOrElseM(onNone)(fa),
+    fromM: fromF(M),
+    none: () => zeroM()
+  };
+};
+//# sourceMappingURL=OptionT.js.map

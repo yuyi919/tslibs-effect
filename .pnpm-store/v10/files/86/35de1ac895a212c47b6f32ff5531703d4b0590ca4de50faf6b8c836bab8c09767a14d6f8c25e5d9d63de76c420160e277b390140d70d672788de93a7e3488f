@@ -1,0 +1,4 @@
+@val external node_env: string = "process.env.NODE_ENV"
+
+@inline
+let isProd = () => node_env !== "production"

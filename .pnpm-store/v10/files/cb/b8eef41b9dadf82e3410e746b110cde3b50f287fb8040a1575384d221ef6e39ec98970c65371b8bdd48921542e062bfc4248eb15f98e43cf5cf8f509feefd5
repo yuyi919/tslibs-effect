@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/HashFactory.js",
+  "module": "../dist/esm/HashFactory.js",
+  "types": "../dist/esm/HashFactory.d.ts",
+  "sideEffects": []
+}

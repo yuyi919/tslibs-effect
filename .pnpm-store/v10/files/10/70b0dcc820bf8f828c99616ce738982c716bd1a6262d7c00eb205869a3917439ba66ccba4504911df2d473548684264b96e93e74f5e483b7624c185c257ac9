@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/DistributiveLattice.js",
+  "module": "../dist/esm/DistributiveLattice.js",
+  "types": "../dist/esm/DistributiveLattice.d.ts",
+  "sideEffects": []
+}

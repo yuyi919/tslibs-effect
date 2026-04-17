@@ -1,0 +1,29 @@
+'use strict';
+
+var r=e=>e,p=r;var i=e=>t=>o=>e.map(o,c=>c(t));var l=p,L=e=>({show:t=>`make(${e.show(t)})`}),j=r,M=r,U=r,k=r,v=r,O=r,R=r,T=r,q=r,g=e=>({URI:n,_E:void 0,map:u,ap:(t,o)=>l(e.concat(t,o))}),D=e=>{let t=g(e);return {URI:n,_E:void 0,map:t.map,ap:t.ap,of:()=>l(e.empty)}},m=(e,t)=>f()(e),u=(e,t)=>h()(e),s=(e,t,o)=>d(t)(e),x=(e,t)=>y(t)(e),f=()=>p,h=()=>p,d=e=>t=>l(e(t)),y=e=>t=>l(e(t)),n="Const",_={URI:n,map:u},H=i(_),I={URI:n,contramap:m},K={URI:n,bimap:s,mapLeft:x},N={URI:n,map:u,contramap:m,bimap:s,mapLeft:x};
+
+exports.Bifunctor = K;
+exports.Contravariant = I;
+exports.Functor = _;
+exports.URI = n;
+exports.bimap = d;
+exports.const_ = N;
+exports.contramap = f;
+exports.flap = H;
+exports.getApplicative = D;
+exports.getApply = g;
+exports.getBooleanAlgebra = q;
+exports.getBounded = U;
+exports.getEq = j;
+exports.getHeytingAlgebra = T;
+exports.getMonoid = v;
+exports.getOrd = M;
+exports.getRing = R;
+exports.getSemigroup = k;
+exports.getSemiring = O;
+exports.getShow = L;
+exports.make = l;
+exports.map = h;
+exports.mapLeft = y;
+//# sourceMappingURL=Const.js.map
+//# sourceMappingURL=Const.js.map

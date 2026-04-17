@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Ring.js",
+  "module": "../dist/esm/Ring.js",
+  "types": "../dist/esm/Ring.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/PresetExtensions.js",
+  "module": "../dist/esm/PresetExtensions.js",
+  "types": "../dist/esm/PresetExtensions.d.ts",
+  "sideEffects": []
+}

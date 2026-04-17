@@ -1,0 +1,87 @@
+import { isFn, isObj } from "@yuyi919/shared-proto/JsTypes";
+
+/**
+ * @function getReferenceKey
+ *
+ * @description
+ * get the reference key for the circular value
+ *
+ * @param keys the keys to build the reference key from
+ * @param cutoff the maximum number of keys to include
+ * @returns the reference key
+ */
+let getReferenceKey = (keys, cutoff) => keys.slice(0, cutoff).join(".") || ".";
+/**
+ * @function getCutoff
+ *
+ * @description
+ * faster `Array.prototype.indexOf` implementation build for slicing / splicing
+ *
+ * @param array the array to match the value in
+ * @param value the value to match
+ * @returns the matching index, or -1
+ */
+let getCutoff = (array, value) => {
+  let { length } = array;
+  for (let index = 0; index < length; ++index) {
+    if (array[index] === value) {
+      return index + 1;
+    }
+  }
+  return 0;
+};
+/**
+ * @function createReplacer
+ *
+ * @description
+ * create a replacer method that handles circular values
+ *
+ * @param [replacer] a custom replacer to use for non-circular values
+ * @param [circularReplacer] a custom replacer to use for circular methods
+ * @returns the value to stringify
+ */
+let createReplacer = (replacer, circularReplacer) => {
+  let hasReplacer = isFn(replacer);
+  let hasCircularReplacer = isFn(circularReplacer);
+  let cache = [];
+  let keys = [];
+  return function replace(key, value) {
+    if (isObj(value)) {
+      if (cache.length) {
+        let thisCutoff = getCutoff(cache, this);
+        if (thisCutoff === 0) {
+          cache[cache.length] = this;
+        } else {
+          cache.splice(thisCutoff);
+          keys.splice(thisCutoff);
+        }
+        keys[keys.length] = key;
+        let valueCutoff = getCutoff(cache, value);
+        if (valueCutoff !== 0) {
+          return hasCircularReplacer
+            ? circularReplacer(key, value, getReferenceKey(keys, valueCutoff))
+            : `[Circular]`;
+        }
+      } else {
+        cache[0] = value;
+        keys[0] = key;
+      }
+    }
+    return hasReplacer ? replacer(key, value) : value;
+  };
+};
+/**
+ * @function stringify
+ *
+ * @description
+ * strinigifer that handles circular values
+ *
+ * @param the value to stringify
+ * @param [replacer] a custom replacer function for handling standard values
+ * @param [indent] the number of spaces to indent the output by
+ * @param [circularReplacer] a custom replacer function for handling circular values
+ * @returns the stringified output
+ */
+export let stringify4 = (value, replacer, indent, circularReplacer) =>
+  JSON.stringify(value, createReplacer(replacer, circularReplacer), indent);
+//# sourceMappingURL=stringifyCircular.js.map

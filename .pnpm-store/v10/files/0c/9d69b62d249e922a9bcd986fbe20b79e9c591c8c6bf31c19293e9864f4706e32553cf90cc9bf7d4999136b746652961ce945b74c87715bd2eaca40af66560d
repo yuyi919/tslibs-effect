@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Chain.js",
+  "module": "../dist/esm/Chain.js",
+  "types": "../dist/esm/Chain.d.ts",
+  "sideEffects": []
+}

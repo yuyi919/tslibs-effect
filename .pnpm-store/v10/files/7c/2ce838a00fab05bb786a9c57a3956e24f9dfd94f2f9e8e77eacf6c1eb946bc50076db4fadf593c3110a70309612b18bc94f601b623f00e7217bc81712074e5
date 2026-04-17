@@ -1,0 +1,108 @@
+// import { combineAll, hash, type HashValue } from "@yuyi919/shared-proto/Hash"
+import { pureMemoize } from "@yuyi919/shared-proto/Functions";
+import { globalValue } from "@yuyi919/shared-proto/GlobalValue";
+import * as JsTypes from "@yuyi919/shared-proto/JsTypes";
+import { symbolForEffect } from "@yuyi919/shared-proto/Symbol";
+
+import * as CONTSTANTS from "./constant/index.js";
+
+/** @internal */
+export let randomHashCache = /*#__PURE__*/ globalValue(
+  /*#__PURE__*/ symbolForEffect("Hash/randomHashCache"),
+  () => new CONTSTANTS.WEAKMAP(),
+);
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export let random = (self) => {
+  if (!randomHashCache.has(self)) {
+    randomHashCache.set(
+      self,
+      number(Math.floor(Math.random() * CONTSTANTS.MAX_SAFE_INTEGER)),
+    );
+  }
+  return randomHashCache.get(self);
+};
+let _number = 0xffffffff;
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export let number = (n) => {
+  if (n !== n || n === CONTSTANTS.INFINITY) {
+    return 0;
+  }
+  let h = n | 0;
+  if (h !== n) {
+    h ^= n * _number;
+  }
+  while (n > _number) {
+    h ^= n /= _number;
+  }
+  return optimize(h);
+};
+export let string = (str) => {
+  let h = 5381,
+    i = str.length;
+  while (i) {
+    h = (h * 33) ^ str.codePointAt(--i);
+  }
+  return optimize(h);
+};
+export let boolean = (value) => (value ? HASH_TRUE : HASH_FALSE);
+export let memoizedString = () => pureMemoize(string);
+export let bigInt = (self) => string(self.toString(10));
+export let memoizedBigInt = () => pureMemoize(bigInt);
+export let symbol = (self) => string(JsTypes.toString(self));
+export let memoizedSymbol = () => pureMemoize(symbol);
+export let KEYWORD_HASH = /*#__PURE__*/ memoizedString();
+export let optimize = (n) => (n & 0xbfffffff) | ((n >>> 1) & 0x40000000);
+/**
+ * 拷贝自effect/Hash的非柯里化版本
+ */
+export let combine2 = (a, b) => (a * 53) ^ b;
+/**
+ *
+ * @remark 同`combine2(a, combine2(b, c))`
+ */
+export let combine3 = (a, b, c) => (a * 53) ^ ((b * 53) ^ c);
+/**
+ * 拷贝自effect/Hash
+ */
+export let combineWith = (b) => (self) => combine2(self, b);
+/** @internal */
+export let HASH_UNDEFINED = /*#__PURE__*/ string(
+  "\x00" + CONTSTANTS.__KEY_UNDEFINED,
+);
+/** @internal */
+export let HASH_NULL = /*#__PURE__*/ string("\x00" + CONTSTANTS.__KEY_NULL);
+/** @internal */
+export let HASH_TRUE = /*#__PURE__*/ string("\x00" + JsTypes.IS_TRUE + "");
+/** @internal */
+export let HASH_FALSE = /*#__PURE__*/ string("\x00" + JsTypes.IS_FALSE + "");
+/**
+ * @internal
+ * @remark
+ * ```ts
+ * string("_tag")
+ * ```*/
+export let HASH_TAG = /*#__PURE__*/ string(CONTSTANTS.__KEY__TAG);
+/**
+ * @internal
+ * @remark
+ * ```ts
+ * string("value")
+ * ```*/
+export let HASH_VALUE = /*#__PURE__*/ string(CONTSTANTS.__KEY_VALUE);
+/**
+ *
+ * @param name
+ * @returns
+ * ```ts
+ * combine(string("_tag"), typeof name === 'string' ? string(name) : symbol(name))
+ * ```
+ */
+export let $tag = (name) =>
+  combine2(HASH_TAG, JsTypes.isStr(name) ? string(name) : symbol(name));
+//# sourceMappingURL=hash.js.map

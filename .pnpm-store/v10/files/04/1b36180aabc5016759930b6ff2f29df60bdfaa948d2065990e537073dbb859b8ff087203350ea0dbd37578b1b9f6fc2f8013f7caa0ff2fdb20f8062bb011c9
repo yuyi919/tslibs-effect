@@ -1,0 +1,18 @@
+import { ERROR } from "./constant"
+import { tryCatch } from "./helper"
+
+let __key_stackTraceLimit = "stackTraceLimit" as const
+
+export const setStackTraceLimit = (size: number) =>
+  (ERROR[__key_stackTraceLimit] = size)
+export const getStackTraceLimit = () => ERROR[__key_stackTraceLimit]
+
+export function getStack(size: number) {
+  const limit = getStackTraceLimit()
+  setStackTraceLimit(size)
+  const creationError = ERROR()
+  setStackTraceLimit(limit)
+  return creationError.stack
+}
+
+export { tryCatch }

@@ -1,0 +1,38 @@
+import type {
+  JsObject,
+  JsObjectKey,
+  JsPropertyKey,
+} from "@yuyi919/shared-proto/JsObject"
+
+import { OBJ_KEYS, OBJECT_HAS_OWNPROPERTY } from "../constant"
+
+export function keys<T extends JsObject>(
+  target: NonNullable<T>,
+): Exclude<keyof T, symbol | number>[]
+export function keys(target: unknown): string[]
+export function keys(target: any) {
+  return OBJ_KEYS(target)
+}
+
+export function ownKeys<T extends JsObject>(
+  target: NonNullable<T>,
+): JsObjectKey<T>[]
+export function ownKeys(target: object): (string | symbol)[]
+export function ownKeys(target: any) {
+  return Reflect.ownKeys(target)
+}
+
+export function _hasOwnKey<T extends JsObject, K extends JsPropertyKey>(
+  value: T,
+  key: K,
+): value is T & JsObject<unknown>
+export function _hasOwnKey<Key extends JsPropertyKey, T = any>(
+  value: JsObject,
+  key: Key,
+): value is JsObject<T, Key>
+export function _hasOwnKey<Key extends JsPropertyKey, T = any>(
+  value: {},
+  key: Key,
+): value is JsObject<T, Key> {
+  return OBJECT_HAS_OWNPROPERTY.call(value, key)
+}

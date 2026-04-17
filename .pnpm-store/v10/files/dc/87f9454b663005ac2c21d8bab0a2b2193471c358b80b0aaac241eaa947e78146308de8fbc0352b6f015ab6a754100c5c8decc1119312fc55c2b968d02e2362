@@ -1,0 +1,15 @@
+'use strict';
+
+var chunkZK4WMD74_js = require('./chunk-ZK4WMD74.js');
+var chunk4CKHS624_js = require('./chunk-4CKHS624.js');
+var chunkY5EB4GGE_js = require('./chunk-Y5EB4GGE.js');
+var chunk6S2JOPCS_js = require('./chunk-6S2JOPCS.js');
+var chunkXO2PN7FW_js = require('./chunk-XO2PN7FW.js');
+var chunkWCQUO2EH_js = require('./chunk-WCQUO2EH.js');
+
+var h=(o,t,r)=>chunkY5EB4GGE_js.c(o,t)?o[t]||=r:o[t]=r,c=(o,t)=>chunkY5EB4GGE_js.c(o,t)?o[t]:chunkWCQUO2EH_js.a.UNDEFINED,E=chunk6S2JOPCS_js.h(chunk4CKHS624_js.g(chunk4CKHS624_js.e("clear",o=>(o._={},o))(chunk4CKHS624_js.e("emit",(o,t,r)=>(chunkZK4WMD74_js.a(c(o._,t),m=>m(r)),chunkZK4WMD74_js.a(o._["*"],m=>m(t,r)),o))(chunk4CKHS624_js.e("off",(o,t,r)=>((m=>m&&(r?chunkXO2PN7FW_js.l(m,r):o._[t]=[]))(chunkY5EB4GGE_js.c(o._,t)&&o._[t]),o))(chunk4CKHS624_js.e("on",(o,t,r)=>(h(o._,t,[]).push(r),o))(chunk4CKHS624_js.b())))))),F=(o={})=>chunkY5EB4GGE_js.g({_:o},E());
+
+exports.getProto = E;
+exports.make = F;
+//# sourceMappingURL=Event.js.map
+//# sourceMappingURL=Event.js.map

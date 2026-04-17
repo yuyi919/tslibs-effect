@@ -1,0 +1,34 @@
+'use strict';
+
+var z=e=>()=>({meet:(t,n)=>r=>e.meet(t(r),n(r)),join:(t,n)=>r=>e.join(t(r),n(r)),zero:()=>e.zero,one:()=>e.one,implies:(t,n)=>r=>e.implies(t(r),n(r)),not:t=>n=>e.not(t(n))}),x=e=>()=>({concat:(t,n)=>r=>e.concat(t(r),n(r))}),d=e=>{let t=x(e);return ()=>({concat:t().concat,empty:()=>e.empty})},g=e=>({add:(t,n)=>r=>e.add(t(r),n(r)),zero:()=>e.zero,mul:(t,n)=>r=>e.mul(t(r),n(r)),one:()=>e.one}),j=e=>{let t=g(e);return {add:t.add,mul:t.mul,one:t.one,zero:t.zero,sub:(n,r)=>o=>e.sub(n(o),r(o))}},A=e=>t=>t(e),c=e=>e,C=c,s=e=>()=>e,E=s(!0),F=s(!1),M=s(null),h=s(void 0),S=h,_=e=>(...t)=>t.length>1?e(t[1],t[0]):n=>e(n)(t[0]);function y(e,t,n,r,o,u,l,p,i){switch(arguments.length){case 1:return e;case 2:return function(){return t(e.apply(this,arguments))};case 3:return function(){return n(t(e.apply(this,arguments)))};case 4:return function(){return r(n(t(e.apply(this,arguments))))};case 5:return function(){return o(r(n(t(e.apply(this,arguments)))))};case 6:return function(){return u(o(r(n(t(e.apply(this,arguments))))))};case 7:return function(){return l(u(o(r(n(t(e.apply(this,arguments)))))))};case 8:return function(){return p(l(u(o(r(n(t(e.apply(this,arguments))))))))};case 9:return function(){return i(p(l(u(o(r(n(t(e.apply(this,arguments)))))))))}}}var D=(...e)=>e,K=e=>e+1,N=e=>e-1,f=e=>{throw new Error("Called `absurd` function which should be uncallable")},T=e=>t=>e(...t),U=e=>(...t)=>e(t);function V(e,t,n,r,o,u,l,p,i){switch(arguments.length){case 1:return e;case 2:return t(e);case 3:return n(t(e));case 4:return r(n(t(e)));case 5:return o(r(n(t(e))));case 6:return u(o(r(n(t(e)))));case 7:return l(u(o(r(n(t(e))))));case 8:return p(l(u(o(r(n(t(e)))))));case 9:return i(p(l(u(o(r(n(t(e))))))));default:{let a=arguments[0];for(let m=1;m<arguments.length;m++)a=arguments[m](a);return a}}}var k=f,q=(e,t)=>t,v=e=>t=>!e(t),G=()=>({concat:(e,t)=>y(e,t),empty:c}),H=(e,t)=>{let n=typeof e=="number"?r=>r.length>=e:e;return function(){let r=Array.from(arguments);return n(arguments)?t.apply(this,r):o=>t(o,...r)}};
+
+exports.SK = q;
+exports.absurd = f;
+exports.apply = A;
+exports.constFalse = F;
+exports.constNull = M;
+exports.constTrue = E;
+exports.constUndefined = h;
+exports.constVoid = S;
+exports.constant = s;
+exports.decrement = N;
+exports.dual = H;
+exports.flip = _;
+exports.flow = y;
+exports.getBooleanAlgebra = z;
+exports.getEndomorphismMonoid = G;
+exports.getMonoid = d;
+exports.getRing = j;
+exports.getSemigroup = x;
+exports.getSemiring = g;
+exports.hole = k;
+exports.identity = c;
+exports.increment = K;
+exports.not = v;
+exports.pipe = V;
+exports.tuple = D;
+exports.tupled = T;
+exports.unsafeCoerce = C;
+exports.untupled = U;
+//# sourceMappingURL=function.js.map
+//# sourceMappingURL=function.js.map

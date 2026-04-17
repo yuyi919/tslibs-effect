@@ -1,0 +1,148 @@
+/**
+ * @since 0.6.0
+ */
+import type { Predicate } from "fp-ts/Predicate";
+import * as E from "fp-ts/Either";
+import { Pipeable } from "@yuyi919/shared-proto/Pipeable";
+import * as S from "./Stream";
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export declare class ParseError<I> extends Pipeable {
+    input: S.IStream<I>;
+    expected: ReadonlyArray<string>;
+    fatal: boolean;
+    constructor(input: S.IStream<I>, expected: ReadonlyArray<string>, fatal: boolean);
+    setInput<I2 = I>(input: S.IStream<I2>): ParseError<I2>;
+    setExpected(expected: string[]): ParseError<I>;
+    setFatal(fatal: boolean): ParseError<I>;
+    getErrorCursor(): number;
+    extend(err: ParseError<I>): ParseError<I>;
+    clone(): ParseError<I>;
+}
+export declare const getInput: <I>(o: ParseError<I>) => S.IStream<I>;
+export declare const getExpected: <I>(o: ParseError<I>) => readonly string[];
+export declare const isFatal: <I>(o: ParseError<I>) => boolean;
+export declare const setInput: <I, J = I>(o: ParseError<I>, input: S.IStream<J>) => ParseError<J>;
+export declare const setFatal: <I>(o: ParseError<I>, fatal: boolean) => ParseError<I>;
+/**
+ * @category model
+ * @since 0.6.0
+ * @seal
+ */
+export declare class ParseSuccess<I, A> extends Pipeable {
+    value: A;
+    next: S.IStream<I>;
+    start: S.IStream<I>;
+    constructor(value: A, next: S.IStream<I>, start: S.IStream<I>);
+    setValue<B>(value: B): ParseSuccess<I, B>;
+    setNext(next: S.IStream<I>): ParseSuccess<I, A>;
+    setStart(start: S.IStream<I>): ParseSuccess<I, A>;
+    clone(): ParseSuccess<I, A>;
+    getStartCursor(): number;
+    getNextCursor(): number;
+    isConsumed(): boolean;
+}
+export declare const getValue: <I, A>(result: ParseSuccess<I, A>) => A;
+export declare const getNext: <I, A>(result: ParseSuccess<I, A>) => S.IStream<I>;
+export declare const getNextCursor: <I, A>(result: ParseSuccess<I, A>) => number;
+export declare const getStart: <I, A>(result: ParseSuccess<I, A>) => S.IStream<I>;
+export declare const getStartCursor: <I, A>(result: ParseSuccess<I, A>) => number;
+export declare const isConsumed: <I, A>(result: ParseSuccess<I, A>) => boolean;
+export declare const setValue: <I, A, B>(result: ParseSuccess<I, A>, value: B) => ParseSuccess<I, B>;
+export declare const mapValue: <I, A, B>(result: ParseSuccess<I, A>, value: (value: A) => B) => ParseSuccess<I, B>;
+export declare const setNext: <I, A>(result: ParseSuccess<I, A>, next: S.IStream<I>) => ParseSuccess<I, A>;
+export declare const setStart: <I, A>(result: ParseSuccess<I, A>, start: S.IStream<I>) => ParseSuccess<I, A>;
+export declare const predicateValue: <I, A>(o: ParseSuccess<I, A>, predicate: Predicate<A>) => boolean;
+export declare const mapStartToF: <I, A>(result: ParseResult<I, A>, start: S.IStream<I>) => ParseResult<I, A>;
+export declare const mapNextToF: <I, A>(result: ParseResult<I, A>, next: S.IStream<I>) => ParseResult<I, A>;
+/**
+ * @category model
+ */
+export type ParseResult<I, A> = ParseError<I> | ParseSuccess<I, A>;
+export { type ParseResult as t };
+/**
+ * @category extractor
+ */
+export type ParseValue<R extends ParseResult<any, any>> = R extends ParseSuccess<any, infer A> ? A : never;
+export declare const getSource: <I, A>(o: ParseResult<I, A>) => S.SeqLike<I>;
+export declare const getResultCursor: <I, A>(o: ParseResult<I, A>) => number;
+export declare function getStruct<T extends ParseError<any> | ParseSuccess<any, any>>(result: T): T;
+export declare function getResult<I, A>(result: ParseResult<I, A>): ParseResult<I, A>;
+export declare const mapLeft: <I>(f: (e: ParseError<I>) => ParseError<I>) => <A>(fa: ParseResult<I, A>) => ParseResult<I, A>;
+export declare const mapLeftF: <I, A>(fa: ParseResult<I, A>, f: (e: ParseError<I>) => ParseError<I>) => ParseResult<I, A>;
+export declare const isLeft: <E>(result: ParseResult<E, any>) => result is ParseError<E>;
+export declare const isRight: <I, A>(result: ParseResult<I, A>) => result is ParseSuccess<I, A>;
+export declare function bimapEither<I, A, E1, A1>(f: (e: ParseError<I>) => E1, g: (a: ParseSuccess<I, A>) => A1): (fa: ParseResult<I, A>) => E.Either<E1, A1>;
+export declare function bimap2<I, A, I1, A1>(f: (e: ParseError<I>) => ParseError<I1>, g: (a: ParseSuccess<I, A>) => ParseSuccess<I1, A1>): (fa: ParseResult<I, A>) => ParseResult<I1, A1>;
+export declare function bimap<I, A, I1, A1>(f: (e: I) => I1, g: (a: A) => A1): (fa: ParseResult<I, A>) => ParseResult<I1, A1>;
+export declare function mapStream<I, A, I1>(f: (e: I) => I1): (fa: ParseResult<I, A>) => ParseResult<I1, A>;
+export declare function switchStream<I, A, I1>(stream: S.IStream<I1>): (fa: ParseResult<I, A>) => ParseResult<I1, A>;
+export declare const chainF: <I, A, B>(fa: ParseResult<I, A>, f: (a: A, next: S.IStream<I>, start: S.IStream<I>) => ParseResult<I, B>) => ParseResult<I, B>;
+export declare const chain: <I, A, B>(f: (a: A, next: S.IStream<I>, start: S.IStream<I>) => ParseResult<I, B>) => (fa: ParseResult<I, A>) => ParseResult<I, B>;
+export declare const map: <I, A, B>(f: (a: A, result: ParseSuccess<I, A>) => B) => (fa: ParseResult<I, A>) => ParseResult<I, B>;
+export declare const mapF: <I, A, B>(fa: ParseResult<I, A>, f: (a: A, result: ParseSuccess<I, A>) => B) => ParseResult<I, B>;
+export declare const mapTraceF: <I, A, B>(fa: ParseResult<I, A>, f: (a: A, start: S.IStream<I>, next: S.IStream<I>) => B) => ParseResult<I, B>;
+export declare const mapTrace: <I, A, B>(f: (a: A, start: S.IStream<I>, next: S.IStream<I>) => B) => ((fa: ParseResult<I, A>) => ParseResult<I, B>);
+export declare const tapF: <I, A, B>(fa: ParseResult<I, A>, f: (a: A, next: S.IStream<I>, start: S.IStream<I>) => B) => ParseResult<I, B>;
+export declare const mapWithSelf: <I, A, B>(f: (a: A, result: ParseSuccess<I, A>) => B) => (fa: ParseResult<I, A>) => ParseResult<I, B>;
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const succeedF: <I, A>(value: A, next: S.IStream<I>, start: S.IStream<I>) => ParseSuccess<I, A>;
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const succeed: <I, A>(value: A, next: S.IStream<I>, start: S.IStream<I>) => ParseResult<I, A>;
+export declare const liftMap2F: <I, A, B, C>(fa: ParseSuccess<I, A>, fb: ParseSuccess<I, B>, f: (a: A, b: B) => C) => ParseSuccess<I, C>;
+export declare const liftMap3F: <I, A, B, C, D>(fa: ParseSuccess<I, A>, fb: ParseSuccess<I, B>, fc: ParseSuccess<I, C>, f: (a: A, b: B, C: C) => D) => ParseSuccess<I, D>;
+export declare const liftMap4F: <I, A, B, C, D, E>(fa: ParseSuccess<I, A>, fb: ParseSuccess<I, B>, fc: ParseSuccess<I, C>, fd: ParseSuccess<I, D>, f: (a: A, b: B, C: C, d: D) => E) => ParseSuccess<I, E>;
+export declare const succeedResult: <I, A>(value: A, next: S.IStream<I>, start: S.IStream<I>) => ParseResult<I, A>;
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const failedF: <I>(input: S.IStream<I>, expected: readonly string[], fatal: boolean) => ParseError<I>;
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const failed: <I, A = never>(input: S.IStream<I>, expected: readonly string[], fatal: boolean) => ParseResult<I, A>;
+export declare const Expected: import("@yuyi919/shared-proto/Monoid").ComplexMonoid<readonly string[]>;
+export declare const EMPTY_EXPECTED: readonly string[];
+export declare const errorResult: <I, A = never>(input: S.IStream<I>, expected?: ReadonlyArray<string>, fatal?: boolean) => ParseResult<I, A>;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const withExpected: <I>(err: ParseError<I>, expected: Array<string>) => ParseError<I>;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const escalate: <I>(err: ParseError<I>) => ParseError<I>;
+export declare const getErrorCursor: <I>(err: ParseError<I>) => number;
+/**
+ * @category combinators
+ * @since 0.6.0
+ */
+export declare const extend: <I>(x: ParseError<I>, y: ParseError<I>) => ParseError<I>;
+/**
+ * @category instances
+ * @since 0.6.0
+ */
+export declare const URI = "ParseResult";
+/**
+ * @category instances
+ * @since 0.6.0
+ */
+export type URI = typeof URI;
+declare module "fp-ts/HKT" {
+    interface URItoKind2<E, A> {
+        [URI]: ParseResult<E, A>;
+    }
+}
+//# sourceMappingURL=ParseResult.d.ts.map

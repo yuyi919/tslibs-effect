@@ -1,0 +1,20 @@
+'use strict';
+
+var chunk6FK5C7RP_js = require('./chunk-6FK5C7RP.js');
+
+
+
+Object.defineProperty(exports, "getOrThrowWith", {
+	enumerable: true,
+	get: function () { return chunk6FK5C7RP_js.a; }
+});
+Object.defineProperty(exports, "match", {
+	enumerable: true,
+	get: function () { return chunk6FK5C7RP_js.c; }
+});
+Object.defineProperty(exports, "toOption", {
+	enumerable: true,
+	get: function () { return chunk6FK5C7RP_js.b; }
+});
+//# sourceMappingURL=Either.js.map
+//# sourceMappingURL=Either.js.map

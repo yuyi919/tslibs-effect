@@ -1,0 +1,10 @@
+'use strict';
+
+var x=(t,r)=>(d,i)=>p=>t.reduce(p,d,(o,e)=>r.reduce(e,o,i)),f=(t,r)=>d=>{let i=t.foldMap(d),p=r.foldMap(d);return o=>e=>i(e,l=>p(l,o))},I=(t,r)=>(d,i)=>p=>t.reduceRight(p,d,(o,e)=>r.reduceRight(o,e,i));var a=(t,r)=>{let d=x(t,r),i=f(t,r),p=I(t,r);return {reduce:(o,e,l)=>d(e,l)(o),foldMap:o=>{let e=i(o);return (l,c)=>e(c)(l)},reduceRight:(o,e,l)=>p(e,l)(o)}};var W=(t,r)=>(d,i)=>p=>t.reduceWithIndex(p,d,(o,e,l)=>r.reduceWithIndex(l,e,(c,n,u)=>i([o,c],n,u))),g=(t,r)=>d=>{let i=t.foldMapWithIndex(d),p=r.foldMapWithIndex(d);return o=>e=>i(e,(l,c)=>p(c,(n,u)=>o([l,n],u)))},M=(t,r)=>(d,i)=>p=>t.reduceRightWithIndex(p,d,(o,e,l)=>r.reduceRightWithIndex(e,l,(c,n,u)=>i([o,c],n,u))),_=(t,r)=>{let d=a(t,r),i=W(t,r),p=g(t,r),o=M(t,r);return {reduce:d.reduce,foldMap:d.foldMap,reduceRight:d.reduceRight,reduceWithIndex:(e,l,c)=>i(l,c)(e),foldMapWithIndex:e=>{let l=p(e);return (c,n)=>l(n)(c)},reduceRightWithIndex:(e,l,c)=>o(l,c)(e)}};
+
+exports.foldMapWithIndex = g;
+exports.getFoldableWithIndexComposition = _;
+exports.reduceRightWithIndex = M;
+exports.reduceWithIndex = W;
+//# sourceMappingURL=FoldableWithIndex.js.map
+//# sourceMappingURL=FoldableWithIndex.js.map

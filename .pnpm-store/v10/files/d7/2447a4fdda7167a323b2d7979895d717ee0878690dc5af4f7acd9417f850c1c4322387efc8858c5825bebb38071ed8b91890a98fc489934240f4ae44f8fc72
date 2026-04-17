@@ -1,0 +1,72 @@
+import type { Types } from ".."
+// /**
+//  * 测试
+//  */
+// type Source = {
+//   A: 1;
+//   B: 2;
+// };
+// type Result = ReverseKV<Source>; // { 1: "A"; 2: "B"; }
+
+import type * as DeepPath from "./Path"
+
+type DeepResolveWith<D, K extends string[]> = K extends [
+  infer B,
+  ...infer other,
+]
+  ? B extends keyof D
+    ? other extends [string, ...string[]]
+      ? DeepResolveWith<D[B], other>
+      : D[B]
+    : never
+  : never
+/**
+ * deep.get
+ * @beta
+ * @example
+ *```ts
+ * type target = { a: { b: 1; c: { d: 2 } }; e: 3 };
+ * type Result1 = DeepResolve<target, "a.c.d">; // => 2;
+ * type Result2 = DeepResolve<target, "a.c">; // => { d: 2 };
+ * type Result3 = DeepResolve<target, "a.c.f">; // => never;
+ * type Result4 = DeepResolve<target, "a.cd"> // => never;
+ *```
+ */
+export type DeepResolve<D, K extends string> = DeepResolveWith<
+  D,
+  Types.String.Split<K, ".">
+>
+
+// type target = { a: { b: 1; c: { d: 2 } }; e: 3 };
+// type Result1 = DeepResolve<target, "a.c.d">; // => 2;
+// type Result2 = DeepResolve<target, "a.c">; // => { d: 2 };
+// type Result3 = DeepResolve<target, "a.c.f">; // => never;
+// type Result4 = DeepResolve<target, "a.cd"> // => never;
+
+/**
+ * 交换对象的key和value类型
+ * @beta
+ * @example
+ * ```ts
+ * type Source = {
+ *  A: string;
+ *  B: 2;
+ * };
+ * type Result = TReverseKV<Source>; // => { 1: "A"; 2: "B"; }
+ * ```
+ */
+export type ReverseKV<
+  Source extends Record<string, any>,
+  Keys extends keyof Source = keyof Source,
+> = {
+  [ValueKey in Source[Keys]]: Extract<
+    { [Key in Keys]: [Source[Key], Key] }[Keys],
+    [ValueKey, any]
+  >[1]
+}
+
+export type { DeepPath }
+/**
+ * 参照 {@link DeepPath.Leaf}
+ */
+export type DeepPaths<T> = DeepPath.Leaf<T, 10>

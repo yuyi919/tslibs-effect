@@ -1,0 +1,16 @@
+/**
+ * Lift a computation from the `State` monad.
+ *
+ * @since 2.11.0
+ */import { flow } from "./function.js";
+import * as S from "./State.js";
+export let get = F => () => F.fromState(S.get());
+export let put = F => s => F.fromState(S.put(s));
+export let modify = F => flow(S.modify, F.fromState);
+export let gets = F => flow(S.gets, F.fromState);
+export let fromStateK = F => f => flow(f, F.fromState);
+export let chainStateK = (F, M) => {
+  let fromStateKF = fromStateK(F);
+  return f => ma => M.chain(ma, fromStateKF(f));
+};
+//# sourceMappingURL=FromState.js.map

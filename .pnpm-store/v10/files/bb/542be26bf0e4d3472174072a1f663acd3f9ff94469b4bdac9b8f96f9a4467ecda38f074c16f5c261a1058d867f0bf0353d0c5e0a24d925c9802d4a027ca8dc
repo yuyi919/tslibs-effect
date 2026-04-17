@@ -1,0 +1,177 @@
+export type TGen<TNext, Perform, A> = Generator<Perform, A, TNext>
+export type TGenerator<Perform, TNext, A> = Generator<Perform, A, TNext>
+export type TGenFiber<A, TNext = unknown, Perform = never> = Generator<
+  Perform,
+  A,
+  TNext
+>
+
+/**
+ * @internal
+ * @remark
+ **/
+export const perform = function* <Perform, TNext = unknown>(
+  a: Perform,
+): TGenFiber<TNext, TNext, Perform> {
+  return yield a
+}
+
+/**
+ * @internal
+ * @remark
+ **/
+export const lift = function* <Perform, TNext = unknown>(
+  a: Perform,
+): TGenFiber<void, TNext, Perform> {
+  yield a
+}
+
+export function* map<TNext, Perform, A, B>(
+  fa: TGen<TNext, Perform, A>,
+  f: (a: A) => B,
+): TGen<TNext, Perform, B> {
+  const a = yield* fa
+  return f(a)
+}
+export function* mapTo<TNext, Perform, A, B>(
+  fa: TGen<TNext, Perform, A>,
+  b: B,
+): TGen<TNext, Perform, B> {
+  yield* fa
+  return b
+}
+
+/** @internal */
+export function* ap<TNext, Perform, A, B>(
+  gab: TGen<TNext, Perform, (a: A) => B>,
+  ga: TGen<TNext, Perform, A>,
+): TGen<TNext, Perform, B> {
+  const resab = yield* gab
+  return resab(yield* ga)
+}
+
+export const chain: <TNext, Perform, A, B>(
+  fa: TGen<TNext, Perform, A>,
+  f: (a: A) => TGen<TNext, Perform, B>,
+) => TGen<TNext, Perform, B> = function* (fa, f) {
+  var a = yield* fa
+  return yield* f(a)
+}
+
+export const chainW: <TNext, PerformA, PerformB, A, B>(
+  fa: TGen<TNext, PerformA, A>,
+  f: (a: A) => TGen<TNext, PerformB, B>,
+) => TGen<TNext, PerformA | PerformB, B> = chain as any
+
+export const tap = function* <A, TNext, Perform>(
+  ma: TGenFiber<A, TNext, Perform>,
+  handle: (arg: A) => any,
+): TGenFiber<A, TNext, Perform> {
+  const c = yield* ma
+  handle(c)
+  return c
+}
+// _map(ma, (e) => (handle(e), e));
+
+export function* tapE<C, A, B>(
+  ma: TGenFiber<C, A, B>,
+  handle: (arg: C) => TGenFiber<any, A, B>,
+): TGenFiber<C, A, B> {
+  const c = yield* ma
+  yield* handle(c)
+  return c
+}
+
+/**
+ * 同时迭代当前项和下一项
+ * @param stream
+ */
+
+export function* mapToWithNext<T>(stream: Iterable<T>) {
+  let curr: T | undefined = undefined
+  let proccessing = false
+  for (const next of stream) {
+    if (proccessing)
+      yield { item: curr!, next: next, proccessing, end: false } as const
+    else proccessing = true
+    curr = next
+  }
+  yield { item: curr!, next: curr!, end: true } as const
+}
+
+export enum StreamStage {
+  Begin,
+  Content,
+  End,
+}
+/**
+ * 同时迭代当前项和前一项和下一项
+ * @param stream
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => 'nothing'
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 1, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 2, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2, 3])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 3, _tag: IteratorStage.Content})
+ * => ({prev: 2, curr: 3, next: 3, _tag: IteratorStage.End})
+ * @example
+ * for (const { prev, curr, next, _tag } of iterateWithPrevAndNext([1, 2, 3, 4, 5])) {
+ *   console.log({ prev, curr, next, _tag });
+ * }
+ * => ({prev: 1, curr: 1, next: 2, _tag: IteratorStage.Begin})
+ * => ({prev: 1, curr: 2, next: 3, _tag: IteratorStage.Content})
+ * => ({prev: 2, curr: 3, next: 4, _tag: IteratorStage.Content})
+ * => ({prev: 3, curr: 4, next: 5, _tag: IteratorStage.Content})
+ * => ({prev: 4, curr: 5, next: 5, _tag: IteratorStage.End})
+ */
+
+export function* mapToWithPrevAndNext<T extends NonNullable<{}>>(
+  stream: Iterable<T>,
+): Iterable<{
+  readonly prev: T
+  readonly curr: T
+  readonly next: T
+  readonly _tag: StreamStage
+}> {
+  let processing = false
+  const context = {
+    prev: undefined! as T,
+    curr: undefined! as T,
+    next: undefined! as T,
+    _tag: StreamStage.Begin,
+  }
+  for (const next of stream) {
+    if (processing) {
+      context.next = next
+      yield context
+      if (context._tag === StreamStage.Begin) context._tag = StreamStage.Content
+      context.prev = context.curr
+      context.curr = next
+    } else {
+      processing = true
+      context.prev = context.curr = next
+    }
+  }
+  if (context.curr !== undefined) {
+    context._tag = StreamStage.End
+    if (context.next === undefined) {
+      context.next = context.curr
+    }
+    yield context
+  }
+}

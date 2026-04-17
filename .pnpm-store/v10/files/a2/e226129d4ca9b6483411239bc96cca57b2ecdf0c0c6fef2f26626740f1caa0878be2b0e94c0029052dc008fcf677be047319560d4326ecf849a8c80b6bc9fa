@@ -1,0 +1,369 @@
+import { describe, expect, it } from "vitest"
+
+import * as Module from "fast-check"
+
+import {
+  _typeof,
+  getType,
+  hasOwnKey,
+  instanceOfNumber,
+  isArguments,
+  isArr,
+  isArrayBuffer,
+  isBigInt,
+  isBool,
+  isDate,
+  isEmpty,
+  isEsModule,
+  isEsModuleWithDefaultExport,
+  isFullInt32String,
+  isFullSafeIntString,
+  isInt32String,
+  isIntString,
+  isJsObject,
+  isNaN,
+  isNil,
+  isNull,
+  isNum,
+  isNumberString,
+  isObj,
+  isPlainObject,
+  isPrimitive,
+  isPromise,
+  isRegExp,
+  isStr,
+  isStrictNumberString,
+  isSymbol,
+  isThenable,
+  isUndef,
+  tag2Type,
+  toArray,
+  toBe,
+  toJSONString,
+} from "../JsTypes"
+
+describe("getType", () => {
+  it("type2Class", () => {
+    expect(tag2Type).toEqual({
+      "[object ArrayBuffer]": "ArrayBuffer",
+      "[object Array]": "array",
+      "[object Boolean]": "boolean",
+      "[object DataView]": "DataView",
+      "[object Date]": "Date",
+      "[object Error]": "Error",
+      "[object Function]": "function",
+      "[object Number]": "number",
+      "[object Object]": "object",
+      "[object Set]": "Set",
+      "[object Map]": "Map",
+      "[object RegExp]": "RegExp",
+      "[object String]": "string",
+      "[object Symbol]": "symbol",
+      "[object Arguments]": "arguments",
+      "[object WeakMap]": "WeakMap",
+      "[object WeakSet]": "WeakSet",
+      "[object WeakRef]": "WeakRef",
+    })
+  })
+  it("basic", () => {
+    // @ts-expect-error
+    expect(getType({} / 1)).toBe("NaN")
+    expect(getType(NaN)).toBe("NaN")
+    expect(getType("NaN")).toBe("string")
+    expect(getType("")).toBe("string")
+    expect(getType(0)).toBe("number")
+    expect(getType(Infinity)).toBe("number")
+    expect(getType(-Infinity)).toBe("number")
+    expect(getType(Buffer.from([]))).toBe("TypedArray")
+    expect(getType(new Int16Array())).toBe("TypedArray")
+    expect(getType(new Float32Array())).toBe("TypedArray")
+    expect(getType(new BigInt64Array())).toBe("TypedArray")
+    expect(getType(new Set())).toBe("Set")
+    expect(getType(new Map())).toBe("Map")
+    expect(getType(new WeakMap())).toBe("WeakMap")
+    expect(getType(new WeakSet())).toBe("WeakSet")
+    expect(getType(new WeakRef({}))).toBe("WeakRef")
+    expect(getType(new ArrayBuffer(0))).toBe("ArrayBuffer")
+    expect(getType(new DataView(new ArrayBuffer(0)))).toBe("DataView")
+    expect(getType(BigInt(123))).toBe("bigint")
+    expect(getType(Infinity)).toBe("number")
+    expect(getType(/regexp/)).toBe("RegExp")
+    expect(getType(new Date())).toBe("Date")
+    expect(getType(new Error())).toBe("Error")
+    expect(getType([])).toBe("array")
+    expect(getType([])).toBe("array")
+
+    const symbol = Symbol.for("test")
+    const cls = new (class {})()
+    const numLike = new (class NumberLike extends Number {})()
+    expect(isNum(numLike)).toBe(false)
+    expect(instanceOfNumber(numLike)).toBe(true)
+    const boolLike = new (class BooleanLike extends Boolean {})()
+    expect(isBool(boolLike)).toBe(false)
+    const strLike = new (class StringLike extends String {})()
+    expect(isStr(strLike)).toBe(false)
+    const arrayLike = new (class ArrayLike extends Array {})()
+    const funcLike = new (class FunctionLike extends Function {})()
+    const funcLike2 = new Function("return 0")
+
+    expect(_typeof(cls)).toBe("object")
+    expect(_typeof(strLike)).toBe("object")
+    expect(_typeof(boolLike)).toBe("object")
+    expect(_typeof(numLike)).toBe("object")
+    expect(_typeof(arrayLike)).toBe("object")
+    expect(_typeof(funcLike)).toBe("function")
+    expect(_typeof(funcLike2)).toBe("function")
+    expect(_typeof(symbol)).toBe("symbol")
+
+    expect(isObj(cls)).toBe(true)
+    expect(isObj(strLike)).toBe(true)
+    expect(isObj(numLike)).toBe(true)
+    expect(isObj(boolLike)).toBe(true)
+    expect(isObj(arrayLike)).toBe(true)
+    expect(isObj(funcLike)).toBe(false)
+    expect(isObj(funcLike2)).toBe(false)
+    expect(isObj(symbol)).toBe(false)
+
+    expect(getType(cls)).toBe("object")
+    expect(getType(strLike)).toBe("string")
+    expect(getType(numLike)).toBe("number")
+    expect(getType(boolLike)).toBe("boolean")
+    expect(getType(arrayLike)).toBe("array")
+    expect(getType(funcLike)).toBe("function")
+    expect(getType(funcLike2)).toBe("function")
+    expect(getType(symbol)).toBe("symbol")
+
+    expect(isJsObject(cls)).toBe(true)
+    expect(isJsObject(strLike)).toBe(false)
+    expect(isJsObject(numLike)).toBe(false)
+    expect(isJsObject(boolLike)).toBe(false)
+    expect(isJsObject(arrayLike)).toBe(false)
+    expect(isJsObject(funcLike)).toBe(false)
+    expect(isJsObject(funcLike2)).toBe(false)
+    expect(isJsObject(symbol)).toBe(false)
+
+    expect(isArr(arrayLike)).toBe(true)
+  })
+})
+describe("isPlainObject", () => {
+  it("returns true for plain objects", () => {
+    expect(isPlainObject({})).toBe(true)
+    expect(isPlainObject(Object.create(null))).toBe(true)
+    expect(isPlainObject(new Object())).toBe(true)
+  })
+
+  it("returns false for non-plain objects", () => {
+    expect(isPlainObject([])).toBe(false)
+    expect(isPlainObject(new Date())).toBe(false)
+    expect(isPlainObject(new Map())).toBe(false)
+    expect(isPlainObject(Buffer.from("123123"))).toBe(false)
+    expect(isPlainObject(new Uint8Array([1, 2, 3]))).toBe(false)
+  })
+})
+describe("isPrimitive", () => {
+  it("returns `true` for primitives", () => {
+    expect(isPrimitive(null)).toBe(true)
+    expect(isPrimitive(undefined)).toBe(true)
+    expect(isPrimitive("123")).toBe(true)
+    expect(isPrimitive(false)).toBe(true)
+    expect(isPrimitive(true)).toBe(true)
+    expect(isPrimitive(Symbol("a"))).toBe(true)
+    expect(isPrimitive(123n)).toBe(true)
+  })
+
+  it("returns `false` for values that are not primitives", () => {
+    expect(isPrimitive({})).toBe(false)
+    expect(isPrimitive(new Date())).toBe(false)
+    expect(isPrimitive(new Map())).toBe(false)
+    expect(isPrimitive(new Set())).toBe(false)
+    expect(isPrimitive([1, 2, 3])).toBe(false)
+  })
+})
+describe("is Num/NaN", () => {
+  it("toBeTruthy", () => {
+    // @ts-expect-error
+    expect(isNaN({} / 1)).toBe(true)
+    expect(isNaN(NaN)).toBe(true)
+    expect(isNaN(Infinity)).toBe(false)
+    expect(isNum(1)).toBe(true)
+    expect(isNum(NaN)).toBe(false)
+    expect(isNum(Infinity)).toBe(true)
+  })
+  it("toBeFalsy", () => {
+    expect(isNaN(undefined)).toBe(false)
+    expect(isNaN({})).toBe(false)
+  })
+})
+
+describe("isEmpty", () => {
+  it("isEmpty", () => {
+    expect(isEmpty({})).toBe(true)
+    expect(isEmpty([])).toBe(true)
+    expect(isEmpty("")).toBe(true)
+    expect(isEmpty("  ")).toBe(true)
+    expect(isEmpty(0)).toBe(true)
+  })
+  it("toBeFalsy", () => {
+    expect(isEmpty("a")).toBe(false)
+    expect(isEmpty(false)).toBe(false)
+    expect(isEmpty([1])).toBe(false)
+    expect(
+      isEmpty({
+        get a() {
+          return 1
+        },
+      }),
+    ).toBe(false)
+  })
+})
+
+describe("isNil(null/undefined)", () => {
+  it("toBeTruthy", () => {
+    expect(isNull(null)).toBe(true)
+    expect(isUndef(undefined)).toBe(true)
+    expect(isNil(undefined)).toBe(true)
+    expect(isNil(null)).toBe(true)
+  })
+  it("toBeFalsy", () => {
+    expect(isNull(undefined)).toBe(false)
+    expect(isUndef(null)).toBe(false)
+    expect(isNull(0)).toBe(false)
+    expect(isUndef(0)).toBe(false)
+    expect(isNil(0)).toBe(false)
+  })
+})
+
+describe("is Date/Promise/ArrayBuffer/Arguments/RegExp", () => {
+  it("basic", () => {
+    expect(isDate(new Date())).toBe(true)
+    expect(isPromise(new Promise((_) => {}))).toBe(true)
+    expect(isRegExp(/a/)).toBe(true)
+    expect(isBigInt(123n)).toBe(true)
+    expect(isSymbol(Symbol.for("test"))).toBe(true)
+    expect(isArrayBuffer(new ArrayBuffer(0))).toBe(true)
+    ;(function () {
+      expect(isArguments(arguments)).toBe(true)
+    })()
+  })
+  it("extend", () => {
+    expect(isDate(new (class extends Date {})())).toBe(true)
+    expect(
+      isPromise(
+        new (class extends Promise<any> {
+          constructor() {
+            super((_) => {})
+          }
+        })(),
+      ),
+    ).toBe(true)
+    expect(isThenable(new Promise((_) => {}))).toBe(true)
+    const a = { then: () => {} }
+    expect(isPromise(a)).toBe(false)
+    expect(isThenable(a)).toBe(true)
+  })
+})
+describe("isEsModule", () => {
+  it("hasOwnKey", () => {
+    expect(hasOwnKey(Module, "default")).toBe(true)
+    expect(hasOwnKey([1], 0)).toBe(true)
+    expect(hasOwnKey([1], 1)).toBe(false)
+  })
+  it("test", () => {
+    expect(isEsModule(Module)).toBe(true)
+  })
+  it("test default export", () => {
+    expect(isEsModuleWithDefaultExport(Module)).toBe(true)
+  })
+})
+
+describe("object", () => {
+  it("hasOwnProperty", () => {
+    const o = new Object() as any
+    o.prop = "exists"
+    expect(hasOwnKey(o, "prop")).toBe(true)
+    expect(hasOwnKey(o, "toString")).toBe(false)
+    expect(hasOwnKey({ a: 1 }, "hasOwnProperty")).toBe(false)
+
+    class S extends String {}
+    expect(typeof new S()).toBe("object")
+    expect(getType(new S())).toBe("string")
+    class N extends Number {}
+    expect(typeof new N()).toBe("object")
+    expect(getType(new N())).toBe("number")
+  })
+
+  it("isPlainObject", () => {
+    expect(isPlainObject({})).toBe(true)
+    expect(isPlainObject([])).toBe(false)
+    expect(isPlainObject(null)).toBe(false)
+    expect(isPlainObject(Object.create(null))).toBe(true)
+    expect(isPlainObject(Buffer.from("hello, world"))).toBe(false)
+    class Cls {}
+    expect(isPlainObject(new Cls())).toBe(false)
+    expect(isPlainObject(Number())).toBe(false)
+    expect(isPlainObject(String())).toBe(false)
+    expect(isPlainObject(Boolean())).toBe(false)
+  })
+  it("toJsonString", () => {
+    expect(toJSONString({})).toMatchInlineSnapshot(`"{}"`)
+    expect(toJSONString([])).toMatchInlineSnapshot(`"[]"`)
+    expect(toJSONString(null)).toMatchInlineSnapshot(`"null"`)
+    expect(toJSONString(undefined)).toMatchInlineSnapshot(`"null"`)
+    expect(toJSONString(1n)).toMatchInlineSnapshot(`"null"`)
+    expect(toJSONString({ a: Symbol() })).toMatchInlineSnapshot(`"{"a":null}"`)
+    expect(toJSONString(Object.create(null))).toMatchInlineSnapshot(`"{}"`)
+    expect(toJSONString(Buffer.from("hello, world"))).toMatchInlineSnapshot(
+      `"{"type":"Buffer","data":[104,101,108,108,111,44,32,119,111,114,108,100]}"`,
+    )
+    class Cls {}
+    expect(toJSONString(new Cls())).toMatchInlineSnapshot(`"{}"`)
+    expect(toJSONString(Number())).toMatchInlineSnapshot(`"0"`)
+    expect(toJSONString(String())).toMatchInlineSnapshot(`""""`)
+    expect(toJSONString(Boolean())).toMatchInlineSnapshot(`"false"`)
+  })
+
+  it("toArray", () => {
+    expect(toArray({})).toEqual([{}])
+    expect(toArray([])).toEqual([])
+    expect(toArray(null)).toEqual([])
+    expect(toArray(undefined)).toEqual([])
+    expect(toArray(NaN)).toEqual([])
+    expect(toArray(1n)).toEqual([1n])
+  })
+  it("tobe", () => {
+    expect(toBe(0, -0)).toBeTruthy()
+    expect(toBe(NaN, NaN)).toBeTruthy()
+
+    expect(isNumberString("")).toBeFalsy()
+    expect(isNumberString("0.")).toBeTruthy()
+    expect(isNumberString("123")).toBeTruthy()
+    expect(isNumberString("0.1")).toBeTruthy()
+    expect(isNumberString("0.1n")).toBeFalsy()
+    expect(isNumberString(".1")).toBeTruthy()
+    expect(isNumberString("NaN")).toBeTruthy()
+    expect(isStrictNumberString("NaN")).toBeFalsy()
+
+    expect(isInt32String("")).toBeFalsy()
+    expect(isInt32String("0")).toBeTruthy()
+    expect(isInt32String("0.")).toBeFalsy()
+    expect(isInt32String("123")).toBeTruthy()
+    expect(isInt32String("456 ", true)).toBeTruthy()
+    expect(isInt32String("1.23")).toBeFalsy()
+    expect(isInt32String("1.23 ")).toBeFalsy()
+    expect(isInt32String("-123")).toBeTruthy()
+    expect(isInt32String("-123.0")).toBeFalsy()
+    expect(isInt32String("123.0")).toBeFalsy()
+    expect(isInt32String("123n")).toBeFalsy()
+    const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER + ""
+    expect(isFullInt32String(MAX_SAFE_INTEGER)).toBeFalsy()
+
+    expect(isFullSafeIntString(MAX_SAFE_INTEGER)).toBeTruthy()
+    expect(isFullSafeIntString(MAX_SAFE_INTEGER + ".0")).toBeFalsy()
+    expect(isFullSafeIntString(MAX_SAFE_INTEGER + MAX_SAFE_INTEGER)).toBeFalsy()
+
+    expect(isIntString(MAX_SAFE_INTEGER)).toBeTruthy()
+    expect(isIntString(MAX_SAFE_INTEGER + ".0")).toBeFalsy()
+    expect(isIntString(MAX_SAFE_INTEGER + MAX_SAFE_INTEGER)).toBeTruthy()
+    expect(isIntString(MAX_SAFE_INTEGER + MAX_SAFE_INTEGER + ".0")).toBeFalsy()
+  })
+})

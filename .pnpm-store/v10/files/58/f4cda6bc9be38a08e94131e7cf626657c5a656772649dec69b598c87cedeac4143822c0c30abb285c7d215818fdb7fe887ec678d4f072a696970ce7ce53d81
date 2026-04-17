@@ -1,0 +1,40 @@
+'use strict';
+
+var w=e=>e;var E=e=>({equals:(l,t)=>l===t||e(l,t)});var d=e=>l=>!e(l);var c=(e,l)=>({left:e,right:l});var v=e=>{let l=S(e);return (t,r)=>o=>l(o).reduce(r,t)},y=(e,l)=>{let t=S(e);return r=>o=>t(o).reduce((n,u)=>l.concat(n,r(u)),l.empty)},R=e=>{let l=S(e);return (t,r)=>o=>l(o).reduceRight((n,u)=>r(u,n),t)};var g=e=>l=>{let t=l.values(),r,o=!1;for(;!o&&!(r=t.next()).done;)o=e(r.value);return o},h=e=>d(g(d(e))),f=e=>{let l=x(e);return (t,r)=>{if(r===void 0){let o=f(e);return n=>o(n,t)}return h(o=>l(o,r))(t)}},x=e=>(l,t)=>{if(t===void 0){let u=x(e);return a=>u(l,a)}let r=t.values(),o,n=!1;for(;!n&&!(o=r.next()).done;)n=e.equals(l,o.value);return n},S=e=>l=>{let t=[];return l.forEach(r=>t.push(r)),t.sort(e.compare)};var q=e=>({show:l=>{let t=[];return l.forEach(r=>{t.push(e.show(r));}),`new Set([${t.sort().join(", ")}])`}}),A=e=>{let l=f(e);return E((t,r)=>l(t,r)&&l(r,t))};var Z=q,b=A,ee=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{let u=t(n);l(u,o)||o.add(u);}),o}},te=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{t(n).forEach(u=>{l(u,o)||o.add(u);});}),o}},M=e=>l=>{let t=l.values(),r,o=new Set;for(;!(r=t.next()).done;){let n=r.value;e(n)&&o.add(n);}return o},re=e=>l=>{let t=l.values(),r,o=new Set,n=new Set;for(;!(r=t.next()).done;){let u=r.value;e(u)?o.add(u):n.add(u);}return c(n,o)},_=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let n=_(e);return u=>n(t,u)}if(m(t))return r;if(m(r))return t;let o=new Set(t);return r.forEach(n=>{l(n,o)||o.add(n);}),o}},z=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let n=z(e);return u=>n(u,t)}if(m(t)||m(r))return new Set;let o=new Set;return t.forEach(n=>{l(n,r)&&o.add(n);}),o}},le=(e,l)=>t=>r=>{let o=r.values(),n,u=new Set,a=new Set,U=p(e),L=p(l);for(;!(n=o.next()).done;){let i=t(n.value);switch(i._tag){case"Left":U(i.left,u)||u.add(i.left);break;case"Right":L(i.right,a)||a.add(i.right);break}}return c(u,a)},k=e=>{let l=p(e);return (t,r)=>{if(r===void 0){let o=k(e);return n=>o(n,t)}return M(o=>!l(o,r))(t)}},O=e=>({concat:_(e)}),oe=e=>({concat:O(e).concat,empty:new Set}),ne=e=>({concat:z(e)}),ue=e=>({concat:k(e)}),pe=v,ae=y,ie=R,se=e=>new Set([e]),D=e=>{let l=p(e);return t=>r=>{if(l(t)(r))return r;{let o=new Set(r);return o.add(t),o}}},F=e=>l=>t=>M(r=>!e.equals(l,r))(t),fe=e=>{let l=p(e),t=F(e),r=D(e);return o=>n=>(l(o,n)?t:r)(o)(n)},ce=e=>l=>{let t=l.length,r=new Set,o=p(e);for(let n=0;n<t;n++){let u=l[n];o(u,r)||r.add(u);}return r},xe=e=>j(e)(w),me=(e,l)=>t=>{let r=p(e),o=p(l),n=new Set,u=new Set;return t.forEach(a=>{switch(a._tag){case"Left":r(a.left,n)||n.add(a.left);break;case"Right":o(a.right,u)||u.add(a.right);break}}),c(n,u)},j=e=>{let l=p(e);return t=>r=>{let o=new Set;return r.forEach(n=>{let u=t(n);u._tag==="Some"&&!l(u.value,o)&&o.add(u.value);}),o}},de=new Set,m=e=>e.size===0,ge=e=>e.size,he=g,Se=h,we=f,p=x,Ee=e=>l=>{let t=[];return l.forEach(r=>t.push(r)),t.sort(e.compare)},ve=f;
+
+exports.chain = te;
+exports.compact = xe;
+exports.difference = k;
+exports.elem = p;
+exports.empty = de;
+exports.every = Se;
+exports.filter = M;
+exports.filterMap = j;
+exports.foldMap = ae;
+exports.fromArray = ce;
+exports.getDifferenceMagma = ue;
+exports.getEq = b;
+exports.getIntersectionSemigroup = ne;
+exports.getShow = Z;
+exports.getUnionMonoid = oe;
+exports.getUnionSemigroup = O;
+exports.insert = D;
+exports.intersection = z;
+exports.isEmpty = m;
+exports.isSubset = we;
+exports.map = ee;
+exports.partition = re;
+exports.partitionMap = le;
+exports.reduce = pe;
+exports.reduceRight = ie;
+exports.remove = F;
+exports.separate = me;
+exports.singleton = se;
+exports.size = ge;
+exports.some = he;
+exports.subset = ve;
+exports.toArray = Ee;
+exports.toggle = fe;
+exports.union = _;
+//# sourceMappingURL=Set.js.map
+//# sourceMappingURL=Set.js.map

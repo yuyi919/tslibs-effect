@@ -1,0 +1,10 @@
+'use strict';
+
+var u=t=>t;var l=(t,e)=>(r,n)=>e.compose(t.second(n),t.first(r)),i=(t,e)=>{let r=l(t,e);return (n,p)=>e.compose(r(n,p),t.promap(e.id(),u,o=>[o,o]))},x=t=>l(t,t),g=t=>i(t,t);
+
+exports.fanOut = i;
+exports.fanout = g;
+exports.split = l;
+exports.splitStrong = x;
+//# sourceMappingURL=Strong.js.map
+//# sourceMappingURL=Strong.js.map

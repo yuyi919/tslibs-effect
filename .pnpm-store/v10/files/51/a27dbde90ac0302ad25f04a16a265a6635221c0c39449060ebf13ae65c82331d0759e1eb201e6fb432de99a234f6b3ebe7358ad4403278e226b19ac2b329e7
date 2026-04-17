@@ -1,0 +1,205 @@
+import type { JsObject, JsObjectEntries, JsPropertyKey } from "../JsObject"
+import type { Recordable, ReverseKV } from "../Types"
+import { forEach } from "../Array"
+import {
+  ENTRIES,
+  OBJ_ASSIGN,
+  OBJ_CREATE,
+  OBJ_defineProperties$,
+  OBJ_getOwnPropertyDescriptor$,
+  OBJ_getOwnPropertyDescriptors$,
+  OBJ_getOwnPropertySymbols$,
+  OBJECT,
+} from "./constant"
+import { ownKeys } from "./object/keys"
+import { mapValue } from "./object/property"
+
+/**
+ * Inverts the keys and values of an object. The keys of the input object become the values of the output object and vice versa.
+ *
+ * This function takes an object and creates a new object by inverting its keys and values. If the input object has duplicate values,
+ * the key of the last occurrence will be used as the value for the new key in the output object. It effectively creates a reverse mapping
+ * of the input object's key-value pairs.
+ *
+ * @template K - Type of the keys in the input object (string, number, symbol)
+ * @template V - Type of the values in the input object (string, number, symbol)
+ * @param {Record<K, V>} obj - The input object whose keys and values are to be inverted
+ * @returns {{ [key in V]: K }} - A new object with keys and values inverted
+ *
+ * @example
+ * invert({ a: 1, b: 2, c: 3 }); // { 1: 'a', 2: 'b', 3: 'c' }
+ * invert({ 1: 'a', 2: 'b', 3: 'c' }); // { a: '1', b: '2', c: '3' }
+ * invert({ a: 1, 2: 'b', c: 3, 4: 'd' }); // { 1: 'a', b: '2', 3: 'c', d: '4' }
+ * invert({ a: Symbol('sym1'), b: Symbol('sym2') }); // { [Symbol('sym1')]: 'a', [Symbol('sym2')]: 'b' }
+ */
+export function invert<A extends Recordable>(obj: A): ReverseKV<A>
+export function invert<K extends PropertyKey, V extends PropertyKey>(
+  obj: Record<K, V>,
+): { [key in V]: K }
+export function invert(obj: any): any {
+  const result = {} as any,
+    keys = ownKeys(obj) as any[]
+  let key, value
+  for (let i = 0; i < keys.length; i++) {
+    value = obj[(key = keys[i])]
+    result[value] = key
+  }
+  return result
+}
+
+/**
+ * Copy the values of all of the enumerable own properties from one or more source objects to a
+ * target object. Returns the target object.
+ * @param target The target object to copy to.
+ * @param source The source object from which to copy properties.
+ */
+export function assign<T extends {}, U>(target: T, source: U): T & U
+
+/**
+ * Copy the values of all of the enumerable own properties from one or more source objects to a
+ * target object. Returns the target object.
+ * @param target The target object to copy to.
+ * @param source1 The first source object from which to copy properties.
+ * @param source2 The second source object from which to copy properties.
+ */
+export function assign<T extends {}, U, V>(
+  target: T,
+  source1: U,
+  source2: V,
+): T & U & V
+
+/**
+ * Copy the values of all of the enumerable own properties from one or more source objects to a
+ * target object. Returns the target object.
+ * @param target The target object to copy to.
+ * @param source1 The first source object from which to copy properties.
+ * @param source2 The second source object from which to copy properties.
+ * @param source3 The third source object from which to copy properties.
+ */
+export function assign<T extends {}, U, V, W>(
+  target: T,
+  source1: U,
+  source2: V,
+  source3: W,
+): T & U & V & W
+
+/**
+ * Copy the values of all of the enumerable own properties from one or more source objects to a
+ * target object. Returns the target object.
+ * @param target The target object to copy to.
+ * @param sources One or more source objects from which to copy properties
+ */
+export function assign<T>(target: object, ...sources: any[]): T
+export function assign(target: object, ...sources: any[]): any
+export function assign(target: object, ...sources: any[]) {
+  return OBJ_ASSIGN(target, ...sources)
+}
+
+export function fromEntries<T = any>(
+  entries: Iterable<readonly [PropertyKey, T]>,
+): { [k: string]: T }
+
+/**
+ * Returns an object created by key-value entries for properties and methods
+ * @param entries An iterable object that contains key-value entries for properties and methods.
+ */
+export function fromEntries(entries: Iterable<readonly any[]>): any
+export function fromEntries(entries: Iterable<any>) {
+  return OBJECT.fromEntries(entries)
+}
+export function singleton<P extends JsPropertyKey, const A>(
+  name: P,
+  a: A,
+): JsObject<A, P>
+export function singleton<T>(name: string, a: T): JsObject<T>
+export function singleton<T>(name: string, a: T) {
+  return { [name]: a }
+}
+
+export function entries<T>(o: { [s: string]: T } | ArrayLike<T>): [string, T][]
+export function entries(o: {}): [string, any][]
+export function entries<T>(
+  o: { [s: string]: T } | ArrayLike<T>,
+): [string, T][] {
+  return ENTRIES(o)
+}
+export function _mapI<T extends JsObject, R = T>(
+  record: T,
+  each: (...args: JsObjectEntries<T>) => any,
+): R
+export function _mapI<T extends JsObject, R = T>(
+  record: T,
+  each: (...args: [key: keyof T, value: any]) => any,
+): R
+export function _mapI(
+  record: JsObject,
+  each: (...args: [k: any, a: any]) => any,
+) {
+  let descriptors = OBJ_getOwnPropertyDescriptors$(record)
+  forEach(
+    ownKeys(record),
+    (k) =>
+      (descriptors[k] = mapValue(descriptors[k]!, (value) => each(k, value))),
+  )
+  return OBJ_CREATE({}, descriptors) as any
+}
+export function _map<A, B>(
+  record: Record<any, A>,
+  each: (value: A, key: JsPropertyKey) => B,
+) {
+  return _mapI(record, (k, a) => each(a, k))
+}
+
+export function getOwnPropertySymbols(o: number | boolean | symbol | BigInt): []
+export function getOwnPropertySymbols(o: string | any[]): symbol[]
+export function getOwnPropertySymbols<T extends JsObject>(
+  o: T,
+): Extract<keyof T, symbol>[]
+export function getOwnPropertySymbols(o: any): symbol[]
+export function getOwnPropertySymbols(target: any) {
+  return OBJ_getOwnPropertySymbols$(target)
+}
+
+export function getOwnPropertyDescriptors<T extends JsObject>(
+  target: NonNullable<T>,
+): {
+  [K in keyof T]: TypedPropertyDescriptor<T[K]>
+}
+export function getOwnPropertyDescriptors(
+  target: number | boolean | symbol | BigInt,
+): {}
+export function getOwnPropertyDescriptors(
+  target: object,
+): Record<JsPropertyKey, PropertyDescriptor>
+export function getOwnPropertyDescriptors(
+  target: any,
+): Record<JsPropertyKey, PropertyDescriptor> {
+  return OBJ_getOwnPropertyDescriptors$(target) as Record<
+    JsPropertyKey,
+    PropertyDescriptor
+  >
+}
+export function defineProperties(
+  target: any,
+  proto: any,
+): Record<JsPropertyKey, PropertyDescriptor> {
+  return OBJ_defineProperties$(target, proto)
+}
+
+export function getOwnPropertyDescriptor<T extends {}, K extends keyof T>(
+  target: T,
+  key: K,
+): TypedPropertyDescriptor<T[K]>
+export function getOwnPropertyDescriptor(
+  target: any,
+  key: string | symbol,
+): PropertyDescriptor | undefined
+export function getOwnPropertyDescriptor(
+  target: any,
+  key: string | symbol,
+): PropertyDescriptor | undefined {
+  return OBJ_getOwnPropertyDescriptor$(target, key)
+}
+
+export * from "./object/bind"
+export * from "./object/keys"

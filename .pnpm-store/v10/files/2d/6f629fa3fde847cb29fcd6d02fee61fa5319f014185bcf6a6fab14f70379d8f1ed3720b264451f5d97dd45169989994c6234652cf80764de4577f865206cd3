@@ -1,0 +1,153 @@
+/**
+ * The `Const` type constructor, which wraps its first type argument and ignores its second.
+ * That is, `Const<E, A>` is isomorphic to `E` for any `A`.
+ *
+ * `Const` has some useful instances. For example, the `Applicative` instance allows us to collect results using a `Monoid`
+ * while ignoring return values.
+ *
+ * @since 2.0.0
+ */import { identity, pipe, unsafeCoerce } from "./function.js";
+import { flap as flap_ } from "./Functor.js"; /**
+                                              * @category constructors
+                                              * @since 2.0.0
+                                              */
+export let make = unsafeCoerce; /**
+                                * @category instances
+                                * @since 2.0.0
+                                */
+export let getShow = S => ({
+  show: c => `make(${S.show(c)})`
+}); /**
+    * @category instances
+    * @since 2.0.0
+    */
+export let getEq = identity; /**
+                             * @category instances
+                             * @since 2.6.0
+                             */
+export let getOrd = identity; /**
+                              * @category instances
+                              * @since 2.6.0
+                              */
+export let getBounded = identity; /**
+                                  * @category instances
+                                  * @since 2.6.0
+                                  */
+export let getSemigroup = identity; /**
+                                    * @category instances
+                                    * @since 2.6.0
+                                    */
+export let getMonoid = identity; /**
+                                 * @category instances
+                                 * @since 2.6.0
+                                 */
+export let getSemiring = identity; /**
+                                   * @category instances
+                                   * @since 2.6.0
+                                   */
+export let getRing = identity; /**
+                               * @category instances
+                               * @since 2.6.0
+                               */
+export let getHeytingAlgebra = identity; /**
+                                         * @category instances
+                                         * @since 2.6.0
+                                         */
+export let getBooleanAlgebra = identity; /**
+                                         * @category instances
+                                         * @since 2.0.0
+                                         */
+export let getApply = S => ({
+  URI,
+  _E: undefined,
+  map: _map,
+  ap: (fab, fa) => make(S.concat(fab, fa))
+}); /**
+    * @category instances
+    * @since 2.0.0
+    */
+export let getApplicative = M => {
+  let A = getApply(M);
+  return {
+    URI,
+    _E: undefined,
+    map: A.map,
+    ap: A.ap,
+    of: () => make(M.empty)
+  };
+};
+let _contramap = (fa, f) => contramap(f)(fa); /* istanbul ignore next */
+let _map = (fa, f) => map(f)(fa); /* istanbul ignore next */
+let _bimap = (fa, f, g) => bimap(f, g)(fa); /* istanbul ignore next */
+let _mapLeft = (fa, f) => mapLeft(f)(fa); /**
+                                          * @since 2.0.0
+                                          */
+export let contramap = () => unsafeCoerce; /**
+                                           * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                           * use the type constructor `F` to represent some computational context.
+                                           *
+                                           * @category mapping
+                                           * @since 2.0.0
+                                           */
+export let map = () => unsafeCoerce; /**
+                                     * Map a pair of functions over the two type arguments of the bifunctor.
+                                     *
+                                     * @category mapping
+                                     * @since 2.6.2
+                                     */
+export let bimap = f => fa => make(f(fa)); /**
+                                           * Map a function over the first type argument of a bifunctor.
+                                           *
+                                           * @category error handling
+                                           * @since 2.6.2
+                                           */
+export let mapLeft = f => fa => make(f(fa)); /**
+                                             * @category type lambdas
+                                             * @since 2.0.0
+                                             */
+export let URI = "Const"; /**
+                          * @category instances
+                          * @since 2.7.0
+                          */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * @category mapping
+   * @since 2.10.0
+   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * @category instances
+                                               * @since 2.7.0
+                                               */
+export let Contravariant = {
+  URI,
+  contramap: _contramap
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Bifunctor = {
+  URI,
+  bimap: _bimap,
+  mapLeft: _mapLeft
+}; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * This instance is deprecated, use small, specific instances instead.
+ * For example if a function needs a `Functor` instance, pass `C.Functor` instead of `C.const_`
+ * (where `C` is from `import C from 'fp-ts/Const'`)
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let const_ = {
+  URI,
+  map: _map,
+  contramap: _contramap,
+  bimap: _bimap,
+  mapLeft: _mapLeft
+};
+//# sourceMappingURL=Const.js.map

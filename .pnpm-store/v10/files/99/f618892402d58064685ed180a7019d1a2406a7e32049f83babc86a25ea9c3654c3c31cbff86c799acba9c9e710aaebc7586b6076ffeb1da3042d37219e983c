@@ -1,0 +1,34 @@
+import { includes } from "./Array.js";
+import { __KEY_UNDEFINED, UNDEFINED } from "./internal/constant/index.js";
+
+/** Detect if global `window` object is available */ // eslint-disable-next-line unicorn/prefer-global-this
+export let hasWindow = typeof window !== __KEY_UNDEFINED;
+/**
+ * Checks if env is Browser
+ */
+export let isBrowser = typeof location !== __KEY_UNDEFINED;
+/**
+ * @see {@link Window} and {@link globalThis}
+ */
+let _WINDOW = hasWindow ? window : UNDEFINED;
+/**
+ * @see {@link Document}
+ */
+export let document = _WINDOW?.document;
+/**
+ * @see {@link Window.navigator}
+ */
+export let navigator = _WINDOW?.navigator;
+/**
+ * @see {@link Navigator.userAgent}
+ */
+export let userAgent = navigator?.userAgent;
+export let SAFARI = "Safari";
+export let CHROME = "Chrome";
+/**
+ * Check if the current browser is Safari
+ */
+export let isBrowserSafari = () =>
+  !!userAgent && includes(userAgent, SAFARI) && !includes(userAgent, CHROME);
+export { _WINDOW as window };
+//# sourceMappingURL=Browser.js.map

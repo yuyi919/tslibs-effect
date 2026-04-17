@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/IOEither.js",
+  "module": "../dist/esm/IOEither.js",
+  "types": "../dist/esm/IOEither.d.ts",
+  "sideEffects": []
+}

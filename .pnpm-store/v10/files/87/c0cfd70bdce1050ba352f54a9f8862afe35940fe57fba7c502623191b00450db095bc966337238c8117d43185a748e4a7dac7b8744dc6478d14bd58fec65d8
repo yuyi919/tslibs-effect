@@ -1,0 +1,7 @@
+export declare function addOptionSnapshotSerializer(expect: {
+    addSnapshotSerializer: (arg0: {
+        serialize(val: any, config: any, indentation: any, depth: any, refs: any, printer: any): string;
+        test: (value: unknown) => boolean;
+    }) => void;
+}): void;
+//# sourceMappingURL=Option.setup.d.ts.map

@@ -1,0 +1,61 @@
+/**
+ * `Traversable` represents data structures which can be _traversed_ accumulating results and effects in some
+ * `Applicative` functor.
+ *
+ * - `traverse` runs an action for every element in a data structure, and accumulates the results.
+ * - `sequence` runs the actions _contained_ in a data structure, and accumulates the results.
+ *
+ * The `traverse` and `sequence` functions should be compatible in the following sense:
+ *
+ * - `traverse(A)(xs, f) <-> sequence(A)(A.map(xs, f))`
+ * - `sequence(A)(xs) <-> traverse(A)(xs, identity)`
+ *
+ * where `A` is an `Applicative` instance
+ *
+ * `Traversable` instances should also be compatible with the corresponding `Foldable` instances, in the following sense:
+ *
+ * ```ts
+ * import { getApplicative, make } from 'fp-ts/Const'
+ *
+ * const A = getApplicative(M)
+ *
+ * foldMap(M)(xs, f) = traverse(A)(xs, a => make(f(a)))
+ * ```
+ *
+ * where `M` is a `Monoid` instance
+ *
+ * @since 2.0.0
+ */import { getFoldableComposition } from "./Foldable.js";
+import { pipe } from "./function.js";
+import { getFunctorComposition } from "./Functor.js";
+export let traverse = (T, G) => F => {
+  let traverseT = T.traverse(F);
+  let traverseG = G.traverse(F);
+  return f => fga => traverseT(fga, ga => traverseG(ga, f));
+};
+export let sequence = (T, G) => F => {
+  let sequenceT = T.sequence(F);
+  let sequenceG = G.sequence(F);
+  return fgha => sequenceT(T.map(fgha, sequenceG));
+}; /** @deprecated */
+export let getTraversableComposition = (F, G) => {
+  let map = getFunctorComposition(F, G).map;
+  let FC = getFoldableComposition(F, G);
+  let _traverse = traverse(F, G);
+  let _sequence = sequence(F, G);
+  return {
+    map,
+    reduce: FC.reduce,
+    foldMap: FC.foldMap,
+    reduceRight: FC.reduceRight,
+    traverse: H => {
+      let traverseH = _traverse(H);
+      return (fga, f) => traverseH(f)(fga);
+    },
+    sequence: H => {
+      let sequenceH = _sequence(H);
+      return fgha => sequenceH(fgha);
+    }
+  };
+};
+//# sourceMappingURL=Traversable.js.map

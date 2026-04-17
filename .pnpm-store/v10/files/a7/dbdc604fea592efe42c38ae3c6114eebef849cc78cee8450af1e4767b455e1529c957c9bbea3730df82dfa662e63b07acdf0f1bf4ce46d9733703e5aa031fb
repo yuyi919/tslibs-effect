@@ -1,0 +1,25 @@
+/**
+ * A `Traversable` with an additional index.
+ * A `TraversableWithIndex` instance must be compatible with its `Traversable` instance
+ *
+ * ```ts
+ * traverse(F)(ta, f) = traverseWithIndex(F)(ta, (_, a) => f(a))
+ * ```
+ *
+ * with its `FoldableWithIndex` instance
+ *
+ * ```ts
+ * foldMapWithIndex(M)(ta, f) = traverseWithIndex(getApplicative(M))(ta, (i, a) => new Const(f(i, a))).value
+ * ```
+ *
+ * and with its `FunctorWithIndex` instance
+ *
+ * ```purescript
+ * mapWithIndex(ta, f) = traverseWithIndex(identity)(ta, (i, a) => new Identity(f(i, a))).value
+ * ```
+ *
+ * @since 2.0.0
+ */ /**
+    * @since 2.6.3
+    */export {};
+//# sourceMappingURL=TraversableWithIndex.js.map

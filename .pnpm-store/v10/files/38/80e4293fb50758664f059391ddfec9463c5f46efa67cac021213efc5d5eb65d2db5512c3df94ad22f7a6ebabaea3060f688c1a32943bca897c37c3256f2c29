@@ -1,0 +1,5 @@
+import * as Monoid from "@effect/typeclass/Monoid";
+import * as FpTsMonoid from "fp-ts/Monoid";
+export declare const toFpTs: <T>(m: Monoid.Monoid<T>) => Monoid.Monoid<T> & FpTsMonoid.Monoid<T>;
+export declare function getArrayMonoid<T>(): Monoid.Monoid<readonly T[]> & FpTsMonoid.Monoid<readonly T[]>;
+//# sourceMappingURL=getArrayMonoid.d.ts.map

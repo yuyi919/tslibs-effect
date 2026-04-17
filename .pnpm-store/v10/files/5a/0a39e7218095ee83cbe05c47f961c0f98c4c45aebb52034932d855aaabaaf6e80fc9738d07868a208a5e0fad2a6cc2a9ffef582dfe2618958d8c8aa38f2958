@@ -1,0 +1,4 @@
+export let stopPropagation = (e) => (e.stopPropagation(), e);
+export let stopImmediatePropagation = (e) => (e.stopImmediatePropagation(), e);
+export let preventDefault = (e) => (e.preventDefault(), e);
+//# sourceMappingURL=EventTarget.js.map

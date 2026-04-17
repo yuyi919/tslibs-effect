@@ -1,0 +1,8 @@
+/* TypeScript file generated from TypedArray.resi by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+import type {TypedArray as $$t} from '../JsTypes.shim';
+
+export type t<a> = $$t<a>;

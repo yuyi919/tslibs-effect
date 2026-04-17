@@ -1,0 +1,317 @@
+/* TypeScript file generated from Array.resi by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+import * as ArrayJS from './Array.bs.js';
+
+import type {Array2_array_like as Js_Array2_array_like} from './JsTypes.shim';
+
+import type {t as COrdering_t} from '../../src/internal/rescript/internal/COrdering.gen';
+
+export type array_like<a> = Js_Array2_array_like<a>;
+
+/** `make(~length, init)`
+
+  Creates an array of length `length` initialized with the value of `init`.
+
+  ```res example
+  Array.make(~length=3, #apple) == [#apple, #apple, #apple]
+  ``` */
+export const make: <a>(length:number, _2:a) => a[] = ArrayJS.make as any;
+
+export const unsafe_fromInitializer: <a>(length:number, _2:((_1:number) => a)) => a[] = ArrayJS.unsafe_fromInitializer as any;
+
+/** `fromInitializer(~length, f)`
+
+  Creates an array of length `length` initialized with the value returned from `f ` for each index.
+
+  ```res example
+  Array.fromInitializer(~length=3, i => i + 3) == [3, 4, 5]
+  ``` */
+export const fromInitializer: <a>(length:number, _2:((_1:number) => a)) => a[] = ArrayJS.fromInitializer as any;
+
+export const equal: <a,b>(_1:a[], _2:b[], _3:((_1:a, _2:b) => boolean)) => boolean = ArrayJS.equal as any;
+
+export const equalFromIndex: <a,b>(_1:a[], _2:b[], _3:((_1:a, _2:b) => boolean), start:number) => boolean = ArrayJS.equalFromIndex as any;
+
+export const compare: <a>(_1:a[], _2:a[], _3:((_1:a, _2:a) => COrdering_t)) => COrdering_t = ArrayJS.compare as any;
+
+/** `sort(array, comparator)` sorts `array` in-place using the `comparator` function.
+
+Beware this will *mutate* the array.
+
+See [`Array.sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) on MDN.
+
+## Examples
+```rescript
+let someArray = [3, 2, 1]
+someArray->Array.sort((a, b) => float(a - b))
+
+Console.log(someArray) // [1, 2, 3]
+``` */
+export const sort: <a>(_1:a[], _2:((_1:a, _2:a) => COrdering_t)) => void = ArrayJS.sort as any;
+
+export const withAt: <a>(_1:a[], _2:number, _3:a) => a[] = ArrayJS.withAt as any;
+
+/** `unshift(array, item)` inserts a new item at the start of the array.
+
+Beware this will *mutate* the array.
+
+See [`Array.unshift`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift) on MDN.
+
+## Examples
+```rescript
+let someArray = ["hi", "hello"]
+someArray->Array.unshift("yay")
+
+Console.log(someArray) // ["yay", "hi", "hello"]
+``` */
+export const unshift: <a>(_1:a[], _2:a) => void = ArrayJS.unshift as any;
+
+/** `unshiftMany(array, itemsArray)` inserts many new items to the start of the array.
+
+Beware this will *mutate* the array.
+
+See [`Array.push`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift) on MDN.
+
+## Examples
+```rescript
+let someArray = ["hi", "hello"]
+someArray->Array.unshiftMany(["yay", "wehoo"])
+
+Console.log(someArray) // ["yay", "wehoo", "hi", "hello"]
+``` */
+export const unshiftMany: <a>(_1:a[], _2:a[]) => void = ArrayJS.unshiftMany as any;
+
+/** `concat(array1, array2)` concatenates the two arrays, creating a new array.
+
+See [`Array.concat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat) on MDN.
+
+## Examples
+```rescript
+let array1 = ["hi", "hello"]
+let array2 = ["yay", "wehoo"]
+
+let someArray = array1->Array.concat(array2)
+
+Console.log(someArray) // ["hi", "hello", "yay", "wehoo"]
+``` */
+export const concat: <a>(_1:a[], _2:a[]) => a[] = ArrayJS.concat as any;
+
+/** `flat(arrays)` concatenates an array of arrays into a single array.
+
+See [`Array.flat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat) on MDN.
+
+## Examples
+```rescript
+Console.log([[1], [2], [3, 4]]->Array.flat) // [1, 2, 3, 4]
+``` */
+export const flat: <a>(_1:Array<a[]>) => a[] = ArrayJS.flat as any;
+
+/** `includes(array, item)` checks whether `array` includes `item`, by doing a [strict check for equality](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality).
+
+See [`Array.includes`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes) on MDN.
+
+## Examples
+```rescript
+Console.log([1, 2]->Array.includes(1)) // true
+Console.log([1, 2]->Array.includes(3)) // false
+Console.log([{"language": "ReScript"}]->Array.includes({"language": "ReScript"})) // false, because of strict equality
+``` */
+export const includes: <a>(_1:a[], _2:a) => boolean = ArrayJS.includes as any;
+
+/** `indexOf(array, item)` returns the index of the provided `item` in `array`. Uses [strict check for equality](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality) when comparing items.
+
+Returns `-1` if the item doesn not exist. Check out `Array.indexOfOpt` for a version that returns `None` instead of `-1` if the item does not exist.
+
+See [`Array.indexOf`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) on MDN.
+
+## Examples
+```rescript
+Console.log([1, 2]->Array.indexOf(2)) // 1
+Console.log([1, 2]->Array.indexOf(3)) // -1
+Console.log([{"language": "ReScript"}]->Array.indexOf({"language": "ReScript"})) // -1, because of strict equality
+``` */
+export const indexOf: <a>(_1:a[], _2:a) => number = ArrayJS.indexOf as any;
+
+/** `indexOfOpt(array, item)` returns an option of the index of the provided `item` in `array`. Uses [strict check for equality](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality) when comparing items.
+
+See [`Array.indexOf`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) on MDN.
+
+## Examples
+```rescript
+Console.log([1, 2]->Array.indexOfOpt(2)) // Some(1)
+Console.log([1, 2]->Array.indexOfOpt(3)) // None
+Console.log([{"language": "ReScript"}]->Array.indexOfOpt({"language": "ReScript"})) // None, because of strict equality
+``` */
+export const indexOfOpt: <a>(_1:a[], _2:a) => (undefined | number) = ArrayJS.indexOfOpt as any;
+
+export const indexOfFrom: <a>(_1:a[], _2:a, _3:number) => number = ArrayJS.indexOfFrom as any;
+
+/** `joinWith(array, separator)` produces a string where all items of `array` are printed, separated by `separator`. Array items must be strings, to join number or other arrays, use `joinWithUnsafe`. Under the hood this will run JavaScript's `toString` on all the array items.
+
+## Examples
+```rescript
+let array = ["One", "Two", "Three"]
+
+Console.log(array->Array.joinWith(" -- ")) // One -- Two -- Three
+``` */
+export const joinWith: (_1:string[], _2:string) => string = ArrayJS.joinWith as any;
+
+/** `joinWithUnsafe(array, separator)` produces a string where all items of `array` are printed, separated by `separator`. Under the hood this will run JavaScript's `toString` on all the array items.
+
+## Examples
+```rescript
+let array = [1, 2, 3]
+
+Console.log(array->Array.joinWithUnsafe(" -- ")) // 1 -- 2 -- 3
+``` */
+export const joinWithUnsafe: <a>(_1:a[], _2:string) => string = ArrayJS.joinWithUnsafe as any;
+
+export const join: (_1:string[]) => string = ArrayJS.join as any;
+
+export const joinUnsafe: <a>(_1:a[]) => string = ArrayJS.joinUnsafe as any;
+
+export const lastIndexOf: <a>(_1:a[], _2:a) => number = ArrayJS.lastIndexOf as any;
+
+export const lastIndexOfOpt: <a>(_1:a[], _2:a) => (undefined | number) = ArrayJS.lastIndexOfOpt as any;
+
+export const lastIndexOfFrom: <a>(_1:a[], _2:a, _3:number) => number = ArrayJS.lastIndexOfFrom as any;
+
+/** `slice(array, ~start, ~end)` creates a new array of items copied from `array` from `start` until (but not including) `end`.
+
+See [`Array.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice) on MDN.
+
+## Examples
+```rescript
+let myArray = [1, 2, 3, 4]
+
+Console.log(myArray->Array.slice(~start=1, ~end=3)) // [2, 3]
+``` */
+export const slice: <a>(_1:a[], start:number, end:number) => a[] = ArrayJS.slice as any;
+
+/** `sliceToEnd(array, start)` creates a new array from `array`, with all items from `array` starting from `start`.
+
+See [`Array.slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice) on MDN.
+
+## Examples
+```rescript
+let myArray = [1, 2, 3, 4]
+
+Console.log(myArray->Array.sliceToEnd(~start=1)) // [2, 3, 4]
+``` */
+export const sliceToEnd: <a>(_1:a[], start:number) => a[] = ArrayJS.sliceToEnd as any;
+
+/** `copy(array)` makes a copy of the array with the items in it, but does not make copies of the items themselves.
+
+## Examples
+```rescript
+let myArray = [1, 2, 3]
+let copyOfMyArray = myArray->Array.copy
+
+Console.log(copyOfMyArray) // [1, 2, 3]
+Console.log(myArray === copyOfMyArray) // false
+``` */
+export const copy: <a>(_1:a[]) => a[] = ArrayJS.copy as any;
+
+/** `toString(array)` stringifies `array` by running `toString` on all of the array elements and joining them with ",".
+
+See [`Array.toString`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toString) on MDN.
+
+## Examples
+```rescript
+let array = [1, 2, 3, 4]
+
+Console.log(array->Array.toString) // "1,2,3,4"
+``` */
+export const toString: <a>(_1:a[]) => string = ArrayJS.toString as any;
+
+export const toLocaleString: <a>(_1:a[]) => string = ArrayJS.toLocaleString as any;
+
+/** `every(array, predicate)` returns true if `predicate` returns true for all items in `array`.
+
+See [`Array.every`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every) on MDN.
+
+## Examples
+```rescript
+let array = [1, 2, 3, 4]
+
+Console.log(array->Array.every(num => num > 4)) // true
+Console.log(array->Array.every(num => num === 1)) // false
+``` */
+export const every: <a>(_1:a[], _2:((_1:a) => boolean)) => boolean = ArrayJS.every as any;
+
+/** `everyI(array, checker)` returns true if all items in `array` returns true when running the provided `checker` function.
+
+See [`Array.every`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every) on MDN.
+
+## Examples
+```rescript
+let array = [1, 2, 3, 4]
+
+Console.log(array->Array.everyI((num, index) => index < 2 && num <= 2)) // true
+Console.log(array->Array.everyI((num, index) => index < 2 && num >= 2)) // false
+``` */
+export const everyI: <a>(_1:a[], _2:((_1:a, _2:number) => boolean)) => boolean = ArrayJS.everyI as any;
+
+/** `filter(array, checker)` returns a new array containing all elements from `array` for which the provided `checker` function returns true.
+
+See [`Array.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) on MDN.
+
+## Examples
+```rescript
+let array = [1, 2, 3, 4]
+
+Console.log(array->Array.filter(num => num > 2)) // [3, 4]
+``` */
+export const filter: <a>(_1:a[], _2:((_1:a) => boolean)) => a[] = ArrayJS.filter as any;
+
+/** `filterI(array, checker)` returns a new array containing all elements from `array` for which the provided `checker` function returns true.
+
+See [`Array.filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) on MDN.
+
+## Examples
+```rescript
+let array = [1, 2, 3, 4]
+
+Console.log(array->Array.filterI((num, index) => index === 0 || num === 2)) // [1, 2]
+``` */
+export const filterI: <a>(_1:a[], _2:((_1:a, _2:number) => boolean)) => a[] = ArrayJS.filterI as any;
+
+/** `find(array, checker)` returns the first element of `array` where the provided `checker` function returns true.
+
+See [`Array.find`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) on MDN.
+
+## Examples
+```rescript
+type languages = ReScript | TypeScript | JavaScript
+
+let array = [ReScript, TypeScript, JavaScript]
+
+switch array->Array.find(item => item == ReScript) {
+| None => Console.log("No item...")
+| Some(_) => Console.log("Yay, ReScript!")
+}
+``` */
+export const find: <a>(_1:a[], _2:((_1:a) => boolean)) => (undefined | a) = ArrayJS.find as any;
+
+/** `reduce(xs, init, fn)`
+
+  Applies `fn` to each element of `xs` from beginning to end. Function `fn` has two parameters: the item from the list and an “accumulator”; which starts with a value of `init`. `reduce` returns the final value of the accumulator.
+
+  ```res example
+  Array.reduce([2, 3, 4], 1, (a, b) => a + b) == 10
+
+  Array.reduce(["a", "b", "c", "d"], "", (a, b) => a ++ b) == "abcd"
+  ``` */
+export const reduce: <a,b>(_1:a[], _2:b, _3:((_1:b, _2:a) => b)) => b = ArrayJS.reduce as any;
+
+/** `reduceI(x, init, fn)`
+
+  Applies `fn` to each element of `xs` from beginning to end. Function `fn` has three parameters: the item from the array and an “accumulator”, which starts with a value of `init` and the index of each element. `reduceI` returns the final value of the accumulator.
+
+  ```res example
+  Array.reduceI([1, 2, 3, 4], 0, (acc, x, i) => acc + x + i) == 16
+  ``` */
+export const reduceI: <a,b>(_1:a[], _2:b, _3:((_1:b, _2:a, _3:number) => b)) => b = ArrayJS.reduceI as any;

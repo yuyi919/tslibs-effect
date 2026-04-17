@@ -1,0 +1,8 @@
+/* TypeScript file generated from Types.res by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+export type covariant<a,b> = (_1:a) => b;
+
+export type invariant<a> = (_1:a) => a;

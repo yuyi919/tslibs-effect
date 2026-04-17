@@ -1,0 +1,23 @@
+'use strict';
+
+var o=e=>({equals:(t,r)=>t===r||e(t,r)}),u=e=>o((t,r)=>{for(let l in e)if(!e[l].equals(t[l],r[l]))return !1;return !0}),q=(...e)=>o((t,r)=>e.every((l,p)=>l.equals(t[p],r[p]))),x=(e,t)=>n(t)(e),n=e=>t=>o((r,l)=>t.equals(e(r),e(l))),c="Eq",a={equals:(e,t)=>e===t},s={equals:()=>!0},i=()=>({concat:(e,t)=>o((r,l)=>e.equals(r,l)&&t.equals(r,l))}),g=()=>({concat:i().concat,empty:s}),m={URI:c,contramap:x},E=q,v=u,S=a.equals,y=m,O=a,d=a,k=a,B={equals:(e,t)=>e.valueOf()===t.valueOf()};
+
+exports.Contravariant = m;
+exports.URI = c;
+exports.contramap = n;
+exports.eq = y;
+exports.eqBoolean = O;
+exports.eqDate = B;
+exports.eqNumber = k;
+exports.eqStrict = a;
+exports.eqString = d;
+exports.fromEquals = o;
+exports.getMonoid = g;
+exports.getSemigroup = i;
+exports.getStructEq = v;
+exports.getTupleEq = E;
+exports.strictEqual = S;
+exports.struct = u;
+exports.tuple = q;
+//# sourceMappingURL=Eq.js.map
+//# sourceMappingURL=Eq.js.map

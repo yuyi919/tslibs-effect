@@ -1,0 +1,25 @@
+'use strict';
+
+var x=e=>t=>p=>e.map(p,r=>r(t));var h=e=>()=>[void 0,e],b=e=>()=>{let[t,p]=e();return [[t,p],p]},v=e=>()=>{let[[t,p],r]=e();return [t,p(r)]},C=e=>t=>()=>{let[p,r]=t();return [[p,e(r)],r]},W=e=>t=>()=>{let[p,r]=t();return [p,e(r)]},a=(e,t)=>c(t)(e),c=e=>t=>()=>{let[p,r]=t();return [e(p),r]},l="Writer",s=e=>({URI:l,_E:void 0,of:t=>()=>[t,e.empty]}),m=e=>({URI:l,_E:void 0,map:a,ap:(t,p)=>()=>{let[r,o]=t(),[n,i]=p();return [r(n),e.concat(o,i)]}}),w=e=>{let t=m(e),p=s(e);return {URI:l,_E:void 0,map:a,ap:t.ap,of:p.of}},_=e=>{let t=m(e);return {URI:l,_E:void 0,map:a,ap:t.ap,chain:(p,r)=>()=>{let[o,n]=p(),[i,f]=r(o)();return [i,e.concat(n,f)]}}},y=e=>{let t=w(e),p=_(e);return {URI:l,_E:void 0,map:a,ap:t.ap,of:t.of,chain:p.chain}},u={URI:l,map:a},F=x(u),P=e=>e()[0],U=e=>e()[1],j=e=>e()[0],I=e=>e()[1],O=u;
+
+exports.Functor = u;
+exports.URI = l;
+exports.censor = W;
+exports.evalWriter = j;
+exports.evaluate = P;
+exports.execWriter = I;
+exports.execute = U;
+exports.flap = F;
+exports.getApplicative = w;
+exports.getApply = m;
+exports.getChain = _;
+exports.getMonad = y;
+exports.getPointed = s;
+exports.listen = b;
+exports.listens = C;
+exports.map = c;
+exports.pass = v;
+exports.tell = h;
+exports.writer = O;
+//# sourceMappingURL=Writer.js.map
+//# sourceMappingURL=Writer.js.map

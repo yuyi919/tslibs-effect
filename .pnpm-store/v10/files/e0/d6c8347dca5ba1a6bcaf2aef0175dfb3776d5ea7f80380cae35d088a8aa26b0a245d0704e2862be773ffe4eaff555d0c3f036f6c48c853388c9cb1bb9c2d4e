@@ -1,0 +1,355 @@
+/**
+ * @since 0.6.0
+ */
+// eslint-disable-next-line max-classes-per-file
+import * as MExtend from "fp-ts/Extend"
+import * as MFoldableWithIndex from "fp-ts/FoldableWithIndex"
+import * as O from "fp-ts/Option"
+import * as pipeable from "fp-ts/pipeable"
+
+import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes"
+
+import * as Patterns from "../../patterns"
+import { execAt } from "./regexp"
+import * as SeqLike from "./SeqLike"
+
+export type { SeqLike } from "./SeqLike"
+
+export const str2seq = (
+  arr: string | readonly string[],
+): SeqLike.SeqLike<string> => (typeof arr === "string" ? arr : arr.join("")) // [0];
+
+export const seq2str = (arr: SeqLike.SeqLike<string>): string =>
+  arr instanceof Array ? arr.join("") : (arr as string) // [0];
+
+// -------------------------------------------------------------------------------------
+// model
+// -------------------------------------------------------------------------------------
+
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export abstract class AbstractStream<A> {
+  constructor(
+    public readonly buffer: SeqLike.SeqLike<A>,
+    public readonly cursor: number,
+  ) {}
+
+  protected _make(buffer: SeqLike.SeqLike<A>, cursor: number) {
+    const Stream = this.constructor as new (
+      buffer: SeqLike.SeqLike<A>,
+      cursor: number,
+    ) => IStream<A>
+    return new Stream(buffer, cursor)
+  }
+
+  get _bufferLength() {
+    return this.buffer.length
+  }
+
+  clone() {
+    return this._make(this.buffer, this.cursor)
+  }
+
+  consume(step: number) {
+    return this._make(this.buffer, this.cursor + step)
+  }
+
+  atEnd() {
+    return this.cursor >= this._bufferLength
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  abstract _getNextOffset(mode: ConsumeMode, start?: number): number
+}
+
+export interface IStream<A> extends AbstractStream<A> {}
+
+export class Stream<A> extends AbstractStream<A> {
+  // eslint-disable-next-line class-methods-use-this
+  _getNextOffset(_: ConsumeMode, start: number = 0): number {
+    // TODO
+    return start
+  }
+}
+
+export class StringStream extends AbstractStream<string> {
+  _getNextOffset(mode: ConsumeMode, start: number = this.cursor): number {
+    let next = 0
+    if (mode !== ConsumeMode.Next) {
+      const exec: RegExpExecArray | null =
+        mode === ConsumeMode.IgnoreWhitespace
+          ? execAt(Patterns.WHITESPACE, this.buffer as string, start)
+          : execAt(Patterns.SPACE, this.buffer as string, start)
+      exec && (next = exec[0].length)
+    }
+    return next
+  }
+}
+
+export const getStruct = <A>(stream: IStream<A>): NonNullable<IStream<A>> =>
+  stream
+
+export const getCursor = <I>(stream: IStream<I>): number => stream.cursor
+
+export const getBuffer = <A>(stream: IStream<A>): SeqLike.SeqLike<A> =>
+  stream.buffer
+
+export const getBufferLength = <A>(stream: IStream<A>): number =>
+  stream._bufferLength
+
+export const extendBufferF = <A, B>(
+  source: IStream<A>,
+  f: (a: SeqLike.SeqLike<A>) => SeqLike.SeqLike<B>,
+): IStream<B> => stream(f(source.buffer), source.cursor)
+
+export const mapF = <A, B>(source: IStream<A>, f: (a: A) => B): IStream<B> =>
+  stream(mapSeqF(source.buffer, f), source.cursor)
+
+export const mapSeqF = <A, B>(
+  source: SeqLike.SeqLike<A>,
+  f: (a: A) => B,
+): SeqLike.SeqLike<B> =>
+  f(source as A & SeqLike.SeqLike<A>) as B & SeqLike.SeqLike<B>
+
+/**
+ * @category constructors
+ * @since
+ */
+export type StreamFactory<A> = (
+  buffer: SeqLike.SeqLike<A>,
+  cursor?: number,
+) => IStream<A>
+
+// -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export const stream: {
+  <A>(
+    factory: StreamFactory<A>,
+    buffer: SeqLike.SeqLike<A>,
+    cursor?: number,
+  ): IStream<A>
+  <A>(buffer: SeqLike.SeqLike<A>, cursor?: number): IStream<A>
+} = (a: any, b?: any, c?: any): IStream<any> =>
+  isStr(a) ? string(a, b) : isFn(a) ? makeF(a, b, c) : pure(a, b)
+
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export const makeF = <A>(
+  factory: StreamFactory<A>,
+  buffer: SeqLike.SeqLike<A>,
+  cursor?: number,
+): IStream<A> => factory(buffer, cursor)
+
+/**
+ * @param string
+ * @param cursor
+ * @returns
+ * @category constructors
+ * @since 0.7.0
+ */
+export const string = (string: string, cursor = 0) =>
+  new StringStream(string, cursor)
+
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export const pure: {
+  <A>(buffer: SeqLike.SeqLike<A>, cursor?: number): IStream<A>
+} = (buffer, cursor = 0) => new Stream(buffer, cursor)
+
+export const URI = "InputStream"
+export type URI = "InputStream"
+
+declare module "fp-ts/HKT" {
+  interface URItoKind<A> {
+    [URI]: IStream<A>
+  }
+}
+
+export const Foldable: MFoldableWithIndex.FoldableWithIndex1<URI, number> = {
+  URI,
+  reduce: (fa, b, f) => SeqLike.reduceF(fa.buffer, b, f),
+  foldMap: (M) => (fa, f) => SeqLike.foldMapF(M)(fa.buffer, f),
+  reduceRight: (fa, b, f) => SeqLike.reduceRightF(fa.buffer, b, f),
+  reduceWithIndex: (fa, b, f) => SeqLike.reduceWithIndexF(fa.buffer, b, f),
+  foldMapWithIndex: (M) => (fa, f) =>
+    SeqLike.foldMapWithIndexF(M)(fa.buffer, f),
+  reduceRightWithIndex: (fa, b, f) =>
+    SeqLike.reduceRightWithIndexF(fa.buffer, b, f),
+}
+
+export const reduce = pipeable.reduce(Foldable)
+export const reduceWithIndex = pipeable.reduceWithIndex(Foldable)
+export const foldMap = pipeable.foldMap(Foldable)
+export const foldMapWithIndex = pipeable.foldMapWithIndex(Foldable)
+export const reduceRight = pipeable.reduceRight(Foldable)
+export const reduceRightWithIndex = pipeable.reduceRightWithIndex(Foldable)
+
+export const extend: <A, B>(
+  wa: IStream<A>,
+  f: (wa: IStream<A>) => B,
+) => IStream<B> = (wa, f) => from(f(wa), wa.cursor)
+export const extendCursor: <A, B>(
+  source: IStream<A>,
+  next: IStream<B>,
+) => IStream<B> = (source, next) =>
+  getCursor(source) === getCursor(next)
+    ? next
+    : stream(getBuffer(next), getCursor(source))
+
+export const Extend: MExtend.Extend1<URI> = {
+  URI,
+  extend,
+  map: mapF,
+}
+
+export const consume = <A>(stream: IStream<A>, length: number): IStream<A> =>
+  length === 0 ? stream.clone() : stream.consume(length)
+
+export { string as fromString }
+
+/**
+ * @param input
+ * @param cursor
+ * @returns
+ */
+export const from = <A = any>(
+  input: A | SeqLike.SeqLike<A>,
+  cursor?: number,
+): IStream<A> => stream(SeqLike.from(input), cursor)
+
+// -------------------------------------------------------------------------------------
+// destructors
+// -------------------------------------------------------------------------------------
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const unsafeGet: <A>(stream: IStream<A>) => A | undefined = (s) => {
+  const { cursor, buffer } = s
+  if (cursor < buffer.length) return buffer[cursor]
+  return undefined
+}
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const get: <A>(s: IStream<A>) => O.Option<A> = (s) => {
+  const { cursor, buffer } = s
+  if (cursor >= buffer.length) return O.none
+  return O.some(buffer[cursor]!)
+}
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const matchNext: <A>(
+  stream: IStream<A>,
+  match: SeqLike.SeqLike<A>,
+) => boolean = (stream, match) =>
+  SeqLike.testNext(stream.buffer, match, stream.cursor)
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const isStringStream = (
+  stream: IStream<any>,
+): stream is IStream<string> => SeqLike.isStringSeq(stream.buffer)
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const matchNextStr: (
+  stream: IStream<string>,
+  match: SeqLike.SeqLike<string>,
+) => boolean = (stream, match) =>
+  SeqLike.testNextStr(stream.buffer, match, stream.cursor)
+
+/**
+ * Stream消费模式
+ * 下一个/忽略空格/忽略空白字符
+ */
+export const enum ConsumeMode {
+  Next,
+  IgnoreSpace,
+  IgnoreWhitespace,
+}
+
+export const ResolveSuccess = <A>(
+  value: A,
+  next: IStream<A>,
+): ResolveResult<A> => ({
+  _tag: "Success",
+  value,
+  next,
+})
+
+export type ResolveFailed = { _tag: "Failed" }
+export type ResolveSuccess<A> = { _tag: "Success"; value: A; next: IStream<A> }
+export type ResolveResult<A> = ResolveSuccess<A> | ResolveFailed
+
+const RESOLVE_FAILED: ResolveFailed = { _tag: "Failed" }
+export const isNone = <A>(result: ResolveResult<A>): result is ResolveFailed =>
+  result === RESOLVE_FAILED
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const getAndNext: <A>(
+  stream: IStream<A>,
+  mode: ConsumeMode,
+) => ResolveResult<A> | ResolveResult<never> = (stream, mode) => {
+  const { cursor, buffer } = stream
+  if (cursor >= buffer.length) return RESOLVE_FAILED
+  const next = getNextOffset(stream, mode)
+  return next > 0
+    ? ResolveSuccess(buffer[cursor + next]!, consume(stream, next + 1))
+    : ResolveSuccess(buffer[cursor]!, consume(stream, 1))
+}
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const resolveNext: <A>(
+  stream: IStream<A>,
+  mode: ConsumeMode,
+) => IStream<A> = (stream, mode) => {
+  if (mode === ConsumeMode.Next) return stream
+  if (stream.cursor >= stream._bufferLength) return stream
+  return consume(stream, getNextOffset(stream, mode))
+}
+
+export const getNextOffset = <A>(
+  stream: IStream<A>,
+  mode: ConsumeMode,
+  start?: number,
+): number => stream._getNextOffset(mode, start)
+
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export const atEnd: <A>(stream: IStream<A>) => boolean = (s) => s.atEnd()
+
+export const eqCursor = <A>(a: IStream<A>, b: IStream<A>) =>
+  getCursor(a) === getCursor(b)
+
+export { type IStream as t }

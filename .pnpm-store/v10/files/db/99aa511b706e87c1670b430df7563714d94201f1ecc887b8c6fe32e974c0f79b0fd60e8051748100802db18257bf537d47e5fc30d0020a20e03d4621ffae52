@@ -1,0 +1,23 @@
+import * as monoid from "@effect/typeclass/Monoid";
+import * as semigroup from "@effect/typeclass/Semigroup";
+
+import { isArr } from "@yuyi919/shared-proto/JsTypes";
+
+import { joinMany } from "./Array.js";
+
+export function joinArguments() {
+  let len = arguments.length;
+  if (len === 0) return "";
+  let r = arguments[0];
+  for (let index = 1; index < len; index++) {
+    r += arguments[index];
+  }
+  return r;
+}
+export let Semigroup = /*#__PURE__*/ semigroup.make(
+  (a, b) => a + b,
+  (v, other) =>
+    isArr(other) ? joinMany(v, other) : v + joinArguments(...other),
+);
+export let Monoid = /*#__PURE__*/ monoid.fromSemigroup(Semigroup, "");
+//# sourceMappingURL=String.js.map

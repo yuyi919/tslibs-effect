@@ -1,0 +1,19 @@
+'use strict';
+
+var i=e=>typeof e=="boolean",l=(e,t)=>o=>o?t():e(),r=l,p=r,m=p,a={equals:(e,t)=>e===t},s={meet:(e,t)=>e&&t,join:(e,t)=>e||t,zero:!1,one:!0,implies:(e,t)=>!e||t,not:e=>!e},n={concat:(e,t)=>e&&t},c={concat:(e,t)=>e||t},u={concat:n.concat,empty:!0},y={concat:c.concat,empty:!1},f={equals:a.equals,compare:(e,t)=>e<t?-1:e>t?1:0},A={show:e=>JSON.stringify(e)};
+
+exports.BooleanAlgebra = s;
+exports.Eq = a;
+exports.MonoidAll = u;
+exports.MonoidAny = y;
+exports.Ord = f;
+exports.SemigroupAll = n;
+exports.SemigroupAny = c;
+exports.Show = A;
+exports.fold = m;
+exports.foldW = r;
+exports.isBoolean = i;
+exports.match = p;
+exports.matchW = l;
+//# sourceMappingURL=boolean.js.map
+//# sourceMappingURL=boolean.js.map

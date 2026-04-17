@@ -1,0 +1,428 @@
+import type { TypedArray } from "./JsTypes.shim"
+import { IS_ARR } from "./internal/constant"
+import * as helper from "./internal/helper"
+
+export type Element<A extends ArrayLike<any>> = A[number]
+export type ReplaceElement<Arr extends RA<any>, B> =
+  Arr extends NEA<any>
+    ? NEA<B>
+    : Arr extends Array<any>
+      ? Array<B>
+      : Arr extends RNEA<any>
+        ? RNEA<B>
+        : RA<B>
+
+// type t1 = ReplaceElement<t<1>, 2>
+// type t2 = ReplaceElement<RA<1>, 2>
+// type t3 = ReplaceElement<NEA<1>, 2>
+// type t4 = ReplaceElement<RNEA<1>, 2>
+
+export type NonEmptyArray<A = unknown> = [A, ...A[]]
+export declare namespace NonEmptyArray {
+  export type Readonly<A = unknown> = readonly [A, ...A[]]
+}
+
+export type _<T = unknown> = Array<T>
+export { type _ as t }
+export type AnyArray = Array<any>
+
+export type RA<T = unknown> = ReadonlyArray<T>
+export type NEA<T = unknown> = NonEmptyArray<T>
+export type RNEA<T = unknown> = NonEmptyArray.Readonly<T>
+
+export function forEach<A>(self: NEA<A>, f: EachFn<NEA<A>, unknown>): void
+export function forEach<A>(self: RNEA<A>, f: EachFn<RNEA<A>, unknown>): void
+export function forEach<A>(self: Array<A>, f: EachFn<Array<A>, unknown>): void
+export function forEach<A>(self: RA<A>, f: EachFn<RA<A>, unknown>): void
+export function forEach(self: RA<any>, f: any) {
+  return self.forEach(f)
+}
+
+export function tap<A>(self: NEA<A>, f: EachFn<NEA<A>, unknown>): void
+export function tap<A>(self: RNEA<A>, f: EachFn<RNEA<A>, unknown>): void
+export function tap<A>(self: Array<A>, f: EachFn<Array<A>, unknown>): void
+export function tap<A>(self: RA<A>, f: EachFn<RA<A>, unknown>): void
+export function tap(self: RA<any>, f: any) {
+  return (forEach(self, f), self)
+}
+
+export function find<A, B extends A>(
+  self: RA<A>,
+  f: EachRefinement<Array<A>, B>,
+): B | undefined
+export function find<A>(
+  self: RA<A>,
+  f: EachFn<Array<A>, unknown>,
+): A | undefined
+export function find<A>(self: RA<A>, f: any): A | undefined {
+  return self.find(f)
+}
+
+export function findLast<A, B extends A>(
+  self: RA<A>,
+  f: EachRefinement<RA<A>, B>,
+): B | undefined
+export function findLast<A>(
+  self: RA<A>,
+  f: EachFn<Array<A>, unknown>,
+): A | undefined
+export function findLast<A>(self: RA<A>, f: any): A | undefined {
+  return self.findLast(f)
+}
+
+/**
+ * @remark check {@link ReadonlyArray.every}
+ */
+export function every<A, B extends A>(
+  self: NEA<A>,
+  f: EachRefinement<NEA<A>, B>,
+): self is NEA<B>
+export function every<A, B extends A>(
+  self: RNEA<A>,
+  f: EachRefinement<RNEA<A>, B>,
+): self is RNEA<B>
+export function every<A, B extends A>(
+  self: Array<A>,
+  f: EachRefinement<Array<A>, B>,
+): self is Array<B>
+export function every<A, B extends A>(
+  self: RA<A>,
+  f: EachRefinement<RA<A>, B>,
+): self is RA<B>
+export function every<A>(self: Array<A>, f: EachFn<Array<A>, unknown>): boolean
+export function every<A>(self: RA<A>, f: EachFn<RA<A>, unknown>): boolean
+export function every<Arr extends RA<any>>(self: Arr, f: any): boolean {
+  return helper.every(self, f)
+}
+
+export function refineEvery<A, B extends A>(
+  f: EachRefinement<RA<A>, B>,
+): {
+  (self: ReadonlyArray<A>): self is ReadonlyArray<B>
+}
+export function refineEvery<A, B extends A>(
+  f: EachFn<RA<A>, unknown>,
+): (self: RA<A>) => boolean
+export function refineEvery(f: any): any {
+  return (self: any[]) => every(self, f)
+}
+
+// findLast([[]] as (number | string)[][], refineEvery(isNum))?.map((a) => a + 1)
+// findLast([[]] as (number[] | string[])[], refineEvery(isNum))?.map((a) => a + 1)
+// let i1 = [[0]] as Array<RNEA<number | string>>
+// let t2 = every(i1, refineEvery(isStr)) && forEach(i1, (a) => a)
+
+/**
+ * @remark check {@link ReadonlyArray.indexOf}
+ */
+export function indexOf<A>(
+  self: RA<A>,
+  searchElement: A,
+  fromIndex?: number | undefined,
+): number {
+  return self.indexOf(searchElement, fromIndex)
+}
+
+/**
+ * @remark check {@link ReadonlyArray.lastIndexOf}
+ */
+export function lastIndexOf<A>(
+  self: RA<A>,
+  searchElement: A,
+  fromIndex?: number | undefined,
+): number {
+  return self.lastIndexOf(searchElement, fromIndex)
+}
+
+/**
+ * @remark check {@link Array.splice}
+ */
+export function splice<A>(
+  self: Array<A>,
+  startIndex: number,
+  deleteCount: number,
+  ...insertItems: A[]
+): A[]
+export function splice<A>(
+  self: Array<A>,
+  startIndex: number,
+  deleteCount?: number,
+): A[]
+export function splice<A>(
+  self: Array<A>,
+  startIndex: number,
+  ...others: [deleteCount: number, ...insertItems: A[]] | [deleteCount?: number]
+): A[] {
+  return self.splice(startIndex, ...(others as [deleteCount?: number]))
+}
+
+/**
+ * @remark check {@link ReadonlyArray.toSpliced}
+ */
+export function toSpliced<A>(
+  self: Array<A>,
+  startIndex: number,
+  deleteCount: number,
+  ...insertItems: A[]
+): A[]
+export function toSpliced<A>(
+  self: Array<A>,
+  startIndex: number,
+  deleteCount?: number,
+): A[]
+export function toSpliced<A>(
+  self: RA<A>,
+  startIndex: number,
+  ...others: [deleteCount: number, ...insertItems: A[]] | [deleteCount?: number]
+): RA<A> {
+  return self.toSpliced(startIndex, ...(others as [deleteCount?: number]))
+}
+
+/**
+ * @remark check {@link Array.splice}
+ */
+export function removeElement<A>(
+  self: Array<A>,
+  startIndex: number,
+  deleteCount: number = 1,
+) {
+  return splice(self, startIndex, deleteCount)
+}
+
+/**
+ *
+ * @param self - array
+ * @param searchElement - see {@link Array.indexOf}
+ * @param fromIndex - (DEFAULT: 0) see {@link Array.indexOf}
+ * @param deleteCount - (DEFAULT: 1) see {@link Array.slice}
+ * @returns succeed or fail
+ */
+export function removeElementByIndexOf<A>(
+  self: Array<A>,
+  searchElement: A,
+  fromIndex?: number,
+  deleteCount: number = 1,
+) {
+  return (
+    (fromIndex = indexOf(self, searchElement, fromIndex)) > -1 &&
+    (removeElement(self, fromIndex, deleteCount), true)
+  )
+}
+
+export type EachFn<Arr extends ArrayLike<any>, R> = (
+  currentValue: Element<Arr>,
+  currentIndex: number,
+  array: Arr,
+) => R
+
+export type EachRefinement<Arr extends RA<any>, R extends Element<Arr>> = {
+  (currentValue: Element<Arr>): currentValue is R
+  (
+    currentValue: Element<Arr>,
+    currentIndex: number,
+    array: Arr,
+  ): currentValue is R
+}
+
+export type EachRefinement2<A, R extends A> = {
+  (currentValue: A): currentValue is R
+  (currentValue: A, currentIndex: number): currentValue is R
+}
+
+export type AccumulatorFn<Arr extends readonly any[], B = Element<Arr>> = (
+  previousValue: B,
+  currentValue: Element<Arr>,
+  currentIndex: number,
+  array: Arr,
+) => B
+
+/**
+ * @remark check {@link Array.reduce} or {@link ReadonlyArray.reduce}
+ */
+export function reduce<Arr extends RA<any>, B = Element<Arr>>(
+  self: Arr,
+  f: AccumulatorFn<Arr, B>,
+  initialValue: B,
+): B
+export function reduce<Arr extends RA<any>>(
+  self: Arr,
+  f: AccumulatorFn<Arr>,
+): Arr extends RNEA<any> ? Element<Arr> : Element<Arr> | undefined
+
+export function reduce<A, B>(
+  self: A[],
+  f: AccumulatorFn<A[], B>,
+  initialValue: B,
+): B
+export function reduce<A>(self: NEA<A>, f: AccumulatorFn<NEA<A>, A>): A
+export function reduce<A>(self: A[], f: AccumulatorFn<A[], A>): A | undefined
+
+export function reduce<A, B>(
+  self: RA<A>,
+  f: AccumulatorFn<RA<A>, B>,
+  initialValue: B,
+): B
+export function reduce<A>(self: RNEA<A>, f: AccumulatorFn<RNEA<A>, A>): A
+export function reduce<A>(
+  self: RA<A>,
+  f: AccumulatorFn<RA<A>, A>,
+): A | undefined
+export function reduce<A>(
+  fa: RA<A>,
+  ...args: readonly [f: any, initial?: any]
+) {
+  return fa.reduce(...args)
+}
+
+/**
+ * @remark check {@link Array.reduceRight} or {@link ReadonlyArray.reduceRight}
+ */
+export function reduceRight<Arr extends RA<any>, B = Element<Arr>>(
+  self: Arr,
+  f: AccumulatorFn<Arr, B>,
+  initialValue: B,
+): B
+export function reduceRight<Arr extends RA<any>>(
+  self: Arr,
+  f: AccumulatorFn<Arr>,
+): Arr extends RNEA<any> ? Element<Arr> : Element<Arr> | undefined
+
+export function reduceRight<A, B>(
+  self: A[],
+  f: AccumulatorFn<A[], B>,
+  initialValue: B,
+): B
+export function reduceRight<A>(self: NEA<A>, f: AccumulatorFn<NEA<A>, A>): A
+export function reduceRight<A>(
+  self: A[],
+  f: AccumulatorFn<A[], A>,
+): A | undefined
+
+export function reduceRight<A, B>(
+  self: RA<A>,
+  f: AccumulatorFn<RA<A>, B>,
+  initialValue: B,
+): B
+export function reduceRight<A>(self: RNEA<A>, f: AccumulatorFn<RNEA<A>, A>): A
+export function reduceRight<A>(
+  self: RA<A>,
+  f: AccumulatorFn<RA<A>, A>,
+): A | undefined
+export function reduceRight<A>(
+  fa: RA<A> | A[],
+  ...args: readonly [f: any, initial?: any]
+) {
+  return fa.reduceRight(...args)
+}
+
+// reduceRight([1] as NEA<number>, (r, a, i, arr) => r + a)
+// reduceRight([1] as RNEA<number>, (r, a, i, arr) => r + a + "", "0")
+// reduceRight([1] as Array<number>, (r, a, i, arr) => r + a)
+// reduceRight([1] as RA<number>, (r, a, i, arr) => r + a, 0)
+
+// let arr = [1] as (string | number)[]
+// every(arr, isStr) && arr.forEach((a) => a)
+//
+
+export function includes(
+  self: unknown[],
+  value: unknown,
+  fromIndex?: number,
+): boolean
+export function includes(
+  self: string,
+  value: string,
+  fromIndex?: number,
+): boolean
+export function includes(
+  self: unknown[] | string,
+  value: unknown,
+  fromIndex?: number,
+): boolean {
+  return (self as string).includes(value as string, fromIndex)
+}
+
+export function join(self: RA<string> | TypedArray, separator?: string): string
+export function join(self: RA, separator?: string): string
+export function join(self: any, separator?: string): string {
+  return self.join(separator)
+}
+
+export function filterJoin<A extends RA<string> | TypedArray>(
+  self: A,
+  predicate: EachFn<A, unknown>,
+  separator?: string,
+): string
+export function filterJoin(
+  self: RA,
+  predicate: EachFn<RA, unknown>,
+  separator?: string,
+): string
+export function filterJoin(
+  self: any,
+  predicate: EachFn<any, unknown>,
+  sep: string = ",",
+): string {
+  return reduce(
+    self,
+    (r, a, i, self) => (predicate(a, i, self) ? (r ? r + sep + a : a + "") : r),
+    "",
+  )
+}
+
+/**
+ * @remark check {@link Array.filter} or {@link ReadonlyArray.filter}
+ */
+export function filter<A, B extends A>(
+  self: Array<A>,
+  refinement: EachRefinement<RA<A>, B>,
+): Array<B>
+export function filter<A>(
+  self: Array<A>,
+  predicate: EachFn<RA<A>, boolean | unknown>,
+): Array<A>
+export function filter<A, B extends A>(
+  self: RA<A>,
+  refinement: EachRefinement<RA<A>, B>,
+): RA<B>
+export function filter<A>(
+  self: RA<A>,
+  predicate: EachFn<RA<A>, boolean | unknown>,
+): RA<A>
+export function filter(self: RA<any>, predicate: any) {
+  return self.filter(predicate)
+}
+
+/**
+ * @remark check {@link Array.map} or {@link ReadonlyArray.map}
+ */
+export function map<Arr extends NEA<any>, B>(
+  self: Arr,
+  mapFn: EachFn<Arr, B>,
+  thisArgs?: unknown,
+): NEA<B>
+export function map<Arr extends RA<any>, B>(
+  self: Arr,
+  mapFn: EachFn<Arr, B>,
+  thisArgs?: unknown,
+): RA<B>
+export function map<Arr extends TypedArray, B>(
+  self: Arr,
+  mapFn: EachFn<Arr, number>,
+  thisArgs?: unknown,
+): Arr
+export function map<A, B>(self: RA<A>, mapFn: EachFn<RA<A>, B>): RA<B>
+export function map(
+  self: RA<any>,
+  mapFn: EachFn<any, any>,
+  thisArgs?: unknown,
+) {
+  return self.map(mapFn, thisArgs)
+}
+
+export function isArray<T>(arg: Array<T>): arg is Array<T>
+export function isArray<T>(arg: RA<T>): arg is RA<T>
+export function isArray(arg: any): arg is Array<any>
+export function isArray(arg: any): arg is any[] {
+  return IS_ARR(arg)
+}

@@ -1,0 +1,93 @@
+external extract: (array<'a>, int) => 'a = "%array_unsafe_get"
+@send
+external push: (array<'a>, 'a) => int = "push"
+
+@inline
+let first = extract(_, 0)
+@inline
+let last = arr => arr->extract(arr->Array.length - 1)
+@inline
+let get = (arr, i) => arr->extract(i)
+@inline
+let set = (arr, i, v) => arr->Array.setUnsafe(i, v)
+
+@inline
+let forEach = (arr: array<'a>, each: ('a, int) => 'b) =>
+  for i in 0 to arr->Array.length - 1 {
+    each(arr->Array.getUnsafe(i), i)->ignore
+  }
+
+@inline
+let _reduceI = (arr, b, f) => {
+  let r = ref(b)
+  for i in 0 to arr->Array.length - 1 {
+    r := f(r.contents, arr->Array.getUnsafe(i), i)
+  }
+  r.contents
+}
+
+let reduceI = (arr, b, f) => _reduceI(arr, b, f)
+
+@inline
+let reduce = (arr, b, each) => {
+  @inline
+  let rec loop = (arr, b, each, i) => {
+    if i == arr->Array.length {
+      b
+    } else {
+      loop(arr, each(b, arr->Array.getUnsafe(i)), each, i + 1)
+    }
+  }
+  loop(arr, b, each, 0)
+}
+
+module OptsInline = () => {
+  @inline
+  let forEach = (arr: array<'a>, each: ('a, int) => 'b) => forEach(arr, each)
+
+  @inline
+  let rec reduceI = (arr, b, each, i) => {
+    if i == arr->Array.length {
+      b
+    } else {
+      reduceI(arr, each(b, arr->Array.getUnsafe(i), i), each, i + 1)
+    }
+  }
+
+  @inline
+  let reduceI = (arr, b, each) => reduceI(arr, b, each, 0)
+}
+
+
+@inline
+let forEachStep = (arr, fn, ~step) => {
+  @inline
+  let rec loop = i => {
+    if i < arr->TypedArray.length {
+      fn(arr, i)->ignore
+      loop(i + step)
+    }
+  }
+  loop(0)
+}
+
+@inline
+let forEachStep2 = (fa, f, ~step) => {
+  let i = ref(0)
+  while i.contents < fa->TypedArray.length {
+    fa->f(i.contents)
+    i := i.contents + step
+  }
+}
+// let forEachStep3 = (fa, f, ~step) => {
+//   /* i += */
+//   @inline let \"i +=": int => unit = a => %raw(`(a) => i += a`)(a)
+//   /* i++ */
+//   @inline let \"i++": unit => unit = () => %raw(`() => i++ `)()
+//   let i = (0)->Identity.id
+//   while i < fa->TypedArray.length {
+//     fa->TypedArray.swap(i, i + 3)
+//     fa->TypedArray.swap(i + 1, i + 2)
+//     \"i +="(4)
+//   }
+// }

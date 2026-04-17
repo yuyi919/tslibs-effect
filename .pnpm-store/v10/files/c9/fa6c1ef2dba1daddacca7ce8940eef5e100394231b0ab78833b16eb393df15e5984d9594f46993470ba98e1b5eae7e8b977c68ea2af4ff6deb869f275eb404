@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/TaskEither.js",
+  "module": "../dist/esm/TaskEither.js",
+  "types": "../dist/esm/TaskEither.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,106 @@
+import * as E from "fp-ts/Either";
+import * as io from "fp-ts/IO";
+import * as NEA from "fp-ts/NonEmptyArray";
+import * as option from "fp-ts/Option";
+import * as R from "fp-ts/Reader";
+/* eslint-disable arrow-body-style */
+import * as RA from "fp-ts/ReadonlyArray";
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray";
+import * as these from "fp-ts/These";
+
+import { NULL, UNDEFINED } from "../internal/constant/index.js";
+import { isStr } from "../internal/helper.js";
+import { constant, error, raise } from "./core.js";
+import { flow } from "./flow.js";
+
+export let constEmptyArray = /*#__PURE__*/ constant([]);
+export let constEmptyObject = /*#__PURE__*/ constant({});
+/**
+ * A thunk that returns always `true`.
+ * @example
+ * assert.deepStrictEqual(constTrue(), true)
+ * @since 2.0.0
+ */
+export let constTrue = () => true;
+/**
+ * A thunk that returns always `false`.
+ * @example
+ * assert.deepStrictEqual(constFalse(), false)
+ * @since 2.0.0
+ */
+export let constFalse = () => false;
+/**
+ * A thunk that returns always `null`.
+ * @example
+ * assert.deepStrictEqual(constNull(), null)
+ * @since 2.0.0
+ */
+export let constNull = () => NULL;
+/**
+ * A thunk that returns always `undefined`.
+ * @example
+ * assert.deepStrictEqual(constUndefined(), undefined)
+ * @since 2.0.0
+ */
+export let constUndefined = () => UNDEFINED;
+/**
+ * A thunk that returns always `void`.
+ * @example
+ * assert.deepStrictEqual(constVoid(), undefined)
+ * @since 2.0.0
+ */
+export let constVoid = constUndefined;
+export let toRaise = (err = "panic") =>
+  isStr(err) ? () => raise(error(err)) : () => raise(err);
+export let toArgumentsFirst =
+  (f) =>
+  (...args) =>
+    f(args);
+export let toArrayArgFirst = (f) => (args) => f(...args);
+export let toArrayElementFirst = toArrayArgFirst;
+export let invoke = (fn) => fn();
+export let getReaderEitherIO = () => E.bimap(invoke, invoke);
+export let getIoThese = (O) => () => these.Bifunctor.bimap(O, invoke, invoke);
+export let toIoEither = (O) => () => E.Bifunctor.bimap(O, invoke, invoke);
+export let toReaderEither = (O) => (r) =>
+  E.Bifunctor.bimap(
+    O,
+    (a) => a(r),
+    (a) => a(r),
+  );
+export let compactEitherIO = /*#__PURE__*/ flow(
+  /*#__PURE__*/ NEA.map(toIoEither),
+  io.sequenceArray,
+);
+export let compactEitherReader = /*#__PURE__*/ flow(
+  /*#__PURE__*/ NEA.map(toReaderEither),
+  R.sequenceArray,
+);
+export let compactIO = /*#__PURE__*/ flow(
+  compactEitherIO,
+  /*#__PURE__*/ io.map(
+    /*#__PURE__*/ flow(/*#__PURE__*/ RA.map(option.getRight), RA.compact),
+  ),
+);
+export let compactReader = /*#__PURE__*/ flow(
+  compactEitherReader,
+  /*#__PURE__*/ R.map(
+    /*#__PURE__*/ flow(/*#__PURE__*/ RA.map(option.getRight), RA.compact),
+  ),
+);
+export let compactIOArray = (array) => () => array.map(invoke);
+export let compactReaderArray = R.sequenceArray;
+export let compactRNEAEitherIO = /*#__PURE__*/ flow(
+  /*#__PURE__*/ RNEA.map(
+    /*#__PURE__*/ flow(/*#__PURE__*/ E.bimap(invoke, invoke), option.getRight),
+  ),
+  RA.compact,
+);
+export let concatAllArgsS =
+  (M) =>
+  (startWith) =>
+  (...as) =>
+    as.reduce(M.concat, startWith);
+export let concatAllArgsM = (M) => concatAllArgsS(M)(M.empty);
+export { cloneFn } from "../internal/helper.js";
+//# sourceMappingURL=helper.js.map

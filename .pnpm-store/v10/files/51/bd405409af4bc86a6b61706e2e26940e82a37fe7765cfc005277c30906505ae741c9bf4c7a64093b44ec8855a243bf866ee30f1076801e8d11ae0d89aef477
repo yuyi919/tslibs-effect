@@ -1,0 +1,336 @@
+// Copyright (c) 2021-2023 Peter Matta
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+
+import * as $ from "../internal/constant"
+import { tryCatch } from "../internal/helper"
+
+export interface Lazy<A> {
+  (): A
+}
+
+export function lazy<F extends () => any>(init: F): F
+export function lazy<A>(init: () => A): Lazy<A>
+export function lazy<A>(init: () => A): Lazy<A> {
+  return ((value?: A) => () => (
+    init && ((value = init()), ((init as any) = $.NULL)),
+    value!
+  ))()
+}
+
+export function cached<A extends object, B extends object>(
+  f: (a: A) => B,
+): (a: A) => B {
+  const cache = new WeakMap<A, WeakRef<B>>()
+  return (a: A): B => {
+    if (cache.has(a)) {
+      const ref = cache.get(a)!
+      const b = ref.deref()
+      if (b) return b
+    }
+    const b = f(a)
+    cache.set(a, new WeakRef(b))
+    return b
+  }
+}
+/**
+ * wrapper for `ThrowStatement`
+ * @param e - throw e
+ * @return never
+ */
+export function raise(e: unknown): never {
+  throw e
+}
+
+/**
+ * return an `Error(msg?, opts?)`
+ * @example
+ * raise(error("Invalid Argument"))
+ */
+export function error(
+  message?: string | undefined,
+  options?: ErrorOptions | undefined,
+): Error {
+  return $.ERROR(message, options)
+}
+
+/**
+ * return a `TypeError(msg?, opts?)`
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export function typeError(
+  message?: string | undefined,
+  options?: ErrorOptions | undefined,
+): Error {
+  return $.ERRORS_TypeError(message, options)
+}
+
+/**
+ * return a `SyntaxError(msg?, opts?)`
+ * @example
+ * raise(syntaxError("Invalid Input"))
+ */
+export function syntaxError(
+  message?: string | undefined,
+  options?: ErrorOptions | undefined,
+): Error {
+  return $.ERRORS_SyntaxError(message, options)
+}
+
+/**
+ * alias for {@link raise}
+ * @example
+ * raise(typeError("Invalid Argument"))
+ */
+export function throwError(e: Error) {
+  return raise(e)
+}
+
+/**
+ * @param a - Return value
+ * @returns `() => a`
+ */
+export function constant<A>(a: A): Lazy<A> {
+  return () => a
+}
+
+export function identity<A>(a: A) {
+  return a
+}
+/**
+ * Casts the result to the specified type.
+ * @param a - The value to be casted to the target type.
+ */
+export function unsafeCoerce<B>(a: unknown): B {
+  return identity(a) as any
+}
+
+/**
+ * A function that ensures that the type of an expression matches some type,
+ * without changing the resulting type of that expression.
+ *
+ * @example
+ *
+ * const test1 = satisfies<number>()(5 as const)
+ *     //^? const test: 5
+ *     // @ts-expect-error
+ * const test2 = satisfies<string>()(5)
+ *     //^? Argument of type 'number' is not assignable to parameter of type 'string'
+ *
+ * assert.deepStrictEqual(satisfies<number>()(5), 5)
+ *
+ */
+export function satisfies<A>(): <B extends A>(b: B) => B {
+  return identity
+}
+
+export function return1<A>(a: A, ...other: any[]): A
+export function return1<A>(a: A): A {
+  return identity(a)
+}
+
+export function return2<B>(_a: unknown, b: B, ...other: unknown[]): B
+export function return2<B>(_a: any, b: B): B {
+  return b
+}
+
+export function return3<C>(
+  _a: unknown,
+  _b: unknown,
+  c: C,
+  ...other: unknown[]
+): C
+export function return3<C>(_a: any, _b: any, c: C): C {
+  return c
+}
+
+export function return4<D>(
+  _a: unknown,
+  _b: unknown,
+  _c: unknown,
+  d: D,
+  ...other: unknown[]
+): D
+export function return4<D>(_a: any, _b: any, _c: any, d: D): D {
+  return d
+}
+
+export function constantWith<F extends () => any>(expr: F): F
+export function constantWith<A extends {}>(expr: () => A): Lazy<A>
+export function constantWith<A>(expr: () => A): Lazy<A> {
+  return tryCatch(
+    () => constant(expr()),
+    () => lazy(expr),
+  )
+}
+
+export function fst<A, B>(x: readonly [A, B]): A {
+  return x[0]
+}
+export function snd<A, B>(x: readonly [A, B]): B {
+  return x[1]
+}
+
+export function flip<
+  A extends readonly unknown[],
+  B extends readonly unknown[],
+  C,
+>(f: (...a: A) => (...b: B) => C): (...b: B) => (...a: A) => C {
+  return (...b) =>
+    (...a) =>
+      f(...a)(...b)
+}
+
+export function flip0<A, B, C>(f: (a: A, b: B) => C): (b: B, a: A) => C {
+  return (b, a) => f(a, b)
+}
+
+/**
+ * 将函数参数按顺序curry化
+ * @param f -
+ */
+export function curry<A, B, C>(f: (a: A, b: B) => C): (a: A) => (b: B) => C {
+  return (x) => (y) => f(x, y)
+}
+
+/**
+ * 将函数参数按相反顺序curry化
+ * @param f -
+ */
+export function curryReverse<A, B, C>(
+  f: (b: B, a: A) => C,
+): (a: A) => (b: B) => C {
+  return (x) => (y) => f(y, x)
+}
+
+/**
+ * 将函数参数按顺序反curry化
+ * @param f -
+ */
+export function uncurry<A, B, C>(f: (a: A) => (b: B) => C): (a: A, b: B) => C {
+  return (x, y) => f(x)(y)
+}
+
+/**
+ * 将函数参数按相反顺序反curry化
+ * @param f -
+ */
+export function uncurryReverse<A, B, C>(
+  f: (b: B) => (a: A) => C,
+): (a: A, b: B) => C {
+  return (x, y) => f(y)(x)
+}
+
+export function applyTo<A>(a: A): <B>(f: (a: A) => B) => B {
+  return (f) => f(a)
+}
+
+export function tuple<A extends unknown[], R>(f: (...args: A) => R) {
+  return (args: A): R => f(...args)
+}
+
+export function untuple<A extends unknown[], R>(f: (args: A) => R) {
+  return (...args: A): R => f(args)
+}
+
+/**
+ * The `absurd` function is a stub for cases where a value of type `never` is encountered in your code,
+ * meaning that it should be impossible for this code to be executed.
+ *
+ * This function is particularly when it's necessary to specify that certain cases are impossible.
+ *
+ */
+export function absurd<A>(x: never): A
+export function absurd<A>(): A
+export function absurd<A>(_?: never): A {
+  return raise(error("Absurd function called"))
+}
+
+export interface LengthLike {
+  readonly length: number
+}
+
+export function len(target: LengthLike) {
+  return target.length
+}
+
+export function lastIndex(target: LengthLike) {
+  return len(target) - 1
+}
+
+export function lastElement<T>(target: ArrayLike<T>) {
+  return target[lastIndex(target)]
+}
+
+export function firstElement<T>(target: ArrayLike<T>) {
+  return target[0]
+}
+
+export function _new<T extends {}, Args extends readonly any[]>(
+  target: new (...args: Args) => T,
+  args: Readonly<Args>,
+  newTarget?: new (...args: any) => any,
+): T {
+  return $.CREATE_NEW(target, args, newTarget ?? target)
+}
+
+export function _new0<T extends {}>(Target: new () => T): T {
+  return new Target()
+}
+
+export function _new1<T extends {}, Arg>(
+  Target: new (arg: Arg) => T,
+  arg: Arg,
+): T {
+  return new Target(arg)
+}
+
+export function _new2<T extends {}, Arg, Args2>(
+  Target: new (arg: Arg, arg2: Args2) => T,
+  arg: Arg,
+  arg2: Args2,
+): T {
+  return new Target(arg, arg2)
+}
+
+export function makeNew<T extends {}, Args extends readonly any[]>(
+  Target: new (...args: Args) => T,
+) {
+  return (...args: Args) => _new(Target, args)
+}
+
+/**
+ * Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument.
+ *
+ * @example
+ *
+ * const sumTupled = tupled((x: number, y: number): number => x + y)
+ *
+ * assert.deepStrictEqual(sumTupled([1, 2]), 3)
+ *
+ */
+export function tupled<A extends ReadonlyArray<unknown>, B>(
+  f: (...a: A) => B,
+): (a: A) => B {
+  return (a) => f(...a)
+}
+
+/**
+ * Inverse function of `tupled`
+ *
+ * @example
+ *
+ * const getFirst = untupled(<A, B>(tuple: [A, B]): A => tuple[0])
+ *
+ * assert.deepStrictEqual(getFirst(1, 2), 1)
+ *
+ */
+export function untupled<A extends ReadonlyArray<unknown>, B>(
+  f: (a: A) => B,
+): (...a: A) => B {
+  return (...a) => f(a)
+}
+
+export function ignore(_: unknown): void {}

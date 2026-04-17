@@ -1,0 +1,13 @@
+'use strict';
+
+var r=(t,e)=>p=>a=>t.map(a,o=>e.map(o,p)),n=t=>e=>p=>t.map(p,a=>a(e)),i=t=>e=>p=>t.map(p,a=>({[e]:a})),s=t=>(e,p)=>a=>t.map(a,o=>Object.assign({},o,{[e]:p(o)}));var x=(t,e)=>{let p=r(t,e);return {map:(a,o)=>p(o)(a)}},l=t=>(e,p)=>t.map(e,()=>p),u=t=>{let e=l(t);return p=>e(p,void 0)};
+
+exports.as = l;
+exports.asUnit = u;
+exports.bindTo = i;
+exports.flap = n;
+exports.getFunctorComposition = x;
+exports.let = s;
+exports.map = r;
+//# sourceMappingURL=Functor.js.map
+//# sourceMappingURL=Functor.js.map

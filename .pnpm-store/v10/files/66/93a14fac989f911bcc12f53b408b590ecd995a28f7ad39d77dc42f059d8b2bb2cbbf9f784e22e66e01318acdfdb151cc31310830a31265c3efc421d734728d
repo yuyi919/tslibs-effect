@@ -1,0 +1,52 @@
+export declare function pureMemoize<F extends (...args: any) => any>(fn: F, options?: MemoizeOptions<F>): F & {
+    cache: MemoizeCache<any, ReturnType<F>>;
+};
+export interface MemoizeOptions<F extends (...args: any) => any> {
+    cache?: MemoizeCache<any, ReturnType<F>>;
+    key?: (...args: Parameters<F>) => unknown;
+}
+/**
+ * Represents a cache for memoization, allowing storage and retrieval of computed values.
+ *
+ * @template K - The type of keys used to store values in the cache.
+ * @template V - The type of values stored in the cache.
+ */
+export interface MemoizeCache<K, V> {
+    /**
+     * Stores a value in the cache with the specified key.
+     *
+     * @param key - The key to associate with the value.
+     * @param value - The value to store in the cache.
+     */
+    set(key: K, value: V): void;
+    /**
+     * Retrieves a value from the cache by its key.
+     *
+     * @param key - The key of the value to retrieve.
+     * @returns The value associated with the key, or undefined if the key does not exist.
+     */
+    get(key: K): V | undefined;
+    /**
+     * Checks if a value exists in the cache for the specified key.
+     *
+     * @param key - The key to check for existence in the cache.
+     * @returns True if the cache contains the key, false otherwise.
+     */
+    has(key: K): boolean;
+    /**
+     * Deletes a value from the cache by its key.
+     *
+     * @param key - The key of the value to delete.
+     * @returns True if the value was successfully deleted, false otherwise.
+     */
+    delete(key: K): boolean | void;
+    /**
+     * Clears all values from the cache.
+     */
+    clear(): void;
+    /**
+     * The number of entries in the cache.
+     */
+    size: number;
+}
+//# sourceMappingURL=memoized.d.ts.map

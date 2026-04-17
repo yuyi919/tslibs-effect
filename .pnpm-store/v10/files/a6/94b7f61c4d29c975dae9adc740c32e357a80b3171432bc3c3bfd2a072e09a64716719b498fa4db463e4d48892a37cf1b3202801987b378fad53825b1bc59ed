@@ -1,0 +1,130 @@
+'use strict';
+
+var chunkCKNKKDJD_js = require('./chunk-CKNKKDJD.js');
+var chunkM7A6LHIC_js = require('./chunk-M7A6LHIC.js');
+var chunkY5EB4GGE_js = require('./chunk-Y5EB4GGE.js');
+
+
+
+Object.defineProperty(exports, "OBJ_PROTO", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.i; }
+});
+Object.defineProperty(exports, "_TAG", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.a; }
+});
+Object.defineProperty(exports, "getCallee", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.g; }
+});
+Object.defineProperty(exports, "hasParentClass", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.j; }
+});
+Object.defineProperty(exports, "isStrictMode", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.h; }
+});
+Object.defineProperty(exports, "makeClassWith", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.k; }
+});
+Object.defineProperty(exports, "makeProto", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.m; }
+});
+Object.defineProperty(exports, "makeProtoWith", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.l; }
+});
+Object.defineProperty(exports, "makeStructProto", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.d; }
+});
+Object.defineProperty(exports, "useArguments", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.f; }
+});
+Object.defineProperty(exports, "useConstructFunction", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.e; }
+});
+Object.defineProperty(exports, "withProtoF", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.c; }
+});
+Object.defineProperty(exports, "withProtoPropertyValue", {
+	enumerable: true,
+	get: function () { return chunkCKNKKDJD_js.b; }
+});
+Object.defineProperty(exports, "assign", {
+	enumerable: true,
+	get: function () { return chunkM7A6LHIC_js.b; }
+});
+Object.defineProperty(exports, "defineGetter", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.p; }
+});
+Object.defineProperty(exports, "defineHiddenProperty", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.n; }
+});
+Object.defineProperty(exports, "defineProperty", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.m; }
+});
+Object.defineProperty(exports, "defineProtoGetter", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.q; }
+});
+Object.defineProperty(exports, "defineProtoPropertyDescriptor", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.i; }
+});
+Object.defineProperty(exports, "defineProtoPropertyReadonlyValue", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.s; }
+});
+Object.defineProperty(exports, "defineProtoValue", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.r; }
+});
+Object.defineProperty(exports, "defineReadonlyProperty", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.o; }
+});
+Object.defineProperty(exports, "getProtos", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.f; }
+});
+Object.defineProperty(exports, "getPrototypeOf", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.h; }
+});
+Object.defineProperty(exports, "makeGetter", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.j; }
+});
+Object.defineProperty(exports, "makeMethod", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.k; }
+});
+Object.defineProperty(exports, "makeProperty", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.l; }
+});
+Object.defineProperty(exports, "setProtos", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.e; }
+});
+Object.defineProperty(exports, "setPrototypeOf", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.g; }
+});
+Object.defineProperty(exports, "useThis", {
+	enumerable: true,
+	get: function () { return chunkY5EB4GGE_js.d; }
+});
+//# sourceMappingURL=Proto.js.map
+//# sourceMappingURL=Proto.js.map

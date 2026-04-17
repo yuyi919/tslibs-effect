@@ -1,0 +1,73 @@
+module Float64Array = {
+  include TypedArrays.Float64Array
+  external get: (TypedArray.t<float>, int) => float = "%array_unsafe_get"
+}
+
+module Make = () => {
+  type t = Float64Array.t
+  let fromLength = Float64Array.fromLength
+  let fromBufferRange = (buf, ~offset, ~length) =>
+    Float64Array.fromBuffer(buf, ~length, ~byteOffset=offset)
+
+  @inline
+  let get = (array, index): float => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->Float64Array.get(index)
+  }
+
+  @inline
+  let set = (array, index, v: float) => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->TypedArray.set(index, v)
+  }
+
+  @inline
+  let plusplus = (array, index) => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->TypedArray.set(index, array->Float64Array.get(index) +. 1.)
+  }
+
+  @inline
+  let minusminus = (array, index) => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->TypedArray.set(index, array->Float64Array.get(index) -. 1.)
+  }
+
+  @inline
+  let plus = (array, index, v: float) => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->TypedArray.set(index, array->Float64Array.get(index) +. v)
+  }
+
+  @inline
+  let grow_to = (array, index, v: float) => {
+    if index > array->TypedArray.length {
+      let r = Js_OO.unsafe_to_method(() => ())
+      Console.log(r)
+      Js.Exn.raiseRangeError("")
+    }
+    if v > array->get(index) {
+      array->TypedArray.set(index, v)
+    }
+  }
+
+  @inline
+  let minus = (array, index, v: float) => {
+    // if index > array->Float64Array.length {
+    //   Js.Exn.raiseRangeError("")
+    // }
+    array->TypedArray.set(index, array->Float64Array.get(index) -. v)
+  }
+}
+
+include Make()

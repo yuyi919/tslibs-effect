@@ -1,0 +1,390 @@
+/**
+ * @since 2.5.0
+ */import { fromEquals } from "./Eq.js";
+import { identity } from "./function.js";
+import { not } from "./Predicate.js";
+import { separated } from "./Separated.js"; /**
+                                            * @category conversions
+                                            * @since 2.5.0
+                                            */
+export let fromSet = s => new Set(s); // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * Create a set with one element
+ *
+ * @category constructors
+ * @since 2.5.0
+ */
+export let singleton = a => new Set([a]); /**
+                                          * Create a `ReadonlySet` from a `ReadonlyArray`
+                                          *
+                                          * @category conversions
+                                          * @since 2.10.0
+                                          */
+export let fromReadonlyArray = E => as => {
+  let len = as.length;
+  let out = new Set();
+  let has = elem(E);
+  for (let i = 0; i < len; i++) {
+    let a = as[i];
+    if (!has(a, out)) {
+      out.add(a);
+    }
+  }
+  return out;
+}; /**
+   * @category conversions
+   * @since 2.5.0
+   */
+export let toSet = s => new Set(s); /**
+                                    * Projects a Set through a function
+                                    *
+                                    * @since 2.5.0
+                                    */
+export let map = E => {
+  let elemE = elem(E);
+  return f => set => {
+    let r = new Set();
+    set.forEach(e => {
+      let v = f(e);
+      if (!elemE(v, r)) {
+        r.add(v);
+      }
+    });
+    return r;
+  };
+}; /**
+   * @since 2.5.0
+   */
+export let chain = E => {
+  let elemE = elem(E);
+  return f => set => {
+    let r = new Set();
+    set.forEach(e => {
+      f(e).forEach(e => {
+        if (!elemE(e, r)) {
+          r.add(e);
+        }
+      });
+    });
+    return r;
+  };
+};
+export let filter = predicate => set => {
+  let values = set.values();
+  let e;
+  let r = new Set();
+  while (!(e = values.next()).done) {
+    let a = e.value;
+    if (predicate(a)) {
+      r.add(a);
+    }
+  }
+  return r;
+};
+export let partition = predicate => set => {
+  let values = set.values();
+  let e;
+  let right = new Set();
+  let left = new Set();
+  while (!(e = values.next()).done) {
+    let a = e.value;
+    if (predicate(a)) {
+      right.add(a);
+    } else {
+      left.add(a);
+    }
+  }
+  return separated(left, right);
+};
+export let union = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let unionE = union(E);
+      return that => unionE(me, that);
+    }
+    if (isEmpty(me)) {
+      return that;
+    }
+    if (isEmpty(that)) {
+      return me;
+    }
+    let r = new Set(me);
+    that.forEach(e => {
+      if (!elemE(e, r)) {
+        r.add(e);
+      }
+    });
+    return r;
+  };
+};
+export let intersection = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let intersectionE = intersection(E);
+      return that => intersectionE(that, me);
+    }
+    if (isEmpty(me) || isEmpty(that)) {
+      return empty;
+    }
+    let r = new Set();
+    me.forEach(e => {
+      if (elemE(e, that)) {
+        r.add(e);
+      }
+    });
+    return r;
+  };
+}; /**
+   * @since 2.5.0
+   */
+export let partitionMap = (EB, EC) => f => set => {
+  let values = set.values();
+  let e;
+  let left = new Set();
+  let right = new Set();
+  let hasB = elem(EB);
+  let hasC = elem(EC);
+  while (!(e = values.next()).done) {
+    let v = f(e.value);
+    switch (v._tag) {
+      case "Left":
+        if (!hasB(v.left, left)) {
+          left.add(v.left);
+        }
+        break;
+      case "Right":
+        if (!hasC(v.right, right)) {
+          right.add(v.right);
+        }
+        break;
+    }
+  }
+  return separated(left, right);
+};
+export let difference = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let differenceE = difference(E);
+      return that => differenceE(that, me);
+    }
+    return filter(a => !elemE(a, that))(me);
+  };
+}; /**
+   * @since 2.5.0
+   */
+export let reduce = O => {
+  let toReadonlyArrayO = toReadonlyArray(O);
+  return (b, f) => fa => toReadonlyArrayO(fa).reduce(f, b);
+}; /**
+   * @since 2.5.0
+   */
+export let foldMap = (O, M) => {
+  let toReadonlyArrayO = toReadonlyArray(O);
+  return f => fa => toReadonlyArrayO(fa).reduce((b, a) => M.concat(b, f(a)), M.empty);
+}; /**
+   * @category folding
+   * @since 2.11.0
+   */
+export let reduceRight = O => {
+  let toReadonlyArrayO = toReadonlyArray(O);
+  return (b, f) => fa => toReadonlyArrayO(fa).reduceRight((b, a) => f(a, b), b);
+}; /**
+   * Insert a value into a set
+   *
+   * @since 2.5.0
+   */
+export let insert = E => {
+  let elemE = elem(E);
+  return a => set => {
+    if (!elemE(a)(set)) {
+      let r = new Set(set);
+      r.add(a);
+      return r;
+    } else {
+      return set;
+    }
+  };
+}; /**
+   * Delete a value from a set
+   *
+   * @since 2.5.0
+   */
+export let remove = E => a => set => filter(ax => !E.equals(a, ax))(set); /**
+                                                                          * Checks an element is a member of a set;
+                                                                          * If yes, removes the value from the set
+                                                                          * If no, inserts the value to the set
+                                                                          *
+                                                                          * @since 2.10.0
+                                                                          */
+export let toggle = E => {
+  let elemE = elem(E);
+  let removeE = remove(E);
+  let insertE = insert(E);
+  return a => set => (elemE(a, set) ? removeE : insertE)(a)(set);
+}; /**
+   * @since 2.5.0
+   */
+export let compact = E => filterMap(E)(identity); /**
+                                                  * @since 2.5.0
+                                                  */
+export let separate = (EE, EA) => fa => {
+  let elemEE = elem(EE);
+  let elemEA = elem(EA);
+  let left = new Set();
+  let right = new Set();
+  fa.forEach(e => {
+    switch (e._tag) {
+      case "Left":
+        if (!elemEE(e.left, left)) {
+          left.add(e.left);
+        }
+        break;
+      case "Right":
+        if (!elemEA(e.right, right)) {
+          right.add(e.right);
+        }
+        break;
+    }
+  });
+  return separated(left, right);
+}; /**
+   * @since 2.5.0
+   */
+export let filterMap = E => {
+  let elemE = elem(E);
+  return f => fa => {
+    let r = new Set();
+    fa.forEach(a => {
+      let ob = f(a);
+      if (ob._tag === "Some" && !elemE(ob.value, r)) {
+        r.add(ob.value);
+      }
+    });
+    return r;
+  };
+}; // -------------------------------------------------------------------------------------
+// utils
+// -------------------------------------------------------------------------------------
+/**
+ * @since 2.5.0
+ */
+export let empty = /*#__PURE__*/new Set(); /**
+                                           * Test whether a `ReadonlySet` is empty.
+                                           *
+                                           * @since 2.10.0
+                                           */
+export let isEmpty = set => set.size === 0; /**
+                                            * Calculate the number of elements in a `ReadonlySet`.
+                                            *
+                                            * @since 2.10.0
+                                            */
+export let size = set => set.size; /**
+                                   * @since 2.5.0
+                                   */
+export let some = predicate => set => {
+  let values = set.values();
+  let e;
+  let found = false;
+  while (!found && !(e = values.next()).done) {
+    found = predicate(e.value);
+  }
+  return found;
+};
+export let every = predicate => not(some(not(predicate)));
+export let isSubset = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let isSubsetE = isSubset(E);
+      return that => isSubsetE(that, me);
+    }
+    return every(a => elemE(a, that))(me);
+  };
+};
+export let elem = E => (a, set) => {
+  if (set === undefined) {
+    let elemE = elem(E);
+    return set => elemE(a, set);
+  }
+  let values = set.values();
+  let e;
+  let found = false;
+  while (!found && !(e = values.next()).done) {
+    found = E.equals(a, e.value);
+  }
+  return found;
+}; /**
+   * Get a sorted `ReadonlyArray` of the values contained in a `ReadonlySet`.
+   *
+   * @category conversions
+   * @since 2.5.0
+   */
+export let toReadonlyArray = O => set => {
+  let out = [];
+  set.forEach(e => out.push(e));
+  return out.sort(O.compare);
+}; /**
+   * @category type lambdas
+   * @since 2.11.0
+   */
+export let URI = "ReadonlySet"; /**
+                                * @category instances
+                                * @since 2.5.0
+                                */
+export let getShow = S => ({
+  show: s => {
+    let entries = [];
+    s.forEach(a => {
+      entries.push(S.show(a));
+    });
+    return `new Set([${entries.sort().join(", ")}])`;
+  }
+}); /**
+    * @category instances
+    * @since 2.5.0
+    */
+export let getEq = E => {
+  let subsetE = isSubset(E);
+  return fromEquals((x, y) => subsetE(x, y) && subsetE(y, x));
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let getUnionSemigroup = E => ({
+  concat: union(E)
+}); /**
+    * @category instances
+    * @since 2.5.0
+    */
+export let getUnionMonoid = E => ({
+  concat: getUnionSemigroup(E).concat,
+  empty
+}); /**
+    * @category instances
+    * @since 2.5.0
+    */
+export let getIntersectionSemigroup = E => ({
+  concat: intersection(E)
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getDifferenceMagma = E => ({
+  concat: difference(E)
+}); // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use [`fromReadonlyArray`](#fromreadonlyarray) instead.
+ *
+ * @category zone of death
+ * @since 2.5.0
+ * @deprecated
+ */
+export let fromArray = fromReadonlyArray;
+//# sourceMappingURL=ReadonlySet.js.map

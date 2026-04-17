@@ -1,0 +1,12 @@
+import * as Stream from "../Stream.js";
+
+export let extendOption = (o) => ({
+  ...o,
+  collectError: o.collectError ?? EmptyParseOption.collectError,
+  scanMode: o.scanMode ?? EmptyParseOption.scanMode,
+});
+export let EmptyParseOption = {
+  collectError: true,
+  scanMode: Stream.ConsumeMode.Next,
+};
+//# sourceMappingURL=options.js.map

@@ -1,0 +1,38 @@
+/**
+ * The `Choice` class extends `Profunctor` with combinators for working with
+ * sum types.
+ *
+ * `left` and `right` lift values in a `Profunctor` to act on the `Left` and
+ * `Right` components of a sum, respectively.
+ *
+ * Looking at `Choice` through the intuition of inputs and outputs
+ * yields the following type signature:
+ *
+ * ```purescript
+ * left ::  forall input output a. p input output -> p (Either input a) (Either output a)
+ * right :: forall input output a. p input output -> p (Either a input) (Either a output)
+ * ```
+ *
+ * If we specialize the profunctor `p` to the `function` arrow, we get the following type
+ * signatures:
+ *
+ * ```purescript
+ * left ::  forall input output a. (input -> output) -> (Either input a) -> (Either output a)
+ * right :: forall input output a. (input -> output) -> (Either a input) -> (Either a output)
+ * ```
+ *
+ * When the `profunctor` is `Function` application, `left` allows you to map a function over the
+ * left side of an `Either`, and `right` maps it over the right side (same as `map` would do).
+ *
+ * Adapted from https://github.com/purescript/purescript-profunctor/blob/master/src/Data/Profunctor/Choice.purs
+ *
+ * @since 2.0.0
+ */import { identity } from "./function.js";
+export let split = (P, C) => (pab, pcd) => C.compose(P.right(pcd), P.left(pab));
+export let fanIn = (P, C) => {
+  let splitPC = split(P, C);
+  return (pac, pbc) => C.compose(P.promap(C.id(), cc => cc._tag === "Left" ? cc.left : cc.right, identity), splitPC(pac, pbc));
+};
+export let splitChoice = F => split(F, F);
+export let fanin = F => fanIn(F, F);
+//# sourceMappingURL=Choice.js.map

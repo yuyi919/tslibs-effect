@@ -1,0 +1,856 @@
+/**
+ * @since 0.0.0
+ */
+import { Mutable } from "effect/Types"
+
+import type * as equivalence from "@yuyi919/shared-proto/Equivalence"
+import type { Pipeable } from "@yuyi919/shared-proto/Pipeable"
+import { PipeableProto } from "@yuyi919/shared-proto/Pipeable"
+
+import * as Extensions from "./Extensions"
+import { error, ignore, pipe, raise, syntaxError } from "./Functions"
+import {
+  BIGINT,
+  INFINITY,
+  NUMBER,
+  OBJ_CREATE,
+  OBJECT_IS,
+} from "./internal/constant"
+import { dual, tryCatch } from "./internal/helper"
+import * as Math from "./internal/Math"
+import * as JsTypes from "./JsTypes"
+import * as Option from "./Option"
+import * as order from "./Order"
+import { signed } from "./Symbol"
+
+export const $Duration = "Duration"
+export const TypeId: unique symbol = Symbol.for(signed($Duration))
+
+const bigint0 = BIGINT(0)
+const bigint24 = BIGINT(24)
+const bigint60 = BIGINT(60)
+const bigint1e3 = BIGINT(1e3)
+const bigint1e6 = BIGINT(1e6)
+const bigint1e9 = BIGINT(1e9)
+
+const int1e3 = 1e3
+const int1e6 = 1e6
+const int1e9 = 1e9
+
+/**
+ * @since 0.0.0
+ * @category symbol
+ */
+export type TypeId = typeof TypeId
+
+/**
+ * @category models
+ */
+export interface DurationExtensions {}
+/**
+ * @category models
+ */
+export interface DurationProto extends Pipeable {
+  readonly [TypeId]: (_: unknown) => void
+}
+
+/**
+ * @category models
+ */
+export interface Duration extends DurationProto, DurationExtensions {
+  readonly A: DurationValue
+}
+
+export type DurationValue = number | bigint
+
+export function isInfinity(value: unknown): value is DurationValue {
+  return value === INFINITY
+}
+
+export function isNanos(value: DurationValue): value is bigint {
+  return JsTypes.isBigInt(value)
+}
+
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type Unit =
+  | "nano"
+  | "nanos"
+  | "micro"
+  | "micros"
+  | "milli"
+  | "millis"
+  | "second"
+  | "seconds"
+  | "minute"
+  | "minutes"
+  | "hour"
+  | "hours"
+  | "day"
+  | "days"
+  | "week"
+  | "weeks"
+
+export type ShortcutUnit = "d" | "h" | "m" | "s" | "ms" | "µs" | "ns"
+
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type DurationInput =
+  | Duration
+  | number // millis
+  | bigint // nanos
+  | [seconds: number, nanos: number]
+  | DurationInputString
+
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export type DurationInputString =
+  | `${number} ${Unit}`
+  | `${number}${ShortcutUnit}`
+const DURATION_REGEX =
+  /^(-?\d+(?:\.\d+)?)(?:[ ]*(d|h|m|[mµn]?s)|[ ]+(nano|micro|milli|second|minute|hour|day|week)s?)$/
+
+const InvalidDurationInputErrorMessage = "Invalid DurationInput"
+/**
+ * @since 0.0.0
+ */
+export function decode(input: DurationInput): Duration {
+  if (isDuration(input)) {
+    return input
+  } else if (JsTypes.isStr(input)) {
+    return parse(input)
+  } else if (JsTypes.isUnsafeNum(input)) {
+    return millis(input)
+  } else if (JsTypes.isBigInt(input)) {
+    return nanos(input)
+  } else if (JsTypes.isArr(input)) {
+    return nanos(BIGINT(input[0]) * bigint1e9 + BIGINT(input[1]))
+  } else {
+    return raise(syntaxError(InvalidDurationInputErrorMessage))
+  }
+}
+
+export function parse(input: DurationInputString): Duration {
+  DURATION_REGEX.lastIndex = 0 // Reset the lastIndex before each use
+  const match = DURATION_REGEX.exec(input)
+  const valueStr = match?.[1]
+  const s_unit = match?.[2] as ShortcutUnit | undefined
+  const unit = match?.[3] as Unit | undefined
+  if (match) {
+    if (unit === "nano" || s_unit === "ns") {
+      return nanos(BIGINT(valueStr!))
+    } else if (unit === "micro" || s_unit === "µs") {
+      return micros(BIGINT(valueStr!))
+    } else if (unit === "milli" || s_unit === "ms") {
+      return millis(NUMBER(valueStr))
+    } else if (unit === "second" || s_unit === "s") {
+      return seconds(NUMBER(valueStr))
+    } else if (unit === "minute" || s_unit === "m") {
+      return minutes(NUMBER(valueStr))
+    } else if (unit === "hour" || s_unit === "h") {
+      return hours(NUMBER(valueStr))
+    } else if (unit === "day" || s_unit === "d") {
+      return days(NUMBER(valueStr))
+    } else if (unit === "week") {
+      return weeks(NUMBER(valueStr))
+    } else {
+      return raise(error(InvalidDurationInputErrorMessage))
+    }
+  } else {
+    return raise(error(InvalidDurationInputErrorMessage))
+  }
+}
+
+/**
+ * @since 0.0.0
+ */
+export const decodeUnknown: (u: unknown) => Option.Option<Duration> =
+  Option.liftThrowable(decode) as any
+
+export const zeroValue: DurationValue = 0
+
+export const infinityValue: DurationValue = INFINITY
+
+export const DurationProto: DurationProto = pipe(
+  {
+    [TypeId]: ignore,
+  },
+  Extensions.Add(PipeableProto),
+)
+
+export function addExtensions<Extends extends {}>(
+  exts: Partial<DurationProto> & Extends,
+): DurationProto & Extends {
+  return Extensions.AddTo(DurationProto)(exts)
+}
+
+const make = (input: number | bigint): Duration => {
+  const duration = OBJ_CREATE(DurationProto) as Mutable<Duration>
+  if (JsTypes.isUnsafeNum(input)) {
+    if (input !== input || input <= 0) {
+      duration.A = zeroValue
+    } else if (!JsTypes.isFinite(input)) {
+      duration.A = infinityValue
+    } else if (!JsTypes.isInteger(input)) {
+      duration.A = BIGINT(Math.round(input * int1e6))
+    } else {
+      duration.A = input
+    }
+  } else {
+    duration.A = input <= bigint0 ? zeroValue : input
+  }
+  return duration
+}
+
+/**
+ * @since 0.0.0
+ * @category guards
+ */
+export const isDuration = (u: unknown): u is Duration =>
+  JsTypes.isObj(u) && TypeId in u
+
+/**
+ * @since 0.0.0
+ * @category guards
+ */
+export function isZero(duration: Duration): boolean
+export function isZero({ A: value }: Duration): boolean {
+  if (value === INFINITY) {
+    return false
+  } else if (value === 0) {
+    return true
+  } else {
+    return value === bigint0
+  }
+}
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const zero: Duration = make(0)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const infinity: Duration = make(INFINITY)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const nanos = (nanos: bigint): Duration => make(nanos)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const micros = (micros: bigint): Duration => make(micros * bigint1e3)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const millis = (millis: number): Duration => make(millis)
+export { millis as ms }
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const seconds = (seconds: number): Duration => make(seconds * 1000)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const minutes = (minutes: number): Duration => make(minutes * 60_000)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const hours = (hours: number): Duration => make(hours * 3_600_000)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const days = (days: number): Duration => make(days * 86_400_000)
+
+/**
+ * @since 0.0.0
+ * @category constructors
+ */
+export const weeks = (weeks: number): Duration => make(weeks * 604_800_000)
+
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export function toMillis(self: Duration): number
+export function toMillis({ A: value }: Duration): number {
+  if (JsTypes.isUnsafeNum(value)) {
+    return value
+  } else {
+    return NUMBER(value) / int1e6
+  }
+}
+
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export function toSeconds(self: Duration): number {
+  return _match(
+    self,
+    (millis) => millis / int1e3,
+    (nanos) => NUMBER(nanos) / int1e9,
+  )
+}
+
+/**
+ * Get the duration in nanoseconds as a bigint.
+ *
+ * If the duration is infinite, it throws an error.
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export function unsafeToNanos(self: Duration): bigint
+export function unsafeToNanos({ A: value }: Duration): bigint {
+  if (JsTypes.isUnsafeNum(value)) {
+    return BIGINT(Math.round(value * int1e6))
+  }
+  return value
+}
+
+/**
+ * Get the duration in nanoseconds as a bigint.
+ *
+ * If the duration is infinite, returns `Option.none()`
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export function toNanos(self: Duration): Option.Option<bigint> {
+  return Option.liftPredicate(
+    (self: Duration) => self.A !== INFINITY,
+    unsafeToNanos,
+  )(self)
+}
+
+/**
+ * @since 0.0.0
+ * @category getters
+ */
+export function toHrTime(self: Duration): [seconds: number, nanos: number]
+export function toHrTime({
+  A: value,
+}: Duration): [seconds: number, nanos: number] {
+  if (value === INFINITY) {
+    return [INFINITY, 0]
+  } else if (JsTypes.isUnsafeNum(value)) {
+    return [Math.floor(value / 1000), Math.round((value % 1000) * 1000000)]
+  } else {
+    return [NUMBER(value / bigint1e9), NUMBER(value % bigint1e9)]
+  }
+}
+
+export function _match<A, B>(
+  self: Duration,
+  onMillis: (millis: number) => A,
+  onNanos: (nanos: bigint) => B,
+): A | B
+export function _match<A, B>(
+  { A: value }: Duration,
+  onMillis: (millis: number) => A,
+  onNanos: (nanos: bigint) => B,
+): A | B {
+  if (JsTypes.isUnsafeNum(value)) {
+    return onMillis(value)
+  } else {
+    return onNanos(value)
+  }
+}
+
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export const match: {
+  <A, B>(
+    onMillis: (millis: number) => A,
+    onNanos: (nanos: bigint) => B,
+  ): (self: Duration) => A | B
+  <A, B>(
+    self: Duration,
+    onMillis: (millis: number) => A,
+    onNanos: (nanos: bigint) => B,
+  ): A | B
+} = dual(3, _match)
+
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export const decodeAndMatch: {
+  <A, B>(
+    onMillis: (millis: number) => A,
+    onNanos: (nanos: bigint) => B,
+  ): (self: DurationInput) => A | B
+  <A, B>(
+    self: DurationInput,
+    onMillis: (millis: number) => A,
+    onNanos: (nanos: bigint) => B,
+  ): A | B
+} = dual(
+  3,
+  <A, B>(
+    value: Duration,
+    onMillis: (millis: number) => A,
+    onNanos: (nanos: bigint) => B,
+  ): A | B => _match(decode(value), onMillis, onNanos),
+)
+
+export function _matchWith<A, B>(
+  self: Duration,
+  that: Duration,
+  onMillis: (self: number, that: number) => A,
+  onNanos: (self: bigint, that: bigint) => B,
+): A | B {
+  if (self.A === INFINITY || that.A === INFINITY) {
+    return onMillis(toMillis(self), toMillis(that))
+  } else if (isNanos(self.A) || isNanos(that.A)) {
+    return onNanos(unsafeToNanos(self), unsafeToNanos(that))
+  }
+  return onMillis(self.A, that.A)
+}
+
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export const decodeAndMatchWith: {
+  <A, B>(
+    that: DurationInput,
+    onMillis: (self: number, that: number) => A,
+    onNanos: (self: bigint, that: bigint) => B,
+  ): (self: DurationInput) => A | B
+  <A, B>(
+    self: DurationInput,
+    that: DurationInput,
+    onMillis: (self: number, that: number) => A,
+    onNanos: (self: bigint, that: bigint) => B,
+  ): A | B
+} = dual(
+  4,
+  <A, B>(
+    self: Duration,
+    that: Duration,
+    onMillis: (self: number, that: number) => A,
+    onNanos: (self: bigint, that: bigint) => B,
+  ): A | B => {
+    return _matchWith(decode(self), decode(that), onMillis, onNanos)
+  },
+)
+
+/**
+ * @since 0.0.0
+ * @category pattern matching
+ */
+export const matchWith: {
+  <A, B>(
+    that: Duration,
+    onMillis: (self: number, that: number) => A,
+    onNanos: (self: bigint, that: bigint) => B,
+  ): (self: Duration) => A | B
+  <A, B>(
+    self: Duration,
+    that: Duration,
+    onMillis: (self: number, that: number) => A,
+    onNanos: (self: bigint, that: bigint) => B,
+  ): A | B
+} = dual(4, _matchWith)
+
+/**
+ * @category instances
+ * @since 0.0.0
+ */
+export const Order: order.Order<Duration> = (self, that) =>
+  _matchWith(self, that, order.number, order.bigint)
+
+/**
+ * Checks if a `Duration` is between a `minimum` and `maximum` value.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const between: {
+  (min: Duration, max: Duration): (self: Duration) => boolean
+  (self: Duration, min: Duration, max: Duration): boolean
+} = order.betweenWithArgs(Order)
+
+/**
+ * Checks if a `Duration` is between a `minimum` and `maximum` value.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const betweenInput: {
+  (min: DurationInput, max: DurationInput): (self: DurationInput) => boolean
+  (self: DurationInput, min: DurationInput, max: DurationInput): boolean
+} = order.betweenWithArgs(order.mapInput(Order, decode))
+
+/**
+ * @category instances
+ * @since 0.0.0
+ */
+export const Equivalence: equivalence.Equivalence<Duration> = (self, that) =>
+  _matchWith(
+    self,
+    that,
+    (self, that) => self === that,
+    (self, that) => self === that,
+  )
+
+export function min(that: Duration): (self: Duration) => Duration
+export function min(self: Duration, that: Duration): Duration
+export function min(...args: [any, any?]): any {
+  return order.min(Order)(...args)
+}
+
+export function max(that: Duration): (self: Duration) => Duration
+export function max(self: Duration, that: Duration): Duration
+export function max(...args: [any, any?]): any {
+  return order.max(Order)(...args)
+}
+
+export function clamp(
+  min: Duration,
+  max: Duration,
+): (self: Duration) => Duration
+export function clamp(self: Duration, min: Duration, max: Duration): Duration
+export function clamp(...args: [any, any, any?]): any {
+  return order.clampWithArgs(Order)(...args)
+}
+
+/**
+ * @since 0.0.0
+ */
+export function clampInput(
+  min: DurationInput,
+  max: DurationInput,
+): (self: DurationInput) => Duration
+export function clampInput(
+  self: DurationInput,
+  min: DurationInput,
+  max: DurationInput,
+): Duration
+export function clampInput(...args: [any, any, any?]): any {
+  return dual(
+    3,
+    (self: DurationInput, min: DurationInput, max: DurationInput): Duration =>
+      clamp(decode(self), decode(min), decode(max)),
+  )(...args)
+}
+
+export function _divide(self: Duration, by: number): Option.Option<Duration> {
+  return _match(
+    self,
+    (millis) => {
+      if (by === 0 || by !== by || !JsTypes.isFinite(by)) {
+        return Option.none()
+      }
+      return Option.some(make(millis / by))
+    },
+    (nanos) => {
+      if (by !== by || by <= 0 || !JsTypes.isFinite(by)) {
+        return Option.none()
+      }
+      return tryCatch(
+        () => Option.some(make(nanos / BIGINT(by))),
+        () => Option.none(),
+      )
+    },
+  )
+}
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export const divide: {
+  (by: number): (self: Duration) => Option.Option<Duration>
+  (self: Duration, by: number): Option.Option<Duration>
+} = dual(2, _divide)
+
+export function _unsafeDivide(self: Duration, by: number): Duration {
+  return _match(
+    self,
+    (millis) => make(millis / by),
+    (nanos) => {
+      if (by !== by || by < 0 || OBJECT_IS(by, -0)) {
+        return zero
+      } else if (by === 0 || !JsTypes.isFinite(by)) {
+        return infinity
+      }
+      return make(nanos / BIGINT(by))
+    },
+  )
+}
+
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export function unsafeDivide(by: number): (self: Duration) => Duration
+export function unsafeDivide(self: Duration, by: number): Duration
+export function unsafeDivide(...args: any): any {
+  return dual(2, _unsafeDivide)(...args)
+}
+
+export function _times(self: Duration, times: number): Duration {
+  return _match(
+    self,
+    (millis) => make(millis * times),
+    (nanos) => make(nanos * BIGINT(times)),
+  )
+}
+export function times(times: number): (self: Duration) => Duration
+export function times(self: Duration, times: number): Duration
+export function times(...args: any): any {
+  return dual(2, _times)(...args)
+}
+
+export function _subtract(self: Duration, that: Duration): Duration {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => make(self - that),
+    (self, that) => make(self - that),
+  )
+}
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export function subtract(that: Duration): (self: Duration) => Duration
+export function subtract(self: Duration, that: Duration): Duration
+export function subtract(...args: any): any {
+  return dual(2, _subtract)(...args)
+}
+
+export function _sum(self: Duration, that: Duration): Duration {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => make(self + that),
+    (self, that) => make(self + that),
+  )
+}
+/**
+ * @since 0.0.0
+ * @category math
+ */
+export function sum(that: Duration): (self: Duration) => Duration
+export function sum(self: Duration, that: Duration): Duration
+export function sum(...args: any): any {
+  return dual(2, _sum)(...args)
+}
+
+export function _lessThan(self: Duration, that: Duration): boolean {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => self < that,
+    (self, that) => self < that,
+  )
+}
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export function lessThan(that: Duration): (self: Duration) => boolean
+export function lessThan(self: Duration, that: Duration): boolean
+export function lessThan(...args: any): any {
+  return dual(2, _lessThan)(...args)
+}
+
+export function _lessThanOrEqualTo(self: Duration, that: Duration): boolean {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => self <= that,
+    (self, that) => self <= that,
+  )
+}
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export function lessThanOrEqualTo(that: Duration): (self: Duration) => boolean
+export function lessThanOrEqualTo(self: Duration, that: Duration): boolean
+export function lessThanOrEqualTo(...args: any): any {
+  return dual(2, _lessThanOrEqualTo)(...args)
+}
+
+export function _greaterThan(self: Duration, that: Duration): boolean {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => self > that,
+    (self, that) => self > that,
+  )
+}
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export function greaterThan(that: Duration): (self: Duration) => boolean
+export function greaterThan(self: Duration, that: Duration): boolean
+export function greaterThan(...args: any): any {
+  return dual(2, _greaterThan)(...args)
+}
+
+export function _greaterThanOrEqualTo(self: Duration, that: Duration): boolean {
+  return _matchWith(
+    self,
+    that,
+    (self, that) => self >= that,
+    (self, that) => self >= that,
+  )
+}
+
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export function greaterThanOrEqualTo(
+  that: Duration,
+): (self: Duration) => boolean
+export function greaterThanOrEqualTo(self: Duration, that: Duration): boolean
+export function greaterThanOrEqualTo(...args: any): any {
+  return dual(2, _greaterThanOrEqualTo)(...args)
+}
+
+/**
+ * @since 0.0.0
+ * @category predicates
+ */
+export function equals(that: Duration): (self: Duration) => boolean
+export function equals(self: Duration, that: Duration): boolean
+export function equals(...args: any): any {
+  return dual(2, Equivalence)(...args)
+}
+
+function _parts(
+  days: number,
+  hours: number,
+  minutes: number,
+  seconds: number,
+  millis: number,
+  nanos: number,
+) {
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    millis,
+    nanos,
+  }
+}
+
+/**
+ * Converts a `Duration` to its parts.
+ *
+ * @since 0.0.0
+ * @category conversions
+ */
+export function parts(self: DurationInput): {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+  millis: number
+  nanos: number
+} {
+  const duration = decode(self)
+  if (duration.A === INFINITY) {
+    return _parts(INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY)
+  }
+
+  const nanos = unsafeToNanos(duration)
+  const ms = nanos / bigint1e6
+  const sec = ms / bigint1e3
+  const min = sec / bigint60
+  const hr = min / bigint60
+  const days = hr / bigint24
+
+  return _parts(
+    NUMBER(days),
+    NUMBER(hr % bigint24),
+    NUMBER(min % bigint60),
+    NUMBER(sec % bigint60),
+    NUMBER(ms % bigint1e3),
+    NUMBER(nanos % bigint1e6),
+  )
+}
+
+/**
+ * Converts a `Duration` to a human readable string.
+ * @since 0.0.0
+ *
+ * @example
+ *
+ * toDurationString(Duration.millis(1000)) // "1s"
+ * toDurationString(Duration.millis(1001)) // "1s 1ms"
+ */
+export function toDurationString(self: DurationInput): string {
+  const duration = decode(self)
+  const parts: string[] = []
+
+  if (duration.A === INFINITY) {
+    return "Infinity"
+  }
+
+  const nanos = unsafeToNanos(duration)
+
+  if (nanos % bigint1e6) {
+    parts.push(`${nanos % bigint1e6}ns`)
+  }
+
+  const ms = nanos / bigint1e6
+  if (ms % bigint1e3 !== bigint0) {
+    parts.push(`${ms % bigint1e3}ms`)
+  }
+
+  const sec = ms / bigint1e3
+  if (sec % bigint60 !== bigint0) {
+    parts.push(`${sec % bigint60}s`)
+  }
+
+  const min = sec / bigint60
+  if (min % bigint60 !== bigint0) {
+    parts.push(`${min % bigint60}m`)
+  }
+
+  const hr = min / bigint60
+  if (hr % bigint24 !== bigint0) {
+    parts.push(`${hr % bigint24}h`)
+  }
+
+  const days = hr / bigint24
+  if (days !== bigint0) {
+    parts.push(`${days}d`)
+  }
+
+  return parts.reverse().join(" ")
+}

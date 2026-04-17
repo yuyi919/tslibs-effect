@@ -1,0 +1,5 @@
+/** Type representing a dictionary of value `'a`. */
+export type t<a> = {
+    [id: string]: a;
+};
+//# sourceMappingURL=Dict.gen.d.ts.map

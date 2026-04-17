@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/FromTask.js",
+  "module": "../dist/esm/FromTask.js",
+  "types": "../dist/esm/FromTask.d.ts",
+  "sideEffects": []
+}

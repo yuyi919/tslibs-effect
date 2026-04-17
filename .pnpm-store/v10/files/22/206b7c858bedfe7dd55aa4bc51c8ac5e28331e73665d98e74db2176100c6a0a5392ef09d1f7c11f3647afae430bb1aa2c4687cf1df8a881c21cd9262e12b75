@@ -1,0 +1,829 @@
+/**
+ * @since 2.0.0
+ */import { getApplicativeMonoid } from "./Applicative.js";
+import { ap as ap_, apFirst as apFirst_, apS as apS_, apSecond as apSecond_, getApplySemigroup as getApplySemigroup_ } from "./Apply.js";
+import * as chainable from "./Chain.js";
+import { compact as compact_, separate as separate_ } from "./Compactable.js";
+import * as E from "./Either.js";
+import * as ET from "./EitherT.js";
+import { filter as filter_, filterMap as filterMap_, partition as partition_, partitionMap as partitionMap_ } from "./Filterable.js";
+import { chainOptionK as chainOptionK_, filterOrElse as filterOrElse_, fromEitherK as fromEitherK_, fromOption as fromOption_, fromOptionK as fromOptionK_, fromPredicate as fromPredicate_, tapEither as tapEither_ } from "./FromEither.js";
+import { ask as ask_, asks as asks_, fromReaderK as fromReaderK_, tapReader as tapReader_ } from "./FromReader.js";
+import { dual, flow, identity, pipe, SK } from "./function.js";
+import { as as as_, asUnit as asUnit_, bindTo as bindTo_, flap as flap_, let as let__ } from "./Functor.js";
+import * as _ from "./internal.js";
+import * as R from "./Reader.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category constructors
+ * @since 2.0.0
+ */
+export let left = /*#__PURE__*/ET.left(R.Pointed); /**
+                                                   * @category constructors
+                                                   * @since 2.0.0
+                                                   */
+export let right = /*#__PURE__*/ET.right(R.Pointed); /**
+                                                     * @category constructors
+                                                     * @since 2.0.0
+                                                     */
+export let rightReader = /*#__PURE__*/ET.rightF(R.Functor); /**
+                                                            * @category constructors
+                                                            * @since 2.0.0
+                                                            */
+export let leftReader = /*#__PURE__*/ET.leftF(R.Functor); // -------------------------------------------------------------------------------------
+// conversions
+// -------------------------------------------------------------------------------------
+/**
+ * @category conversions
+ * @since 2.0.0
+ */
+export let fromEither = R.of; /**
+                              * @category conversions
+                              * @since 2.11.0
+                              */
+export let fromReader = rightReader; /**
+                                     * @category pattern matching
+                                     * @since 2.10.0
+                                     */
+export let match = /*#__PURE__*/ET.match(R.Functor); /**
+                                                     * Less strict version of [`match`](#match).
+                                                     *
+                                                     * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+                                                     *
+                                                     * @category pattern matching
+                                                     * @since 2.10.0
+                                                     */
+export let matchW = match; /**
+                           * The `E` suffix (short for **E**ffect) means that the handlers return an effect (`Reader`).
+                           *
+                           * @category pattern matching
+                           * @since 2.10.0
+                           */
+export let matchE = /*#__PURE__*/ET.matchE(R.Monad); /**
+                                                     * Alias of [`matchE`](#matche).
+                                                     *
+                                                     * @category pattern matching
+                                                     * @since 2.0.0
+                                                     */
+export let fold = matchE; /**
+                          * Less strict version of [`matchE`](#matche).
+                          *
+                          * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+                          *
+                          * @category pattern matching
+                          * @since 2.10.0
+                          */
+export let matchEW = matchE; /**
+                             * Alias of [`matchEW`](#matchew).
+                             *
+                             * @category pattern matching
+                             * @since 2.10.0
+                             */
+export let foldW = matchEW; /**
+                            * @category error handling
+                            * @since 2.0.0
+                            */
+export let getOrElse = /*#__PURE__*/ET.getOrElse(R.Monad); /**
+                                                           * Less strict version of [`getOrElse`](#getorelse).
+                                                           *
+                                                           * The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+                                                           *
+                                                           * @category error handling
+                                                           * @since 2.6.0
+                                                           */
+export let getOrElseW = getOrElse; /**
+                                   * @category conversions
+                                   * @since 2.10.0
+                                   */
+export let toUnion = /*#__PURE__*/ET.toUnion(R.Functor); // -------------------------------------------------------------------------------------
+// combinators
+// -------------------------------------------------------------------------------------
+/**
+ * Changes the value of the local context during the execution of the action `ma` (similar to `Contravariant`'s
+ * `contramap`).
+ *
+ * @since 2.0.0
+ */
+export let local = R.local; /**
+                            * Less strict version of [`asksReaderEither`](#asksreadereither).
+                            *
+                            * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                            *
+                            * @category constructors
+                            * @since 2.11.0
+                            */
+export let asksReaderEitherW = R.asksReaderW; /**
+                                              * Effectfully accesses the environment.
+                                              *
+                                              * @category constructors
+                                              * @since 2.11.0
+                                              */
+export let asksReaderEither = asksReaderEitherW; /**
+                                                 * @category error handling
+                                                 * @since 2.0.0
+                                                 */
+export let orElse = /*#__PURE__*/ET.orElse(R.Monad); /**
+                                                     * Less strict version of [`orElse`](#orelse).
+                                                     *
+                                                     * The `W` suffix (short for **W**idening) means that the environment types and the return types will be merged.
+                                                     *
+                                                     * @category error handling
+                                                     * @since 2.10.0
+                                                     */
+export let orElseW = orElse; /**
+                             * Returns an effect that effectfully "peeks" at the failure of this effect.
+                             *
+                             * @category error handling
+                             * @since 2.15.0
+                             */
+export let tapError = /*#__PURE__*/dual(2, /*#__PURE__*/ET.tapError(R.Monad)); /**
+                                                                               * @category error handling
+                                                                               * @since 2.11.0
+                                                                               */
+export let orLeft = /*#__PURE__*/ET.orLeft(R.Monad); /**
+                                                     * @category error handling
+                                                     * @since 2.16.6
+                                                     */
+export let orLeftW = orLeft; /**
+                             * @since 2.0.0
+                             */
+export let swap = /*#__PURE__*/ET.swap(R.Functor); /* istanbul ignore next */
+let _map = (fa, f) => map(f)(fa); /* istanbul ignore next */
+let _ap = (fab, fa) => ap(fa)(fab); /* istanbul ignore next */
+let _alt = (fa, that) => alt(that)(fa); /**
+                                        * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                                        * use the type constructor `F` to represent some computational context.
+                                        *
+                                        * @category mapping
+                                        * @since 2.0.0
+                                        */
+export let map = /*#__PURE__*/ET.map(R.Functor); /**
+                                                 * Returns a `ReaderEither` whose failure and success channels have been mapped by the specified pair of functions, `f` and `g`.
+                                                 *
+                                                 * @example
+                                                 * import * as ReaderEither from 'fp-ts/ReaderEither'
+                                                 * import * as Either from 'fp-ts/Either'
+                                                 *
+                                                 * const f = (s: string) => new Error(s)
+                                                 * const g = (n: number) => n * 2
+                                                 *
+                                                 * assert.deepStrictEqual(ReaderEither.mapBoth(ReaderEither.right(1), f, g)({}), Either.right(2))
+                                                 * assert.deepStrictEqual(ReaderEither.mapBoth(ReaderEither.left('err'), f, g)({}), Either.left(new Error('err')))
+                                                 *
+                                                 * @category error handling
+                                                 * @since 2.16.0
+                                                 */
+export let mapBoth = /*#__PURE__*/dual(3, /*#__PURE__*/ET.mapBoth(R.Functor)); /**
+                                                                               * Alias of `mapBoth`.
+                                                                               *
+                                                                               * @category legacy
+                                                                               * @since 2.0.0
+                                                                               */
+export let bimap = mapBoth; /**
+                            * Returns a `ReaderEither` with its error channel mapped using the specified function.
+                            *
+                            * @example
+                            * import * as ReaderEither from 'fp-ts/ReaderEither'
+                            * import * as Either from 'fp-ts/Either'
+                            *
+                            * const f = (s: string) => new Error(s)
+                            *
+                            * assert.deepStrictEqual(ReaderEither.mapError(ReaderEither.right(1), f)({}), Either.right(1))
+                            * assert.deepStrictEqual(ReaderEither.mapError(ReaderEither.left('err'), f)({}), Either.left(new Error('err')))
+                            *
+                            * @category error handling
+                            * @since 2.16.0
+                            */
+export let mapError = /*#__PURE__*/dual(2, /*#__PURE__*/ET.mapError(R.Functor)); /**
+                                                                                 * Alias of `mapError`.
+                                                                                 *
+                                                                                 * @category legacy
+                                                                                 * @since 2.0.0
+                                                                                 */
+export let mapLeft = mapError; /**
+                               * @since 2.0.0
+                               */
+export let ap = /*#__PURE__*/ET.ap(R.Apply); /**
+                                             * Less strict version of [`ap`](#ap).
+                                             *
+                                             * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                             *
+                                             * @since 2.8.0
+                                             */
+export let apW = ap; /**
+                     * @category constructors
+                     * @since 2.8.5
+                     */
+export let of = right; /**
+                       * @category sequencing
+                       * @since 2.14.0
+                       */
+export let flatMap = /*#__PURE__*/dual(2, /*#__PURE__*/ET.flatMap(R.Monad)); /**
+                                                                             * Less strict version of [`flatten`](#flatten).
+                                                                             *
+                                                                             * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                                                             *
+                                                                             * @category sequencing
+                                                                             * @since 2.11.0
+                                                                             */
+export let flattenW = /*#__PURE__*/flatMap(identity); /**
+                                                      * @category sequencing
+                                                      * @since 2.0.0
+                                                      */
+export let flatten = flattenW; /**
+                               * Identifies an associative operation on a type constructor. It is similar to `Semigroup`, except that it applies to
+                               * types of kind `* -> *`.
+                               *
+                               * @category error handling
+                               * @since 2.0.0
+                               */
+export let alt = /*#__PURE__*/ET.alt(R.Monad); /**
+                                               * Less strict version of [`alt`](#alt).
+                                               *
+                                               * The `W` suffix (short for **W**idening) means that the environment, the error and the return types will be merged.
+                                               *
+                                               * @category error handling
+                                               * @since 2.9.0
+                                               */
+export let altW = alt; /**
+                       * @since 2.7.0
+                       */
+export let throwError = left; /**
+                              * @category type lambdas
+                              * @since 2.0.0
+                              */
+export let URI = "ReaderEither"; /**
+                                 * @category filtering
+                                 * @since 2.10.0
+                                 */
+export let getCompactable = M => {
+  let C = E.getCompactable(M);
+  return {
+    URI,
+    _E: undefined,
+    compact: compact_(R.Functor, C),
+    separate: separate_(R.Functor, C, E.Functor)
+  };
+}; /**
+   * @category filtering
+   * @since 2.10.0
+   */
+export let getFilterable = M => {
+  let F = E.getFilterable(M);
+  let C = getCompactable(M);
+  let filter = filter_(R.Functor, F);
+  let filterMap = filterMap_(R.Functor, F);
+  let partition = partition_(R.Functor, F);
+  let partitionMap = partitionMap_(R.Functor, F);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    compact: C.compact,
+    separate: C.separate,
+    filter: (fa, predicate) => filter(predicate)(fa),
+    filterMap: (fa, f) => filterMap(f)(fa),
+    partition: (fa, predicate) => partition(predicate)(fa),
+    partitionMap: (fa, f) => partitionMap(f)(fa)
+  };
+}; /**
+   * The default [`Applicative`](#applicative) instance returns the first error, if you want to
+   * get all errors you need to provide a way to concatenate them via a `Semigroup`.
+   *
+   * See [`getApplicativeValidation`](./Either.ts.html#getapplicativevalidation).
+   *
+   * @category error handling
+   * @since 2.7.0
+   */
+export let getApplicativeReaderValidation = S => {
+  let ap = ap_(R.Apply, E.getApplicativeValidation(S));
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    ap: (fab, fa) => ap(fa)(fab),
+    of
+  };
+}; /**
+   * The default [`Alt`](#alt) instance returns the last error, if you want to
+   * get all errors you need to provide a way to concatenate them via a `Semigroup`.
+   *
+   * See [`getAltValidation`](./Either.ts.html#getaltvalidation).
+   *
+   * @category error handling
+   * @since 2.7.0
+   */
+export let getAltReaderValidation = S => {
+  let alt = ET.altValidation(R.Monad, S);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    alt: (fa, that) => alt(that)(fa)
+  };
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * Maps the `Right` value of this `ReaderEither` to the specified constant value.
+   *
+   * @category mapping
+   * @since 2.16.0
+   */
+export let as = /*#__PURE__*/dual(2, /*#__PURE__*/as_(Functor)); /**
+                                                                 * Maps the `Right` value of this `ReaderEither` to the void constant value.
+                                                                 *
+                                                                 * @category mapping
+                                                                 * @since 2.16.0
+                                                                 */
+export let asUnit = /*#__PURE__*/asUnit_(Functor); /**
+                                                   * @category mapping
+                                                   * @since 2.10.0
+                                                   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * @category instances
+                                               * @since 2.10.0
+                                               */
+export let Pointed = {
+  URI,
+  of
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Apply = {
+  URI,
+  map: _map,
+  ap: _ap
+}; /**
+   * Combine two effectful actions, keeping only the result of the first.
+   *
+   * @since 2.0.0
+   */
+export let apFirst = /*#__PURE__*/apFirst_(Apply); /**
+                                                   * Less strict version of [`apFirst`](#apfirst)
+                                                   *
+                                                   * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                                   *
+                                                   * @since 2.12.0
+                                                   */
+export let apFirstW = apFirst; /**
+                               * Combine two effectful actions, keeping only the result of the second.
+                               *
+                               * @since 2.0.0
+                               */
+export let apSecond = /*#__PURE__*/apSecond_(Apply); /**
+                                                     * Less strict version of [`apSecond`](#apsecond)
+                                                     *
+                                                     * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                                     *
+                                                     * @since 2.12.0
+                                                     */
+export let apSecondW = apSecond; /**
+                                 * @category instances
+                                 * @since 2.7.0
+                                 */
+export let Applicative = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let Chain = {
+  URI,
+  map: _map,
+  ap: _ap,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Monad = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.10.0
+   */
+export let FromEither = {
+  URI,
+  fromEither
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let FromReader = {
+  URI,
+  fromReader
+}; /**
+   * Composes computations in sequence, using the return value of one computation to determine the next computation and
+   * keeping only the result of the first.
+   *
+   * @category combinators
+   * @since 2.15.0
+   */
+export let tap = /*#__PURE__*/dual(2, /*#__PURE__*/chainable.tap(Chain)); /**
+                                                                          * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                          * keeping only the result of the first.
+                                                                          *
+                                                                          * @example
+                                                                          * import * as E from 'fp-ts/Either'
+                                                                          * import { pipe } from 'fp-ts/function'
+                                                                          * import * as RE from 'fp-ts/ReaderEither'
+                                                                          *
+                                                                          * const checkString = (value: string) => pipe(
+                                                                          *   RE.ask<number>(),
+                                                                          *   RE.tapEither(
+                                                                          *     (minLength) => value.length > minLength
+                                                                          *       ? E.right('ok')
+                                                                          *       : E.left('error')
+                                                                          *   )
+                                                                          * )
+                                                                          *
+                                                                          * assert.deepStrictEqual(checkString('')(1), E.left('error'))
+                                                                          * assert.deepStrictEqual(checkString('fp-ts')(2), E.right(2))
+                                                                          *
+                                                                          * @category combinators
+                                                                          * @since 2.16.0
+                                                                          */
+export let tapEither = /*#__PURE__*/dual(2, /*#__PURE__*/tapEither_(FromEither, Chain)); /**
+                                                                                         * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                                         * keeping only the result of the first.
+                                                                                         *
+                                                                                         * @category combinators
+                                                                                         * @since 2.16.0
+                                                                                         */
+export let tapReader = /*#__PURE__*/dual(2, /*#__PURE__*/tapReader_(FromReader, Chain)); /**
+                                                                                         * @category instances
+                                                                                         * @since 2.7.0
+                                                                                         */
+export let Bifunctor = {
+  URI,
+  bimap: mapBoth,
+  mapLeft: mapError
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Alt = {
+  URI,
+  map: _map,
+  alt: _alt
+}; /**
+   * Reads the current context.
+   *
+   * @category constructors
+   * @since 2.0.0
+   */
+export let ask = /*#__PURE__*/ask_(FromReader); /**
+                                                * Projects a value from the global context in a `ReaderEither`.
+                                                *
+                                                * @category constructors
+                                                * @since 2.0.0
+                                                */
+export let asks = /*#__PURE__*/asks_(FromReader); /**
+                                                  * @category lifting
+                                                  * @since 2.11.0
+                                                  */
+export let fromReaderK = /*#__PURE__*/fromReaderK_(FromReader); /**
+                                                                * Alias of `tapReader`.
+                                                                *
+                                                                * @category legacy
+                                                                * @since 2.11.0
+                                                                */
+export let chainFirstReaderK = tapReader; /**
+                                          * Alias of `tapReader`.
+                                          *
+                                          * Less strict version of [`chainReaderK`](#chainreaderk).
+                                          *
+                                          * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                          *
+                                          * @category legacy
+                                          * @since 2.11.0
+                                          */
+export let chainFirstReaderKW = tapReader; /**
+                                           * @category instances
+                                           * @since 2.7.0
+                                           */
+export let MonadThrow = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap,
+  throwError
+}; /**
+   * @category conversions
+   * @since 2.0.0
+   */
+export let fromOption = /*#__PURE__*/fromOption_(FromEither); /**
+                                                              * Use `liftOption`.
+                                                              *
+                                                              * @category legacy
+                                                              * @since 2.10.0
+                                                              */
+export let fromOptionK = /*#__PURE__*/fromOptionK_(FromEither); /**
+                                                                * Use `flatMapOption`.
+                                                                *
+                                                                * @category legacy
+                                                                * @since 2.10.0
+                                                                */
+export let chainOptionK = /*#__PURE__*/chainOptionK_(FromEither, Chain); /**
+                                                                         * Use `flatMapOption`.
+                                                                         *
+                                                                         * @category legacy
+                                                                         * @since 2.13.2
+                                                                         */
+export let chainOptionKW = chainOptionK; /** @internal */
+let _FromEither = {
+  fromEither: FromEither.fromEither
+}; /** @internal */
+let _FromReader = {
+  fromReader: FromReader.fromReader
+}; /**
+   * @category lifting
+   * @since 2.15.0
+   */
+export let liftNullable = /*#__PURE__*/_.liftNullable(_FromEither); /**
+                                                                    * @category lifting
+                                                                    * @since 2.15.0
+                                                                    */
+export let liftOption = /*#__PURE__*/_.liftOption(_FromEither); /** @internal */
+let _FlatMap = {
+  flatMap
+}; /**
+   * @category sequencing
+   * @since 2.15.0
+   */
+export let flatMapNullable = /*#__PURE__*/_.flatMapNullable(_FromEither, _FlatMap); /**
+                                                                                    * @category sequencing
+                                                                                    * @since 2.15.0
+                                                                                    */
+export let flatMapOption = /*#__PURE__*/_.flatMapOption(_FromEither, _FlatMap); /**
+                                                                                * @category sequencing
+                                                                                * @since 2.15.0
+                                                                                */
+export let flatMapEither = /*#__PURE__*/_.flatMapEither(_FromEither, _FlatMap); /**
+                                                                                * @category sequencing
+                                                                                * @since 2.16.0
+                                                                                */
+export let flatMapReader = /*#__PURE__*/_.flatMapReader(_FromReader, _FlatMap); /**
+                                                                                * Alias of `flatMapEither`.
+                                                                                *
+                                                                                * @category legacy
+                                                                                * @since 2.4.0
+                                                                                */
+export let chainEitherK = flatMapEither; /**
+                                         * Alias of `flatMapEither`.
+                                         *
+                                         * @category legacy
+                                         * @since 2.6.1
+                                         */
+export let chainEitherKW = flatMapEither; /**
+                                          * Alias of `tapEither`.
+                                          *
+                                          * @category legacy
+                                          * @since 2.12.0
+                                          */
+export let chainFirstEitherK = tapEither; /**
+                                          * Alias of `tapEither`.
+                                          *
+                                          * Less strict version of [`chainFirstEitherK`](#chainfirsteitherk).
+                                          *
+                                          * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                          *
+                                          * @category legacy
+                                          * @since 2.12.0
+                                          */
+export let chainFirstEitherKW = tapEither; /**
+                                           * Alias of `flatMapReader`.
+                                           *
+                                           * @category legacy
+                                           * @since 2.11.0
+                                           */
+export let chainReaderK = flatMapReader; /**
+                                         * Alias of `flatMapReader`.
+                                         *
+                                         * Less strict version of [`chainReaderK`](#chainreaderk).
+                                         *
+                                         * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+                                         *
+                                         * @category legacy
+                                         * @since 2.11.0
+                                         */
+export let chainReaderKW = flatMapReader; /**
+                                          * @category lifting
+                                          * @since 2.0.0
+                                          */
+export let fromPredicate = /*#__PURE__*/fromPredicate_(FromEither); /**
+                                                                    * @category filtering
+                                                                    * @since 2.0.0
+                                                                    */
+export let filterOrElse = /*#__PURE__*/filterOrElse_(FromEither, Chain); /**
+                                                                         * Less strict version of [`filterOrElse`](#filterorelse).
+                                                                         *
+                                                                         * The `W` suffix (short for **W**idening) means that the error types will be merged.
+                                                                         *
+                                                                         * @category filtering
+                                                                         * @since 2.9.0
+                                                                         */
+export let filterOrElseW = filterOrElse; /**
+                                         * @category lifting
+                                         * @since 2.4.0
+                                         */
+export let fromEitherK = /*#__PURE__*/fromEitherK_(FromEither); // -------------------------------------------------------------------------------------
+// do notation
+// -------------------------------------------------------------------------------------
+/**
+ * @category do notation
+ * @since 2.9.0
+ */
+export let Do = /*#__PURE__*/of(_.emptyRecord); /**
+                                                * @category do notation
+                                                * @since 2.8.0
+                                                */
+export let bindTo = /*#__PURE__*/bindTo_(Functor);
+let let_ = /*#__PURE__*/let__(Functor);
+export {
+/**
+* @category do notation
+* @since 2.13.0
+*/
+let_ as let }; /**
+               * @category do notation
+               * @since 2.8.0
+               */
+export let bind = /*#__PURE__*/chainable.bind(Chain); /**
+                                                      * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                                      *
+                                                      * @category do notation
+                                                      * @since 2.8.0
+                                                      */
+export let bindW = bind; /**
+                         * @category do notation
+                         * @since 2.8.0
+                         */
+export let apS = /*#__PURE__*/apS_(Apply); /**
+                                           * Less strict version of [`apS`](#aps).
+                                           *
+                                           * The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+                                           *
+                                           * @category do notation
+                                           * @since 2.8.0
+                                           */
+export let apSW = apS; /**
+                       * @since 2.11.0
+                       */
+export let ApT = /*#__PURE__*/of(_.emptyReadonlyArray); // -------------------------------------------------------------------------------------
+// array utils
+// -------------------------------------------------------------------------------------
+/**
+ * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(Applicative)`.
+ *
+ * @category traversing
+ * @since 2.11.0
+ */
+export let traverseReadonlyNonEmptyArrayWithIndex = f => flow(R.traverseReadonlyNonEmptyArrayWithIndex(f), R.map(E.traverseReadonlyNonEmptyArrayWithIndex(SK))); /**
+                                                                                                                                                                 * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+                                                                                                                                                                 *
+                                                                                                                                                                 * @category traversing
+                                                                                                                                                                 * @since 2.11.0
+                                                                                                                                                                 */
+export let traverseReadonlyArrayWithIndex = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndex(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+   *
+   * @category traversing
+   * @since 2.9.0
+   */
+export let traverseArrayWithIndex = traverseReadonlyArrayWithIndex; /**
+                                                                    * Equivalent to `ReadonlyArray#traverse(Applicative)`.
+                                                                    *
+                                                                    * @category traversing
+                                                                    * @since 2.9.0
+                                                                    */
+export let traverseArray = f => traverseReadonlyArrayWithIndex((_, a) => f(a)); /**
+                                                                                * Equivalent to `ReadonlyArray#sequence(Applicative)`.
+                                                                                *
+                                                                                * @category traversing
+                                                                                * @since 2.9.0
+                                                                                */
+export let sequenceArray = /*#__PURE__*/traverseArray(identity); // -------------------------------------------------------------------------------------
+// legacy
+// -------------------------------------------------------------------------------------
+/**
+ * Alias of `flatMap`.
+ *
+ * @category legacy
+ * @since 2.0.0
+ */
+export let chain = flatMap; /**
+                            * Alias of `flatMap`.
+                            *
+                            * @category legacy
+                            * @since 2.6.0
+                            */
+export let chainW = flatMap; /**
+                             * Alias of `tap`.
+                             *
+                             * @category legacy
+                             * @since 2.0.0
+                             */
+export let chainFirst = tap; /**
+                             * Alias of `tap`.
+                             *
+                             * @category legacy
+                             * @since 2.8.0
+                             */
+export let chainFirstW = tap; /**
+                              * Alias of `tapError`.
+                              *
+                              * @category legacy
+                              * @since 2.11.0
+                              */
+export let orElseFirst = tapError; /**
+                                   * Alias of `tapError`.
+                                   *
+                                   * @category legacy
+                                   * @since 2.11.0
+                                   */
+export let orElseFirstW = tapError; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * This instance is deprecated, use small, specific instances instead.
+ * For example if a function needs a `Functor` instance, pass `RE.Functor` instead of `RE.readerEither`
+ * (where `R` is from `import R from 'fp-ts/ReaderEither'`)
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let readerEither = {
+  URI,
+  bimap: mapBoth,
+  mapLeft: mapError,
+  map: _map,
+  of,
+  ap: _ap,
+  chain: flatMap,
+  alt: _alt,
+  throwError: left
+}; /**
+   * Use [`getApplySemigroup`](./Apply.ts.html#getapplysemigroup) instead.
+   *
+   * @category zone of death
+   * @since 2.0.0
+   * @deprecated
+   */
+export let getApplySemigroup = /*#__PURE__*/getApplySemigroup_(Apply); /**
+                                                                       * Use [`getApplicativeMonoid`](./Applicative.ts.html#getapplicativemonoid) instead.
+                                                                       *
+                                                                       * @category zone of death
+                                                                       * @since 2.0.0
+                                                                       * @deprecated
+                                                                       */
+export let getApplyMonoid = /*#__PURE__*/getApplicativeMonoid(Applicative); /**
+                                                                            * Use [`getApplySemigroup`](./Apply.ts.html#getapplysemigroup) instead.
+                                                                            *
+                                                                            * @category zone of death
+                                                                            * @since 2.0.0
+                                                                            * @deprecated
+                                                                            */
+export let getSemigroup = S => getApplySemigroup_(R.Apply)(E.getSemigroup(S)); /**
+                                                                               * Use [`getApplicativeReaderValidation`](#getapplicativereadervalidation) and [`getAltReaderValidation`](#getaltreadervalidation) instead.
+                                                                               *
+                                                                               * @category zone of death
+                                                                               * @since 2.3.0
+                                                                               * @deprecated
+                                                                               */
+export let getReaderValidation = SE => {
+  let applicativeReaderValidation = getApplicativeReaderValidation(SE);
+  let altReaderValidation = getAltReaderValidation(SE);
+  return {
+    URI,
+    _E: undefined,
+    map: _map,
+    ap: applicativeReaderValidation.ap,
+    of,
+    chain: flatMap,
+    bimap: mapBoth,
+    mapLeft: mapError,
+    alt: altReaderValidation.alt,
+    throwError
+  };
+};
+//# sourceMappingURL=ReaderEither.js.map

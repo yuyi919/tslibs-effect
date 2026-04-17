@@ -1,0 +1,51 @@
+import * as MFoldableWithIndex from "fp-ts/FoldableWithIndex";
+import { Predicate } from "fp-ts/Predicate";
+declare module "fp-ts/HKT" {
+    interface URItoKind<A> {
+        [URI]: SeqLike<A>;
+    }
+}
+export interface SeqLike<T> extends RelativeIndexable<T> {
+    [key: number]: T;
+    readonly length: number;
+}
+export declare const URI = "SeqLike";
+export type URI = typeof URI;
+export declare const from: <A>(input: A | SeqLike<A>) => SeqLike<A>;
+export type Foldable = MFoldableWithIndex.FoldableWithIndex1<URI, number>;
+export declare const reduceF: Foldable["reduce"];
+export declare const foldMapF: Foldable["foldMap"];
+export declare const reduceRightF: Foldable["reduceRight"];
+export declare const reduceWithIndexF: Foldable["reduceWithIndex"];
+export declare const foldMapWithIndexF: Foldable["foldMapWithIndex"];
+export declare const reduceRightWithIndexF: Foldable["reduceRightWithIndex"];
+export declare const Foldable: Foldable;
+export declare const reduce: <A, B>(b: B, f: (b: B, a: A) => B) => (fa: SeqLike<A>) => B;
+export declare const reduceWithIndex: <A, B>(b: B, f: (i: number, b: B, a: A) => B) => (fa: SeqLike<A>) => B;
+export declare const foldMap: <M_1>(M: import("fp-ts/Monoid").Monoid<M_1>) => <A>(f: (a: A) => M_1) => (fa: SeqLike<A>) => M_1;
+export declare const foldMapWithIndex: <M_1>(M: import("fp-ts/Monoid").Monoid<M_1>) => <A>(f: (i: number, a: A) => M_1) => (fa: SeqLike<A>) => M_1;
+export declare const reduceRight: <A, B>(b: B, f: (a: A, b: B) => B) => (fa: SeqLike<A>) => B;
+export declare const reduceRightWithIndex: <A, B>(b: B, f: (i: number, a: A, b: B) => B) => (fa: SeqLike<A>) => B;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const testNext: <A>(buffer: SeqLike<A>, match: SeqLike<A>, cursor: number) => boolean;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const takeUntil: <A>(buffer: SeqLike<A>, predicate: Predicate<A>, cursor: number) => number;
+export declare const isStringSeq: (a: unknown) => a is SeqLike<string>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const testNextStr: (buffer: SeqLike<string>, match: SeqLike<string>, cursor: number) => boolean;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const matchNextStr: (buffer: SeqLike<string>, match: SeqLike<string>, cursor: number) => SeqLike<string>;
+export declare const toStr: (seq: SeqLike<string>) => string;
+//# sourceMappingURL=SeqLike.d.ts.map

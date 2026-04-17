@@ -1,0 +1,49 @@
+/**
+ * @since 1.0.0
+ */
+import type { URIS, URIS2, URIS3 } from "fp-ts/HKT"
+import { Predicate } from "fp-ts/Predicate"
+import { Refinement } from "fp-ts/Refinement"
+
+import * as assertsT from "@yuyi919/shared-proto/AssertsT"
+import { _new1, throwError } from "@yuyi919/shared-proto/Functions"
+
+export function getAsserts<M extends URIS3, A>(
+  isMatched: Predicate<A>,
+  URI: M,
+): assertsT.AssertsT3<M>
+export function getAsserts<M extends URIS2, A>(
+  isMatched: Predicate<A>,
+  URI: M,
+): assertsT.AssertsT2<M>
+export function getAsserts<M extends URIS, A, B extends A>(
+  isMatched: Refinement<A, B>,
+  URI: M,
+): assertsT.AssertsT1C<M, B>
+export function getAsserts<M extends URIS, A>(
+  isMatched: Predicate<A>,
+  URI: M,
+): assertsT.AssertsT1C<M, A>
+export function getAsserts<A>(
+  isMatched: Predicate<A>,
+  msg?: string,
+): assertsT.AssertsId<A>
+export function getAsserts<A>(
+  isMatched: Predicate<A>,
+  uri?: any,
+): assertsT.AssertsId<A> {
+  return {
+    assert(value: any, msg = uri) {
+      if (!isMatched(value)) throwError(_new1(AssertError, msg))
+    },
+    assertWith(_value: any, isMatched, msg = uri) {
+      if (!isMatched) throwError(_new1(AssertError, msg))
+    },
+  }
+}
+
+export class AssertError extends Error {
+  constructor(msg?: string) {
+    super(`Wrong assertion encountered` + (!msg ? "" : `: "${msg}"`))
+  }
+}

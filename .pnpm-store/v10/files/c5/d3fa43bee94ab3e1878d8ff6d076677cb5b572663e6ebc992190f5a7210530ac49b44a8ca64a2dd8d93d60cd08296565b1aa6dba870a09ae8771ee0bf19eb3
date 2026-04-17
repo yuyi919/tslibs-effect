@@ -1,0 +1,524 @@
+import * as A from "./Array"
+import * as Equivalence from "./Equivalence"
+import * as Extensions from "./Extensions"
+import { absurd, error, flow, pipe, raise, unsafeCoerce } from "./Functions"
+import * as constant from "./internal/constant"
+import * as helper from "./internal/helper"
+import * as PF from "./internal/protoFactory"
+import * as JsTypes from "./JsTypes"
+import { isNil, isObj } from "./JsTypes"
+import { Pipeable, PipeableProto } from "./Pipeable"
+import * as Proto from "./Proto"
+
+export const $SOME = "Some"
+export const $NONE = "None"
+export type $SOME = typeof $SOME
+export type $NONE = typeof $NONE
+
+export interface OptionExtensions<T> extends AbstractOption<T> {}
+
+export type Option<T> = SomeValue<T> | NoneValue<T>
+export { type Option as t }
+
+export type OptionJsonSome<T> = {
+  _tag: $SOME
+  value: T
+}
+
+export type OptionJsonNone = {
+  _tag: $NONE
+  value: undefined
+}
+
+export type OptionJson<T> = OptionJsonSome<T> | OptionJsonNone
+
+abstract class AbstractOption<T> extends Pipeable {
+  abstract _tag: $SOME | $NONE
+  abstract E: boolean
+  abstract A: T | undefined
+
+  get exists(): this["E"] {
+    return this.E
+  }
+
+  get value(): this["A"] {
+    return this.A
+  }
+
+  /**
+   * Returns an Option with a value if 'some' is true, otherwise returns NONE
+   * @param some - Boolean flag to determine if the Option should have a value
+   */
+  while<A extends T = T>(some: boolean): Option<A> {
+    return this.E && some ? (this as any as Option<A>) : _NONE
+  }
+
+  /**
+   * !unsafe
+   */
+  as<A extends T = T>(): Option<A> {
+    return this as unknown as Option<A>
+  }
+
+  /**
+   * Filters out nullable values from the Option
+   * @returns - Option with non-nullable value
+   */
+  excludeNil(): Option<NonNullable<T>> {
+    return this.filter(JsTypes.isNotNil)
+  }
+
+  /**
+   * Filters the Option based on the provided function
+   * @param fn - Function used to filter the Option
+   * @returns - Option with filtered value
+   */
+  filter<A extends T>(fn: (value: T) => value is A): Option<A>
+  filter<A extends T>(fn: (value: T) => boolean): Option<A>
+  filter(fn: (value: T) => boolean): Option<T>
+  filter<A extends T>(fn: (value: T) => Option<boolean>): Option<A>
+  filter(fn: (value: T) => any): Option<T> {
+    const is = this.E && fn(this.A!)
+    return (isSome(is) ? is.A : !!is) ? unsafeCoerce(this) : _NONE
+  }
+
+  /**
+   * Matches the Option value and returns the result of the provided function or a default value
+   * @param fn - Function to apply to the Option value
+   * @param or - Default value function if the Option is empty
+   * @returns - Option with the result of the matching function or the default value
+   */
+  match<A, B>(fn: (value: T) => A, or: () => B): A | B {
+    if (this.E) return fn(this.A!)
+    return or()
+  }
+
+  /**
+   * Maps the Option value to a new value using the provided function
+   * @param fn - Function to map the Option value
+   * @returns - Option with the mapped value
+   */
+  map<A>(fn: (value: T) => A): Option<A> {
+    return this.chain((value) => some(fn(value)))
+  }
+
+  mapTry<A>(fn: (value: T) => A): Option<A> {
+    return this.chain((value) => fromTryCatch(() => fn(value)))
+  }
+
+  tryOr(fn: (value: T) => T): Option<T>
+  tryOr<const A>(fn: (value: T) => A): Option<A | T>
+  tryOr(fn: (value: T) => T): Option<T> {
+    return this.mapTry(fn).orOption(() => unsafeCoerce(this))
+  }
+
+  /**
+   * Maps the Option value to a constant value
+   * @param a - Constant value to map the Option value to
+   * @returns - Option with the constant value
+   */
+  mapTo<const A>(a: A): Option<A> {
+    return this.map(() => a)
+  }
+
+  /**
+   * Returns the Option with a default value if it's empty
+   * @param fn - Default value function
+   * @returns - Option with the default value or the original value
+   */
+  or(fn: () => T): Option<T>
+  or<const A>(fn: () => A): Option<T | A>
+  or<const A>(fn: () => A): Option<T | A> {
+    return this.orOption(() => some(fn()))
+  }
+
+  orOption(fn: () => Option<T>): Option<T>
+  orOption<const A>(fn: () => Option<A>): Option<T | A>
+  orOption<const A>(fn: () => Option<A>): Option<T | A> {
+    return this.match((_) => this, fn) as Option<T | A>
+  }
+
+  /**
+   * Returns the Option with a constant value if it's empty
+   * @param a - Constant value
+   * @returns - Option with the constant value or the original value
+   */
+  orTo(a: T): Option<T>
+  orTo<const A>(a: A): Option<T | A>
+  orTo<const A>(a: A): Option<T | A> {
+    return this.or(() => a)
+  }
+
+  /**
+   * Returns the Option with a null value if it's empty
+   * @returns - Option with the null value or the original value
+   */
+  orNull(): Option<T | null> {
+    return this.or(() => constant.NULL)
+  }
+
+  chain(fn: (value: T) => Option<T>): Option<T>
+  chain<const A>(fn: (value: T) => Option<A>): Option<A>
+  chain<const A>(fn: (value: T) => Option<A>): Option<A> {
+    return this.match(fn, () => this) as Option<A>
+    // if (this.E) return fn(this.A!)
+    // return this as any
+  }
+
+  bindTo<N extends string>(name: N): Option<{ readonly [k in N]: T }> {
+    return this.map((value) => ({ [name]: value }) as any)
+  }
+
+  to(fn: (value: T) => T): T | undefined
+  to<const A>(fn: (value: T) => A): A | undefined
+  to(): T | undefined
+  to<const A = never>(fn?: (value: T) => A): A | T | undefined {
+    return this.match(
+      (value) => (fn ? fn(value) : value),
+      () => constant.UNDEFINED,
+    )
+  }
+
+  getOrVoid(): void | T {
+    return this.getOrValue(constant.VOID)
+  }
+
+  getOrUndef(): undefined | T {
+    return this.getOrValue(constant.UNDEFINED)
+  }
+
+  getOrNull(): T | null {
+    return this.getOrValue(constant.NULL)
+  }
+
+  getOr(lazyValue: () => T): T
+  getOr<const A>(lazyValue: () => A): A | T
+  getOr<A>(orArg: () => A): A | T | undefined {
+    if (this.E) return this.A
+    return orArg()
+  }
+
+  getOrValue(value: T): T
+  getOrValue<const A>(value: A): A | T
+  getOrValue<A>(value: A): A | T | undefined {
+    if (this.E) return this.A
+    return value
+  }
+
+  getOrThrow(msg: string | (() => string)): T {
+    return this.E ? this.A! : raise(error(JsTypes.isStr(msg) ? msg : msg()))
+  }
+
+  tap(fn: (self: T) => any): this {
+    this.E && fn(this.A!)
+    return this
+  }
+
+  asNone(): NoneValue {
+    return _NONE
+  }
+
+  enforce(): T {
+    return isNone(this) ? absurd() : this.A!
+  }
+}
+
+export const OptionProto = pipe(
+  PF.from(unsafeCoerce<Option<any>>(PipeableProto)),
+  PF.getter(constant.__KEY_VALUE, (self) => self.A),
+  PF.getter("exists", (self) => self.E),
+  PF.method("while", (_self, some) => (_self.E && some ? _self : _NONE)),
+  PF.method("excludeNil", (_self) => _self.filter(JsTypes.isNotNil)),
+  PF.method("filter", (_self, fn) => {
+    const is = _self.E && fn(_self.A)
+    return (isSome(is) ? is.A : !!is) ? _self : _NONE
+  }),
+  PF.method("match", (_self, fn, or) => {
+    if (_self.E) return fn(_self.A)
+    return or()
+  }),
+  PF.method("map", (_self, fn) => {
+    return _self.chain((value) => some(fn(value)))
+  }),
+  PF.method("chain", (_self, fn) => {
+    return _self.match(fn, () => _self)
+  }),
+  PF.method("mapTry", (_self, fn) => {
+    return _self.chain((value) => fromTryCatch(() => fn(value)))
+  }),
+  PF.method("tryOr", (_self, fn) => {
+    return _self.mapTry(fn).orOption(() => _self)
+  }),
+  PF.method("mapTo", (_self, a) => {
+    return _self.map(() => a)
+  }),
+  flow(
+    PF.method("or", (_self, fn) => {
+      return _self.orOption(() => some(fn()))
+    }),
+    PF.method("orOption", (_self, fn) => {
+      return _self.match((_) => _self, fn)
+    }),
+    PF.method("orTo", (_self, a) => {
+      return _self.or(() => a)
+    }),
+    PF.method("orNull", (_self) => {
+      return _self.or(() => constant.NULL)
+    }),
+    PF.method("to", (_self, fn?: (value: any) => any) => {
+      return _self.match(
+        (value) => (fn ? fn(value) : value),
+        () => constant.UNDEFINED,
+      )
+    }),
+  ),
+  flow(
+    PF.method("bindTo", (_self, name) => {
+      return _self.map((value) => ({ [name]: value }))
+    }),
+    PF.method("getOrVoid", (_self) => {
+      return _self.getOrValue(constant.VOID)
+    }),
+    PF.method("getOr", (_self, orArg) => {
+      if (_self.E) return _self.A
+      return orArg()
+    }),
+    PF.method("getOrValue", (_self, value) => {
+      if (_self.E) return _self.A
+      return value
+    }),
+    PF.method("getOrThrow", (_self, msg) => {
+      return _self.E ? _self.A : raise(error(JsTypes.isStr(msg) ? msg : msg()))
+    }),
+    PF.method("tap", (_self, fn) => {
+      _self.E && fn(_self.A)
+      return _self
+    }),
+    PF.method("as", (_self) => _self),
+    PF.method("asNone", () => _NONE),
+    PF.make,
+  ),
+) as AbstractOption<any>
+
+export const addExtensions: <Extends extends {}>(
+  exts: Partial<AbstractOption<any>> & Extends,
+) => AbstractOption<any> & Extends = Extensions.AddTo(OptionProto)
+
+const OptionClass = Proto.makeProto(OptionProto)
+
+export function print(
+  option: Option<any>,
+  inner: (o: any) => string = JSON.stringify,
+): string {
+  return option.E ? `${$SOME}(${inner(option.A)})` : $NONE + "()"
+}
+
+export interface SomeValue<T> extends AbstractOption<T>, OptionExtensions<T> {
+  _tag: $SOME
+  E: true
+  A: T
+}
+
+export interface NoneValue<T = never>
+  extends AbstractOption<T>,
+    OptionExtensions<T> {
+  _tag: $NONE
+  E: false
+  A: undefined
+}
+
+function _data<T>(_tag: $SOME, A: any, E: true): { _tag: $SOME; A: T; E: true }
+function _data(
+  _tag: $NONE,
+  A: undefined,
+  E: false,
+): { _tag: $NONE; A: undefined; E: false }
+function _data(_tag: $NONE | $SOME, A: any, E: boolean) {
+  return { [constant.__KEY__TAG]: _tag, A, E }
+}
+
+export function toJSON<T>(self: SomeValue<T>): OptionJsonSome<T>
+export function toJSON(self: NoneValue): OptionJsonNone
+export function toJSON<T>(self: Option<T>): OptionJson<T>
+export function toJSON<T>(self: Option<T>): OptionJson<T> {
+  return self.E
+    ? {
+        [constant.__KEY__TAG]: $SOME,
+        [constant.__KEY_VALUE]: self.A!,
+      }
+    : {
+        [constant.__KEY__TAG]: $NONE,
+        [constant.__KEY_VALUE]: constant.UNDEFINED,
+      }
+}
+
+export function SomeValue<T>(value: T): SomeValue<T> {
+  return Proto.setPrototypeOf(
+    _data($SOME, value, true),
+    OptionProto,
+    // Proto.getProtos(AbstractOption),
+  ) as SomeValue<T>
+}
+
+export function some<T>(value: T): Option<T> {
+  return SomeValue(value)
+}
+
+const _NONE: NoneValue = Proto.setPrototypeOf(
+  _data($NONE, constant.UNDEFINED, false),
+  OptionProto,
+  // Proto.getProtos(AbstractOption),
+) as NoneValue
+
+export function None(): NoneValue {
+  return _NONE
+}
+export function none<T = never>(): Option<T> {
+  return None()
+}
+
+export function isOptionValue<T>(value: unknown): value is AbstractOption<T> {
+  return isObj(value) && JsTypes._instanceof(value, OptionClass)
+  // return JsTypes.isInstanceof(value, AbstractOption)
+}
+
+export function isSome<T>(value: Option<T>): value is SomeValue<T>
+export function isSome(value: unknown): value is SomeValue<unknown>
+export function isSome(value: unknown) {
+  return isOptionValue(value) && value.E
+}
+
+export function refineSome<T>(
+  option: Option<T>,
+  value: T | undefined = option.A,
+): option is SomeValue<T> {
+  return option.E && option.A === value
+}
+
+export function isNone<T>(value: Option<T>): value is NoneValue
+export function isNone(value: unknown): value is NoneValue
+export function isNone(value: unknown) {
+  return isOptionValue(value) && !value.E
+}
+export function refineNone<T>(value: Option<T>): value is NoneValue {
+  return !value.E
+}
+
+export function fromNullable<T>(value: T): Option<NonNullable<T>>
+export function fromNullable(value: any): any {
+  return isNil(value) ? _NONE : some(value)
+}
+export function fromTryCatch<T>(fn: () => T): Option<T>
+export function fromTryCatch(fn: () => any): any {
+  return helper.tryCatch(() => some(fn()), none)
+}
+export function nonEmptyString(value?: string | null): Option<string> {
+  return fromNullable(value?.trim() || null)
+}
+export function fromProperty<T extends Record<any, any>, P extends keyof T>(
+  value: T,
+  property: P,
+): Option<T[P]>
+export function fromProperty<V>(value: unknown, property: string): Option<V>
+export function fromProperty<T extends Record<any, any>, P extends keyof T>(
+  value: T,
+  property: P,
+): Option<T[P]> {
+  return JsTypes.hasOwnKey(value, property) ? some(value[property]) : _NONE
+}
+export function fromNullableProperty<
+  T extends Record<any, any>,
+  P extends keyof T,
+>(value: T, property: P): Option<T[P]>
+export function fromNullableProperty<T>(value: any, property: string): Option<T>
+export function fromNullableProperty<
+  T extends Record<any, any>,
+  P extends keyof T,
+>(value: T, property: P): Option<T[P]> {
+  return fromNullable(value?.[property])
+}
+
+export function findLast<T>(
+  value: readonly T[],
+  predicate: (value: T, index: number, array: readonly T[]) => boolean,
+): Option<NonNullable<T>> {
+  return fromNullable(A.findLast(value, predicate))
+}
+
+export function find<T>(
+  value: readonly T[],
+  predicate: (value: T, index: number, array: readonly T[]) => boolean,
+): Option<NonNullable<T>> {
+  return fromNullable(A.find(value, predicate))
+}
+
+export function fromPredicate<T, A extends T>(
+  value: T,
+  predicate: (value: T) => value is A,
+): Option<A>
+export function fromPredicate<T>(
+  value: T,
+  predicate: (value: T) => boolean,
+): Option<T>
+export function fromPredicate<T>(
+  value: T,
+  predicate: (value: T) => boolean,
+): Option<T> {
+  return predicate(value) ? some(value) : _NONE
+}
+
+export function liftThrowable<A extends ReadonlyArray<unknown>, B>(
+  f: (...a: A) => B,
+): (...a: A) => Option<B>
+export function liftThrowable(fn: (...args: any[]) => any): any {
+  return (...input: any[]) => helper.tryCatch(() => some(fn(...input)), none)
+}
+export function liftPredicate<T, A>(
+  predicate: (value: T) => boolean,
+  mapTo: (value: T) => A,
+): (value: T) => Option<A> {
+  return (value) => (predicate(value) ? some(mapTo(value)) : _NONE)
+}
+
+export function fromBoolean<T, A extends T>(
+  value: T,
+  predicate: boolean,
+): Option<A> {
+  return predicate ? some(value as A) : _NONE
+}
+
+export function map<T, A>(fn: (value: T) => A) {
+  return (o: Option<T>): Option<A> => o.map(fn)
+}
+
+export function flatMap<T, A>(fn: (value: T) => Option<A>) {
+  return (o: Option<T>): Option<A> => o.chain(fn)
+}
+export { flatMap as chain }
+
+export function value<T>(option: SomeValue<T>): T
+export function value<T>(option: Option<T>): T | undefined
+export function value<T>(option: Option<T>) {
+  return option.A
+}
+
+export function getEquivalence<T>(
+  isEquivalent: Equivalence.Equivalence<T>,
+): Equivalence.Equivalence<Option<T>> {
+  return (a, b) => (!a.E && !b.E) || (a.E && b.E && isEquivalent(a.A, b.A))
+}
+
+export function equals<T>(
+  self: Option<T>,
+  target: unknown,
+  valueCompare?: (self: T, taregt: unknown) => boolean,
+): boolean {
+  return (
+    isOptionValue(target) &&
+    (target === self ||
+      (self.E === target.E
+        ? target.A === self.A ||
+          (valueCompare ? valueCompare(self.A!, target.A) : false)
+        : JsTypes.IS_FALSE))
+  )
+}

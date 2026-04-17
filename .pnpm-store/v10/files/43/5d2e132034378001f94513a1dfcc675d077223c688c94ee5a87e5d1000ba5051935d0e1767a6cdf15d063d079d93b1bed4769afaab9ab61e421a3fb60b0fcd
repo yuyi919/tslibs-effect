@@ -1,0 +1,76 @@
+import * as E from "fp-ts/Either";
+import * as io from "fp-ts/IO";
+import { Monoid } from "fp-ts/Monoid";
+import * as NEA from "fp-ts/NonEmptyArray";
+import * as R from "fp-ts/Reader";
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray";
+import { Semigroup } from "fp-ts/Semigroup";
+import * as these from "fp-ts/These";
+import { Fn } from "../Types";
+import { Lazy } from "./core";
+export declare function constEmptyArray<T>(): readonly T[];
+export declare function constEmptyObject<T extends {}>(): T;
+/**
+ * A thunk that returns always `true`.
+ * @example
+ * assert.deepStrictEqual(constTrue(), true)
+ * @since 2.0.0
+ */
+export declare const constTrue: Lazy<boolean>;
+/**
+ * A thunk that returns always `false`.
+ * @example
+ * assert.deepStrictEqual(constFalse(), false)
+ * @since 2.0.0
+ */
+export declare const constFalse: Lazy<boolean>;
+/**
+ * A thunk that returns always `null`.
+ * @example
+ * assert.deepStrictEqual(constNull(), null)
+ * @since 2.0.0
+ */
+export declare const constNull: Lazy<null>;
+/**
+ * A thunk that returns always `undefined`.
+ * @example
+ * assert.deepStrictEqual(constUndefined(), undefined)
+ * @since 2.0.0
+ */
+export declare const constUndefined: Lazy<undefined>;
+/**
+ * A thunk that returns always `void`.
+ * @example
+ * assert.deepStrictEqual(constVoid(), undefined)
+ * @since 2.0.0
+ */
+export declare const constVoid: Lazy<void>;
+export declare function toRaise(err?: string | Error): Fn<unknown[], never>;
+export declare const toArgumentsFirst: {
+    <F extends (args: NEA.NonEmptyArray<any>) => any>(f: F): (...args: Parameters<F>[0]) => ReturnType<F>;
+};
+export declare const toArrayArgFirst: {
+    <F extends (...args: any[]) => any>(f: F): (args: Parameters<F>) => ReturnType<F>;
+};
+export declare const toArrayElementFirst: {
+    <A, B>(f: (...args: A[]) => B): (args: A[]) => B;
+    <A, B>(f: (...args: readonly A[]) => B): (args: readonly A[]) => B;
+    <A, B>(f: (...args: RNEA.ReadonlyNonEmptyArray<A>) => B): (args: RNEA.ReadonlyNonEmptyArray<A>) => B;
+    <A, B>(f: (...args: NEA.NonEmptyArray<A>) => B): (args: NEA.NonEmptyArray<A>) => B;
+};
+export declare const invoke: <F extends io.IO<unknown>>(fn: F) => ReturnType<F>;
+export declare const getReaderEitherIO: <E, A>() => R.Reader<E.Either<io.IO<E>, io.IO<A>>, E.Either<E, A>>;
+export declare const getIoThese: <E, A>(O: these.These<io.IO<E>, io.IO<A>>) => io.IO<these.These<E, A>>;
+export declare const toIoEither: <E, A>(O: E.Either<io.IO<E>, io.IO<A>>) => io.IO<E.Either<E, A>>;
+export declare const toReaderEither: <R, E, A>(O: E.Either<R.Reader<R, E>, R.Reader<R, A>>) => R.Reader<R, E.Either<E, A>>;
+export declare const compactEitherIO: <Sep, A>(array: NEA.NonEmptyArray<E.Either<io.IO<Sep>, io.IO<A>>>) => io.IO<NEA.NonEmptyArray<E.Either<Sep, A>>>;
+export declare const compactEitherReader: <R, Sep, A>(array: NEA.NonEmptyArray<E.Either<R.Reader<R, Sep>, R.Reader<R, A>>>) => R.Reader<R, NEA.NonEmptyArray<E.Either<Sep, A>>>;
+export declare const compactIO: <Sep, A>(array: NEA.NonEmptyArray<E.Either<io.IO<Sep>, io.IO<A>>>) => io.IO<ReadonlyArray<A>>;
+export declare const compactReader: <R, Sep, A>(array: NEA.NonEmptyArray<E.Either<R.Reader<R, Sep>, R.Reader<R, A>>>) => R.Reader<R, ReadonlyArray<A>>;
+export declare const compactIOArray: <const A>(array: io.IO<A>[]) => io.IO<A[]>;
+export declare const compactReaderArray: <R, A>(array: R.Reader<R, A>[]) => R.Reader<R, A[]>;
+export declare const compactRNEAEitherIO: <T>(array: RNEA.ReadonlyNonEmptyArray<E.Either<io.IO<T>, io.IO<T>>>) => ReadonlyArray<T>;
+export declare const concatAllArgsS: <A>(M: Semigroup<A>) => ((startWith: A) => (...as: A[]) => A);
+export declare const concatAllArgsM: <A>(M: Monoid<A>) => ((...as: A[]) => A);
+export { cloneFn } from "../internal/helper";
+//# sourceMappingURL=helper.d.ts.map

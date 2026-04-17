@@ -1,0 +1,56 @@
+import { flow, pipe } from "@yuyi919/shared-proto/Functions";
+
+import * as E from "./expressive-ts/index.js";
+
+export * from "./expressive-ts/index.js";
+let patternCJK = /*#__PURE__*/ E.pScript(["Han", "Hiragana", "Katakana"]);
+let pattern1 = /*#__PURE__*/ E.pattern(
+  /*#__PURE__*/ E.chars(patternCJK, E.charAlphanum),
+  /*#__PURE__*/ E.chars(patternCJK, E.charWord, /*#__PURE__*/ E.char("_")),
+  E.zeroOrMore,
+);
+let pattern2 = /*#__PURE__*/ E.pattern(
+  /*#__PURE__*/ E.chars(patternCJK, E.charAlphanum, /*#__PURE__*/ E.char("_")),
+  /*#__PURE__*/ E.chars(patternCJK, E.charWord, /*#__PURE__*/ E.char("_")),
+  E.oneOrMore,
+);
+export let IDENTIFIER = /*#__PURE__*/ E.make(
+  /*#__PURE__*/ flow(
+    /*#__PURE__*/ E.exp(pattern1),
+    E.concatOr,
+    /*#__PURE__*/ E.exp(pattern2),
+  ),
+  /*#__PURE__*/ flow(E.unicode, E.sticky),
+);
+export let takeUntil = (modifier, patterns) =>
+  E.make(flow(E.oneOfNot(patterns), E.add(modifier), E.sticky));
+export let takeUntilClosed = (modifier, patterns) =>
+  E.make(
+    modifier.startsWith("*") || modifier.startsWith("+")
+      ? flow(E.add("."), E.add(modifier))
+      : E.add(modifier),
+    E.withLookAhead(
+      patterns.length === 1 ? E.from(patterns[0]) : E.oneOf(patterns),
+    ),
+    flow(E.sticky),
+  );
+export let SPACE = /[ \t]+/y;
+export let WHITESPACE = /\s+/y;
+export let INT = /\b\d+\b/y;
+export let FLOAT = /\b(?:\d+[.]\d*|[.]\d+)\b/y;
+export let NUMBER = /\b(?:\d+(?:[.](?:\d+\b|(?=[\s\W]))|\b)|[.]\d+\b)/y;
+export let ALTS = (patterns, flags) =>
+  pipe(
+    E.pattern(
+      patterns
+        .slice(1)
+        .reduce((r, a) => flow(r, E.concatOr, E.from(a)), E.from(patterns[0])),
+      flow(E.unicode, E.sticky),
+    ),
+    flags ? E.toRegexWithFlags(flags) : E.toRegex,
+  );
+export let IDENTIFIER_OR_NUMBER = /*#__PURE__*/ ALTS(
+  [NUMBER, IDENTIFIER],
+  "yu",
+);
+//# sourceMappingURL=index.js.map

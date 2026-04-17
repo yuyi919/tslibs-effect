@@ -1,0 +1,1110 @@
+/**
+ * ```ts
+ * type Option<A> = None | Some<A>
+ * ```
+ *
+ * `Option<A>` is a container for an optional value of type `A`. If the value of type `A` is present, the `Option<A>` is
+ * an instance of `Some<A>`, containing the present value of type `A`. If the value is absent, the `Option<A>` is an
+ * instance of `None`.
+ *
+ * An option could be looked at as a collection or foldable structure with either one or zero elements.
+ * Another way to look at `Option` is: it represents the effect of a possibly failing computation.
+ *
+ *
+ * @example
+ * import * as O from 'fp-ts/Option'
+ * import { pipe } from 'fp-ts/function'
+ *
+ * const double = (n: number): number => n * 2
+ *
+ * export const imperative = (as: ReadonlyArray<number>): string => {
+ *   const head = (as: ReadonlyArray<number>): number => {
+ *     if (as.length === 0) {
+ *       throw new Error()
+ *     }
+ *     return as[0]
+ *   }
+ *   const inverse = (n: number): number => {
+ *     if (n === 0) {
+ *       throw new Error()
+ *     }
+ *     return 1 / n
+ *   }
+ *   try {
+ *     return `Result is ${inverse(double(head(as)))}`
+ *   } catch (e) {
+ *     return 'no result'
+ *   }
+ * }
+ *
+ * export const functional = (as: ReadonlyArray<number>): string => {
+ *   const head = <A>(as: ReadonlyArray<A>): O.Option<A> =>
+ *     as.length === 0 ? O.none : O.some(as[0])
+ *   const inverse = (n: number): O.Option<number> =>
+ *     n === 0 ? O.none : O.some(1 / n)
+ *   return pipe(
+ *     as,
+ *     head,
+ *     O.map(double),
+ *     O.flatMap(inverse),
+ *     O.match(
+ *       () => 'no result', // onNone handler
+ *       (head) => `Result is ${head}` // onSome handler
+ *     )
+ *   )
+ * }
+ *
+ * assert.deepStrictEqual(imperative([1, 2, 3]), functional([1, 2, 3]))
+ * assert.deepStrictEqual(imperative([]), functional([]))
+ * assert.deepStrictEqual(imperative([0]), functional([0]))
+ *
+ * @since 2.0.0
+ */import { getApplicativeMonoid } from "./Applicative.js";
+import { apFirst as apFirst_, apS as apS_, apSecond as apSecond_, getApplySemigroup as getApplySemigroup_ } from "./Apply.js";
+import * as chainable from "./Chain.js";
+import { chainEitherK as chainEitherK_, fromEitherK as fromEitherK_, tapEither as tapEither_ } from "./FromEither.js";
+import { constNull, constUndefined, dual, flow, identity, pipe } from "./function.js";
+import { as as as_, asUnit as asUnit_, bindTo as bindTo_, flap as flap_, let as let__ } from "./Functor.js";
+import * as _ from "./internal.js";
+import { not } from "./Predicate.js";
+import { first, last } from "./Semigroup.js";
+import { separated } from "./Separated.js";
+import { wiltDefault, witherDefault } from "./Witherable.js";
+import { guard as guard_ } from "./Zero.js"; // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * `None` doesn't have a constructor, instead you can use it directly as a value. Represents a missing value.
+ *
+ * @category constructors
+ * @since 2.0.0
+ */
+export let none = _.none; /**
+                          * Constructs a `Some`. Represents an optional value that exists.
+                          *
+                          * @category constructors
+                          * @since 2.0.0
+                          */
+export let some = _.some;
+export let fromPredicate = predicate => a => predicate(a) ? some(a) : none; /**
+                                                                            * Returns the `Left` value of an `Either` if possible.
+                                                                            *
+                                                                            * @example
+                                                                            * import { getLeft, none, some } from 'fp-ts/Option'
+                                                                            * import { right, left } from 'fp-ts/Either'
+                                                                            *
+                                                                            * assert.deepStrictEqual(getLeft(right(1)), none)
+                                                                            * assert.deepStrictEqual(getLeft(left('a')), some('a'))
+                                                                            *
+                                                                            * @category constructors
+                                                                            * @since 2.0.0
+                                                                            */
+export let getLeft = ma => ma._tag === "Right" ? none : some(ma.left); /**
+                                                                       * Returns the `Right` value of an `Either` if possible.
+                                                                       *
+                                                                       * @example
+                                                                       * import { getRight, none, some } from 'fp-ts/Option'
+                                                                       * import { right, left } from 'fp-ts/Either'
+                                                                       *
+                                                                       * assert.deepStrictEqual(getRight(right(1)), some(1))
+                                                                       * assert.deepStrictEqual(getRight(left('a')), none)
+                                                                       *
+                                                                       * @category constructors
+                                                                       * @since 2.0.0
+                                                                       */
+export let getRight = ma => ma._tag === "Left" ? none : some(ma.right);
+let _map = (fa, f) => map(f)(fa);
+let _ap = (fab, fa) => ap(fa)(fab);
+let _reduce = (fa, b, f) => reduce(b, f)(fa);
+let _foldMap = M => {
+  let foldMapM = foldMap(M);
+  return (fa, f) => foldMapM(f)(fa);
+};
+let _reduceRight = (fa, b, f) => reduceRight(b, f)(fa);
+let _traverse = F => {
+  let traverseF = traverse(F);
+  return (ta, f) => traverseF(f)(ta);
+}; /* istanbul ignore next */
+let _alt = (fa, that) => alt(that)(fa);
+let _filter = (fa, predicate) => filter(predicate)(fa); /* istanbul ignore next */
+let _filterMap = (fa, f) => filterMap(f)(fa); /* istanbul ignore next */
+let _extend = (wa, f) => extend(f)(wa); /* istanbul ignore next */
+let _partition = (fa, predicate) => partition(predicate)(fa); /* istanbul ignore next */
+let _partitionMap = (fa, f) => partitionMap(f)(fa); /**
+                                                    * @category type lambdas
+                                                    * @since 2.0.0
+                                                    */
+export let URI = "Option"; /**
+                           * @category instances
+                           * @since 2.0.0
+                           */
+export let getShow = S => ({
+  show: ma => isNone(ma) ? "none" : `some(${S.show(ma.value)})`
+}); /**
+    * @example
+    * import { none, some, getEq } from 'fp-ts/Option'
+    * import * as N from 'fp-ts/number'
+    *
+    * const E = getEq(N.Eq)
+    * assert.strictEqual(E.equals(none, none), true)
+    * assert.strictEqual(E.equals(none, some(1)), false)
+    * assert.strictEqual(E.equals(some(1), none), false)
+    * assert.strictEqual(E.equals(some(1), some(2)), false)
+    * assert.strictEqual(E.equals(some(1), some(1)), true)
+    *
+    * @category instances
+    * @since 2.0.0
+    */
+export let getEq = E => ({
+  equals: (x, y) => x === y || (isNone(x) ? isNone(y) : isNone(y) ? false : E.equals(x.value, y.value))
+}); /**
+    * The `Ord` instance allows `Option` values to be compared with
+    * `compare`, whenever there is an `Ord` instance for
+    * the type the `Option` contains.
+    *
+    * `None` is considered to be less than any `Some` value.
+    *
+    *
+    * @example
+    * import { none, some, getOrd } from 'fp-ts/Option'
+    * import * as N from 'fp-ts/number'
+    *
+    * const O = getOrd(N.Ord)
+    * assert.strictEqual(O.compare(none, none), 0)
+    * assert.strictEqual(O.compare(none, some(1)), -1)
+    * assert.strictEqual(O.compare(some(1), none), 1)
+    * assert.strictEqual(O.compare(some(1), some(2)), -1)
+    * assert.strictEqual(O.compare(some(1), some(1)), 0)
+    *
+    * @category instances
+    * @since 2.0.0
+    */
+export let getOrd = O => ({
+  equals: getEq(O).equals,
+  compare: (x, y) => x === y ? 0 : isSome(x) ? isSome(y) ? O.compare(x.value, y.value) : 1 : -1
+}); /**
+    * Monoid returning the left-most non-`None` value. If both operands are `Some`s then the inner values are
+    * concatenated using the provided `Semigroup`
+    *
+    * | x       | y       | concat(x, y)       |
+    * | ------- | ------- | ------------------ |
+    * | none    | none    | none               |
+    * | some(a) | none    | some(a)            |
+    * | none    | some(b) | some(b)            |
+    * | some(a) | some(b) | some(concat(a, b)) |
+    *
+    * @example
+    * import { getMonoid, some, none } from 'fp-ts/Option'
+    * import { SemigroupSum } from 'fp-ts/number'
+    *
+    * const M = getMonoid(SemigroupSum)
+    * assert.deepStrictEqual(M.concat(none, none), none)
+    * assert.deepStrictEqual(M.concat(some(1), none), some(1))
+    * assert.deepStrictEqual(M.concat(none, some(1)), some(1))
+    * assert.deepStrictEqual(M.concat(some(1), some(2)), some(3))
+    *
+    * @category instances
+    * @since 2.0.0
+    */
+export let getMonoid = S => ({
+  concat: (x, y) => isNone(x) ? y : isNone(y) ? x : some(S.concat(x.value, y.value)),
+  empty: none
+}); /**
+    * @category mapping
+    * @since 2.0.0
+    */
+export let map = f => fa => isNone(fa) ? none : some(f(fa.value)); /**
+                                                                   * @category instances
+                                                                   * @since 2.7.0
+                                                                   */
+export let Functor = {
+  URI,
+  map: _map
+}; /**
+   * Maps the `Some` value of this `Option` to the specified constant value.
+   *
+   * @category mapping
+   * @since 2.16.0
+   */
+export let as = /*#__PURE__*/dual(2, /*#__PURE__*/as_(Functor)); /**
+                                                                 * Maps the `Some` value of this `Option` to the void constant value.
+                                                                 *
+                                                                 * @category mapping
+                                                                 * @since 2.16.0
+                                                                 */
+export let asUnit = /*#__PURE__*/asUnit_(Functor); /**
+                                                   * @category constructors
+                                                   * @since 2.7.0
+                                                   */
+export let of = some; /**
+                      * @category instances
+                      * @since 2.10.0
+                      */
+export let Pointed = {
+  URI,
+  of
+}; /**
+   * @since 2.0.0
+   */
+export let ap = fa => fab => isNone(fab) ? none : isNone(fa) ? none : some(fab.value(fa.value)); /**
+                                                                                                 * @category instances
+                                                                                                 * @since 2.10.0
+                                                                                                 */
+export let Apply = {
+  URI,
+  map: _map,
+  ap: _ap
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Applicative = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of
+}; /**
+   * @category sequencing
+   * @since 2.14.0
+   */
+export let flatMap = /*#__PURE__*/dual(2, (ma, f) => isNone(ma) ? none : f(ma.value)); /**
+                                                                                       * @category instances
+                                                                                       * @since 2.10.0
+                                                                                       */
+export let Chain = {
+  URI,
+  map: _map,
+  ap: _ap,
+  chain: flatMap
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Monad = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap
+}; /**
+   * @category folding
+   * @since 2.0.0
+   */
+export let reduce = (b, f) => fa => isNone(fa) ? b : f(b, fa.value); /**
+                                                                     * @category folding
+                                                                     * @since 2.0.0
+                                                                     */
+export let foldMap = M => f => fa => isNone(fa) ? M.empty : f(fa.value); /**
+                                                                         * @category folding
+                                                                         * @since 2.0.0
+                                                                         */
+export let reduceRight = (b, f) => fa => isNone(fa) ? b : f(fa.value, b); /**
+                                                                          * @category instances
+                                                                          * @since 2.7.0
+                                                                          */
+export let Foldable = {
+  URI,
+  reduce: _reduce,
+  foldMap: _foldMap,
+  reduceRight: _reduceRight
+}; /**
+   * Returns the provided `Option` `that` if `self` is `None`, otherwise returns `self`.
+   *
+   * @param self - The first `Option` to be checked.
+   * @param that - The `Option` to return if `self` is `None`.
+   *
+   * @example
+   * import * as O from "fp-ts/Option"
+   *
+   * assert.deepStrictEqual(O.orElse(O.none, () => O.none), O.none)
+   * assert.deepStrictEqual(O.orElse(O.some(1), () => O.none), O.some(1))
+   * assert.deepStrictEqual(O.orElse(O.none, () => O.some('b')), O.some('b'))
+   * assert.deepStrictEqual(O.orElse(O.some(1), () => O.some('b')), O.some(1))
+   *
+   * @category error handling
+   * @since 2.16.0
+   */
+export let orElse = /*#__PURE__*/dual(2, (self, that) => isNone(self) ? that() : self); /**
+                                                                                        * Alias of `orElse`.
+                                                                                        *
+                                                                                        * Less strict version of [`alt`](#alt).
+                                                                                        *
+                                                                                        * The `W` suffix (short for **W**idening) means that the return types will be merged.
+                                                                                        *
+                                                                                        * @category legacy
+                                                                                        * @since 2.9.0
+                                                                                        */
+export let altW = orElse; /**
+                          * Alias of `orElse`.
+                          *
+                          * @category legacy
+                          * @since 2.0.0
+                          */
+export let alt = orElse; /**
+                         * @category instances
+                         * @since 2.7.0
+                         */
+export let Alt = {
+  URI,
+  map: _map,
+  alt: _alt
+}; /**
+   * @since 2.7.0
+   */
+export let zero = () => none; /**
+                              * @category instances
+                              * @since 2.11.0
+                              */
+export let Zero = {
+  URI,
+  zero
+}; /**
+   * @category do notation
+   * @since 2.11.0
+   */
+export let guard = /*#__PURE__*/guard_(Zero, Pointed); /**
+                                                       * @category instances
+                                                       * @since 2.7.0
+                                                       */
+export let Alternative = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  alt: _alt,
+  zero
+}; /**
+   * @since 2.0.0
+   */
+export let extend = f => wa => isNone(wa) ? none : some(f(wa)); /**
+                                                                * @category instances
+                                                                * @since 2.7.0
+                                                                */
+export let Extend = {
+  URI,
+  map: _map,
+  extend: _extend
+}; /**
+   * @category filtering
+   * @since 2.0.0
+   */
+export let compact = /*#__PURE__*/flatMap(identity);
+let defaultSeparated = /*#__PURE__*/separated(none, none); /**
+                                                           * @category filtering
+                                                           * @since 2.0.0
+                                                           */
+export let separate = ma => isNone(ma) ? defaultSeparated : separated(getLeft(ma.value), getRight(ma.value)); /**
+                                                                                                              * @category instances
+                                                                                                              * @since 2.7.0
+                                                                                                              */
+export let Compactable = {
+  URI,
+  compact,
+  separate
+}; /**
+   * @category filtering
+   * @since 2.0.0
+   */
+export let filter = predicate => fa => isNone(fa) ? none : predicate(fa.value) ? fa : none; /**
+                                                                                            * @category filtering
+                                                                                            * @since 2.0.0
+                                                                                            */
+export let filterMap = f => fa => isNone(fa) ? none : f(fa.value); /**
+                                                                   * @category filtering
+                                                                   * @since 2.0.0
+                                                                   */
+export let partition = predicate => fa => separated(_filter(fa, not(predicate)), _filter(fa, predicate)); /**
+                                                                                                          * @category filtering
+                                                                                                          * @since 2.0.0
+                                                                                                          */
+export let partitionMap = f => flow(map(f), separate); /**
+                                                       * @category instances
+                                                       * @since 2.7.0
+                                                       */
+export let Filterable = {
+  URI,
+  map: _map,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap
+}; /**
+   * @category traversing
+   * @since 2.6.3
+   */
+export let traverse = F => f => ta => isNone(ta) ? F.of(none) : F.map(f(ta.value), some); /**
+                                                                                          * @category traversing
+                                                                                          * @since 2.6.3
+                                                                                          */
+export let sequence = F => ta => isNone(ta) ? F.of(none) : F.map(ta.value, some); /**
+                                                                                  * @category instances
+                                                                                  * @since 2.7.0
+                                                                                  */
+export let Traversable = {
+  URI,
+  map: _map,
+  reduce: _reduce,
+  foldMap: _foldMap,
+  reduceRight: _reduceRight,
+  traverse: _traverse,
+  sequence
+};
+let _wither = /*#__PURE__*/witherDefault(Traversable, Compactable);
+let _wilt = /*#__PURE__*/wiltDefault(Traversable, Compactable); /**
+                                                                * @category filtering
+                                                                * @since 2.6.5
+                                                                */
+export let wither = F => {
+  let _witherF = _wither(F);
+  return f => fa => _witherF(fa, f);
+}; /**
+   * @category filtering
+   * @since 2.6.5
+   */
+export let wilt = F => {
+  let _wiltF = _wilt(F);
+  return f => fa => _wiltF(fa, f);
+}; /**
+   * @category instances
+   * @since 2.7.0
+   */
+export let Witherable = {
+  URI,
+  map: _map,
+  reduce: _reduce,
+  foldMap: _foldMap,
+  reduceRight: _reduceRight,
+  traverse: _traverse,
+  sequence,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap,
+  wither: _wither,
+  wilt: _wilt
+}; /**
+   * @since 2.7.0
+   */
+export let throwError = () => none; /**
+                                    * @category instances
+                                    * @since 2.7.0
+                                    */
+export let MonadThrow = {
+  URI,
+  map: _map,
+  ap: _ap,
+  of,
+  chain: flatMap,
+  throwError
+}; /**
+   * Transforms an `Either` to an `Option` discarding the error.
+   *
+   * Alias of [getRight](#getright)
+   *
+   * @category conversions
+   * @since 2.0.0
+   */
+export let fromEither = getRight; /**
+                                  * @category instances
+                                  * @since 2.11.0
+                                  */
+export let FromEither = {
+  URI,
+  fromEither
+}; // -------------------------------------------------------------------------------------
+// refinements
+// -------------------------------------------------------------------------------------
+/**
+ * Returns `true` if the option is an instance of `Some`, `false` otherwise.
+ *
+ * @example
+ * import { some, none, isSome } from 'fp-ts/Option'
+ *
+ * assert.strictEqual(isSome(some(1)), true)
+ * assert.strictEqual(isSome(none), false)
+ *
+ * @category refinements
+ * @since 2.0.0
+ */
+export let isSome = _.isSome; /**
+                              * Returns `true` if the option is `None`, `false` otherwise.
+                              *
+                              * @example
+                              * import { some, none, isNone } from 'fp-ts/Option'
+                              *
+                              * assert.strictEqual(isNone(some(1)), false)
+                              * assert.strictEqual(isNone(none), true)
+                              *
+                              * @category refinements
+                              * @since 2.0.0
+                              */
+export let isNone = fa => fa._tag === "None"; /**
+                                              * Less strict version of [`match`](#match).
+                                              *
+                                              * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+                                              *
+                                              * @category pattern matching
+                                              * @since 2.10.0
+                                              */
+export let matchW = (onNone, onSome) => ma => isNone(ma) ? onNone() : onSome(ma.value); /**
+                                                                                        * Alias of [`matchW`](#matchw).
+                                                                                        *
+                                                                                        * @category pattern matching
+                                                                                        * @since 2.10.0
+                                                                                        */
+export let foldW = matchW; /**
+                           * Takes a (lazy) default value, a function, and an `Option` value, if the `Option` value is `None` the default value is
+                           * returned, otherwise the function is applied to the value inside the `Some` and the result is returned.
+                           *
+                           * @example
+                           * import { some, none, match } from 'fp-ts/Option'
+                           * import { pipe } from 'fp-ts/function'
+                           *
+                           * assert.strictEqual(
+                           *   pipe(
+                           *     some(1),
+                           *     match(() => 'a none', a => `a some containing ${a}`)
+                           *   ),
+                           *   'a some containing 1'
+                           * )
+                           *
+                           * assert.strictEqual(
+                           *   pipe(
+                           *     none,
+                           *     match(() => 'a none', a => `a some containing ${a}`)
+                           *   ),
+                           *   'a none'
+                           * )
+                           *
+                           * @category pattern matching
+                           * @since 2.10.0
+                           */
+export let match = matchW; /**
+                           * Alias of [`match`](#match).
+                           *
+                           * @category pattern matching
+                           * @since 2.0.0
+                           */
+export let fold = match; /**
+                         * Less strict version of [`getOrElse`](#getorelse).
+                         *
+                         * The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+                         *
+                         * @category error handling
+                         * @since 2.6.0
+                         */
+export let getOrElseW = onNone => ma => isNone(ma) ? onNone() : ma.value; /**
+                                                                          * Extracts the value out of the structure, if it exists. Otherwise returns the given default value
+                                                                          *
+                                                                          * @example
+                                                                          * import { some, none, getOrElse } from 'fp-ts/Option'
+                                                                          * import { pipe } from 'fp-ts/function'
+                                                                          *
+                                                                          * assert.strictEqual(
+                                                                          *   pipe(
+                                                                          *     some(1),
+                                                                          *     getOrElse(() => 0)
+                                                                          *   ),
+                                                                          *   1
+                                                                          * )
+                                                                          * assert.strictEqual(
+                                                                          *   pipe(
+                                                                          *     none,
+                                                                          *     getOrElse(() => 0)
+                                                                          *   ),
+                                                                          *   0
+                                                                          * )
+                                                                          *
+                                                                          * @category error handling
+                                                                          * @since 2.0.0
+                                                                          */
+export let getOrElse = getOrElseW; /**
+                                   * @category mapping
+                                   * @since 2.10.0
+                                   */
+export let flap = /*#__PURE__*/flap_(Functor); /**
+                                               * Combine two effectful actions, keeping only the result of the first.
+                                               *
+                                               * @since 2.0.0
+                                               */
+export let apFirst = /*#__PURE__*/apFirst_(Apply); /**
+                                                   * Combine two effectful actions, keeping only the result of the second.
+                                                   *
+                                                   * @since 2.0.0
+                                                   */
+export let apSecond = /*#__PURE__*/apSecond_(Apply); /**
+                                                     * @category sequencing
+                                                     * @since 2.0.0
+                                                     */
+export let flatten = compact; /**
+                              * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                              * keeping only the result of the first.
+                              *
+                              * @category combinators
+                              * @since 2.15.0
+                              */
+export let tap = /*#__PURE__*/dual(2, /*#__PURE__*/chainable.tap(Chain)); /**
+                                                                          * Composes computations in sequence, using the return value of one computation to determine the next computation and
+                                                                          * keeping only the result of the first.
+                                                                          *
+                                                                          * @example
+                                                                          * import { pipe } from 'fp-ts/function'
+                                                                          * import * as O from 'fp-ts/Option'
+                                                                          * import * as E from 'fp-ts/Either'
+                                                                          *
+                                                                          * const compute = (value: number) => pipe(
+                                                                          *   O.of(value),
+                                                                          *   O.tapEither((value) => value > 0 ? E.right('ok') : E.left('error')),
+                                                                          * )
+                                                                          *
+                                                                          * assert.deepStrictEqual(compute(1), O.of(1))
+                                                                          * assert.deepStrictEqual(compute(-42), O.none)
+                                                                          *
+                                                                          * @category combinators
+                                                                          * @since 2.16.0
+                                                                          */
+export let tapEither = /*#__PURE__*/dual(2, /*#__PURE__*/tapEither_(FromEither, Chain)); /**
+                                                                                         * @since 2.0.0
+                                                                                         */
+export let duplicate = /*#__PURE__*/extend(identity); /**
+                                                      * @category lifting
+                                                      * @since 2.11.0
+                                                      */
+export let fromEitherK = /*#__PURE__*/fromEitherK_(FromEither); /**
+                                                                * @category sequencing
+                                                                * @since 2.11.0
+                                                                */
+export let chainEitherK = /*#__PURE__*/chainEitherK_(FromEither, Chain); /**
+                                                                         * Alias of `tapEither`.
+                                                                         *
+                                                                         * @category legacy
+                                                                         * @since 2.12.0
+                                                                         */
+export let chainFirstEitherK = tapEither; /**
+                                          * Constructs a new `Option` from a nullable type. If the value is `null` or `undefined`, returns `None`, otherwise
+                                          * returns the value wrapped in a `Some`.
+                                          *
+                                          * @example
+                                          * import { none, some, fromNullable } from 'fp-ts/Option'
+                                          *
+                                          * assert.deepStrictEqual(fromNullable(undefined), none)
+                                          * assert.deepStrictEqual(fromNullable(null), none)
+                                          * assert.deepStrictEqual(fromNullable(1), some(1))
+                                          *
+                                          * @category conversions
+                                          * @since 2.0.0
+                                          */
+export let fromNullable = a => a == null ? none : some(a); /**
+                                                           * Transforms an exception into an `Option`. If `f` throws, returns `None`, otherwise returns the output wrapped in a
+                                                           * `Some`.
+                                                           *
+                                                           * See also [`tryCatchK`](#trycatchk).
+                                                           *
+                                                           * @example
+                                                           * import { none, some, tryCatch } from 'fp-ts/Option'
+                                                           *
+                                                           * assert.deepStrictEqual(
+                                                           *   tryCatch(() => {
+                                                           *     throw new Error()
+                                                           *   }),
+                                                           *   none
+                                                           * )
+                                                           * assert.deepStrictEqual(tryCatch(() => 1), some(1))
+                                                           *
+                                                           * @category interop
+                                                           * @since 2.0.0
+                                                           */
+export let tryCatch = f => {
+  try {
+    return some(f());
+  } catch (e) {
+    return none;
+  }
+}; /**
+   * Converts a function that may throw to one returning a `Option`.
+   *
+   * @category interop
+   * @since 2.10.0
+   */
+export let tryCatchK = f => (...a) => tryCatch(() => f(...a)); /**
+                                                               * Returns a *smart constructor* from a function that returns a nullable value.
+                                                               *
+                                                               * @example
+                                                               * import { fromNullableK, none, some } from 'fp-ts/Option'
+                                                               *
+                                                               * const f = (s: string): number | undefined => {
+                                                               *   const n = parseFloat(s)
+                                                               *   return isNaN(n) ? undefined : n
+                                                               * }
+                                                               *
+                                                               * const g = fromNullableK(f)
+                                                               *
+                                                               * assert.deepStrictEqual(g('1'), some(1))
+                                                               * assert.deepStrictEqual(g('a'), none)
+                                                               *
+                                                               * @category lifting
+                                                               * @since 2.9.0
+                                                               */
+export let fromNullableK = f => flow(f, fromNullable); /**
+                                                       * This is `chain` + `fromNullable`, useful when working with optional values.
+                                                       *
+                                                       * @example
+                                                       * import { some, none, fromNullable, chainNullableK } from 'fp-ts/Option'
+                                                       * import { pipe } from 'fp-ts/function'
+                                                       *
+                                                       * interface Employee {
+                                                       *   readonly company?: {
+                                                       *     readonly address?: {
+                                                       *       readonly street?: {
+                                                       *         readonly name?: string
+                                                       *       }
+                                                       *     }
+                                                       *   }
+                                                       * }
+                                                       *
+                                                       * const employee1: Employee = { company: { address: { street: { name: 'high street' } } } }
+                                                       *
+                                                       * assert.deepStrictEqual(
+                                                       *   pipe(
+                                                       *     fromNullable(employee1.company),
+                                                       *     chainNullableK(company => company.address),
+                                                       *     chainNullableK(address => address.street),
+                                                       *     chainNullableK(street => street.name)
+                                                       *   ),
+                                                       *   some('high street')
+                                                       * )
+                                                       *
+                                                       * const employee2: Employee = { company: { address: { street: {} } } }
+                                                       *
+                                                       * assert.deepStrictEqual(
+                                                       *   pipe(
+                                                       *     fromNullable(employee2.company),
+                                                       *     chainNullableK(company => company.address),
+                                                       *     chainNullableK(address => address.street),
+                                                       *     chainNullableK(street => street.name)
+                                                       *   ),
+                                                       *   none
+                                                       * )
+                                                       *
+                                                       * @category sequencing
+                                                       * @since 2.9.0
+                                                       */
+export let chainNullableK = f => ma => isNone(ma) ? none : fromNullable(f(ma.value)); /**
+                                                                                      * Extracts the value out of the structure, if it exists. Otherwise returns `null`.
+                                                                                      *
+                                                                                      * @example
+                                                                                      * import { some, none, toNullable } from 'fp-ts/Option'
+                                                                                      * import { pipe } from 'fp-ts/function'
+                                                                                      *
+                                                                                      * assert.strictEqual(
+                                                                                      *   pipe(
+                                                                                      *     some(1),
+                                                                                      *     toNullable
+                                                                                      *   ),
+                                                                                      *   1
+                                                                                      * )
+                                                                                      * assert.strictEqual(
+                                                                                      *   pipe(
+                                                                                      *     none,
+                                                                                      *     toNullable
+                                                                                      *   ),
+                                                                                      *   null
+                                                                                      * )
+                                                                                      *
+                                                                                      * @category conversions
+                                                                                      * @since 2.0.0
+                                                                                      */
+export let toNullable = /*#__PURE__*/match(constNull, identity); /**
+                                                                 * Extracts the value out of the structure, if it exists. Otherwise returns `undefined`.
+                                                                 *
+                                                                 * @example
+                                                                 * import { some, none, toUndefined } from 'fp-ts/Option'
+                                                                 * import { pipe } from 'fp-ts/function'
+                                                                 *
+                                                                 * assert.strictEqual(
+                                                                 *   pipe(
+                                                                 *     some(1),
+                                                                 *     toUndefined
+                                                                 *   ),
+                                                                 *   1
+                                                                 * )
+                                                                 * assert.strictEqual(
+                                                                 *   pipe(
+                                                                 *     none,
+                                                                 *     toUndefined
+                                                                 *   ),
+                                                                 *   undefined
+                                                                 * )
+                                                                 *
+                                                                 * @category conversions
+                                                                 * @since 2.0.0
+                                                                 */
+export let toUndefined = /*#__PURE__*/match(constUndefined, identity);
+export let elem = E => (a, ma) => {
+  if (ma === undefined) {
+    let elemE = elem(E);
+    return ma => elemE(a, ma);
+  }
+  return isNone(ma) ? false : E.equals(a, ma.value);
+}; /**
+   * Returns `true` if the predicate is satisfied by the wrapped value
+   *
+   * @example
+   * import { some, none, exists } from 'fp-ts/Option'
+   * import { pipe } from 'fp-ts/function'
+   *
+   * assert.strictEqual(
+   *   pipe(
+   *     some(1),
+   *     exists(n => n > 0)
+   *   ),
+   *   true
+   * )
+   * assert.strictEqual(
+   *   pipe(
+   *     some(1),
+   *     exists(n => n > 1)
+   *   ),
+   *   false
+   * )
+   * assert.strictEqual(
+   *   pipe(
+   *     none,
+   *     exists(n => n > 0)
+   *   ),
+   *   false
+   * )
+   *
+   * @since 2.0.0
+   */
+export let exists = predicate => ma => isNone(ma) ? false : predicate(ma.value); // -------------------------------------------------------------------------------------
+// do notation
+// -------------------------------------------------------------------------------------
+/**
+ * @category do notation
+ * @since 2.9.0
+ */
+export let Do = /*#__PURE__*/of(_.emptyRecord); /**
+                                                * @category do notation
+                                                * @since 2.8.0
+                                                */
+export let bindTo = /*#__PURE__*/bindTo_(Functor);
+let let_ = /*#__PURE__*/let__(Functor);
+export {
+/**
+* @category do notation
+* @since 2.13.0
+*/
+let_ as let }; /**
+               * @category do notation
+               * @since 2.8.0
+               */
+export let bind = /*#__PURE__*/chainable.bind(Chain); /**
+                                                      * @category do notation
+                                                      * @since 2.8.0
+                                                      */
+export let apS = /*#__PURE__*/apS_(Apply); /**
+                                           * @since 2.11.0
+                                           */
+export let ApT = /*#__PURE__*/of(_.emptyReadonlyArray); // -------------------------------------------------------------------------------------
+// array utils
+// -------------------------------------------------------------------------------------
+/**
+ * Equivalent to `ReadonlyNonEmptyArray#traverseWithIndex(Applicative)`.
+ *
+ * @category traversing
+ * @since 2.11.0
+ */
+export let traverseReadonlyNonEmptyArrayWithIndex = f => as => {
+  let o = f(0, _.head(as));
+  if (isNone(o)) {
+    return none;
+  }
+  let out = [o.value];
+  for (let i = 1; i < as.length; i++) {
+    let o = f(i, as[i]);
+    if (isNone(o)) {
+      return none;
+    }
+    out.push(o.value);
+  }
+  return some(out);
+}; /**
+   * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+   *
+   * @category traversing
+   * @since 2.11.0
+   */
+export let traverseReadonlyArrayWithIndex = f => {
+  let g = traverseReadonlyNonEmptyArrayWithIndex(f);
+  return as => _.isNonEmpty(as) ? g(as) : ApT;
+}; /**
+   * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
+   *
+   * @category traversing
+   * @since 2.9.0
+   */
+export let traverseArrayWithIndex = traverseReadonlyArrayWithIndex; /**
+                                                                    * Equivalent to `ReadonlyArray#traverse(Applicative)`.
+                                                                    *
+                                                                    * @category traversing
+                                                                    * @since 2.9.0
+                                                                    */
+export let traverseArray = f => traverseReadonlyArrayWithIndex((_, a) => f(a)); /**
+                                                                                * Equivalent to `ReadonlyArray#sequence(Applicative)`.
+                                                                                *
+                                                                                * @category traversing
+                                                                                * @since 2.9.0
+                                                                                */
+export let sequenceArray = /*#__PURE__*/traverseArray(identity); // -------------------------------------------------------------------------------------
+// legacy
+// -------------------------------------------------------------------------------------
+/**
+ * Alias of `flatMap`.
+ *
+ * @category legacy
+ * @since 2.0.0
+ */
+export let chain = flatMap; /**
+                            * Alias of `tap`.
+                            *
+                            * @category legacy
+                            * @since 2.0.0
+                            */
+export let chainFirst = tap; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use `Refinement` module instead.
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let getRefinement = getOption => a => isSome(getOption(a)); /**
+                                                                   * Use [`chainNullableK`](#chainnullablek) instead.
+                                                                   *
+                                                                   * @category zone of death
+                                                                   * @since 2.0.0
+                                                                   * @deprecated
+                                                                   */
+export let mapNullable = chainNullableK; /**
+                                         * This instance is deprecated, use small, specific instances instead.
+                                         * For example if a function needs a `Functor` instance, pass `O.Functor` instead of `O.option`
+                                         * (where `O` is from `import O from 'fp-ts/Option'`)
+                                         *
+                                         * @category zone of death
+                                         * @since 2.0.0
+                                         * @deprecated
+                                         */
+export let option = {
+  URI,
+  map: _map,
+  of,
+  ap: _ap,
+  chain: flatMap,
+  reduce: _reduce,
+  foldMap: _foldMap,
+  reduceRight: _reduceRight,
+  traverse: _traverse,
+  sequence,
+  zero,
+  alt: _alt,
+  extend: _extend,
+  compact,
+  separate,
+  filter: _filter,
+  filterMap: _filterMap,
+  partition: _partition,
+  partitionMap: _partitionMap,
+  wither: _wither,
+  wilt: _wilt,
+  throwError
+}; /**
+   * Use [`getApplySemigroup`](./Apply.ts.html#getapplysemigroup) instead.
+   *
+   * @category zone of death
+   * @since 2.0.0
+   * @deprecated
+   */
+export let getApplySemigroup = /*#__PURE__*/getApplySemigroup_(Apply); /**
+                                                                       * Use [`getApplicativeMonoid`](./Applicative.ts.html#getapplicativemonoid) instead.
+                                                                       *
+                                                                       * @category zone of death
+                                                                       * @since 2.0.0
+                                                                       * @deprecated
+                                                                       */
+export let getApplyMonoid = /*#__PURE__*/getApplicativeMonoid(Applicative); /**
+                                                                            * Use
+                                                                            *
+                                                                            * ```ts
+                                                                            * import { first } from 'fp-ts/Semigroup'
+                                                                            * import { getMonoid } from 'fp-ts/Option'
+                                                                            *
+                                                                            * getMonoid(first())
+                                                                            * ```
+                                                                            *
+                                                                            * instead.
+                                                                            *
+                                                                            * Monoid returning the left-most non-`None` value
+                                                                            *
+                                                                            * | x       | y       | concat(x, y) |
+                                                                            * | ------- | ------- | ------------ |
+                                                                            * | none    | none    | none         |
+                                                                            * | some(a) | none    | some(a)      |
+                                                                            * | none    | some(b) | some(b)      |
+                                                                            * | some(a) | some(b) | some(a)      |
+                                                                            *
+                                                                            * @example
+                                                                            * import { getFirstMonoid, some, none } from 'fp-ts/Option'
+                                                                            *
+                                                                            * const M = getFirstMonoid<number>()
+                                                                            * assert.deepStrictEqual(M.concat(none, none), none)
+                                                                            * assert.deepStrictEqual(M.concat(some(1), none), some(1))
+                                                                            * assert.deepStrictEqual(M.concat(none, some(2)), some(2))
+                                                                            * assert.deepStrictEqual(M.concat(some(1), some(2)), some(1))
+                                                                            *
+                                                                            * @category zone of death
+                                                                            * @since 2.0.0
+                                                                            * @deprecated
+                                                                            */
+export let getFirstMonoid = () => getMonoid(first()); /**
+                                                      * Use
+                                                      *
+                                                      * ```ts
+                                                      * import { last } from 'fp-ts/Semigroup'
+                                                      * import { getMonoid } from 'fp-ts/Option'
+                                                      *
+                                                      * getMonoid(last())
+                                                      * ```
+                                                      *
+                                                      * instead.
+                                                      *
+                                                      * Monoid returning the right-most non-`None` value
+                                                      *
+                                                      * | x       | y       | concat(x, y) |
+                                                      * | ------- | ------- | ------------ |
+                                                      * | none    | none    | none         |
+                                                      * | some(a) | none    | some(a)      |
+                                                      * | none    | some(b) | some(b)      |
+                                                      * | some(a) | some(b) | some(b)      |
+                                                      *
+                                                      * @example
+                                                      * import { getLastMonoid, some, none } from 'fp-ts/Option'
+                                                      *
+                                                      * const M = getLastMonoid<number>()
+                                                      * assert.deepStrictEqual(M.concat(none, none), none)
+                                                      * assert.deepStrictEqual(M.concat(some(1), none), some(1))
+                                                      * assert.deepStrictEqual(M.concat(none, some(2)), some(2))
+                                                      * assert.deepStrictEqual(M.concat(some(1), some(2)), some(2))
+                                                      *
+                                                      * @category zone of death
+                                                      * @since 2.0.0
+                                                      * @deprecated
+                                                      */
+export let getLastMonoid = () => getMonoid(last());
+//# sourceMappingURL=Option.js.map

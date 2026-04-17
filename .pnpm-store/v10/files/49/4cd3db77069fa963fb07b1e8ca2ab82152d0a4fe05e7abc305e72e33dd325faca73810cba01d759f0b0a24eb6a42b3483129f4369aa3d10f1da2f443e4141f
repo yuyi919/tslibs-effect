@@ -1,0 +1,43 @@
+'use strict';
+
+var x=t=>t;var h=(t,e)=>{let r=l=>l.length>=t;return function(){let l=Array.from(arguments);return r(arguments)?e.apply(this,l):p=>e(p,...l)}};var _=t=>t.length>0,y=t=>t[0];var S=[];var M=t=>e=>r=>t.ap(t.map(r,l=>()=>l),e),R=t=>e=>r=>t.ap(t.map(r,()=>l=>l),e),A=t=>(e,r)=>l=>t.ap(t.map(l,p=>o=>Object.assign({},p,{[e]:o})),r);var E=t=>(e,r)=>t.chain(e,l=>t.map(r(l),()=>l)),N=t=>(e,r)=>l=>t.chain(l,p=>t.map(r(p),o=>Object.assign({},p,{[e]:o})));var O=t=>e=>r=>t.map(r,l=>l(e)),v=t=>e=>r=>t.map(r,l=>({[e]:l})),T=t=>(e,r)=>l=>t.map(l,p=>Object.assign({},p,{[e]:r(p)}));var k=()=>t=>[t,t],tt=t=>()=>[void 0,t],et=t=>e=>[void 0,t(e)],rt=t=>e=>[t(e),e],i=(t,e)=>q(e)(t),m=(t,e)=>L(e)(t),q=t=>e=>r=>{let[l,p]=e(r);return [t(l),p]},L=t=>e=>r=>{let[l,p]=e(r),[o,a]=t(p);return [l(o),a]},c=t=>e=>[t,e],f=h(2,(t,e)=>r=>{let[l,p]=t(r);return e(l)(p)}),lt=f(x),n="State",g={URI:n,map:i},pt=O(g),ot={URI:n,of:c},d={URI:n,map:i,ap:m},nt=M(d),at=R(d),ut={URI:n,map:i,ap:m,of:c},w={URI:n,map:i,ap:m,chain:f},U={URI:n,map:i,ap:m,of:c,chain:f},W=h(2,E(w)),it={URI:n,fromState:x},st=t=>e=>e(t)[0],xt=t=>e=>e(t)[1],mt=v(g),ct=T(g);var ft=N(w),ht=A(d),P=t=>e=>r=>{let[l,p]=t(0,y(e))(r),o=[l],a=p;for(let s=1;s<e.length;s++){let[C,z]=t(s,e[s])(a);o.push(C),a=z;}return [o,a]},j=t=>{let e=P(t);return r=>_(r)?e(r):c(S)},gt=j,D=t=>j((e,r)=>t(r)),dt=D(x),_t=f,yt=W,St=(t,e)=>t(e)[0],Mt=(t,e)=>t(e)[1],Rt=U;
+
+exports.Applicative = ut;
+exports.Apply = d;
+exports.Chain = w;
+exports.FromState = it;
+exports.Functor = g;
+exports.Monad = U;
+exports.Pointed = ot;
+exports.URI = n;
+exports.ap = L;
+exports.apFirst = nt;
+exports.apS = ht;
+exports.apSecond = at;
+exports.bind = ft;
+exports.bindTo = mt;
+exports.chain = _t;
+exports.chainFirst = yt;
+exports.evalState = St;
+exports.evaluate = st;
+exports.execState = Mt;
+exports.execute = xt;
+exports.flap = pt;
+exports.flatMap = f;
+exports.flatten = lt;
+exports.get = k;
+exports.gets = rt;
+exports.let = ct;
+exports.map = q;
+exports.modify = et;
+exports.of = c;
+exports.put = tt;
+exports.sequenceArray = dt;
+exports.state = Rt;
+exports.tap = W;
+exports.traverseArray = D;
+exports.traverseArrayWithIndex = gt;
+exports.traverseReadonlyArrayWithIndex = j;
+exports.traverseReadonlyNonEmptyArrayWithIndex = P;
+//# sourceMappingURL=State.js.map
+//# sourceMappingURL=State.js.map

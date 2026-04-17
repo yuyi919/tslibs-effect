@@ -1,0 +1,17 @@
+'use strict';
+
+var l=e=>typeof e=="number",o={equals:(e,t)=>e===t},a={equals:o.equals,compare:(e,t)=>e<t?-1:e>t?1:0},u={equals:o.equals,compare:a.compare,top:1/0,bottom:-1/0},m={show:e=>JSON.stringify(e)},p={concat:(e,t)=>e-t},c={concat:(e,t)=>e+t},r={concat:(e,t)=>e*t},d={concat:c.concat,empty:0},i={concat:r.concat,empty:1},x={add:c.concat,zero:0,mul:r.concat,one:1,sub:p.concat,degree:e=>1,div:(e,t)=>e/t,mod:(e,t)=>e%t};
+
+exports.Bounded = u;
+exports.Eq = o;
+exports.Field = x;
+exports.MagmaSub = p;
+exports.MonoidProduct = i;
+exports.MonoidSum = d;
+exports.Ord = a;
+exports.SemigroupProduct = r;
+exports.SemigroupSum = c;
+exports.Show = m;
+exports.isNumber = l;
+//# sourceMappingURL=number.js.map
+//# sourceMappingURL=number.js.map

@@ -1,0 +1,230 @@
+/**
+ * @since 0.6.0
+ */ // eslint-disable-next-line max-classes-per-file
+import * as O from "fp-ts/Option";
+import * as pipeable from "fp-ts/pipeable";
+
+import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes";
+
+import * as Patterns from "../../patterns/index.js";
+import { execAt } from "./regexp.js";
+import * as SeqLike from "./SeqLike.js";
+
+export let str2seq = (arr) => (typeof arr === "string" ? arr : arr.join(""));
+// [0];
+export let seq2str = (arr) => (arr instanceof Array ? arr.join("") : arr);
+// [0];
+// -------------------------------------------------------------------------------------
+// model
+// -------------------------------------------------------------------------------------
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export class AbstractStream {
+  constructor(buffer, cursor) {
+    this.buffer = buffer;
+    this.cursor = cursor;
+  }
+  _make(buffer, cursor) {
+    let Stream = this.constructor;
+    return new Stream(buffer, cursor);
+  }
+  get _bufferLength() {
+    return this.buffer.length;
+  }
+  clone() {
+    return this._make(this.buffer, this.cursor);
+  }
+  consume(step) {
+    return this._make(this.buffer, this.cursor + step);
+  }
+  atEnd() {
+    return this.cursor >= this._bufferLength;
+  }
+}
+// eslint-disable-next-line class-methods-use-this
+export class Stream extends AbstractStream {
+  // eslint-disable-next-line class-methods-use-this
+  _getNextOffset(_, start = 0) {
+    // TODO
+    return start;
+  }
+}
+export class StringStream extends AbstractStream {
+  _getNextOffset(mode, start = this.cursor) {
+    let next = 0;
+    if (mode !== 0) {
+      let exec =
+        mode === 2
+          ? execAt(Patterns.WHITESPACE, this.buffer, start)
+          : execAt(Patterns.SPACE, this.buffer, start);
+      exec && (next = exec[0].length);
+    }
+    return next;
+  }
+}
+export let getStruct = (stream) => stream;
+export let getCursor = (stream) => stream.cursor;
+export let getBuffer = (stream) => stream.buffer;
+export let getBufferLength = (stream) => stream._bufferLength;
+export let extendBufferF = (source, f) =>
+  stream(f(source.buffer), source.cursor);
+export let mapF = (source, f) =>
+  stream(mapSeqF(source.buffer, f), source.cursor);
+export let mapSeqF = (source, f) => f(source);
+/**
+ * @category constructors
+ * @since
+ */ // -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export let stream = (a, b, c) =>
+  isStr(a) ? string(a, b) : isFn(a) ? makeF(a, b, c) : pure(a, b);
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export let makeF = (factory, buffer, cursor) => factory(buffer, cursor);
+/**
+ * @param string
+ * @param cursor
+ * @returns
+ * @category constructors
+ * @since 0.7.0
+ */
+export let string = (string, cursor = 0) => new StringStream(string, cursor);
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export let pure = (buffer, cursor = 0) => new Stream(buffer, cursor);
+export let URI = "InputStream";
+export let Foldable = {
+  URI,
+  reduce: (fa, b, f) => SeqLike.reduceF(fa.buffer, b, f),
+  foldMap: (M) => (fa, f) => SeqLike.foldMapF(M)(fa.buffer, f),
+  reduceRight: (fa, b, f) => SeqLike.reduceRightF(fa.buffer, b, f),
+  reduceWithIndex: (fa, b, f) => SeqLike.reduceWithIndexF(fa.buffer, b, f),
+  foldMapWithIndex: (M) => (fa, f) =>
+    SeqLike.foldMapWithIndexF(M)(fa.buffer, f),
+  reduceRightWithIndex: (fa, b, f) =>
+    SeqLike.reduceRightWithIndexF(fa.buffer, b, f),
+};
+export let reduce = /*#__PURE__*/ pipeable.reduce(Foldable);
+export let reduceWithIndex = /*#__PURE__*/ pipeable.reduceWithIndex(Foldable);
+export let foldMap = /*#__PURE__*/ pipeable.foldMap(Foldable);
+export let foldMapWithIndex = /*#__PURE__*/ pipeable.foldMapWithIndex(Foldable);
+export let reduceRight = /*#__PURE__*/ pipeable.reduceRight(Foldable);
+export let reduceRightWithIndex =
+  /*#__PURE__*/ pipeable.reduceRightWithIndex(Foldable);
+export let extend = (wa, f) => from(f(wa), wa.cursor);
+export let extendCursor = (source, next) =>
+  getCursor(source) === getCursor(next)
+    ? next
+    : stream(getBuffer(next), getCursor(source));
+export let Extend = {
+  URI,
+  extend,
+  map: mapF,
+};
+export let consume = (stream, length) =>
+  length === 0 ? stream.clone() : stream.consume(length);
+export { string as fromString };
+/**
+ * @param input
+ * @param cursor
+ * @returns
+ */
+export let from = (input, cursor) => stream(SeqLike.from(input), cursor);
+// -------------------------------------------------------------------------------------
+// destructors
+// -------------------------------------------------------------------------------------
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let unsafeGet = (s) => {
+  let { cursor, buffer } = s;
+  if (cursor < buffer.length) return buffer[cursor];
+  return undefined;
+};
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let get = (s) => {
+  let { cursor, buffer } = s;
+  if (cursor >= buffer.length) return O.none;
+  return O.some(buffer[cursor]);
+};
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let matchNext = (stream, match) =>
+  SeqLike.testNext(stream.buffer, match, stream.cursor);
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let isStringStream = (stream) => SeqLike.isStringSeq(stream.buffer);
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let matchNextStr = (stream, match) =>
+  SeqLike.testNextStr(stream.buffer, match, stream.cursor);
+export var ConsumeMode;
+/**
+ * Stream消费模式
+ * 下一个/忽略空格/忽略空白字符
+ */
+((ConsumeMode) => {
+  ConsumeMode[(ConsumeMode["Next"] = 0)] = "Next";
+  ConsumeMode[(ConsumeMode["IgnoreSpace"] = 1)] = "IgnoreSpace";
+  ConsumeMode[(ConsumeMode["IgnoreWhitespace"] = 2)] = "IgnoreWhitespace";
+})(ConsumeMode || (ConsumeMode = {}));
+export let ResolveSuccess = (value, next) => ({
+  _tag: "Success",
+  value,
+  next,
+});
+let RESOLVE_FAILED = {
+  _tag: "Failed",
+};
+export let isNone = (result) => result === RESOLVE_FAILED;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let getAndNext = (stream, mode) => {
+  let { cursor, buffer } = stream;
+  if (cursor >= buffer.length) return RESOLVE_FAILED;
+  let next = getNextOffset(stream, mode);
+  return next > 0
+    ? ResolveSuccess(buffer[cursor + next], consume(stream, next + 1))
+    : ResolveSuccess(buffer[cursor], consume(stream, 1));
+};
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let resolveNext = (stream, mode) => {
+  if (mode === 0) return stream;
+  if (stream.cursor >= stream._bufferLength) return stream;
+  return consume(stream, getNextOffset(stream, mode));
+};
+export let getNextOffset = (stream, mode, start) =>
+  stream._getNextOffset(mode, start);
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export let atEnd = (s) => s.atEnd();
+export let eqCursor = (a, b) => getCursor(a) === getCursor(b);
+//# sourceMappingURL=Stream.js.map

@@ -1,0 +1,7 @@
+'use strict';
+
+var l=n=>{let c=(e,a)=>()=>n.map(e(),([t,p])=>[a(t),p]);return {map:c,evalWriter:e=>n.map(e(),([a])=>a),execWriter:e=>n.map(e(),([a,t])=>t),tell:e=>()=>n.of([void 0,e]),listen:e=>()=>n.map(e(),([a,t])=>[[a,t],t]),pass:e=>()=>n.map(e(),([[a,t],p])=>[a,t(p)]),listens:(e,a)=>()=>n.map(e(),([t,p])=>[[t,a(p)],p]),censor:(e,a)=>()=>n.map(e(),([t,p])=>[t,a(p)]),getMonad:e=>({_E:void 0,map:c,of:a=>()=>n.of([a,e.empty]),ap:(a,t)=>()=>n.chain(a(),([p,r])=>n.map(t(),([m,i])=>[p(m),e.concat(r,i)])),chain:(a,t)=>()=>n.chain(a(),([p,r])=>n.map(t(p)(),([m,i])=>[m,e.concat(r,i)]))})}};
+
+exports.getWriterM = l;
+//# sourceMappingURL=WriterT.js.map
+//# sourceMappingURL=WriterT.js.map

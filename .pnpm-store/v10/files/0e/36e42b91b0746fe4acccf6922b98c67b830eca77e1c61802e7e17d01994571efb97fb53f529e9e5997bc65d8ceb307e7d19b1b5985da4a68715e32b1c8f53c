@@ -1,0 +1,57 @@
+/**
+ * @since 2.11.0
+ */import { constFalse, constTrue, flow, pipe } from "./function.js";
+let contramap_ = (predicate, f) => contramap(f)(predicate); /**
+                                                            * @since 2.11.0
+                                                            */
+export let contramap = f => predicate => flow(f, predicate); /**
+                                                             * @category type lambdas
+                                                             * @since 2.11.0
+                                                             */
+export let URI = "Predicate"; /**
+                              * @category instances
+                              * @since 2.11.0
+                              */
+export let getSemigroupAny = () => ({
+  concat: (first, second) => or(second)(first)
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getMonoidAny = () => ({
+  concat: getSemigroupAny().concat,
+  empty: constFalse
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getSemigroupAll = () => ({
+  concat: (first, second) => and(second)(first)
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getMonoidAll = () => ({
+  concat: getSemigroupAll().concat,
+  empty: constTrue
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let Contravariant = {
+  URI,
+  contramap: contramap_
+}; // -------------------------------------------------------------------------------------
+// utils
+// -------------------------------------------------------------------------------------
+/**
+ * @since 2.11.0
+ */
+export let not = predicate => a => !predicate(a); /**
+                                                  * @since 2.11.0
+                                                  */
+export let or = second => first => a => first(a) || second(a); /**
+                                                               * @since 2.11.0
+                                                               */
+export let and = second => first => a => first(a) && second(a);
+//# sourceMappingURL=Predicate.js.map

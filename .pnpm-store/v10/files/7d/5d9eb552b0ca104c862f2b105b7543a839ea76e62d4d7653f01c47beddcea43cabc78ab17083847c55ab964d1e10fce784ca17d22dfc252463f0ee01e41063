@@ -1,0 +1,17 @@
+import { expect } from "vitest"
+
+expect.extend({
+  toBeFunction(received: any, expected: any, options?: any) {
+    return {
+      pass: typeof received === "function",
+      message: () => "",
+    }
+  },
+})
+
+declare module "vitest" {
+  export interface Assertion<T> {
+    toMatchImageSnapshot(): T
+    toBeFunction(): T
+  }
+}

@@ -1,0 +1,45 @@
+import { includes } from "./Array"
+import { __KEY_UNDEFINED, UNDEFINED } from "./internal/constant"
+
+/** Detect if global `window` object is available */
+// eslint-disable-next-line unicorn/prefer-global-this
+export const hasWindow = typeof window !== __KEY_UNDEFINED
+
+/**
+ * Checks if env is Browser
+ */
+export const isBrowser = typeof location !== __KEY_UNDEFINED
+
+/**
+ * @see {@link Window} and {@link globalThis}
+ */
+const _WINDOW = hasWindow ? window : UNDEFINED
+
+/**
+ * @see {@link Document}
+ */
+export const document = _WINDOW?.document
+
+/**
+ * @see {@link Window.navigator}
+ */
+export const navigator = _WINDOW?.navigator
+
+/**
+ * @see {@link Navigator.userAgent}
+ */
+export const userAgent = navigator?.userAgent
+
+export const SAFARI = "Safari"
+export const CHROME = "Chrome"
+
+/**
+ * Check if the current browser is Safari
+ */
+export function isBrowserSafari(): boolean {
+  return (
+    !!userAgent && includes(userAgent, SAFARI) && !includes(userAgent, CHROME)
+  )
+}
+
+export { _WINDOW as window }

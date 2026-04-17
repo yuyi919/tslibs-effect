@@ -1,0 +1,8 @@
+/**
+ * @beta
+ */ // type testU = Types.String.Peaces<"ABC?D,ADA.asSASasas">;
+// type test = Types.Array.Join<testU, "|">;
+export * from "./Split";
+export * from "./Length";
+export * from "./util";
+//# sourceMappingURL=index.js.map

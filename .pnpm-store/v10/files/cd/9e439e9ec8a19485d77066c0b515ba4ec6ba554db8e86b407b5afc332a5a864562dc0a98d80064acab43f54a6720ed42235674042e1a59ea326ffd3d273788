@@ -1,0 +1,145 @@
+/**
+ * @internal
+ */
+export const __KEY_STRICT: "strict" = "strict"
+
+/**
+ * @internal
+ */
+export const __KEY_CONSTRUCTOR: "constructor" = "constructor"
+
+/**
+ * @internal
+ */
+export const __KEY_RETURN: "return" = "return"
+
+/**
+ * @internal
+ */
+export const __KEY_ARGUMENTS: "arguments" = "arguments"
+
+/**
+ * @internal
+ */
+export const __KEY_EXTEND: "extend" = "extend"
+
+/**
+ * @internal
+ */
+export const __KEY_FILTER: "filter" = "filter"
+
+/**
+ * @internal
+ */
+export const __KEY_PROPERTY: "property" = "property"
+
+/**
+ * @internal
+ */
+export const __KEY_PROTOTYPE: "prototype" = "prototype"
+
+/**
+ * @internal
+ */
+export const __KEY_NUM: "number" = "number"
+
+/**
+ * @internal
+ */
+export const __KEY_STR: "string" = "string"
+
+/**
+ * @internal
+ */
+export const __KEY_BOOL: "boolean" = "boolean"
+
+/**
+ * @internal
+ */
+export const __KEY_UNDEFINED: "undefined" = "undefined"
+
+/**
+ * @internal
+ */
+export const __KEY_NULL: "null" = "null"
+
+/**
+ * @internal
+ */
+export const __KEY_SYMBOL: "symbol" = "symbol"
+
+/**
+ * @internal
+ */
+export const __KEY_BIGINT: "bigint" = "bigint"
+
+/**
+ * @internal
+ */
+export const __KEY_FUNC: "function" = "function"
+
+/**
+ * @internal
+ */
+export const __KEY_ARR: "array" = "array"
+
+/**
+ * @internal
+ */
+export const __KEY_OBJ: "object" = "object"
+
+/**
+ * @internal
+ */
+export const __KEY_DESIGN_TYPE: "design:type" = "design:type"
+
+/**
+ * @internal
+ */
+export const __KEY_DESIGN_RETURNTYPE: "design:returntype" = "design:returntype"
+
+/**
+ * @internal
+ */
+export const __KEY_DESIGN_PARAMTYPES: "design:paramtypes" = "design:paramtypes"
+
+/**
+ * keyof PropertyDescriptor
+ * writable, configurable, value, enumerable
+ * @internal
+ */
+export const __KEY_WRITABLE = "writable",
+  /**
+   * @internal
+   */
+  __KEY_CONFIGURABLE = "configurable",
+  /**
+   * @internal
+   */
+  __KEY_VALUE = "value",
+  /**
+   * @internal
+   */
+  __KEY_ENUMERABLE = "enumerable",
+  /**
+   * @internal
+   */
+  __KEY_GET = "get",
+  /**
+   * @internal
+   */
+  __KEY_SET = "set",
+  __KEY__TAG = "_tag"
+
+/**
+ * @internal
+ */
+export const __KEY_CLASS: "class" = "class"
+
+/**
+ * @internal
+ */
+export const __KEY_CLASSNAME: "className" = (__KEY_CLASS +
+  "Name") as "className"
+
+export const __NAME_ARGUMENTS: "Arguments" = "Arguments"

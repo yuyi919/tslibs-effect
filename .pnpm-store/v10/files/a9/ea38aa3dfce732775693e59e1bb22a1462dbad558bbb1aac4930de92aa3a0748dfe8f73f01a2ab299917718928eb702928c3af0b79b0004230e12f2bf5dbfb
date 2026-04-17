@@ -1,0 +1,21 @@
+import type { Fn } from "../Types";
+import { NEA } from "./JsTypes.shim";
+import * as Monoid from "./Monoid";
+import * as Semigroup from "./Semigroup";
+declare const ListenerSybmol: unique symbol;
+export type ComplexFunction<Args extends readonly any[] = [], R = any> = {
+    (...args: Args): R;
+    readonly [ListenerSybmol]?: NEA<Fn<Args, R>>;
+};
+export type Reducer<A, R> = {
+    (a: A, r: R): R;
+    readonly [ListenerSybmol]?: NEA<(a: A, r: R) => R>;
+};
+export declare function getFunctionSemigroup<Args extends readonly any[], R>(semigroup: Semigroup.ComplexSemigroup<R> | Monoid.ComplexMonoid<R>, emptyListener?: ComplexFunction<Args, R>): Semigroup.ComplexSemigroup<ComplexFunction<Args, R>>;
+export declare function getFunctionMonoid<Args extends readonly any[], R>(monoid: Monoid.ComplexMonoid<R>, empty?: ComplexFunction<Args, R>): Monoid.ComplexMonoid<ComplexFunction<Args, R>>;
+export declare function getFunctionMonoid<Args extends readonly any[], R>(semigroup: Semigroup.ComplexSemigroup<R>, empty: ComplexFunction<Args, R>): Monoid.ComplexMonoid<ComplexFunction<Args, R>>;
+export declare function getFunctionMonoid<Args extends readonly any[]>(semigroup: Semigroup.ComplexSemigroup<void>): Monoid.ComplexMonoid<ComplexFunction<Args, void>>;
+export declare const AnyListenerMonoid: Monoid.ComplexMonoid<ComplexFunction<readonly any[], void>>;
+export declare function getListenerMonoid<Args extends readonly any[]>(): Monoid.ComplexMonoid<ComplexFunction<Args, void>>;
+export {};
+//# sourceMappingURL=Listeners.d.ts.map

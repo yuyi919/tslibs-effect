@@ -1,0 +1,16 @@
+'use strict';
+
+var m=e=>e[1];var c=e=>p=>r=>e.of([p,r]),d=e=>p=>r=>o=>e.map(r(o),([a,n])=>[p(a),n]),i=e=>p=>r=>o=>e.chain(r(o),([a,n])=>e.map(p(n),([t,l])=>[a(t),l])),u=e=>{let p=f(e);return r=>o=>p(o,r)},f=e=>(p,r)=>o=>e.chain(p(o),([a,n])=>r(a)(n)),_=e=>p=>r=>e.of(p(r)),h=e=>p=>r=>e.map(p,o=>[o,r]),s=e=>p=>r=>e.map(r(p),([o])=>o),g=e=>p=>r=>e.map(r(p),m),b=e=>{let p=i(e),r=d(e),o=u(e),a=s(e),n=g(e);return {map:(t,l)=>r(l)(t),ap:(t,l)=>p(l)(t),of:c(e),chain:(t,l)=>o(l)(t),get:()=>t=>e.of([t,t]),put:t=>()=>e.of([void 0,t]),modify:t=>l=>e.of([void 0,t(l)]),gets:t=>l=>e.of([t(l),l]),fromState:_(e),fromM:h(e),evalState:(t,l)=>a(l)(t),execState:(t,l)=>n(l)(t)}};
+
+exports.ap = i;
+exports.chain = u;
+exports.evaluate = s;
+exports.execute = g;
+exports.flatMap = f;
+exports.fromF = h;
+exports.fromState = _;
+exports.getStateM = b;
+exports.map = d;
+exports.of = c;
+//# sourceMappingURL=StateT.js.map
+//# sourceMappingURL=StateT.js.map

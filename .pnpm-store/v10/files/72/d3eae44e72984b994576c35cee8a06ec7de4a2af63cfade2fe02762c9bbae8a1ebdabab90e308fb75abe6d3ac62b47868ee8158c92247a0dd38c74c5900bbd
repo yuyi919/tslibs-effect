@@ -1,0 +1,7 @@
+'use strict';
+
+function s(e,t,r,n,o,u,l,p,i){switch(arguments.length){case 1:return e;case 2:return function(){return t(e.apply(this,arguments))};case 3:return function(){return r(t(e.apply(this,arguments)))};case 4:return function(){return n(r(t(e.apply(this,arguments))))};case 5:return function(){return o(n(r(t(e.apply(this,arguments)))))};case 6:return function(){return u(o(n(r(t(e.apply(this,arguments))))))};case 7:return function(){return l(u(o(n(r(t(e.apply(this,arguments)))))))};case 8:return function(){return p(l(u(o(n(r(t(e.apply(this,arguments))))))))};case 9:return function(){return i(p(l(u(o(n(r(t(e.apply(this,arguments)))))))))}}}var g=e=>t=>s(t,e.fromThese);
+
+exports.fromTheseK = g;
+//# sourceMappingURL=FromThese.js.map
+//# sourceMappingURL=FromThese.js.map

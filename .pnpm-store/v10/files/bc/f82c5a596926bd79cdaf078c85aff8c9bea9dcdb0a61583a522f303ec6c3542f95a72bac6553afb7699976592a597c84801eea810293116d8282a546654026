@@ -1,0 +1,162 @@
+/**
+ * @since 0.6.0
+ */
+import * as MExtend from "fp-ts/Extend";
+import * as MFoldableWithIndex from "fp-ts/FoldableWithIndex";
+import * as O from "fp-ts/Option";
+import * as SeqLike from "./SeqLike";
+export type { SeqLike } from "./SeqLike";
+export declare const str2seq: (arr: string | readonly string[]) => SeqLike.SeqLike<string>;
+export declare const seq2str: (arr: SeqLike.SeqLike<string>) => string;
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export declare abstract class AbstractStream<A> {
+    readonly buffer: SeqLike.SeqLike<A>;
+    readonly cursor: number;
+    constructor(buffer: SeqLike.SeqLike<A>, cursor: number);
+    protected _make(buffer: SeqLike.SeqLike<A>, cursor: number): IStream<A>;
+    get _bufferLength(): number;
+    clone(): IStream<A>;
+    consume(step: number): IStream<A>;
+    atEnd(): boolean;
+    abstract _getNextOffset(mode: ConsumeMode, start?: number): number;
+}
+export interface IStream<A> extends AbstractStream<A> {
+}
+export declare class Stream<A> extends AbstractStream<A> {
+    _getNextOffset(_: ConsumeMode, start?: number): number;
+}
+export declare class StringStream extends AbstractStream<string> {
+    _getNextOffset(mode: ConsumeMode, start?: number): number;
+}
+export declare const getStruct: <A>(stream: IStream<A>) => NonNullable<IStream<A>>;
+export declare const getCursor: <I>(stream: IStream<I>) => number;
+export declare const getBuffer: <A>(stream: IStream<A>) => SeqLike.SeqLike<A>;
+export declare const getBufferLength: <A>(stream: IStream<A>) => number;
+export declare const extendBufferF: <A, B>(source: IStream<A>, f: (a: SeqLike.SeqLike<A>) => SeqLike.SeqLike<B>) => IStream<B>;
+export declare const mapF: <A, B>(source: IStream<A>, f: (a: A) => B) => IStream<B>;
+export declare const mapSeqF: <A, B>(source: SeqLike.SeqLike<A>, f: (a: A) => B) => SeqLike.SeqLike<B>;
+/**
+ * @category constructors
+ * @since
+ */
+export type StreamFactory<A> = (buffer: SeqLike.SeqLike<A>, cursor?: number) => IStream<A>;
+/**
+ * @category constructors
+ * @since 0.6.0
+ */
+export declare const stream: {
+    <A>(factory: StreamFactory<A>, buffer: SeqLike.SeqLike<A>, cursor?: number): IStream<A>;
+    <A>(buffer: SeqLike.SeqLike<A>, cursor?: number): IStream<A>;
+};
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export declare const makeF: <A>(factory: StreamFactory<A>, buffer: SeqLike.SeqLike<A>, cursor?: number) => IStream<A>;
+/**
+ * @param string
+ * @param cursor
+ * @returns
+ * @category constructors
+ * @since 0.7.0
+ */
+export declare const string: (string: string, cursor?: number) => StringStream;
+/**
+ * @category constructors
+ * @since 0.7.0
+ */
+export declare const pure: {
+    <A>(buffer: SeqLike.SeqLike<A>, cursor?: number): IStream<A>;
+};
+export declare const URI = "InputStream";
+export type URI = "InputStream";
+declare module "fp-ts/HKT" {
+    interface URItoKind<A> {
+        [URI]: IStream<A>;
+    }
+}
+export declare const Foldable: MFoldableWithIndex.FoldableWithIndex1<URI, number>;
+export declare const reduce: <A, B>(b: B, f: (b: B, a: A) => B) => (fa: IStream<A>) => B;
+export declare const reduceWithIndex: <A, B>(b: B, f: (i: number, b: B, a: A) => B) => (fa: IStream<A>) => B;
+export declare const foldMap: <M_1>(M: import("fp-ts/Monoid").Monoid<M_1>) => <A>(f: (a: A) => M_1) => (fa: IStream<A>) => M_1;
+export declare const foldMapWithIndex: <M_1>(M: import("fp-ts/Monoid").Monoid<M_1>) => <A>(f: (i: number, a: A) => M_1) => (fa: IStream<A>) => M_1;
+export declare const reduceRight: <A, B>(b: B, f: (a: A, b: B) => B) => (fa: IStream<A>) => B;
+export declare const reduceRightWithIndex: <A, B>(b: B, f: (i: number, a: A, b: B) => B) => (fa: IStream<A>) => B;
+export declare const extend: <A, B>(wa: IStream<A>, f: (wa: IStream<A>) => B) => IStream<B>;
+export declare const extendCursor: <A, B>(source: IStream<A>, next: IStream<B>) => IStream<B>;
+export declare const Extend: MExtend.Extend1<URI>;
+export declare const consume: <A>(stream: IStream<A>, length: number) => IStream<A>;
+export { string as fromString };
+/**
+ * @param input
+ * @param cursor
+ * @returns
+ */
+export declare const from: <A = any>(input: A | SeqLike.SeqLike<A>, cursor?: number) => IStream<A>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const unsafeGet: <A>(stream: IStream<A>) => A | undefined;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const get: <A>(s: IStream<A>) => O.Option<A>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const matchNext: <A>(stream: IStream<A>, match: SeqLike.SeqLike<A>) => boolean;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const isStringStream: (stream: IStream<any>) => stream is IStream<string>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const matchNextStr: (stream: IStream<string>, match: SeqLike.SeqLike<string>) => boolean;
+/**
+ * Stream消费模式
+ * 下一个/忽略空格/忽略空白字符
+ */
+export declare const enum ConsumeMode {
+    Next = 0,
+    IgnoreSpace = 1,
+    IgnoreWhitespace = 2
+}
+export declare const ResolveSuccess: <A>(value: A, next: IStream<A>) => ResolveResult<A>;
+export type ResolveFailed = {
+    _tag: "Failed";
+};
+export type ResolveSuccess<A> = {
+    _tag: "Success";
+    value: A;
+    next: IStream<A>;
+};
+export type ResolveResult<A> = ResolveSuccess<A> | ResolveFailed;
+export declare const isNone: <A>(result: ResolveResult<A>) => result is ResolveFailed;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const getAndNext: <A>(stream: IStream<A>, mode: ConsumeMode) => ResolveResult<A> | ResolveResult<never>;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const resolveNext: <A>(stream: IStream<A>, mode: ConsumeMode) => IStream<A>;
+export declare const getNextOffset: <A>(stream: IStream<A>, mode: ConsumeMode, start?: number) => number;
+/**
+ * @category destructors
+ * @since 0.6.0
+ */
+export declare const atEnd: <A>(stream: IStream<A>) => boolean;
+export declare const eqCursor: <A>(a: IStream<A>, b: IStream<A>) => boolean;
+export { type IStream as t };
+//# sourceMappingURL=Stream.d.ts.map

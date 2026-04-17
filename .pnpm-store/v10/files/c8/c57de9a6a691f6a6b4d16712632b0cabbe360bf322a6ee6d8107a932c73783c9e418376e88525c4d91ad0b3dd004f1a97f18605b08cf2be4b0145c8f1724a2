@@ -1,0 +1,388 @@
+// src/lib/atomic/consts.ts
+var NULL = null;
+var UNDEFINED = void 0;
+var VOID = UNDEFINED;
+var NEVER = UNDEFINED;
+
+// src/lib/atomic/keys.ts
+var __KEY_STRICT = "strict";
+var __KEY_CONSTRUCTOR = "constructor";
+var __KEY_RETURN = "return";
+var __KEY_ARGUMENTS = "arguments";
+var __KEY_EXTEND = "extend";
+var __KEY_FILTER = "filter";
+var __KEY_PROPERTY = "property";
+var __KEY_PROTOTYPE = "prototype";
+var __KEY_NUM = "number";
+var __KEY_STR = "string";
+var __KEY_BOOL = "boolean";
+var __KEY_UNDEFINED = "undefined";
+var __KEY_NULL = "null";
+var __KEY_SYMBOL = "symbol";
+var __KEY_BIGINT = "bigint";
+var __KEY_FUNC = "function";
+var __KEY_ARR = "array";
+var __KEY_OBJ = "object";
+var __KEY_DESIGN_TYPE = "design:type";
+var __KEY_DESIGN_RETURNTYPE = "design:returntype";
+var __KEY_DESIGN_PARAMTYPES = "design:paramtypes";
+var __KEY_WRITABLE = "writable",
+  __KEY_CONFIGURABLE = "configurable",
+  __KEY_VALUE = "value",
+  __KEY_ENUMERABLE = "enumerable",
+  __KEY_GET = "get",
+  __KEY_SET = "set",
+  __KEY__TAG = "_tag";
+var __KEY_CLASS = "class";
+var __KEY_CLASSNAME = __KEY_CLASS + "Name";
+var __NAME_ARGUMENTS = "Arguments";
+
+// src/lib/atomic/generated.ts
+var _makeObjTag = (name2) => `[${__KEY_OBJ} ${name2}]`;
+var name = (target) => target.name;
+var NUMBER = Number;
+var __NAME_NUMBER = /*#__PURE__*/ name(NUMBER);
+var __OBJECTTAG_NUMBER = /*#__PURE__*/ _makeObjTag(__NAME_NUMBER);
+var STRING = String;
+var __NAME_STRING = /*#__PURE__*/ name(STRING);
+var __OBJECTTAG_STRING = /*#__PURE__*/ _makeObjTag(__NAME_STRING);
+var BOOLEAN = Boolean;
+var __NAME_BOOLEAN = /*#__PURE__*/ name(BOOLEAN);
+var __OBJECTTAG_BOOLEAN = /*#__PURE__*/ _makeObjTag(__NAME_BOOLEAN);
+var REGEXP = RegExp;
+var __NAME_REGEXP = /*#__PURE__*/ name(REGEXP);
+var __OBJECTTAG_REGEXP = /*#__PURE__*/ _makeObjTag(__NAME_REGEXP);
+var OBJECT = Object;
+var __NAME_OBJECT = /*#__PURE__*/ name(OBJECT);
+var __OBJECTTAG_OBJECT = /*#__PURE__*/ _makeObjTag(__NAME_OBJECT);
+var BIGINT = BigInt;
+var __NAME_BIGINT = /*#__PURE__*/ name(BIGINT);
+var __OBJECTTAG_BIGINT = /*#__PURE__*/ _makeObjTag(__NAME_BIGINT);
+var FUNCTION = Function;
+var __NAME_FUNCTION = /*#__PURE__*/ name(FUNCTION);
+var __OBJECTTAG_FUNCTION = /*#__PURE__*/ _makeObjTag(__NAME_FUNCTION);
+var ARRAY = Array;
+var __NAME_ARRAY = /*#__PURE__*/ name(ARRAY);
+var __OBJECTTAG_ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_ARRAY);
+var MAP = Map;
+var __NAME_MAP = /*#__PURE__*/ name(MAP);
+var __OBJECTTAG_MAP = /*#__PURE__*/ _makeObjTag(__NAME_MAP);
+var SET = Set;
+var __NAME_SET = /*#__PURE__*/ name(SET);
+var __OBJECTTAG_SET = /*#__PURE__*/ _makeObjTag(__NAME_SET);
+var SYMBOL = Symbol;
+var __NAME_SYMBOL = /*#__PURE__*/ name(SYMBOL);
+var __OBJECTTAG_SYMBOL = /*#__PURE__*/ _makeObjTag(__NAME_SYMBOL);
+var ARRAYBUFFER = ArrayBuffer;
+var __NAME_ARRAYBUFFER = /*#__PURE__*/ name(ARRAYBUFFER);
+var __OBJECTTAG_ARRAYBUFFER = /*#__PURE__*/ _makeObjTag(__NAME_ARRAYBUFFER);
+var DATAVIEW = DataView;
+var __NAME_DATAVIEW = /*#__PURE__*/ name(DATAVIEW);
+var __OBJECTTAG_DATAVIEW = /*#__PURE__*/ _makeObjTag(__NAME_DATAVIEW);
+var DATE = Date;
+var __NAME_DATE = /*#__PURE__*/ name(DATE);
+var __OBJECTTAG_DATE = /*#__PURE__*/ _makeObjTag(__NAME_DATE);
+var WEAKSET = WeakSet;
+var __NAME_WEAKSET = /*#__PURE__*/ name(WEAKSET);
+var __OBJECTTAG_WEAKSET = /*#__PURE__*/ _makeObjTag(__NAME_WEAKSET);
+var WEAKMAP = WeakMap;
+var __NAME_WEAKMAP = /*#__PURE__*/ name(WEAKMAP);
+var __OBJECTTAG_WEAKMAP = /*#__PURE__*/ _makeObjTag(__NAME_WEAKMAP);
+var WEAKREF = WeakRef;
+var __NAME_WEAKREF = /*#__PURE__*/ name(WEAKREF);
+var __OBJECTTAG_WEAKREF = /*#__PURE__*/ _makeObjTag(__NAME_WEAKREF);
+var ERROR = Error;
+var __NAME_ERROR = /*#__PURE__*/ name(ERROR);
+var __OBJECTTAG_ERROR = /*#__PURE__*/ _makeObjTag(__NAME_ERROR);
+var UINT8ARRAY = Uint8Array;
+var __NAME_UINT8ARRAY = /*#__PURE__*/ name(UINT8ARRAY);
+var __OBJECTTAG_UINT8ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_UINT8ARRAY);
+var UINT8CLAMPEDARRAY = Uint8ClampedArray;
+var __NAME_UINT8CLAMPEDARRAY = /*#__PURE__*/ name(UINT8CLAMPEDARRAY);
+var __OBJECTTAG_UINT8CLAMPEDARRAY = /*#__PURE__*/ _makeObjTag(
+  __NAME_UINT8CLAMPEDARRAY,
+);
+var UINT16ARRAY = Uint16Array;
+var __NAME_UINT16ARRAY = /*#__PURE__*/ name(UINT16ARRAY);
+var __OBJECTTAG_UINT16ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_UINT16ARRAY);
+var UINT32ARRAY = Uint32Array;
+var __NAME_UINT32ARRAY = /*#__PURE__*/ name(UINT32ARRAY);
+var __OBJECTTAG_UINT32ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_UINT32ARRAY);
+var INT8ARRAY = Int8Array;
+var __NAME_INT8ARRAY = /*#__PURE__*/ name(INT8ARRAY);
+var __OBJECTTAG_INT8ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_INT8ARRAY);
+var INT16ARRAY = Int16Array;
+var __NAME_INT16ARRAY = /*#__PURE__*/ name(INT16ARRAY);
+var __OBJECTTAG_INT16ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_INT16ARRAY);
+var INT32ARRAY = Int32Array;
+var __NAME_INT32ARRAY = /*#__PURE__*/ name(INT32ARRAY);
+var __OBJECTTAG_INT32ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_INT32ARRAY);
+var BIGUINT64ARRAY = BigUint64Array;
+var __NAME_BIGUINT64ARRAY = /*#__PURE__*/ name(BIGUINT64ARRAY);
+var __OBJECTTAG_BIGUINT64ARRAY = /*#__PURE__*/ _makeObjTag(
+  __NAME_BIGUINT64ARRAY,
+);
+var BIGINT64ARRAY = BigInt64Array;
+var __NAME_BIGINT64ARRAY = /*#__PURE__*/ name(BIGINT64ARRAY);
+var __OBJECTTAG_BIGINT64ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_BIGINT64ARRAY);
+var FLOAT32ARRAY = Float32Array;
+var __NAME_FLOAT32ARRAY = /*#__PURE__*/ name(FLOAT32ARRAY);
+var __OBJECTTAG_FLOAT32ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_FLOAT32ARRAY);
+var FLOAT64ARRAY = Float64Array;
+var __NAME_FLOAT64ARRAY = /*#__PURE__*/ name(FLOAT64ARRAY);
+var __OBJECTTAG_FLOAT64ARRAY = /*#__PURE__*/ _makeObjTag(__NAME_FLOAT64ARRAY);
+
+// src/lib/atomic/additional.ts
+var OBJECT_PROPOTYPE = OBJECT[__KEY_PROTOTYPE];
+var ARRAY_PROPOTYPE = ARRAY[__KEY_PROTOTYPE];
+var MAX_SAFE_INTEGER = NUMBER.MAX_SAFE_INTEGER;
+var MIN_SAFE_INTEGER = NUMBER.MIN_SAFE_INTEGER;
+var INFINITY = Infinity;
+var SYMBOL_DISPOSE = SYMBOL.dispose;
+var SYMBOL_ASYNC_DISPOSE = SYMBOL.asyncDispose;
+var BUFFER = typeof Buffer !== __KEY_UNDEFINED ? Buffer : UNDEFINED;
+var __NAME_BUFFER = "Buffer";
+var WINDOW = typeof window !== __KEY_UNDEFINED ? window : UNDEFINED;
+
+// src/lib/atomic/function.ts
+var ENTRIES = OBJECT.entries;
+var OBJECT_IS = OBJECT.is;
+var IS_ARR = ARRAY.isArray;
+var CALLER = FUNCTION.call;
+var PARSE_FLOAT = parseFloat;
+var PARSE_INT = parseInt;
+var OBJ_KEYS = OBJECT.keys;
+var OBJ_FREEZE = OBJECT.freeze;
+var OBJ_SEAL = OBJECT.seal;
+var OBJ_CREATE = OBJECT.create;
+var OBJ_ASSIGN = OBJECT.assign;
+var OBJ_getOwnPropertyDescriptors$ = OBJECT.getOwnPropertyDescriptors;
+var OBJ_defineProperty$ = OBJECT.defineProperty;
+var OBJ_defineProperties$ = OBJECT.defineProperties;
+var OBJ_getPrototypeOf$ = OBJECT.getPrototypeOf;
+var OBJ_setPrototypeOf$ = OBJECT.setPrototypeOf;
+var OBJ_getOwnPropertyDescriptor$ = OBJECT.getOwnPropertyDescriptor;
+var OBJ_getOwnPropertyNames$ = OBJECT.getOwnPropertyNames;
+var OBJ_getOwnPropertySymbols$ = OBJECT.getOwnPropertySymbols;
+var PROMISE = Promise;
+var CREATE_NEW = Reflect.construct;
+var RESOLVE = PROMISE.resolve;
+var ALL = PROMISE.all;
+var NOOP = () => {};
+var CAST = (target) => target;
+var OBJECT_HAS_OWNPROPERTY = OBJECT_PROPOTYPE.hasOwnProperty;
+var OBJECT_HAS_OWN = OBJECT.hasOwn;
+var ARRAY_FROM = ARRAY.from;
+let BIND_NULL = (f) => f?.bind(NULL); // src/lib/atomic/constructor.ts
+var GLOBAL_THIS = globalThis;
+var __requestIdleCallback = /*#__PURE__*/ BIND_NULL(
+  GLOBAL_THIS.requestIdleCallback,
+);
+var __cancelIdleCallback = /*#__PURE__*/ BIND_NULL(
+  GLOBAL_THIS.cancelIdleCallback,
+);
+var __requestAnimationFrame = /*#__PURE__*/ BIND_NULL(
+  GLOBAL_THIS.requestAnimationFrame,
+);
+var __cancelAnimationFrame = /*#__PURE__*/ BIND_NULL(
+  GLOBAL_THIS.cancelAnimationFrame,
+);
+var SET_TIMEOUT = /*#__PURE__*/ BIND_NULL(setTimeout);
+var SET_INTERVAL = /*#__PURE__*/ BIND_NULL(setInterval);
+var CLEAR_TIMEOUT = /*#__PURE__*/ BIND_NULL(clearTimeout);
+var CLEAR_INTERVAL = /*#__PURE__*/ BIND_NULL(clearInterval);
+
+// src/lib/atomic/empty.ts
+var EMPTY_OBJECT = /* @__PURE__ */ OBJ_SEAL(/*#__PURE__*/ OBJ_CREATE(NULL));
+var EmptyObject = /* @__PURE__ */ OBJ_SEAL({});
+var EmptyArray = /* @__PURE__ */ OBJ_SEAL([]);
+
+// src/lib/errors.ts
+var ERRORS_TypeError = TypeError;
+var ERRORS_EvalError = EvalError;
+var ERRORS_RangeError = RangeError;
+var ERRORS_SyntaxError = SyntaxError;
+var ERRORS_ReferenceError = ReferenceError;
+export {
+  ALL,
+  ARRAY,
+  ARRAYBUFFER,
+  ARRAY_FROM,
+  ARRAY_PROPOTYPE,
+  BIGINT,
+  BIGINT64ARRAY,
+  BIGUINT64ARRAY,
+  BIND_NULL,
+  BOOLEAN,
+  BUFFER,
+  CALLER,
+  CAST,
+  CLEAR_INTERVAL,
+  CLEAR_TIMEOUT,
+  CREATE_NEW,
+  DATAVIEW,
+  DATE,
+  EMPTY_OBJECT,
+  ENTRIES,
+  ERROR,
+  ERRORS_EvalError,
+  ERRORS_RangeError,
+  ERRORS_ReferenceError,
+  ERRORS_SyntaxError,
+  ERRORS_TypeError,
+  EmptyArray,
+  EmptyObject,
+  FLOAT32ARRAY,
+  FLOAT64ARRAY,
+  FUNCTION,
+  GLOBAL_THIS,
+  INFINITY,
+  INT16ARRAY,
+  INT32ARRAY,
+  INT8ARRAY,
+  IS_ARR,
+  MAP,
+  MAX_SAFE_INTEGER,
+  MIN_SAFE_INTEGER,
+  NEVER,
+  NOOP,
+  NULL,
+  NUMBER,
+  OBJECT,
+  OBJECT_HAS_OWN,
+  OBJECT_HAS_OWNPROPERTY,
+  OBJECT_IS,
+  OBJECT_PROPOTYPE,
+  OBJ_ASSIGN,
+  OBJ_CREATE,
+  OBJ_FREEZE,
+  OBJ_KEYS,
+  OBJ_SEAL,
+  OBJ_defineProperties$,
+  OBJ_defineProperty$,
+  OBJ_getOwnPropertyDescriptor$,
+  OBJ_getOwnPropertyDescriptors$,
+  OBJ_getOwnPropertyNames$,
+  OBJ_getOwnPropertySymbols$,
+  OBJ_getPrototypeOf$,
+  OBJ_setPrototypeOf$,
+  PARSE_FLOAT,
+  PARSE_INT,
+  PROMISE,
+  REGEXP,
+  RESOLVE,
+  SET,
+  SET_INTERVAL,
+  SET_TIMEOUT,
+  STRING,
+  SYMBOL,
+  SYMBOL_ASYNC_DISPOSE,
+  SYMBOL_DISPOSE,
+  UINT16ARRAY,
+  UINT32ARRAY,
+  UINT8ARRAY,
+  UINT8CLAMPEDARRAY,
+  UNDEFINED,
+  VOID,
+  WEAKMAP,
+  WEAKREF,
+  WEAKSET,
+  WINDOW,
+  __KEY_ARGUMENTS,
+  __KEY_ARR,
+  __KEY_BIGINT,
+  __KEY_BOOL,
+  __KEY_CLASS,
+  __KEY_CLASSNAME,
+  __KEY_CONFIGURABLE,
+  __KEY_CONSTRUCTOR,
+  __KEY_DESIGN_PARAMTYPES,
+  __KEY_DESIGN_RETURNTYPE,
+  __KEY_DESIGN_TYPE,
+  __KEY_ENUMERABLE,
+  __KEY_EXTEND,
+  __KEY_FILTER,
+  __KEY_FUNC,
+  __KEY_GET,
+  __KEY_NULL,
+  __KEY_NUM,
+  __KEY_OBJ,
+  __KEY_PROPERTY,
+  __KEY_PROTOTYPE,
+  __KEY_RETURN,
+  __KEY_SET,
+  __KEY_STR,
+  __KEY_STRICT,
+  __KEY_SYMBOL,
+  __KEY_UNDEFINED,
+  __KEY_VALUE,
+  __KEY_WRITABLE,
+  __KEY__TAG,
+  __NAME_ARGUMENTS,
+  __NAME_ARRAY,
+  __NAME_ARRAYBUFFER,
+  __NAME_BIGINT,
+  __NAME_BIGINT64ARRAY,
+  __NAME_BIGUINT64ARRAY,
+  __NAME_BOOLEAN,
+  __NAME_BUFFER,
+  __NAME_DATAVIEW,
+  __NAME_DATE,
+  __NAME_ERROR,
+  __NAME_FLOAT32ARRAY,
+  __NAME_FLOAT64ARRAY,
+  __NAME_FUNCTION,
+  __NAME_INT16ARRAY,
+  __NAME_INT32ARRAY,
+  __NAME_INT8ARRAY,
+  __NAME_MAP,
+  __NAME_NUMBER,
+  __NAME_OBJECT,
+  __NAME_REGEXP,
+  __NAME_SET,
+  __NAME_STRING,
+  __NAME_SYMBOL,
+  __NAME_UINT16ARRAY,
+  __NAME_UINT32ARRAY,
+  __NAME_UINT8ARRAY,
+  __NAME_UINT8CLAMPEDARRAY,
+  __NAME_WEAKMAP,
+  __NAME_WEAKREF,
+  __NAME_WEAKSET,
+  __OBJECTTAG_ARRAY,
+  __OBJECTTAG_ARRAYBUFFER,
+  __OBJECTTAG_BIGINT,
+  __OBJECTTAG_BIGINT64ARRAY,
+  __OBJECTTAG_BIGUINT64ARRAY,
+  __OBJECTTAG_BOOLEAN,
+  __OBJECTTAG_DATAVIEW,
+  __OBJECTTAG_DATE,
+  __OBJECTTAG_ERROR,
+  __OBJECTTAG_FLOAT32ARRAY,
+  __OBJECTTAG_FLOAT64ARRAY,
+  __OBJECTTAG_FUNCTION,
+  __OBJECTTAG_INT16ARRAY,
+  __OBJECTTAG_INT32ARRAY,
+  __OBJECTTAG_INT8ARRAY,
+  __OBJECTTAG_MAP,
+  __OBJECTTAG_NUMBER,
+  __OBJECTTAG_OBJECT,
+  __OBJECTTAG_REGEXP,
+  __OBJECTTAG_SET,
+  __OBJECTTAG_STRING,
+  __OBJECTTAG_SYMBOL,
+  __OBJECTTAG_UINT16ARRAY,
+  __OBJECTTAG_UINT32ARRAY,
+  __OBJECTTAG_UINT8ARRAY,
+  __OBJECTTAG_UINT8CLAMPEDARRAY,
+  __OBJECTTAG_WEAKMAP,
+  __OBJECTTAG_WEAKREF,
+  __OBJECTTAG_WEAKSET,
+  __cancelAnimationFrame,
+  __cancelIdleCallback,
+  __requestAnimationFrame,
+  __requestIdleCallback,
+  _makeObjTag,
+  name,
+};
+//# sourceMappingURL=index.js.map

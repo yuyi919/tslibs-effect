@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/FromState.js",
+  "module": "../dist/esm/FromState.js",
+  "types": "../dist/esm/FromState.d.ts",
+  "sideEffects": []
+}

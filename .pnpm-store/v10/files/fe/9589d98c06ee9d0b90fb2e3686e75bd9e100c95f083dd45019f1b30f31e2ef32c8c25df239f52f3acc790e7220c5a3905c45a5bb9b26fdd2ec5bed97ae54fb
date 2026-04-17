@@ -1,0 +1,339 @@
+/**
+ * @since 2.0.0
+ */import { identity } from "./function.js";
+import * as RS from "./ReadonlySet.js";
+import { separated } from "./Separated.js"; /**
+                                            * @category instances
+                                            * @since 2.0.0
+                                            */
+export let getShow = RS.getShow; /**
+                                 * @category instances
+                                 * @since 2.0.0
+                                 */
+export let getEq = RS.getEq; /**
+                             * `map` can be used to turn functions `(a: A) => B` into functions `(fa: F<A>) => F<B>` whose argument and return types
+                             * use the type constructor `F` to represent some computational context.
+                             *
+                             * @since 2.0.0
+                             */
+export let map = E => {
+  let elemE = elem(E);
+  return f => set => {
+    let r = new Set();
+    set.forEach(e => {
+      let v = f(e);
+      if (!elemE(v, r)) {
+        r.add(v);
+      }
+    });
+    return r;
+  };
+}; /**
+   * Composes computations in sequence, using the return value of one computation to determine the next computation.
+   *
+   * @since 2.0.0
+   */
+export let chain = E => {
+  let elemE = elem(E);
+  return f => set => {
+    let r = new Set();
+    set.forEach(e => {
+      f(e).forEach(e => {
+        if (!elemE(e, r)) {
+          r.add(e);
+        }
+      });
+    });
+    return r;
+  };
+};
+export let filter = predicate => set => {
+  let values = set.values();
+  let e;
+  let r = new Set();
+  while (!(e = values.next()).done) {
+    let a = e.value;
+    if (predicate(a)) {
+      r.add(a);
+    }
+  }
+  return r;
+};
+export let partition = predicate => set => {
+  let values = set.values();
+  let e;
+  let right = new Set();
+  let left = new Set();
+  while (!(e = values.next()).done) {
+    let a = e.value;
+    if (predicate(a)) {
+      right.add(a);
+    } else {
+      left.add(a);
+    }
+  }
+  return separated(left, right);
+};
+export let union = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let unionE = union(E);
+      return that => unionE(me, that);
+    }
+    if (isEmpty(me)) {
+      return that;
+    }
+    if (isEmpty(that)) {
+      return me;
+    }
+    let r = new Set(me);
+    that.forEach(e => {
+      if (!elemE(e, r)) {
+        r.add(e);
+      }
+    });
+    return r;
+  };
+};
+export let intersection = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let intersectionE = intersection(E);
+      return that => intersectionE(that, me);
+    }
+    if (isEmpty(me) || isEmpty(that)) {
+      return new Set();
+    }
+    let r = new Set();
+    me.forEach(e => {
+      if (elemE(e, that)) {
+        r.add(e);
+      }
+    });
+    return r;
+  };
+}; /**
+   * @since 2.0.0
+   */
+export let partitionMap = (EB, EC) => f => set => {
+  let values = set.values();
+  let e;
+  let left = new Set();
+  let right = new Set();
+  let hasB = elem(EB);
+  let hasC = elem(EC);
+  while (!(e = values.next()).done) {
+    let v = f(e.value);
+    switch (v._tag) {
+      case "Left":
+        if (!hasB(v.left, left)) {
+          left.add(v.left);
+        }
+        break;
+      case "Right":
+        if (!hasC(v.right, right)) {
+          right.add(v.right);
+        }
+        break;
+    }
+  }
+  return separated(left, right);
+};
+export let difference = E => {
+  let elemE = elem(E);
+  return (me, that) => {
+    if (that === undefined) {
+      let differenceE = difference(E);
+      return that => differenceE(that, me);
+    }
+    return filter(a => !elemE(a, that))(me);
+  };
+}; /**
+   * @category instances
+   * @since 2.11.0
+   */
+export let getUnionSemigroup = E => ({
+  concat: union(E)
+}); /**
+    * @category instances
+    * @since 2.0.0
+    */
+export let getUnionMonoid = E => ({
+  concat: getUnionSemigroup(E).concat,
+  empty: new Set()
+}); /**
+    * @category instances
+    * @since 2.0.0
+    */
+export let getIntersectionSemigroup = E => ({
+  concat: intersection(E)
+}); /**
+    * @category instances
+    * @since 2.11.0
+    */
+export let getDifferenceMagma = E => ({
+  concat: difference(E)
+}); /**
+    * @category folding
+    * @since 2.0.0
+    */
+export let reduce = RS.reduce; /**
+                               * @category folding
+                               * @since 2.0.0
+                               */
+export let foldMap = RS.foldMap; /**
+                                 * @category folding
+                                 * @since 2.11.0
+                                 */
+export let reduceRight = RS.reduceRight; /**
+                                         * Create a set with one element
+                                         *
+                                         * @category constructors
+                                         * @since 2.0.0
+                                         */
+export let singleton = a => new Set([a]); /**
+                                          * Insert a value into a set
+                                          *
+                                          * @since 2.0.0
+                                          */
+export let insert = E => {
+  let elemE = elem(E);
+  return a => set => {
+    if (!elemE(a)(set)) {
+      let r = new Set(set);
+      r.add(a);
+      return r;
+    } else {
+      return set;
+    }
+  };
+}; /**
+   * Delete a value from a set
+   *
+   * @since 2.0.0
+   */
+export let remove = E => a => set => filter(ax => !E.equals(a, ax))(set); /**
+                                                                          * Checks an element is a member of a set;
+                                                                          * If yes, removes the value from the set
+                                                                          * If no, inserts the value to the set
+                                                                          *
+                                                                          * @since 2.5.0
+                                                                          */
+export let toggle = E => {
+  let elemE = elem(E);
+  let removeE = remove(E);
+  let insertE = insert(E);
+  return a => set => (elemE(a, set) ? removeE : insertE)(a)(set);
+}; /**
+   * Create a set from an array
+   *
+   * @category conversions
+   * @since 2.0.0
+   */
+export let fromArray = E => as => {
+  let len = as.length;
+  let out = new Set();
+  let has = elem(E);
+  for (let i = 0; i < len; i++) {
+    let a = as[i];
+    if (!has(a, out)) {
+      out.add(a);
+    }
+  }
+  return out;
+}; /**
+   * @since 2.0.0
+   */
+export let compact = E => filterMap(E)(identity); /**
+                                                  * @since 2.0.0
+                                                  */
+export let separate = (EE, EA) => fa => {
+  let elemEE = elem(EE);
+  let elemEA = elem(EA);
+  let left = new Set();
+  let right = new Set();
+  fa.forEach(e => {
+    switch (e._tag) {
+      case "Left":
+        if (!elemEE(e.left, left)) {
+          left.add(e.left);
+        }
+        break;
+      case "Right":
+        if (!elemEA(e.right, right)) {
+          right.add(e.right);
+        }
+        break;
+    }
+  });
+  return separated(left, right);
+}; /**
+   * @since 2.0.0
+   */
+export let filterMap = E => {
+  let elemE = elem(E);
+  return f => fa => {
+    let r = new Set();
+    fa.forEach(a => {
+      let ob = f(a);
+      if (ob._tag === "Some" && !elemE(ob.value, r)) {
+        r.add(ob.value);
+      }
+    });
+    return r;
+  };
+}; // -------------------------------------------------------------------------------------
+// utils
+// -------------------------------------------------------------------------------------
+/**
+ * @since 2.0.0
+ */
+export let empty = /*#__PURE__*/new Set(); /**
+                                           * Test whether a `Set` is empty.
+                                           *
+                                           * @since 2.10.0
+                                           */
+export let isEmpty = set => set.size === 0; /**
+                                            * Calculate the number of elements in a `Set`.
+                                            *
+                                            * @since 2.10.0
+                                            */
+export let size = set => set.size; /**
+                                   * @since 2.0.0
+                                   */
+export let some = RS.some; /**
+                           * @since 2.0.0
+                           */
+export let every = RS.every; /**
+                             * @since 2.10.0
+                             */
+export let isSubset = RS.isSubset; // TODO: remove non-curried overloading in v3
+/**
+ * Test if a value is a member of a set
+ *
+ * @since 2.0.0
+ */
+export let elem = RS.elem; /**
+                           * Get a sorted `Array` of the values contained in a `Set`.
+                           *
+                           * @category conversions
+                           * @since 2.0.0
+                           */
+export let toArray = O => set => {
+  let out = [];
+  set.forEach(e => out.push(e));
+  return out.sort(O.compare);
+}; // -------------------------------------------------------------------------------------
+// deprecated
+// -------------------------------------------------------------------------------------
+/**
+ * Use [`isSubset`](#issubset) instead.
+ *
+ * @category zone of death
+ * @since 2.0.0
+ * @deprecated
+ */
+export let subset = RS.isSubset;
+//# sourceMappingURL=Set.js.map

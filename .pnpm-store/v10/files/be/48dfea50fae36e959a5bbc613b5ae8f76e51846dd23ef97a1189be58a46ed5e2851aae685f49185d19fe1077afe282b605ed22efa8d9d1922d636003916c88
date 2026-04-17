@@ -1,0 +1,393 @@
+open Shared
+
+@genType.as("TextStyleFontStyle") @genType.import("@piress/Text/shared")
+type fontStyle = [#normal | #italic | #oblique]
+
+@genType.as("TextStyleFontVariant") @genType.import("@piress/Text/shared")
+type fontVariant = [#normal | #"small-caps"]
+
+@genType.as("TextStyleFontWeight") @genType.import("@piress/Text/shared")
+type fontWeight = [
+  | #normal
+  | #bold
+]
+
+type fontCache = {
+  @as("_fontStyle")
+  mutable fontStyle: int,
+  @as("_fontVariant")
+  mutable fontVariant: int,
+  @as("_fontWeight")
+  mutable fontWeight: int,
+  @as("_fontSize")
+  mutable fontSize: float,
+  @as("_fontFamily")
+  mutable fontFamily: int,
+  @as("_font")
+  mutable font: string,
+  @as("_fontHash")
+  mutable fontHash: float,
+  @as("_fontHash_str")
+  mutable fontHash_key: string,
+  @as("_letterSpacing")
+  mutable letterSpacing: float,
+  @as("_option_id")
+  mutable option_id: int,
+  // mutable buf: Js.TypedArray2.Uint8Array.t,
+  @as("_cache_measure")
+  mutable cache_measure: dict<float>,
+  save: @uncurry unit => unit,
+}
+
+type fontStyleObject = {
+  id: string,
+  fontStyle: fontStyle,
+  fontVariant: fontVariant,
+  fontWeight: fontWeight,
+  fontSize: float,
+  fontFamily: string,
+  letterSpacing: float,
+}
+let cache = {
+  fontStyle: 0,
+  fontVariant: 0,
+  fontWeight: 0,
+  fontSize: 0.0,
+  fontFamily: 0,
+  font: "",
+  fontHash: 0.0,
+  fontHash_key: "",
+  letterSpacing: 0.0,
+  option_id: 0,
+  cache_measure: fromEntries([("", 0.0)]),
+  save: () => {
+    let old = (%raw("this")).cache_measure
+    Import.toFastProperties(old)
+    (%raw("this")).cache_measure = createObject(old)
+  },
+  // buf: Js.TypedArray2.Uint8Array.from(Belt.Array.make(80, 32)->__unsafe_cast),
+}
+
+@send external save: fontCache => unit = "save"
+
+// let uint_store: dict<array<int>> = Js.Dict.fromArray([
+//   ("normal", textEncoder->encode("normal")->__unsafe_cast),
+// ])
+
+module Exports: {
+  let measureTextWidth: (
+    string,
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+  ) => (float, string)
+  let getTextFont: (
+    string,
+    ~width: float,
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+  ) => (float, string)
+  let printCache: unit => unit
+  let output: string => fontStyleObject
+  let outputStr: string => string
+} = {
+  let const_object = "object"
+  let const_number = "number"
+  let const_string = "string"
+  let const_normal = "normal"
+
+  let cache_options = fromEntries([(const_normal, 0)])
+  let cache_fontStr = fromEntries([("p0", "")])
+  let cache_fontStyleObj: dict<fontStyleObject> = fromEntries([])
+  // Import.toFastProperties(cache_options)
+  // Import.toFastProperties(cache_measure)
+  // Import.toFastProperties(cache_fontStr)
+
+  let printCache = () => {
+    cache->save
+    Js.log4(cache_options, cache.cache_measure, cache_fontStr, cache_fontStyleObj)
+  }
+
+  @inline
+  let unsafe_get = (store, key: 'key) => store->Js.Dict.unsafeGet(key->__unsafe_cast)
+  @inline
+  let unsafe_set = (store, key, v) => store->Js.Dict.set(key->__unsafe_cast, v)->return(v)
+  @inline
+  let us_get = (key: 'a) => cache_options->unsafe_get(key)
+
+  let get = (key: 'a) => {
+    if us_get(key)->Js.typeof == const_number {
+      us_get(key)
+    } else {
+      let r = cache.option_id + 1
+      cache_options->Js.Dict.set(key->__unsafe_cast, r)
+      cache.option_id = r
+      r
+    }
+  }
+
+  @inline
+  let withEnum = (get, key: 'a) =>
+    if key->__unsafe_cast == const_normal || key->__unsafe_cast == "" {
+      0
+    } else {
+      get(key)
+    }
+  let getEnum = withEnum(get, _)
+  let us_getEnum = withEnum(us_get, _)
+
+  @inline
+  let isUpdated = (
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+  ) =>
+    !(
+      fontStyle->us_getEnum == cache.fontStyle &&
+      fontVariant->us_getEnum == cache.fontVariant &&
+      fontWeight->us_getEnum == cache.fontWeight &&
+      fontSize == cache.fontSize &&
+      fontFamily->us_get == cache.fontFamily &&
+      letterSpacing == cache.letterSpacing
+    )
+
+  // let result = (0.0, "")
+
+  // // 复用元组结构
+  // @inline
+  // let unsafe_tuple = (a: float, b: string) => {
+  //   result->__unsafe_cast->ArrayUtil.set(0, a)
+  //   result->__unsafe_cast->ArrayUtil.set(1, b)
+  //   result
+  // }
+
+  @inline
+  let buildFontStr = (
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+  ) => {
+    cache.font =
+      if fontStyle->__unsafe_cast == const_normal && fontVariant->__unsafe_cast == const_normal {
+        if fontWeight->__unsafe_cast == const_normal {
+          fontSize->__unsafe_cast
+        } else {
+          fontWeight->__unsafe_cast ++ " " ++ fontSize->__unsafe_cast
+        }
+      } else {
+        fontStyle->__unsafe_cast ++
+        ` ${fontVariant->__unsafe_cast} ${fontWeight->__unsafe_cast} ` ++
+        fontSize->__unsafe_cast
+      } ++
+      `px ` ++
+      fontFamily
+    // Js.log("build font")
+    cache.font
+  }
+
+  @inline
+  let getFontStr = (key: string, ~fontStyle, ~fontVariant, ~fontWeight, ~fontSize, ~fontFamily) => {
+    if cache_fontStr->unsafe_get(key)->Js.typeof == const_string {
+      cache_fontStr->unsafe_get(key)
+    } else {
+      // Js.log3(
+      //   "cache",
+      //   key,
+      //   buildFontStr(~fontStyle, ~fontVariant, ~fontWeight, ~fontSize, ~fontFamily),
+      // )
+      cache_fontStr->unsafe_set(
+        key,
+        buildFontStr(~fontStyle, ~fontVariant, ~fontWeight, ~fontSize, ~fontFamily),
+      )
+    }
+  }
+  @inline
+  let getFontStyleObject = (
+    key: string,
+    ~fontStyle,
+    ~fontVariant,
+    ~fontWeight,
+    ~fontSize,
+    ~fontFamily,
+    ~letterSpacing,
+  ) => {
+    if cache_fontStyleObj->unsafe_get(key)->Js.typeof == const_object {
+      cache_fontStyleObj->unsafe_get(key)
+    } else {
+      cache_fontStyleObj->unsafe_set(
+        key,
+        {
+          fontStyle,
+          fontVariant,
+          fontWeight,
+          fontSize,
+          fontFamily,
+          letterSpacing,
+          id: key,
+        },
+      )
+    }
+  }
+
+  @inline
+  let measureText = (
+    text,
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+    ~measureTextWidth,
+  ) => {
+    // 缓存的fontStr是否有变化
+    let updated = isUpdated(
+      ~fontStyle,
+      ~fontVariant,
+      ~fontWeight,
+      ~fontSize,
+      ~fontFamily,
+      ~letterSpacing,
+    )
+    let hash =
+      text ++ if updated {
+        cache.fontStyle = fontStyle->getEnum
+        cache.fontVariant = fontVariant->getEnum
+        cache.fontWeight = fontWeight->getEnum
+        cache.fontSize = fontSize
+        cache.letterSpacing = letterSpacing
+        cache.fontFamily = fontFamily->get
+        cache.fontHash =
+          (cache.fontStyle->F64.unsafe *. 1000.0 +.
+          cache.fontVariant->F64.unsafe *. 100.0 +.
+          cache.fontWeight->F64.unsafe *. 10.0 +.
+          cache.fontFamily->F64.unsafe) *. fontSize
+        cache.fontHash_key =
+          "p" ++ cache.fontHash->F64.unsafe_toString ++ "|" ++ letterSpacing->F64.unsafe_toString
+        cache.fontHash_key
+      } else {
+        cache.fontHash_key
+      } //->F64.unsafe *. (letterSpacing +. 1.0))->F64.unsafe_toString
+
+    let _try = cache.cache_measure->unsafe_get(hash)
+    if _try->Js.typeof === const_number {
+      (_try, cache.fontHash_key)
+    } else {
+      let font = updated
+        ? {
+            getFontStyleObject(
+              cache.fontHash_key,
+              ~fontStyle,
+              ~fontVariant,
+              ~fontWeight,
+              ~fontSize,
+              ~fontFamily,
+              ~letterSpacing,
+            )->ignore
+            getFontStr(
+              cache.fontHash_key,
+              ~fontStyle,
+              ~fontVariant,
+              ~fontWeight,
+              ~fontSize,
+              ~fontFamily,
+            )
+          }
+        : cache.font
+      (
+        cache.cache_measure->unsafe_set(hash, measureTextWidth(text, font, letterSpacing)),
+        cache.fontHash_key,
+      )
+    }
+  }
+
+  let getTextFont = (
+    text,
+    ~width: float,
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+  ) => {
+    measureText(
+      text,
+      ~fontStyle,
+      ~fontVariant,
+      ~fontWeight,
+      ~fontSize,
+      ~fontFamily,
+      ~letterSpacing,
+      ~measureTextWidth=(_, _, _) => width,
+    )
+  }
+  let measureTextWidth = (
+    text,
+    ~fontStyle: fontStyle,
+    ~fontVariant: fontVariant,
+    ~fontWeight: fontWeight,
+    ~fontSize: float,
+    ~fontFamily: string,
+    ~letterSpacing: float,
+  ) => {
+    measureText(
+      text,
+      ~fontStyle,
+      ~fontVariant,
+      ~fontWeight,
+      ~fontSize,
+      ~fontFamily,
+      ~letterSpacing,
+      ~measureTextWidth=@inline
+      (text, font, letterSpacing) => Import.measureTextWidth(~text, ~font, ~letterSpacing),
+    )
+  }
+  @inline
+  let output: string => fontStyleObject = key => cache_fontStyleObj->unsafe_get(key)
+  @inline
+  let outputStr: string => string = key => cache_fontStr->unsafe_get(key)
+}
+include Exports
+
+@genType
+let output: string => fontStyleObject = output
+@genType
+let outputStr: string => string = outputStr
+@genType
+let measureWidth = (
+  text: string,
+  fontStyle: fontStyle,
+  fontVariant: fontVariant,
+  fontWeight: fontWeight,
+  fontSize: float,
+  fontFamily: string,
+  letterSpacing: float,
+) =>
+  Exports.measureTextWidth(
+    text,
+    ~fontStyle,
+    ~fontVariant,
+    ~fontWeight,
+    ~fontSize,
+    ~fontFamily,
+    ~letterSpacing,
+  )
+
+@genType
+let measureWidth2 = (text: int) => text
+
+@genType
+let printCache = Exports.printCache

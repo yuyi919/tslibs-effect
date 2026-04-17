@@ -1,0 +1,121 @@
+// Copyright (c) 2021-2023 Peter Matta
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+import * as Eval from "../Eval.js";
+
+export let defer = (fa) => {
+  let apply = (a) => runFunction1(apply, a);
+  apply.cached = fa;
+  apply[tag] = 0;
+  return apply;
+};
+export let andThen = (fa, f) => {
+  if (!isView(fa) && isView(f)) return compose(f, fa);
+  let apply = (a) => runFunction1(apply, a);
+  apply.self = fa;
+  apply.f = f;
+  apply[tag] = 1;
+  return apply;
+};
+export let compose = (fa, f) => {
+  if (!isView(fa) && isView(f)) return andThen(f, fa);
+  let apply = (a) => runFunction1(apply, a);
+  apply.self = fa;
+  apply.f = f;
+  apply[tag] = 2;
+  return apply;
+};
+export let flatMap = (fa, f) => {
+  let apply = (a) => runFunction1(apply, a);
+  apply.self = fa;
+  apply.f = f;
+  apply[tag] = 3;
+  return apply;
+};
+let tag = /*#__PURE__*/ Symbol("@fp4ts/cats/core/function-1");
+let isView = (f) => tag in f;
+let runFunction1 = (fa, start) => {
+  let cur = fa;
+  let arg = start;
+  let conts = [];
+  let stack = [];
+  let result;
+  runLoop: while (true) {
+    inner: while (true) {
+      if (!isView(cur)) {
+        result = cur(arg);
+        break;
+      }
+      switch (cur[tag]) {
+        case 0:
+          cur = cur.cached();
+          continue;
+        case 1:
+          if (!isView(cur.self)) {
+            result = cur.f(cur.self(arg));
+            break inner;
+          } else {
+            conts.push(0);
+            stack.push(cur.f);
+            cur = cur.self;
+            continue;
+          }
+        case 2:
+          stack.push(arg);
+          conts.push(1);
+          arg = cur.f(arg);
+          cur = cur.self;
+          continue;
+        case 3:
+          if (!isView(cur.self)) {
+            cur = cur.f(cur.self(arg));
+          } else {
+            conts.push(2);
+            stack.push(cur.f);
+            cur = cur.self;
+          }
+          continue;
+      }
+    }
+    while (conts.length !== 0) {
+      switch (conts.pop()) {
+        case 0:
+          result = stack.pop()(result);
+          continue;
+        case 1:
+          arg = stack.pop();
+          continue;
+        case 2:
+          cur = stack.pop()(result);
+          continue runLoop;
+      }
+    }
+    return result;
+  }
+};
+export let combineEval = (lhs, rhs, f) => {
+  let apply = (a) => runF1(apply, a).value;
+  apply[combineTag] = true;
+  apply.lhs = lhs;
+  apply.rhs = rhs;
+  apply.f = f;
+  return apply;
+};
+let combineTag = /*#__PURE__*/ Symbol("@fp4ts/core/function1/combine");
+let isCombine = (f) => combineTag in f;
+let runF1 = (f, a) => {
+  let stack = [];
+  let go = (f) => {
+    while (isCombine(f)) {
+      stack.push(f.rhs);
+      stack.push(f.f);
+      f = f.lhs;
+    }
+    if (stack.length === 0) return Eval.now(f(a));
+    let c = stack.pop();
+    return Eval.defer(() => c(f(a), stack.pop().flatMap(go)));
+  };
+  return go(f);
+};
+//# sourceMappingURL=function1.js.map

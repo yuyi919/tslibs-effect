@@ -1,0 +1,13 @@
+export function Copy(M: any): {
+    copy: (xs: any) => any;
+};
+export function Swap(M: any): {
+    swap: (fa: any, i: any, j: any) => void;
+};
+export function Shuffle(M: any): {
+    shuffle: (xs: any) => void;
+};
+export function ToShuffled(M: any): {
+    toShuffled: (xs: any) => any;
+};
+//# sourceMappingURL=ArrayLike.bs.d.ts.map

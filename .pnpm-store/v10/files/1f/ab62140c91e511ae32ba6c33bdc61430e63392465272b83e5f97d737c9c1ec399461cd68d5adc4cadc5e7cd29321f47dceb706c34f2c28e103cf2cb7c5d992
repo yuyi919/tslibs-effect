@@ -1,0 +1,63 @@
+import { addEventListener } from "./dom.js";
+import { AbortError } from "./Errors.js";
+import {
+  SYMBOL_ASYNC_DISPOSE,
+  SYMBOL_DISPOSE,
+  VOID,
+} from "./internal/constant/index.js";
+import { no, ok } from "./Ok.js";
+
+export let controller = () => new AbortController();
+export let make = () => {
+  let ctl = controller();
+  return [ctl.signal, (reason) => /* LAZY */ ctl.abort(reason)];
+};
+export let scoped = () =>
+  /**
+   * Returns the AbortSignal object associated with this object.
+   */ /**
+   * Invoking this method will set this object's AbortSignal's aborted flag and signal to any observers that the associated activity is to be aborted.
+   */
+  {
+    let [signal, abort] = make();
+    let dispose = abort;
+    return {
+      signal,
+      abort,
+      [SYMBOL_DISPOSE]: dispose,
+      [SYMBOL_ASYNC_DISPOSE]: dispose,
+    };
+  };
+export let isAborted = (signal) => signal.aborted;
+/**
+ *
+ * @param signal - AbortSignalLike
+ * @returns 可能为空的reason，但类型上是安全的
+ */
+export let unsafe_getReason = (signal) => signal.reason;
+/**
+ * 返回一个AbortError
+ * @param signal - AbortSignalLike
+ * @returns
+ */
+export let error = (signal) => new AbortError(unsafe_getReason(signal));
+/**
+ *
+ * @param signal - AbortSignalLike
+ * @returns 返回{@link Ok|Ok<R, void>}
+ */
+export let getReason = (signal) =>
+  isAborted(signal) ? no(VOID) : ok(unsafe_getReason(signal));
+/**
+ * 为signal添加abort监听函数
+ * @param signal - {@link AbortSignalLike}
+ * @param cb - abort事件监听，回调参数为{@link AbortSignalLike.reason|AbortSignalLike<R>.reason}
+ */
+export let onAbort = (signal, cb) => {
+  addEventListener(signal, "abort", () => cb(signal.reason), {
+    once: true,
+  });
+};
+export let onAbortIfAlive = (signal, cb) =>
+  isAborted(signal) ? false : (onAbort(signal, cb), true);
+//# sourceMappingURL=AbortSignal.js.map

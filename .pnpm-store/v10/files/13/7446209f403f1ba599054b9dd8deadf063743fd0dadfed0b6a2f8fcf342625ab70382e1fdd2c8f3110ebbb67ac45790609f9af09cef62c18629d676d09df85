@@ -1,0 +1,29 @@
+import { unsafeCoerce } from "./Functions.js";
+import { SYMBOL } from "./internal/constant/index.js";
+
+/**
+ * @internal
+ */
+export let symbolFor = SYMBOL.for;
+export let nameForEffect = (moduleName) => `effect/${moduleName}`;
+export let signed = (moduleName) => `yui9/proto/${moduleName}`;
+/**
+ * @internal
+ */
+export let symbolForEffect = (moduleName) =>
+  symbolFor(nameForEffect(moduleName));
+/**
+ * @internal
+ */
+export let EqualSymbol = /*#__PURE__*/ /*#__PURE__*/ symbolForEffect("Equal");
+/**
+ * @internal
+ */
+export let HashSymbol = /*#__PURE__*/ /*#__PURE__*/ symbolForEffect("Hash");
+/**
+ * @internal
+ */
+export let NodeInspectSymbol = /*#__PURE__*/ /*#__PURE__*/ symbolFor(
+  "nodejs.util.inspect.custom",
+);
+//# sourceMappingURL=Symbol.js.map

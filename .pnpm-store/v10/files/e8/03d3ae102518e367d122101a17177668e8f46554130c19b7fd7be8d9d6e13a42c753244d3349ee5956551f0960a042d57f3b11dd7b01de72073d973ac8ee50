@@ -1,0 +1,15 @@
+export let Result: {};
+export function done(a: any): {
+    done: boolean;
+    value: any;
+};
+export function suspend(perform: any): {
+    done: boolean;
+    value: any;
+};
+declare function constant$1(a: any): any;
+export function bindTo(fa: any, name: any): any;
+export function bind(fa: any, name: any, gen: any): any;
+export function bindS(fa: any, name: any, gen: any): any;
+export { constant$1 as constant };
+//# sourceMappingURL=SingleShotGen.bs.d.ts.map

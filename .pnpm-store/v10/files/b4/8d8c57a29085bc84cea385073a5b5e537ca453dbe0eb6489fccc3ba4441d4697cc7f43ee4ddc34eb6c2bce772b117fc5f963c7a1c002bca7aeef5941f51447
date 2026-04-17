@@ -1,0 +1,463 @@
+/* eslint-disable one-var */
+/* eslint-disable no-param-reassign */
+/**
+ * @since 0.6.0
+ */
+import type * as fp from "fp-ts"
+import * as E from "fp-ts/Either"
+import * as Identity from "fp-ts/Identity"
+
+import * as util from "@yuyi919/shared-proto/Functions"
+
+import * as ParseResult from "../ParseResult"
+import * as Stream from "../Stream"
+import { _run, define, defineLambda, ParserImpl, run } from "./impl"
+import { liftMap2, liftMapAll, liftMapAllArgs } from "./liftmap"
+import { IParseOption } from "./options"
+import { URI } from "./URI"
+
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export type Parser<I, A> = ParserImpl<I, A>
+export type { Parser as t }
+export { run, _run as _run, define, defineLambda }
+
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export interface ParserGen<I, A> {
+  _run(
+    i: Stream.t<I>,
+    env: IParseOption,
+  ): Generator<any, ParseResult.t<I, A>, any>
+  void?: boolean
+  startCharacterHint?: Record<string, true>
+}
+
+// -------------------------------------------------------------------------------------
+// non-pipeables
+// -------------------------------------------------------------------------------------
+
+/**
+ * @category Pointed
+ * @since 0.6.7
+ */
+export const of: <I, A>(a: A) => Parser<I, A> = (a) =>
+  define((i, _option) => ParseResult.succeed(a, i, i))
+
+/**
+ * The `succeed` parser constructor creates a parser which will simply
+ * return the value provided as its argument, without consuming any input.
+ *
+ * This is equivalent to the monadic `of`.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const succeed: <I, A>(a: A) => Parser<I, A> = of
+
+/**
+ * The `fail` parser will just fail immediately without consuming any input
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const fail: <I, A = never>() => Parser<I, A> = defineLambda(
+  (i, _option) => ParseResult.failed(i, ParseResult.EMPTY_EXPECTED, false),
+)
+
+export const mapF: fp.monad.Monad2<URI>["map"] = (fa, f) => fa._map(f)
+
+export const mapTraceF: <I, A, B>(
+  fa: Parser<I, A>,
+  f: (a: A, start: Stream.t<I>, option: IParseOption) => B,
+) => Parser<I, B> = (fa, f) =>
+  define((i, option) =>
+    ParseResult.mapTraceF(_run(fa, i, option), (a) => f(a, i, option)),
+  )
+
+export const mapToF = <I, A, B>(ma: Parser<I, A>, to: B): Parser<I, B> =>
+  ma._mapTo(to)
+
+export const apF: fp.monad.Monad2<URI>["ap"] = (fab, fa) =>
+  liftMap2(fab, fa, Identity.Apply.ap)
+
+export const apFirstF = <I, A, B>(
+  fa: Parser<I, A>,
+  fb: Parser<I, B>,
+): Parser<I, A> =>
+  define((start, option) => {
+    const ra = _run(fa, start, option)
+    if (ParseResult.isLeft(ra)) return ra
+    const rb = _run(fb, ParseResult.getNext(ra), option, false)
+    return ParseResult.isRight(rb)
+      ? ParseResult.setNext(ra, ParseResult.getNext(rb))
+      : rb
+  })
+
+export const apSecondF = <I, A, B>(
+  fa: Parser<I, A>,
+  fb: Parser<I, B>,
+): Parser<I, B> =>
+  define((i, option) => {
+    const result: ParseResult.t<I, any> = _run(fa, i, option, false)
+    if (ParseResult.isLeft(result)) return result
+    return ParseResult.mapStartToF(
+      _run(fb, ParseResult.getNext(result), option),
+      i,
+    )
+  })
+export const chainF: fp.chain.Chain2<URI>["chain"] = (fa, f) =>
+  define((i, option) =>
+    ParseResult.chainF(_run(fa, i, option), (first, next, start) =>
+      ParseResult.mapStartToF(_run(f(first), next, option), start),
+    ),
+  )
+
+export const chainRecF: fp.chainRec.ChainRec2<URI>["chainRec"] = <I, A, B>(
+  data: A,
+  next: (current: A) => Parser<I, E.Either<A, B>>,
+): Parser<I, B> =>
+  define((start, option) => {
+    // 手动实现tailRec
+    let stream = start
+    let value = data
+    while (true) {
+      const result = _run(next(value), stream, option)
+      if (ParseResult.isLeft(result)) {
+        return ParseResult.failed(
+          stream,
+          ParseResult.getExpected(result),
+          ParseResult.isFatal(result),
+        )
+      }
+      const either = ParseResult.getValue(result)
+      if (E.isRight(either)) {
+        return ParseResult.succeed(
+          either.right,
+          ParseResult.getNext(result),
+          start,
+        )
+      }
+      stream = ParseResult.getNext(result)
+      value = either.left
+    }
+  })
+
+export const altF: fp.alt.Alt2<URI>["alt"] = (pa, pb) =>
+  define((i, option) => {
+    const e = _run(pa, i, option)
+    if (ParseResult.isRight(e) || ParseResult.isFatal(e)) return e
+    const e2 = _run(pb(), i, option)
+    if (option.collectError && ParseResult.isLeft(e2))
+      return ParseResult.extend(e, e2)
+    return e2
+  })
+export function altTrackF<I, A>(
+  fa: Parser<I, A>,
+  that: (e: ParseResult.ParseError<I>) => Parser<I, A>,
+): Parser<I, A> {
+  return define((i, option) => {
+    const e = _run(fa, i, option)
+    if (ParseResult.isRight(e) || ParseResult.isFatal(e)) return e
+    const e2 = _run(that(e), i, option)
+    if (option.collectError && ParseResult.isLeft(e2))
+      return ParseResult.extend(e, e2)
+    return e2
+  })
+}
+
+export const concatAll =
+  <A>(monoid: fp.monoid.Monoid<A> & { concatAll?: (args: A[]) => A }) =>
+  <I>(parsers: readonly Parser<I, A>[]): Parser<I, A> =>
+    parsers.length > 0
+      ? monoid.concatAll
+        ? liftMapAll<I, A, A>(
+            parsers as fp.nonEmptyArray.NonEmptyArray<Parser<I, A>>,
+            monoid.concatAll,
+          )
+        : liftMapAllArgs<I, A, A>(
+            parsers as fp.nonEmptyArray.NonEmptyArray<Parser<I, A>>,
+            util.concatAllArgsM(monoid),
+          )
+      : of<I, A>(monoid.empty)
+
+export const concatAllArgs =
+  <A>(monoid: fp.monoid.Monoid<A> & { concatAll?: (args: A[]) => A }) =>
+  <I>(...parsers: readonly Parser<I, A>[]): Parser<I, A> =>
+    concatAll(monoid)(parsers)
+
+// -------------------------------------------------------------------------------------
+// constructors
+// -------------------------------------------------------------------------------------
+
+/**
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const scanNext: <I>(consume: Stream.ConsumeMode) => Parser<I, void> = (
+  consume,
+) =>
+  define((i, _option) =>
+    ParseResult.succeed(undefined, Stream.resolveNext(i, consume), i),
+  )
+
+/**
+ * The `failAt` parser will fail immediately without consuming any input,
+ * but will report the failure at the provided input position.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const failAt: <I, A = never>(i: Stream.t<I>) => Parser<I, A> = (i) =>
+  define((_i, _option) =>
+    ParseResult.failed(i, ParseResult.EMPTY_EXPECTED, false),
+  )
+
+/**
+ * The `sat` parser constructor takes a predicate function, and will consume
+ * a single character if calling that predicate function with the character
+ * as its argument returns `true`. If it returns `false`, the parser will
+ * fail.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const sat = <I>(
+  predicate: fp.predicate.Predicate<I>,
+  expectMessage?: string,
+): Parser<I, I> =>
+  define((i, option) => {
+    const result = _run(item<I>(), i, option)
+    return ParseResult.isLeft(result) ||
+      ParseResult.predicateValue(result, predicate)
+      ? result
+      : ParseResult.failed(
+          i,
+          option.collectError && expectMessage
+            ? [expectMessage]
+            : ParseResult.EMPTY_EXPECTED,
+          false,
+        )
+  })
+
+/**
+ * The `item` parser consumes a single value, regardless of what it is,
+ * and returns it as its result.
+ *
+ * @category constructors
+ * @since 0.6.0
+ */
+export const item: <I>() => Parser<I, I> = defineLambda(
+  (define) =>
+    define((input, option) => {
+      const result = Stream.getAndNext(input, option.scanMode)
+      return Stream.isNone(result)
+        ? ParseResult.failed(input, ParseResult.EMPTY_EXPECTED, false)
+        : ParseResult.succeed(result.value, result.next, input)
+    }),
+  true,
+)
+
+export const unit = succeed<any, void>(undefined)
+export const ask: <I>() => <A>(a: A) => Parser<I, A> = () => succeed
+
+// -------------------------------------------------------------------------------------
+// pipeables
+// -------------------------------------------------------------------------------------
+
+/**
+ * @category Functor
+ * @since 0.6.7
+ */
+export const map: <A, B>(
+  f: (a: A) => B,
+) => <I>(fa: Parser<I, A>) => Parser<I, B> = (f) => (fa) => mapF(fa, f)
+
+export const mapWith: <I, A, B>(
+  f: (a: A, result: ParseResult.ParseSuccess<I, A>) => B,
+) => (fa: Parser<I, A>) => Parser<I, B> = (f) => (fa) =>
+  define((i, option) => ParseResult.mapF(_run(fa, i, option), f))
+
+export const mapTrace: <I, A, B>(
+  f: (a: A, start: Stream.t<I>, option: IParseOption) => B,
+) => (fa: Parser<I, A>) => Parser<I, B> = (f) => (fa) => mapTraceF(fa, f)
+
+export const mapTo =
+  <B>(to: B): (<I, A>(fa: Parser<I, A>) => Parser<I, B>) =>
+  (fa) =>
+    mapToF(fa, to)
+
+/**
+ * @category Apply
+ * @since 0.6.7
+ */
+export const ap: <I, A>(
+  fa: Parser<I, A>,
+) => <B>(fab: Parser<I, (a: A) => B>) => Parser<I, B> = (fa) => (fab) =>
+  apF(fab, fa)
+
+/**
+ * @category Apply
+ * @since 0.6.7
+ */
+export const apFirst: <I, B>(
+  fb: Parser<I, B>,
+) => <A>(fa: Parser<I, A>) => Parser<I, A> = (fb) => (fa) => apFirstF(fa, fb)
+
+/**
+ * @category Apply
+ * @since 0.6.7
+ */
+export const apSecond: <I, B>(
+  fb: Parser<I, B>,
+) => <A>(fa: Parser<I, A>) => Parser<I, B> = (fb) => (fa) => apSecondF(fa, fb)
+
+/**
+ * @category Monad
+ * @since 0.6.7
+ */
+export const chain: <I, A, B>(
+  f: (a: A) => Parser<I, B>,
+) => (ma: Parser<I, A>) => Parser<I, B> = (f) => (ma) => chainF(ma, f)
+
+/**
+ * @category Monad
+ * @since 0.6.7
+ */
+export const chainFirst: <I, A, B>(
+  f: (a: A) => Parser<I, B>,
+) => (ma: Parser<I, A>) => Parser<I, A> = (f) => (ma) =>
+  chainF(ma, (a) => mapF(f(a), () => a))
+
+export const altConst: <I, A>(
+  that: Parser<I, A>,
+) => <B>(fa: Parser<I, B>) => Parser<I, A | B> =
+  <I, A>(that: Parser<I, A>) =>
+  <B>(fa: Parser<I, B>): Parser<I, A | B> =>
+    altF(fa, util.constant(that) as unknown as () => Parser<I, B>)
+
+/**
+ * @category Alt
+ * @since 0.6.7
+ */
+export const alt: <I, A>(
+  that: util.Lazy<Parser<I, A>>,
+) => <B>(fa: Parser<I, B>) => Parser<I, A | B> =
+  <I, A>(that: util.Lazy<Parser<I, A>>) =>
+  <B>(fa: Parser<I, B>): Parser<I, A | B> =>
+    altF(fa, that as any)
+
+export function altTrack<I, A>(
+  that: (e: ParseResult.ParseError<I>) => Parser<I, A>,
+) {
+  return <B>(fa: Parser<I, B>): Parser<I, A | B> => altTrackF(fa, that as any)
+}
+
+/**
+ * @category Monad
+ * @since 0.6.7
+ */
+export const flatten: <I, A>(mma: Parser<I, Parser<I, A>>) => Parser<I, A> = (
+  mma,
+) => chainF(mma, util.identity)
+
+/**
+ * @category Alternative
+ * @since 0.6.7
+ */
+export const zero: <I, A>() => Parser<I, A> = fail
+
+export function gen<
+  const P extends Generator<Parser<any, any>, any, any>,
+  const T extends P extends Generator<Parser<any, any>, infer T, any>
+    ? T
+    : never,
+  I extends P extends Generator<Parser<infer I, any>, T, any> ? I : never,
+  A extends P extends Generator<Parser<I, infer A>, T, any> ? A : never,
+>(gen: () => P): Parser<I, T> {
+  return define((i, option) => {
+    const g = gen()
+    let next = i
+    const start = i
+    let nextValue!: void | A
+    let r: IteratorResult<Parser<I, A>, T>
+    while (!(r = g.next(nextValue as A)).done) {
+      const cur = _run(r.value, next, option)
+      if (ParseResult.isLeft(cur)) return cur
+      next = ParseResult.getNext(cur)
+      nextValue = ParseResult.getValue(cur)
+    }
+    return ParseResult.succeed(r.value, next, start)
+  })
+}
+
+export function* CONSUME<I, A>(
+  parser: Parser<I, A>,
+): Generator<Parser<I, A>, A, A> {
+  return yield parser
+}
+
+// -------------------------------------------------------------------------------------
+// do notation
+// -------------------------------------------------------------------------------------
+
+/**
+ * @internal
+ */
+const bind_ = <A, N extends string, B>(
+  a: A,
+  name: Exclude<N, keyof A>,
+  b: B,
+): { [K in keyof A | N]: K extends keyof A ? A[K] : B } =>
+  ({ ...a, [name]: b }) as any
+
+/**
+ * @since 0.6.8
+ */
+export const bindTo =
+  <N extends string>(name: N) =>
+  <I, A>(fa: Parser<I, A>): Parser<I, { [K in N]: A }> =>
+    mapF(fa, (a) => bind_({}, name, a))
+
+/**
+ * @since 0.6.8
+ */
+export const bind =
+  <N extends string, I, A, B>(
+    name: Exclude<N, keyof A>,
+    f: (a: A) => Parser<I, B>,
+  ) =>
+  (
+    fa: Parser<I, A>,
+  ): Parser<I, { [K in keyof A | N]: K extends keyof A ? A[K] : B }> =>
+    chainF(fa, (a) => mapF(f(a), (b) => bind_(a, name, b)))
+
+/**
+ * 强制转化<I>类型
+ */
+export const as = <I, S>(parser: Parser<any, S>): Parser<I, S> => parser
+
+export const local =
+  <I, IB>(fn: (a: IB) => I) =>
+  <A>(parser: Parser<I, A>): Parser<IB, A> =>
+    define((i: Stream.t<IB>, env) =>
+      _run(parser, Stream.mapF(i, fn), env).pipe(ParseResult.switchStream(i)),
+    )
+
+export const promapF: fp.profunctor.Profunctor2<URI>["promap"] = <I1, A, I2, B>(
+  fea: Parser<I1, A>,
+  f: (d: I2) => I1,
+  g: (a: A) => B,
+): Parser<I2, B> => {
+  const parser: Parser<I2, B> = define((i, option) =>
+    _run(fea, Stream.mapF(i, f), option).pipe(
+      ParseResult.bimap((seq) => i.buffer as I2, g),
+    ),
+  )
+  return parser
+}

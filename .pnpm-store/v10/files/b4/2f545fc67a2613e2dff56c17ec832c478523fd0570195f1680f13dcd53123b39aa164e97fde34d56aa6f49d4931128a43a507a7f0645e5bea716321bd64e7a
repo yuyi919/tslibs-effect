@@ -1,0 +1,74 @@
+import { isNil } from "./JsTypes"
+import { Nilable } from "./Types"
+
+export { controller as abortController } from "./AbortSignal"
+export { interval, rafLoop, reqAF, reqIdle, timeout } from "./Disposify"
+export {
+  asPromise,
+  asReject,
+  promise,
+  delay,
+  delayOK,
+  delayValue,
+  delayValueOk,
+  sleep,
+} from "./Promisify"
+
+/**
+ * 将一个参数不支持空值的函数提升为支持空值，但返回值也将可为空值
+ * @param fn - 需要提升的函数
+ * @remark 不应对参数可能为null或undefined的函数使用此方法
+ */
+export function liftNilable<T, R>(fn: (arg?: T) => R): never
+export function liftNilable<T, R>(fn: (arg?: T | null) => R): never
+export function liftNilable<T, R>(
+  fn: (arg: NonNullable<T>) => R,
+): (arg?: NonNullable<T> | undefined) => R | undefined
+/**
+ * 将一个参数不允许为null或undefined的函数转化为可允许，但返回值也将可为undefined
+ * @param fn
+ */
+export function liftNilable<T, R>(
+  fn: (arg: NonNullable<T>) => R,
+): (arg?: Nilable<NonNullable<T>>) => R | undefined {
+  return (arg) => {
+    return isNil(arg) ? undefined : fn(arg as T & {})
+  }
+}
+
+// export * as Array from "./Array"
+// export * as Browser from "./Browser"
+// export * as Disposify from "./Disposify"
+// export * as Duration from "./Duration"
+// export * as Either from "./Either"
+// export * as Equivalence from "./Equivalence"
+// export * as Eval from "./Eval"
+// export * as EvalFunction from "./EvalFunction"
+// export * as Event from "./Event"
+// export * as EventTarget from "./EventTarget"
+// export * as Extensions from "./Extensions"
+// export * as Functions from "./Functions"
+// export * as GlobalValue from "./GlobalValue"
+// export * as Hasbable from "./Hasbable"
+// export * as Hash from "./Hash"
+// export * as Internal from "./Internal"
+// export * as Iterable from "./Iterable"
+// export * as JsMap from "./JsMap"
+// export * as JsObject from "./JsObject"
+// export * as JsTypes from "./JsTypes"
+// export * as Length from "./Length"
+// export * as LiftFC from "./LiftFC"
+// export * as LiftMap from "./LiftMap"
+// export * as NonNullable from "./NonNullable"
+// export * as Ok from "./Ok"
+// export * as Option from "./Option"
+// export * as Optional from "./Optional"
+// export * as Order from "./Order"
+// export * as Ordering from "./Ordering"
+// export * as Pipeable from "./Pipeable"
+// export * as Proto from "./Proto"
+// export * as Record from "./Record"
+// export * as Symbol from "./Symbol"
+// export * as YExpr from "./Y-Expr"
+
+export type * as Types from "./Types"

@@ -1,0 +1,72 @@
+// import xregexp from "xregexp";
+import * as P from "./Parser"
+import * as PR from "./ParseResult"
+import * as Stream from "./Stream"
+
+// export function regexpMap<T>(
+//   regex: RegExp,
+//   map: (matched: RegExpExecArray) => T,
+// ): P.Parser<string, T> {
+//   const errors = [regex.source];
+//   return (stream) => {
+//     const result = execAt(
+//       regex,
+//       Stream.seq2str(Stream.getBuffer(stream)),
+//       Stream.getCursor(stream),
+//     );
+//     return result === null
+//       ? PR.failed(stream, errors, false)
+//       : PR.succeed(
+//           map(result),
+//           Stream.consume(stream, result[0].length),
+//           stream,
+//         );
+//   };
+// }
+
+// export function regexp(
+//   regex: RegExp,
+//   matchIndex?: number | undefined,
+// ): P.Parser<string, string>;
+// export function regexp<T>(
+//   regex: RegExp,
+//   extract: number | undefined = 0,
+// ): P.Parser<string, string | void | T> {
+//   const errors = [regex.source];
+//   const index =
+//     typeof extract !== "number" || extract === undefined ? 0 : extract;
+//   return (stream) => {
+//     const result = execAt(
+//       regex,
+//       Stream.seq2str(Stream.getBuffer(stream)),
+//       Stream.getCursor(stream),
+//     );
+//     return result === null || (index > 0 && result[index] == null)
+//       ? PR.failed(stream, errors, false)
+//       : PR.succeed(
+//           result[index],
+//           Stream.consume(stream, result[0].length),
+//           stream,
+//         );
+//   };
+// }
+
+export function testAt(reg: RegExp, text: string, offset: number) {
+  if (offset >= 0 && reg.lastIndex !== offset) {
+    // eslint-disable-next-line no-param-reassign
+    reg.lastIndex = offset
+  }
+  return reg.test(text)
+}
+
+export function execAt(reg: RegExp, text: string, offset: number) {
+  if (offset >= 0 && reg.lastIndex !== offset) {
+    // eslint-disable-next-line no-param-reassign
+    reg.lastIndex = offset
+  }
+  return reg.exec(text)
+}
+
+// export function withEOL(reg: RegExp): RegExp {
+//   return xregexp.tag(reg.flags)`${reg}(?=[ \t]*\r?\n)`;
+// }

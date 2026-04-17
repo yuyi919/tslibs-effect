@@ -1,0 +1,16 @@
+'use strict';
+
+var o=t=>e=>p=>t.map(p,r=>r(e));var _=(t,e)=>p=>p(e(p(t.empty))),g=t=>e=>[t(e),e],b=t=>e=>p=>[e(p),t(p)],y=t=>e=>p=>e(t(p)),C=t=>({URI:a,_E:void 0,map:l,extend:(r,x)=>n=>x(i=>r(t.concat(n,i))),extract:r=>r(t.empty)}),l=(t,e)=>c(e)(t),c=t=>e=>p=>t(e(p)),a="Traced",m={URI:a,map:l},F=o(m),T=m;
+
+exports.Functor = m;
+exports.URI = a;
+exports.censor = y;
+exports.flap = F;
+exports.getComonad = C;
+exports.listen = g;
+exports.listens = b;
+exports.map = c;
+exports.traced = T;
+exports.tracks = _;
+//# sourceMappingURL=Traced.js.map
+//# sourceMappingURL=Traced.js.map

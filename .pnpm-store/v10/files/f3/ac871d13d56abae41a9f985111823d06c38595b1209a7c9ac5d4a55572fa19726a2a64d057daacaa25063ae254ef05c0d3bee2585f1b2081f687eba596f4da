@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/string.js",
+  "module": "../dist/esm/string.js",
+  "types": "../dist/esm/string.d.ts",
+  "sideEffects": []
+}

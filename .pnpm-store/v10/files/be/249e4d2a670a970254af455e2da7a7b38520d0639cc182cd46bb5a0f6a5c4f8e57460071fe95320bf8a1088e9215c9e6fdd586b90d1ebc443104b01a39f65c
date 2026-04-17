@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Semiring.js",
+  "module": "../dist/esm/Semiring.js",
+  "types": "../dist/esm/Semiring.d.ts",
+  "sideEffects": []
+}

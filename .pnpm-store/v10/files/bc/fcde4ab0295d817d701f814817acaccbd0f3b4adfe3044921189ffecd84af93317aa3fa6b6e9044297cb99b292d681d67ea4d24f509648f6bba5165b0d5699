@@ -1,0 +1,22 @@
+export function div2(v: any): number;
+export function mul2(v: any): number;
+export function mul(v: any, mul$1: any): number;
+export function div(v: any, div$1: any): number;
+export function div_ceil(v: any, div: any): number;
+export function minusminus(v: any): number;
+export function plusplus(v: any): any;
+export function diff(v: any, v2: any): number;
+export function sub(v: any, v2: any): number;
+export function rev_sub(v2: any, v: any): number;
+export function add(v: any, v2: any): any;
+export function lessThan(a: any, b: any): boolean;
+export function greaterThan(a: any, b: any): boolean;
+export let p: boolean;
+export function mod(a: any, b: any): number;
+export function logand(a: any, b: any): number;
+export function logor(a: any, b: any): number;
+export function logxor(a: any, b: any): number;
+export function shift_left(a: any, b: any): number;
+export function shift_right(a: any, b: any): number;
+export function shift_right_logical(a: any, b: any): number;
+//# sourceMappingURL=F64.bs.d.ts.map

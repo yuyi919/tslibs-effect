@@ -1,0 +1,4 @@
+/* TypeScript file generated from Record.res by genType. */ /* eslint-disable */ /* tslint:disable */ import * as RecordJS from "./Record.bs.js";
+
+export let make = RecordJS.make;
+//# sourceMappingURL=Record.gen.js.map

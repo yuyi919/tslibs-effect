@@ -1,0 +1,26 @@
+export type splitOption = {
+    /** Adds a MIN_COST penalty to the end of the paragraph. Without it, the paragraph cannot be broken. Only turn this option off if you're adding text from inline elements to the overall paragraph the paragraph itself must always end with this penalty. */
+    readonly addParagraphEnd: boolean;
+};
+export type t = {
+    TAG: "Glue";
+    width: number;
+    stretch: number;
+    readonly shrink: number;
+    readonly pos: number;
+    readonly len: number;
+} | {
+    TAG: "Box";
+    width: number;
+    readonly pos: number;
+    readonly len: number;
+} | {
+    TAG: "Penalty";
+    width: number;
+    readonly cost: number;
+    readonly flagged: boolean;
+    readonly pos: number;
+    readonly len: number;
+};
+export declare const split: (text: string, options: splitOption) => t[];
+//# sourceMappingURL=LineBreak.gen.d.ts.map

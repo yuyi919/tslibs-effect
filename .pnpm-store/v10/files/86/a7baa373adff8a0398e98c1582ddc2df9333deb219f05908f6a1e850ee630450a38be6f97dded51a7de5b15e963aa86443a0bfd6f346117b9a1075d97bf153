@@ -1,0 +1,16 @@
+'use strict';
+
+var a=t=>e=>p=>t.map(p,i=>i(e));var r=(t,e)=>({left:t,right:e}),f=(t,e)=>u(e)(t),n=(t,e)=>_(e)(t),s=(t,e,p)=>b(e,p)(t),u=t=>e=>r(l(e),t(o(e))),_=t=>e=>r(t(l(e)),o(e)),b=(t,e)=>p=>r(t(l(p)),e(o(p))),m="Separated",h={URI:m,mapLeft:n,bimap:s},d={URI:m,map:f},F=a(d),l=t=>t.left,o=t=>t.right;
+
+exports.Bifunctor = h;
+exports.Functor = d;
+exports.URI = m;
+exports.bimap = b;
+exports.flap = F;
+exports.left = l;
+exports.map = u;
+exports.mapLeft = _;
+exports.right = o;
+exports.separated = r;
+//# sourceMappingURL=Separated.js.map
+//# sourceMappingURL=Separated.js.map

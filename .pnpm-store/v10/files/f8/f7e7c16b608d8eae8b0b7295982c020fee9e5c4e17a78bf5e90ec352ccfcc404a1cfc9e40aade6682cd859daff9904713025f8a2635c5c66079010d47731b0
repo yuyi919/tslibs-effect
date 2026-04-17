@@ -1,0 +1,7 @@
+/* TypeScript file generated from Generator.res by genType. */ /* eslint-disable */ /* tslint:disable */ import * as GeneratorJS from "./Generator.bs.js";
+
+export let r = GeneratorJS.r;
+export let execWith = GeneratorJS.execWith;
+export let run = GeneratorJS.run;
+export let test = GeneratorJS.test;
+//# sourceMappingURL=Generator.gen.js.map

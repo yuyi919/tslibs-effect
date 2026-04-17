@@ -1,0 +1,6 @@
+/**
+ * @since 1.0.0
+ * @category Accessors
+ */
+export const toBunServerRequest = self => self.source;
+//# sourceMappingURL=BunHttpServerRequest.js.map

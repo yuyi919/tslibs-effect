@@ -1,0 +1,15 @@
+export class TimeoutError extends Error {
+  constructor(message = "The operation was timed out") {
+    (super(message), (this._tag = "TimeoutError"));
+    this.name = this._tag;
+  }
+}
+export class AbortError extends Error {
+  constructor(reason) {
+    (super("The operation was aborted"),
+      (this.reason = reason),
+      (this._tag = "AbortError"));
+    this.name = this._tag;
+  }
+}
+//# sourceMappingURL=Errors.js.map

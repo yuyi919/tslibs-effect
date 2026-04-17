@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Alt.js",
+  "module": "../dist/esm/Alt.js",
+  "types": "../dist/esm/Alt.d.ts",
+  "sideEffects": []
+}

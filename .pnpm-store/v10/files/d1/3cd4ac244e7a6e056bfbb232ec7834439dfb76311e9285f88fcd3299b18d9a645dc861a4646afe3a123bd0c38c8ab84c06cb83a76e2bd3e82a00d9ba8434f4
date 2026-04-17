@@ -1,0 +1,8 @@
+'use strict';
+
+var i=class{constructor(t){this.value=t,this.read=()=>this.value,this.write=this.write.bind(this),this.modify=this.modify.bind(this);}write(t){return ()=>{this.value=t;}}modify(t){return ()=>{this.value=t(this.value);}}},h=e=>()=>new i(e);
+
+exports.IORef = i;
+exports.newIORef = h;
+//# sourceMappingURL=IORef.js.map
+//# sourceMappingURL=IORef.js.map

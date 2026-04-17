@@ -1,0 +1,498 @@
+// Copyright (c) 2021-2023 Peter Matta
+//
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+
+import { error, fst, identity, lazy, snd, throwError } from "./function/core"
+
+// import { $type, HKT, TyK, TyVar } from "./hkt";
+
+/**
+ * Eval is a stack-safe monad that provides _compositional_ laziness.
+ *
+ * Type `Eval<A>` describes a computation that yields a result of type `A` that
+ * can be accessed using the getter `.value`. This is analogous to type `() => A`,
+ * which however is not easily composed and does not provide stack safety.
+ *
+ * There are three strategies for creating an eval:
+ *
+ *  1. Now: evaluate the value eagerly (e.g., `Eval.now(42)`)
+ *  2. Always: evaluate the value lazily _each time_ it is accessed (e.g., `Eval.always(() => 1 + 3)`)
+ *  2. Later: evaluate the value lazily _only on it's first access_ (e.g., `Eval.later(() => 1 + 3)`)
+ *
+ * Eval supports stack-safe, lazy composition using .map/2 and .flatMap, which
+ * are _always_ applied lazily, even when applied on `Now` instance.
+ */
+export abstract class Eval<T> {
+  public get memoize(): Eval<T> {
+    return new Memoize(this)
+  }
+
+  public get value(): T {
+    return evaluate(this)
+  }
+
+  public map<B>(f: (a: T) => B): Eval<B> {
+    return new Map(this, f)
+  }
+
+  public add(this: Eval<number>, v: number): Eval<number> {
+    return this.map((a) => a + v)
+  }
+
+  public div(this: Eval<number>, v: number): Eval<number> {
+    return this.map((a) => a / v)
+  }
+
+  public tap(f: (a: T) => void): Eval<T> {
+    return this.map((x) => (f(x), x))
+  }
+
+  public map2<B, C>(that: Eval<B>, f: (a: T, b: B) => C): Eval<C> {
+    return new Map2(this, that, f)
+  }
+
+  public flatMap<B>(f: (a: T) => Eval<B>): Eval<B> {
+    return new FlatMap(this, f)
+  }
+
+  public apLazy<A, B>(this: Eval<(n: A) => Eval<B>>, f: () => A): Eval<B> {
+    return this._chain((rec) => rec(f()))
+  }
+
+  /**
+   * 递归调用自己
+   * @param a
+   * @returns
+   */
+  public rec<A extends any[], B>(
+    this: Eval<(...n: A) => Eval<B>>,
+    ...args: A
+  ): Eval<B> {
+    return this._chain((rec) => rec(...args))
+  }
+
+  $<A extends any[], B>(this: Eval<(...n: A) => Eval<B>>) {
+    return (...args: A) => this.rec(...args) as B
+  }
+
+  /**
+   * 递归调用自己并进行纯计算
+   * 等价于ap(f).map(f2)
+   * @param args
+   * @param f
+   * @returns
+   */
+  public recCallWith<A extends any[], B, C>(
+    this: Eval<(...args: A) => Eval<B>>,
+    args: A,
+    f: (b: B) => C,
+  ): Eval<C> {
+    return this.rec(...args).map(f)
+  }
+
+  /**
+   * @see {@link Eval.recCallWith}
+   */
+  public get recWith(): <A extends any[], B, C>(
+    this: Eval<(...args: A) => Eval<B>>,
+    args: A,
+    f: (b: B) => C,
+  ) => Eval<C> {
+    return this.recCallWith
+  }
+
+  public get chain(): this["flatMap"] {
+    return this._chain
+  }
+  public get _chain(): this["flatMap"] {
+    return this.flatMap
+  }
+  public get then(): this["map"] {
+    return this.map
+  }
+
+  public flatten<A>(this: Eval<Eval<A>>): Eval<A> {
+    return this.flatMap(identity)
+  }
+
+  public unzip<A, B>(this: Eval<readonly [A, B]>): [Eval<A>, Eval<B>] {
+    const ac = this.memoize
+    return [ac.map(fst), ac.map(snd)]
+  }
+
+  public unzipWith<B, C>(f: (a: T) => readonly [B, C]): [Eval<B>, Eval<C>] {
+    const ebc = this.map(f).memoize
+    return [ebc.map(fst), ebc.map(snd)]
+  }
+
+  public toString(): string {
+    return "Eval(..)"
+  }
+}
+
+class Now<A> extends Eval<A> {
+  public get tag(): 0 {
+    return 0
+  }
+
+  public constructor(public readonly _value: A) {
+    super()
+  }
+
+  public override get value(): A {
+    return this._value
+  }
+
+  public override get memoize(): Eval<A> {
+    return this
+  }
+}
+
+class Later<A> extends Eval<A> {
+  public get tag(): 1 {
+    return 1
+  }
+
+  public constructor(thunk: () => A) {
+    super()
+    this._value = lazy(thunk)
+  }
+
+  private readonly _value: () => A
+
+  public override get value(): A {
+    return this._value()
+  }
+
+  public override get memoize(): Eval<A> {
+    return this
+  }
+}
+
+class Always<A> extends Eval<A> {
+  public get tag(): 2 {
+    return 2
+  }
+
+  public constructor(private readonly thunk: () => A) {
+    super()
+  }
+
+  public override get value(): A {
+    return this.thunk()
+  }
+
+  public override get memoize(): Eval<A> {
+    return new Later(this.thunk)
+  }
+}
+
+class Defer<A> extends Eval<A> {
+  public get tag(): 3 {
+    return 3
+  }
+
+  public constructor(public readonly thunk: () => Eval<A>) {
+    super()
+  }
+}
+
+class Map<E, A> extends Eval<A> {
+  public get tag(): 4 {
+    return 4
+  }
+
+  public constructor(
+    public readonly self: Eval<E>,
+    public readonly run: (e: E) => A,
+  ) {
+    super()
+  }
+}
+
+class FlatMap<E, A> extends Eval<A> {
+  public get tag(): 5 {
+    return 5
+  }
+
+  public constructor(
+    public readonly self: Eval<E>,
+    public readonly run: (e: E) => Eval<A>,
+  ) {
+    super()
+  }
+}
+
+class Memoize<A> extends Eval<A> {
+  public get tag(): 6 {
+    return 6
+  }
+
+  public readonly result: DeferredValue<A> = {
+    resolved: false,
+    value: undefined,
+  }
+
+  public constructor(public readonly self: Eval<A>) {
+    super()
+  }
+
+  public override get memoize() {
+    return this
+  }
+
+  public override get value(): A {
+    return this.result.resolved ? this.result.value! : evaluate(this)
+  }
+}
+
+class Map2<L, R, A> extends Eval<A> {
+  public get tag(): 7 {
+    return 7
+  }
+
+  public constructor(
+    public readonly lhs: Eval<L>,
+    public readonly rhs: Eval<R>,
+    public readonly f: (l: L, r: R) => A,
+  ) {
+    super()
+  }
+}
+
+interface DeferredValue<A> {
+  resolved: boolean
+  value?: A
+}
+
+type View<A> =
+  | Now<A>
+  | Later<A>
+  | Always<A>
+  | Defer<A>
+  | Map<any, A>
+  | FlatMap<any, A>
+  | Memoize<A>
+  | Map2<any, any, A>
+
+export enum Cont {
+  DoneK = 0,
+  MapK = 1,
+  FlatMapK = 2,
+  MemoizeK = 3,
+  Map2LK = 4,
+  Map2RK = 5,
+}
+
+function evaluate<A>(e: Eval<A>): A {
+  const stack: unknown[] = []
+  const conts: Cont[] = [Cont.DoneK]
+  let _cur: Eval<any> = e
+
+  runLoop: while (true) {
+    const cur = _cur as View<unknown>
+    let result: unknown
+
+    switch (cur.tag) {
+      case 0: // Now
+      case 1: // Later
+      case 2: // Always
+        result = cur.value
+        break
+
+      case 3: // Defer
+        _cur = cur.thunk()
+        continue
+
+      case 4: /* MapK */ {
+        const self = cur.self as View<unknown>
+        const f = cur.run
+
+        switch (self.tag) {
+          case 0: // Now
+          case 1: // Later
+          case 2: // Always
+            result = f(self.value)
+            break
+
+          default:
+            conts.push(Cont.MapK)
+            stack.push(f)
+            _cur = self
+            continue
+        }
+        break
+      }
+
+      case 5: /* FlatMap */ {
+        const self = cur.self as View<unknown>
+        const f = cur.run
+
+        switch (self.tag) {
+          case 0: // Now
+          case 1: // Later
+          case 2: // Always
+            _cur = f(self.value)
+            continue
+
+          default:
+            conts.push(Cont.FlatMapK)
+            stack.push(f)
+            _cur = self
+            continue
+        }
+      }
+
+      case 6: // Memoize
+        if (cur.result.resolved) {
+          result = cur.result.value!
+          break
+        }
+        conts.push(Cont.MemoizeK)
+        stack.push(cur.result)
+        _cur = cur.self
+        continue
+
+      case 7: /* Map2 */ {
+        const lhs = cur.lhs as View<unknown>
+        const rhs = cur.rhs as View<unknown>
+        const f = cur.f
+
+        switch (lhs.tag) {
+          case 0: // Now
+          case 1: // Later
+          case 2: // Always
+            break
+          default:
+            stack.push(f, rhs)
+            conts.push(Cont.Map2LK)
+            _cur = lhs
+            continue
+        }
+
+        switch (rhs.tag) {
+          case 0: // Now
+          case 1: // Later
+          case 2: // Always
+            result = f(lhs.value, rhs.value)
+            break
+          default:
+            stack.push(f, lhs.value)
+            conts.push(Cont.Map2RK)
+            _cur = rhs
+            continue
+        }
+        break
+      }
+    }
+
+    while (true) {
+      switch (conts.pop()!) {
+        case 0: // EndK
+          return result as A
+        case 1: /* MapK */ {
+          const next = stack.pop()! as (u: unknown) => unknown
+          result = next(result)
+          continue
+        }
+        case 2: /* FlatMapK */ {
+          const next = stack.pop()! as (u: unknown) => Eval<unknown>
+          _cur = next(result)
+          continue runLoop
+        }
+        case 3: /* MemoizeK */ {
+          const deferred = stack.pop()! as any as DeferredValue<unknown>
+          deferred.resolved = true
+          deferred.value = result
+          continue
+        }
+
+        case 4: /* Map2LR */ {
+          const rhs = stack.pop()! as View<unknown>
+          switch (rhs.tag) {
+            case 0: // Now
+            case 1: // Later
+            case 2: /* Always */ {
+              const f = stack.pop()! as (l: unknown, r: unknown) => unknown
+              result = f(result, rhs.value)
+              continue
+            }
+            default:
+              conts.push(Cont.Map2RK)
+              stack.push(result)
+              _cur = rhs
+              continue runLoop
+          }
+        }
+
+        case 5: /* Map2RK */ {
+          const lhs = stack.pop()! as View<unknown>
+          const f = stack.pop()! as (l: unknown, r: unknown) => unknown
+          result = f(lhs, result)
+          continue
+        }
+      }
+    }
+  }
+}
+
+// -- HKT
+
+// export interface Eval<A> extends HKT<EvalF, [A]> {}
+
+// /**
+//  * @category Type Constructor
+//  */
+// export interface EvalF extends TyK<[unknown]> {
+//   [$type]: Eval<TyVar<this, 0>>;
+// }
+
+export const pure = <A>(x: A): Eval<A> => new Now(x)
+export const now: <A>(x: A) => Eval<A> = pure
+export const unit: Eval<void> = now(undefined) /* defined below */
+export const always = <A>(thunk: () => A): Eval<A> => new Always(thunk)
+export const later = <A>(thunk: () => A): Eval<A> => new Later(thunk)
+export const delay: <A>(thunk: () => A) => Eval<A> = later
+export const defer = <A>(thunk: () => Eval<A>): Eval<A> => new Defer(thunk)
+
+export function fix<A>(f: (a: Eval<A>) => Eval<A>): Eval<A>
+export function fix<A>(f: (a: Eval<A>) => Eval<A>): Eval<A> {
+  const a: Eval<A> = defer(() => f(a))
+  return a
+}
+
+export const batch = <A>(as: Eval<A>[]): Eval<A[]> => {
+  const arr = [] as A[]
+  if (as.length === 0) return pure(arr)
+  let head = pure(arr)
+  const f = (a: A) => (arr: A[]) => (arr.push(a), arr)
+  for (let i = 0; i < as.length; ++i) {
+    const r = head
+    head = as[i]!._chain((a) => r.then(f(a)))
+  }
+  return head
+}
+export const batchWith = <T, A>(
+  as: readonly T[],
+  map: (t: T) => Eval<A>,
+): Eval<readonly A[]> => {
+  const arr = [] as A[]
+  if (as.length === 0) return pure(arr)
+  let head = pure(arr)
+  const f = (a: A) => (arr: A[]) => (arr.push(a), arr)
+  for (let i = 0; i < as.length; ++i) {
+    const r = head
+    head = map(as[i]!)._chain((a) => r.then(f(a)))
+  }
+  return head
+}
+
+const Void: Eval<void> = unit /* defined below */
+const False: Eval<boolean> = now(false) /* defined below */
+const True: Eval<boolean> = now(true) /* defined below */
+export { Void as void, False as false, True as true }
+export const zero: Eval<number> = now(0) /* defined below */
+export const one: Eval<number> = now(1) /* defined below */
+export const bottom = <A = never>(): Eval<A> =>
+  always<any>(() => throwError(error("Eval.bottom")))

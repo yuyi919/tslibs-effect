@@ -1,0 +1,1 @@
+{"version":3,"file":"MessagePipe.js","names":[],"sources":["src/MessagePipe.js"],"sourcesContent":["/**\n * Copy from {@link https://github.com/Marcisbee/messagepipe}\n */ export * from \"./internal/message-pipe/MessagePipe.js\";\n"],"mappings":"AAAA;AACA;AACA,GAAI,cAAc,wCAAwC","ignoreList":[]}

@@ -1,0 +1,13 @@
+export { controller as abortController } from "./AbortSignal";
+export { interval, rafLoop, reqAF, reqIdle, timeout } from "./Disposify";
+export { asPromise, asReject, promise, delay, delayOK, delayValue, delayValueOk, sleep, } from "./Promisify";
+/**
+ * 将一个参数不支持空值的函数提升为支持空值，但返回值也将可为空值
+ * @param fn - 需要提升的函数
+ * @remark 不应对参数可能为null或undefined的函数使用此方法
+ */
+export declare function liftNilable<T, R>(fn: (arg?: T) => R): never;
+export declare function liftNilable<T, R>(fn: (arg?: T | null) => R): never;
+export declare function liftNilable<T, R>(fn: (arg: NonNullable<T>) => R): (arg?: NonNullable<T> | undefined) => R | undefined;
+export type * as Types from "./Types";
+//# sourceMappingURL=index.d.ts.map

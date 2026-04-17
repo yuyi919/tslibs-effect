@@ -1,0 +1,12 @@
+'use strict';
+
+function l(t,e,r,o,n,p,a,u,f){switch(arguments.length){case 1:return t;case 2:return function(){return e(t.apply(this,arguments))};case 3:return function(){return r(e(t.apply(this,arguments)))};case 4:return function(){return o(r(e(t.apply(this,arguments))))};case 5:return function(){return n(o(r(e(t.apply(this,arguments)))))};case 6:return function(){return p(n(o(r(e(t.apply(this,arguments))))))};case 7:return function(){return a(p(n(o(r(e(t.apply(this,arguments)))))))};case 8:return function(){return u(a(p(n(o(r(e(t.apply(this,arguments))))))))};case 9:return function(){return f(u(a(p(n(o(r(e(t.apply(this,arguments)))))))))}}}var s=()=>t=>[t,t],x=t=>()=>[void 0,t],m=t=>e=>[void 0,t(e)],c=t=>e=>[t(e),e];var A=t=>()=>t.fromState(s()),F=t=>e=>t.fromState(x(e)),v=t=>l(m,t.fromState),w=t=>l(c,t.fromState),d=t=>e=>l(e,t.fromState),z=(t,e)=>{let r=d(t);return o=>n=>e.chain(n,r(o))};
+
+exports.chainStateK = z;
+exports.fromStateK = d;
+exports.get = A;
+exports.gets = w;
+exports.modify = v;
+exports.put = F;
+//# sourceMappingURL=FromState.js.map
+//# sourceMappingURL=FromState.js.map

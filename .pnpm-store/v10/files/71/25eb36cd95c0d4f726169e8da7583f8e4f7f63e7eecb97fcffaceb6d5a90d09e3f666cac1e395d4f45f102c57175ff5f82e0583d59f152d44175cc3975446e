@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Traversable.js",
+  "module": "../dist/esm/Traversable.js",
+  "types": "../dist/esm/Traversable.d.ts",
+  "sideEffects": []
+}

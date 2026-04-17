@@ -1,0 +1,16 @@
+'use strict';
+
+var chunkGSMKQMP2_js = require('./chunk-GSMKQMP2.js');
+
+
+
+Object.defineProperty(exports, "Add", {
+	enumerable: true,
+	get: function () { return chunkGSMKQMP2_js.a; }
+});
+Object.defineProperty(exports, "AddTo", {
+	enumerable: true,
+	get: function () { return chunkGSMKQMP2_js.b; }
+});
+//# sourceMappingURL=Extensions.js.map
+//# sourceMappingURL=Extensions.js.map

@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/ReadonlySet.js",
+  "module": "../dist/esm/ReadonlySet.js",
+  "types": "../dist/esm/ReadonlySet.d.ts",
+  "sideEffects": []
+}

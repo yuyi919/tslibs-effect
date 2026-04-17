@@ -1,0 +1,9 @@
+'use strict';
+
+var l=t=>{let p=r(t);return a=>e=>p(e,a)},r=t=>(p,a)=>t.chain(p,e=>t.map(a(e),()=>e)),h=t=>(p,a)=>e=>t.chain(e,i=>t.map(a(i),n=>Object.assign({},i,{[p]:n})));
+
+exports.bind = h;
+exports.chainFirst = l;
+exports.tap = r;
+//# sourceMappingURL=Chain.js.map
+//# sourceMappingURL=Chain.js.map

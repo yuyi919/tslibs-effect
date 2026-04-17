@@ -1,0 +1,73 @@
+import { dual } from "./function.js"; // -------------------------------------------------------------------------------------
+// Option
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let isNone = fa => fa._tag === "None"; /** @internal */
+export let isSome = fa => fa._tag === "Some"; /** @internal */
+export let none = {
+  _tag: "None"
+}; /** @internal */
+export let some = a => ({
+  _tag: "Some",
+  value: a
+}); // -------------------------------------------------------------------------------------
+// Either
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let isLeft = ma => ma._tag === "Left"; /** @internal */
+export let isRight = ma => ma._tag === "Right"; /** @internal */
+export let left = e => ({
+  _tag: "Left",
+  left: e
+}); /** @internal */
+export let right = a => ({
+  _tag: "Right",
+  right: a
+}); // -------------------------------------------------------------------------------------
+// ReadonlyNonEmptyArray
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let singleton = a => [a]; /** @internal */
+export let isNonEmpty = as => as.length > 0; /** @internal */
+export let head = as => as[0]; /** @internal */
+export let tail = as => as.slice(1); // -------------------------------------------------------------------------------------
+// empty
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let emptyReadonlyArray = []; /** @internal */
+export let emptyRecord = {}; // -------------------------------------------------------------------------------------
+// Record
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let has = Object.prototype.hasOwnProperty; // -------------------------------------------------------------------------------------
+// NonEmptyArray
+// -------------------------------------------------------------------------------------
+/** @internal */
+export let fromReadonlyNonEmptyArray = as => [as[0], ...as.slice(1)]; /** @internal */
+export let liftNullable = F => (f, onNullable) => (...a) => {
+  let o = f(...a);
+  return F.fromEither(o == null ? left(onNullable(...a)) : right(o));
+}; /** @internal */
+export let liftOption = F => (f, onNone) => (...a) => {
+  let o = f(...a);
+  return F.fromEither(isNone(o) ? left(onNone(...a)) : right(o.value));
+}; /** @internal */
+export let flatMapNullable = (F, M) => {
+  return /*#__PURE__*/dual(3, (self, f, onNullable) => M.flatMap(self, liftNullable(F)(f, onNullable)));
+}; /** @internal */
+export let flatMapOption = (F, M) => {
+  return /*#__PURE__*/dual(3, (self, f, onNone) => M.flatMap(self, liftOption(F)(f, onNone)));
+}; /** @internal */
+export let flatMapEither = (F, M) => {
+  return /*#__PURE__*/dual(2, (self, f) => M.flatMap(self, a => F.fromEither(f(a))));
+}; /** @internal */
+export let flatMapIO = (F, M) => {
+  return /*#__PURE__*/dual(2, (self, f) => M.flatMap(self, a => F.fromIO(f(a))));
+}; /** @internal */
+export let flatMapTask = (F, M) => {
+  return /*#__PURE__*/dual(2, (self, f) => M.flatMap(self, a => F.fromTask(f(a))));
+}; /** @internal */
+export let flatMapReader = (F, M) => {
+  return /*#__PURE__*/dual(2, (self, f) => M.flatMap(self, a => F.fromReader(f(a))));
+};
+//# sourceMappingURL=internal.js.map

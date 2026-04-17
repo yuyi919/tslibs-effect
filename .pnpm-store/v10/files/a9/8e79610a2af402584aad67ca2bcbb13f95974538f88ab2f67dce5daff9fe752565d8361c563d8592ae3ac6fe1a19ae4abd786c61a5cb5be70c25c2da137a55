@@ -1,0 +1,43 @@
+/**
+ * The state monad transformer. It can be used to add state to other monads.
+ *
+ * The `of` function leaves the state unchanged, while `chain` uses the final state of the first computation
+ * as the initial state of the second.
+ *
+ * @since 2.0.0
+ */import { pipe } from "./function.js";
+import { snd } from "./ReadonlyTuple.js";
+export let of = F => a => s => F.of([a, s]);
+export let map = F => f => fa => s => F.map(fa(s), ([a, s1]) => [f(a), s1]);
+export let ap = M => fa => fab => s => M.chain(fab(s), ([f, s]) => M.map(fa(s), ([a, s]) => [f(a), s]));
+export let chain = M => {
+  let flatMapM = flatMap(M);
+  return f => ma => flatMapM(ma, f);
+}; /** @internal */
+export let flatMap = M => (ma, f) => s => M.chain(ma(s), ([a, s1]) => f(a)(s1));
+export let fromState = F => sa => s => F.of(sa(s));
+export let fromF = F => ma => s => F.map(ma, a => [a, s]);
+export let evaluate = F => s => ma => F.map(ma(s), ([a]) => a);
+export let execute = F => s => ma => F.map(ma(s), snd); /** @deprecated */ /* istanbul ignore next */
+export let getStateM = M => {
+  let _ap = ap(M);
+  let _map = map(M);
+  let _chain = chain(M);
+  let _evaluate = evaluate(M);
+  let _execute = execute(M);
+  return {
+    map: (fa, f) => _map(f)(fa),
+    ap: (fab, fa) => _ap(fa)(fab),
+    of: of(M),
+    chain: (ma, f) => _chain(f)(ma),
+    get: () => s => M.of([s, s]),
+    put: s => () => M.of([undefined, s]),
+    modify: f => s => M.of([undefined, f(s)]),
+    gets: f => s => M.of([f(s), s]),
+    fromState: fromState(M),
+    fromM: fromF(M),
+    evalState: (fa, s) => _evaluate(s)(fa),
+    execState: (fa, s) => _execute(s)(fa)
+  };
+};
+//# sourceMappingURL=StateT.js.map

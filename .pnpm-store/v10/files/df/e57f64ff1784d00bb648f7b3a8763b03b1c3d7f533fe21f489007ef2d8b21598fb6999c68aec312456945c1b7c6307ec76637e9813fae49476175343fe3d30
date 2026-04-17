@@ -1,0 +1,2 @@
+export declare const round: (x: number) => number, floor: (x: number) => number;
+//# sourceMappingURL=Math.d.ts.map

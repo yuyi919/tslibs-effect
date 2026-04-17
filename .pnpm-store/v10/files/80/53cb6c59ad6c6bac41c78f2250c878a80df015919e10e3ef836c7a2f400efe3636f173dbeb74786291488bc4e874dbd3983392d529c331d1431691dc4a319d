@@ -1,0 +1,13 @@
+export type Length = number;
+export declare function str(value: string): Length;
+export declare function numberArray(value: ArrayLike<number>): Length;
+export declare function unknownArray(value: ArrayLike<unknown>): Length;
+export declare function strArray(value: ArrayLike<string>): Length;
+export declare function mapLength(value: Map<unknown, unknown>): Length;
+export declare function setLength(value: Set<unknown>): Length;
+export declare function arrayBuffer(value: ArrayBuffer): Length;
+export declare function uint8Array(value: Uint8Array): Length;
+export declare function uint8ClampedArray(value: Uint8ClampedArray): Length;
+export declare function uint16Array(value: Uint16Array): Length;
+export declare function uint32Array(value: Uint32Array): Length;
+//# sourceMappingURL=Length.d.ts.map

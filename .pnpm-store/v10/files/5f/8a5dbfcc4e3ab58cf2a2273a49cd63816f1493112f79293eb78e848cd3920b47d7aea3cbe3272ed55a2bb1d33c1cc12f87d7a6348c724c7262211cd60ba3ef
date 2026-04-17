@@ -1,0 +1,16 @@
+export * from "./expressive-ts";
+export declare const IDENTIFIER: RegExp;
+export declare const takeUntil: (modifier: Modifiers, patterns: Patterns) => RegExp;
+export type Modifiers = `${"+" | "*"}${"?" | ""}`;
+export type Patterns = (string | RegExp)[];
+export declare function takeUntilClosed(modifier: Modifiers, closePattern: Patterns): RegExp;
+export declare function takeUntilClosed(pattern: string, closePattern: Patterns): RegExp;
+export declare const SPACE: RegExp;
+export declare const WHITESPACE: RegExp;
+export declare const INT: RegExp;
+export declare const FLOAT: RegExp;
+export declare const NUMBER: RegExp;
+export declare function ALTS(patterns: RegExp[], flags?: string): RegExp;
+export declare function ALTS(patterns: [RegExp, ...args: RegExp[]], flags?: string): RegExp;
+export declare const IDENTIFIER_OR_NUMBER: RegExp;
+//# sourceMappingURL=index.d.ts.map

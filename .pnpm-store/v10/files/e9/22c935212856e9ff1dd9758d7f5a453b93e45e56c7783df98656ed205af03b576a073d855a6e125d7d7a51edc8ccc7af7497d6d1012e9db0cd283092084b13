@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/TaskOption.js",
+  "module": "../dist/esm/TaskOption.js",
+  "types": "../dist/esm/TaskOption.d.ts",
+  "sideEffects": []
+}

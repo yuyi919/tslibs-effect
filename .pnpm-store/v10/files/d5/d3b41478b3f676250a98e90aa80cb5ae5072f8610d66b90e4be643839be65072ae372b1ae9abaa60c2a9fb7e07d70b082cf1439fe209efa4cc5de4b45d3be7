@@ -1,0 +1,20 @@
+/**
+ * Lift a computation from the `IO` monad
+ *
+ * @since 2.10.0
+ */import { tap } from "./Chain.js";
+import { flow } from "./function.js";
+export let fromIOK = F => f => flow(f, F.fromIO);
+export let chainIOK = (F, M) => f => {
+  let g = flow(f, F.fromIO);
+  return first => M.chain(first, g);
+};
+export let chainFirstIOK = (F, M) => {
+  let tapIOM = tapIO(F, M);
+  return f => first => tapIOM(first, f);
+}; /** @internal */
+export let tapIO = (F, M) => {
+  let chainFirstM = tap(M);
+  return (self, f) => chainFirstM(self, flow(f, F.fromIO));
+};
+//# sourceMappingURL=FromIO.js.map

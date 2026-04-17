@@ -1,0 +1,102 @@
+// import * as Random from 'effect/Random'
+// import * as Micro from "effect/Micro"
+
+import * as MApply from "fp-ts/Apply"
+import * as S from "fp-ts/State"
+
+import { pipe } from "@yuyi919/shared-proto/Functions"
+
+let _seed = Date.now()
+let _start = _seed
+function rng(next: number) {
+  _seed = (next * 9301 + 49297) % 233280
+  return _seed / 233280.0
+}
+
+/**
+ * @param seed - 不为0的数字
+ * @alpha
+ */
+export function randomRNG(seed?: number) {
+  if (seed && _start !== seed) {
+    _seed = seed
+    _start = _seed
+  }
+  return rng(_seed)
+}
+
+export function randomInt(min: number, max: number) {
+  var f = randomRNG() * ((max - min) | 0)
+  return ((Math.floor(f) | 0) + min) | 0
+}
+
+/**
+ * The Random type represents a State<number, A>
+ * which represents a function, (n: number) => [A, number]
+ */
+export type RNGRandom<A> = S.State<number, A>
+
+const a = 1839567234
+const m = 8239451023
+const c = 972348567
+
+/**
+ * An implementation of a [Linear Congruential (pseudo-random) Generator](https://en.wikipedia.org/wiki/Linear_congruential_generator).
+ *
+ * Generates a random number given a seed.
+ */
+export const random: RNGRandom<number> = (seed) => {
+  const nextSeed = (a * seed + c) % m
+  return [nextSeed, nextSeed]
+}
+
+/**
+ * Generates a rondom number in the specified range
+ * @param max The max value, exclusive
+ * @param min The minimum value, inclusive
+ */
+export const randomInRange: (max: number, min: number) => RNGRandom<number> = (
+  max,
+  min,
+) =>
+  pipe(
+    random,
+    S.map((num) => min + Math.floor((num / m) * (max - min))),
+  )
+
+/**
+ * Picks a random value from the specified array.
+ * @param arr
+ */
+export const randomIn = <T>(arr: T[]) =>
+  pipe(
+    randomInRange(0, arr.length),
+    S.map((index) => arr[index]),
+  )
+
+type EnforceNonEmptyRecord<NER> = keyof NER extends never ? never : NER
+
+// @ts-expect-error
+export const struct: <NER extends Record<string, RNGRandom<any>>>(
+  r: EnforceNonEmptyRecord<NER> & Record<string, RNGRandom<any>>,
+) => RNGRandom<{
+  [K in keyof NER]: [NER[K]] extends [RNGRandom<infer A>] ? A : never
+}> = MApply.sequenceS(S.Apply)
+
+export const sequence: {
+  <T extends Array<RNGRandom<any>>>(
+    ...t: T & {
+      readonly 0: RNGRandom<any>
+    }
+  ): RNGRandom<{
+    [K in keyof T]: [T[K]] extends [RNGRandom<infer A>] ? A : never
+  }>
+} = MApply.sequenceT(S.Apply)
+
+// eslint-disable-next-line prefer-destructuring
+export const sequenceArray: <A>(
+  arr: ReadonlyArray<RNGRandom<A>>,
+) => RNGRandom<ReadonlyArray<A>> = S.sequenceArray
+
+// eslint-disable-next-line prefer-destructuring
+export const evaluate: (s: number) => <A>(ma: RNGRandom<A>) => A = S.evaluate

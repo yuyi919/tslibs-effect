@@ -1,0 +1,192 @@
+/**
+ * @internal
+ */
+export declare const ENTRIES: typeof Object.entries;
+/**
+ * @internal
+ * @see Object.is
+ */
+export declare const OBJECT_IS: typeof Object.is;
+/**
+ * @internal
+ */
+export declare const IS_ARR: typeof Array.isArray;
+/**
+ * @internal
+ */
+export declare const CALLER: typeof Function.call;
+/**
+ * @internal
+ * @see parseFloat
+ */
+export declare const PARSE_FLOAT: typeof parseFloat;
+/**
+ * @internal
+ * @see parseInt
+ */
+export declare const PARSE_INT: typeof parseInt;
+/**
+ * @internal
+ * @see parseInt
+ */
+export declare const SET_TIMEOUT: typeof setTimeout;
+/**
+ * @internal
+ * @see parseInt
+ */
+export declare const SET_INTERVAL: typeof setInterval;
+/**
+ * ```ts
+ * Object.keys
+ * ```
+ * @internal
+ * */
+export declare const OBJ_KEYS: typeof Object.keys;
+/**
+ * ```ts
+ * Object.freeze
+ * ```
+ * @internal
+ * */
+export declare const OBJ_FREEZE: typeof Object.freeze;
+/**
+ * ```ts
+ * Object.seal
+ * ```
+ * @internal
+ * */
+export declare const OBJ_SEAL: typeof Object.seal;
+/**
+ * ```ts
+ * Object.create
+ * ```
+ * @internal
+ * */
+export declare const OBJ_CREATE: typeof Object.create;
+/**
+ * ```ts
+ * Object.assign
+ * ```
+ * @internal
+ * */
+export declare const OBJ_ASSIGN: typeof Object.assign;
+/**
+ * ```ts
+ * Object.getOwnPropertyDescriptors
+ * ```
+ * @internal
+ * */
+export declare const OBJ_getOwnPropertyDescriptors$: typeof Object.getOwnPropertyDescriptors;
+/**
+ * ```ts
+ * Object.defineProperty
+ * ```
+ * @internal
+ * */
+export declare const OBJ_defineProperty$: typeof Object.defineProperty;
+/**
+ * ```ts
+ * Object.defineProperties
+ * ```
+ * @internal
+ * */
+export declare const OBJ_defineProperties$: typeof Object.defineProperties;
+/**
+ * ```ts
+ * Object.getPrototypeOf
+ * ```
+ * @internal
+ * */
+export declare const OBJ_getPrototypeOf$: typeof Object.getPrototypeOf;
+/**
+ * ```ts
+ * Object.setPrototypeOf
+ * ```
+ * @internal
+ * */
+export declare const OBJ_setPrototypeOf$: typeof Object.setPrototypeOf;
+/**
+ * ```ts
+ * Object.getOwnPropertyDescriptor
+ * ```
+ * @internal
+ * */
+export declare const OBJ_getOwnPropertyDescriptor$: typeof Object.getOwnPropertyDescriptor;
+/**
+ * ```ts
+ * Object.getOwnPropertyNames
+ * ```
+ * @internal
+ * */
+export declare const OBJ_getOwnPropertyNames$: {
+    (o: number): [];
+    (o: boolean): [];
+    (o: string): string[];
+    (o: any[]): string[];
+    <T extends Record<any, any>>(o: T): Exclude<keyof T, symbol>[];
+    (o: any): string[];
+};
+/**
+ * ```ts
+ * Object.getOwnPropertyNames
+ * ```
+ * @internal
+ * */
+export declare const OBJ_getOwnPropertySymbols$: {
+    (o: number | boolean): [];
+    (o: string): symbol[];
+    (o: any[]): symbol[];
+    <T extends Record<any, any>>(o: T): Extract<keyof T, symbol>[];
+    (o: any): symbol[];
+};
+/**
+ * @internal
+ */
+export declare const PROMISE: typeof Promise;
+/**
+ * @internal
+ */
+export declare const CREATE_NEW: typeof Reflect.construct;
+/**
+ * @internal
+ */
+export declare const RESOLVE: typeof Promise.resolve;
+/**
+ * @internal
+ */
+export declare const ALL: typeof Promise.all;
+/**
+ * noop return
+ * @internal
+ */
+export declare const NOOP: () => void;
+/**
+ * 强制隐式转换类型
+ * @internal
+ */
+export declare const CAST: <T>(target: any) => T;
+/**
+ * ```ts
+ * Object.prototype.hasOwnProperty
+ * ```
+ * @internal
+ */
+export declare const OBJECT_HAS_OWNPROPERTY: typeof Object.prototype.hasOwnProperty;
+/**
+ * Determines whether an object has a property with the specified name.
+ * @param o An object.
+ * @param v A property name.
+ * ```ts
+ * Object.hasOwn
+ * ```
+ * @internal
+ */
+export declare const OBJECT_HAS_OWN: (o: object, v: PropertyKey) => boolean;
+/**
+ * Creates an array from an iterable object.
+ * @param iterable An iterable object to convert to an array.
+ * @param mapfn A mapping function to call on every element of the array.
+ * @param thisArg Value of 'this' used to invoke the mapfn.
+ */
+export declare const ARRAY_FROM: typeof Array.from;
+//# sourceMappingURL=function.d.ts.map

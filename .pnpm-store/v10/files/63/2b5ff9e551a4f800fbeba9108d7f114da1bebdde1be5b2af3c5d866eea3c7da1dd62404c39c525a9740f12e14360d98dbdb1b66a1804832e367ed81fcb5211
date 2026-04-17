@@ -1,0 +1,29 @@
+import { JsPropertyKey } from "./JsObject";
+/**
+ * @category models
+ * @since 2.0.0
+ */
+export type ReadonlyRecord<in out K extends string | symbol, out A> = {
+    readonly [P in K]: A;
+};
+/**
+ * @since 2.0.0
+ */
+export declare namespace ReadonlyRecord {
+    type IsFiniteString<T extends string> = T extends "" ? true : [T] extends [`${infer Head}${infer Rest}`] ? string extends Head ? false : `${number}` extends Head ? false : Rest extends "" ? true : IsFiniteString<Rest> : false;
+    /**
+     * @since 2.0.0
+     */
+    type NonLiteralKey<K extends string | symbol> = K extends string ? IsFiniteString<K> extends true ? string : K : symbol;
+    /**
+     * @since 2.0.0
+     */
+    type IntersectKeys<K1 extends string, K2 extends string> = [
+        string
+    ] extends [K1 | K2] ? NonLiteralKey<K1> & NonLiteralKey<K2> : K1 & K2;
+}
+export declare function map<K extends JsPropertyKey, A, B>(record: ReadonlyRecord<K, A>, each: (value: A, key: K) => B): ReadonlyRecord<K, B>;
+export declare function mapI<K extends JsPropertyKey, A, B>(fa: ReadonlyRecord<K, A>, f: (k: K, a: A) => B): ReadonlyRecord<K, B>;
+export declare function bind<K extends JsPropertyKey, A>(record: ReadonlyRecord<K, A>, key: K, a: A): ReadonlyRecord<K, A>;
+export declare function singleton<K extends JsPropertyKey, A>(name: K, a: A): Record<K, A>;
+//# sourceMappingURL=Record.d.ts.map

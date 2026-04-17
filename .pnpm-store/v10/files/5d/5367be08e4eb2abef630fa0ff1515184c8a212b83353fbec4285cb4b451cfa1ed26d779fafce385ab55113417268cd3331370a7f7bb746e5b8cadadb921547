@@ -1,0 +1,14 @@
+export function toString(o: any): any;
+export function $$return(param: any, t: any): any;
+export function switchTo(param: any, t: any): any;
+export function compute(a: any, cb: any): any;
+export function switchWith(param: any, cb: any): any;
+export function tap(a: any, cb: any): any;
+export function effect(a: any, cb: any): any;
+export function charCodeAt(str: any, int: any): any;
+export function charAt(str: any, int: any): any;
+export function charStrAt(str: any, int: any): any;
+export function is32Bit(str: any, int: any): boolean;
+export function test(prim0: any, prim1: any): any;
+export function getStringLength(str: any): number;
+//# sourceMappingURL=Shared.bs.d.ts.map

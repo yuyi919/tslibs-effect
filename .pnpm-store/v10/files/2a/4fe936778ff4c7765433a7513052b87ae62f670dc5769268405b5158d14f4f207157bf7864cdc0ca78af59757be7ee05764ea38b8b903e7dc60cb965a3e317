@@ -1,0 +1,68 @@
+import * as Semigroup from "@effect/typeclass/Semigroup";
+
+import {
+  constant,
+  constEmptyArray,
+  constNull,
+  ignore,
+} from "../function/index.js";
+import { isNil, isNotNil } from "../JsTypes.js";
+
+/** @deprecated 保留fp-ts的兼容，推荐用{@link combine} */ /** @internal */ /** @internal */
+export let toComplex = (m) => ({
+  ...m,
+  concat: m.combine,
+  _tag: "Semigroup",
+});
+export let fromFpTs = (m) => Semigroup.make(m.concat);
+export let makeComplex = (combine, combineMany) =>
+  toComplex(Semigroup.make(combine, combineMany));
+export let getArraySemigroup = /*#__PURE__*/ constant(
+  /*#__PURE__*/ makeComplex(
+    (x, y) =>
+      x.length === 0
+        ? y.length === 0
+          ? constEmptyArray()
+          : y
+        : y.length === 0
+          ? x
+          : [...x, ...y],
+    (a, then) => [...a, ...Array.from(then).flat(1)],
+  ),
+);
+export let getNilableSemigroup = (semigroup) =>
+  makeComplex(
+    (x, y) => (isNil(x) || isNil(y) ? (x ?? y) : semigroup.combine(x, y)),
+    (head, then) => {
+      let { combineMany, combineAll } = semigroup;
+      let array = Array.from(then).filter(isNotNil);
+      if (isNil(head)) {
+        if (combineAll) return combineAll(array);
+        return array.length < 2
+          ? array[0]
+          : combineMany(array[0], array.slice(1));
+      }
+      return array.length === 0 ? head : combineMany(head, array);
+    },
+  );
+export let VoidSemigroup = /*#__PURE__*/ makeComplex(ignore, ignore);
+export let UndefinedSemigroup = VoidSemigroup;
+export let NullSemigroup = /*#__PURE__*/ makeComplex(constNull, constNull);
+export let NumberAddSemigroup = /*#__PURE__*/ makeComplex((a, b) => a + b);
+export let NumberSubSemigroup = /*#__PURE__*/ makeComplex((a, b) => a - b);
+export {
+  array,
+  constant,
+  first,
+  imap,
+  intercalate,
+  last,
+  make,
+  max,
+  min,
+  reverse,
+  Product,
+  SemiProduct,
+  struct,
+} from "@effect/typeclass/Semigroup";
+//# sourceMappingURL=Semigroup.js.map

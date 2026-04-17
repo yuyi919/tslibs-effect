@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Profunctor.js",
+  "module": "../dist/esm/Profunctor.js",
+  "types": "../dist/esm/Profunctor.d.ts",
+  "sideEffects": []
+}

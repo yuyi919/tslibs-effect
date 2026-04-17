@@ -1,0 +1,41 @@
+import { onAbortIfAlive } from "../AbortSignal"
+import * as disposify from "../Disposify"
+import { pipe } from "../function"
+import * as proto from "../Proto"
+import { SYMBOL_ASYNC_DISPOSE, SYMBOL_DISPOSE } from "./constant"
+import * as P from "./protoFactory"
+
+export const DisposeifyProtos: Pick<disposify.DisposifyAny, "scope" | "add"> =
+  pipe(
+    P.type<disposify.DisposifyAny>(),
+    P.method("add", (self, signal) =>
+      onAbortIfAlive(signal, () => self.dispose()),
+    ),
+    P.method(
+      "scope",
+      (self, ...args: any[]): disposify.CloseableScope<any> => ({
+        [SYMBOL_DISPOSE]: () => self._(...args),
+        [SYMBOL_ASYNC_DISPOSE]: () => self._(...args),
+      }),
+    ),
+    P.make,
+  )
+export const Disposify: proto.TClass<
+  disposify.DisposifyAny,
+  [fn: any, out: any]
+> = pipe(
+  DisposeifyProtos as disposify.DisposifyAny,
+  proto.makeClassWith(
+    proto.useThis((self: disposify.DisposifyAny, fn: any, out: any) => {
+      const dispose = (...args: any[]) => {
+        const res = fn(...args)
+        self.isDisposed = true
+        return res
+      }
+      self._ = dispose
+      self.out = out
+      self.dispose = dispose
+      self.isDisposed = false
+    }),
+  ),
+)

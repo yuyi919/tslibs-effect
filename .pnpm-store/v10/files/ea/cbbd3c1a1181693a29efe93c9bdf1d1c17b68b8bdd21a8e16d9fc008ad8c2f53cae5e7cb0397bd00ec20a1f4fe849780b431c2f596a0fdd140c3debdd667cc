@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Promisify.js",
+  "module": "../dist/esm/Promisify.js",
+  "types": "../dist/esm/Promisify.d.ts",
+  "sideEffects": []
+}

@@ -1,0 +1,44 @@
+import { unsafeCoerce } from "./Functions"
+import { SYMBOL } from "./internal/constant"
+
+/**
+ * @internal
+ */
+export function symbolFor(name: string): symbol {
+  return SYMBOL.for(name)
+}
+
+export function nameForEffect(moduleName: string) {
+  return `effect/${moduleName}`
+}
+
+export function signed(moduleName: string) {
+  return `yui9/proto/${moduleName}`
+}
+
+/**
+ * @internal
+ */
+export function symbolForEffect(moduleName: string): symbol {
+  return symbolFor(nameForEffect(moduleName))
+}
+
+/**
+ * @internal
+ */
+export const EqualSymbol: typeof import("effect/Equal").symbol = unsafeCoerce(
+  symbolForEffect("Equal"),
+)
+
+/**
+ * @internal
+ */
+export const HashSymbol: typeof import("effect/Hash").symbol = unsafeCoerce(
+  symbolForEffect("Hash"),
+)
+
+/**
+ * @internal
+ */
+export const NodeInspectSymbol: typeof import("effect/Inspectable").NodeInspectSymbol =
+  unsafeCoerce(symbolFor("nodejs.util.inspect.custom"))

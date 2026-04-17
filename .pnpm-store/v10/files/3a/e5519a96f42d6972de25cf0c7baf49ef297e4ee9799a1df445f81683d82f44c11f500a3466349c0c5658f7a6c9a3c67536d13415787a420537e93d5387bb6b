@@ -1,0 +1,264 @@
+open Shared
+open! IContext
+
+module type ProcessConfig = {
+  module CompressOptions: ICompressOptions
+  module Ecs: ElementBufferFactory.Visitor
+}
+
+module MakeProcess = (Opts: ProcessConfig) => {
+  module CompressOptions = Opts.CompressOptions
+  module Pipe = Pipe.Use(CompressOptions)
+  module Env = IEnv.Initlize(CompressOptions)
+  module Store = IContext.MakeStore()
+  module Ecs = Opts.Ecs
+  module Runtime = {
+    include Ecs
+    module CompressOptions = CompressOptions
+    module Store = Store
+    let env = Env.env
+  }
+  module Context = IContext.MakeContext(Runtime)
+  module CompactContext = CompactContext.MakeContext(Runtime)
+  module ForceGridAlignment: P_Helper.IForceGridAlignment = P_Helper.MakeForceGridAlignment(Runtime)
+  module Compress = P_Helper.MakeCompress(Runtime)
+
+  let {env, compressOptions} = module(Env)
+
+  module ProcessLogger = {
+    let logger = Logger.logger
+    let debugger = CompressOptions.debugger
+    let groupCollapsed = Runtime.CompressOptions.groupCollapsed
+    let enable = true
+    let label = Logger.Tag("Process")
+  }
+  module Logger = Logger.MakeLogger(ProcessLogger)
+
+  module Process = {
+    // @inline
+    let closeCompactWindow = (context: context, ~currentIsPunctuation: bool, ~end: bool) => {
+      %raw("/*closeCompactWindow*/0")->ignore
+      if CompactContext.isProcessing() {
+        if CompressOptions.forceSpaceBetweenCJKAndWestern {
+          switch end {
+          | false if !currentIsPunctuation && context->CompactContext.allowPanguClose =>
+            context->CompactContext.closeWindow(~allowPangu=true)
+          | _ => context->CompactContext.closeWindow(~allowPangu=false)
+          }
+        } else {
+          context->CompactContext.closeWindow(~allowPangu=false)
+        }
+        Logger.groupEnd1("process compact")
+      }
+    }
+
+    @inline
+    let recordLastElement = (context, ~char, ~charWidth, ~charFontSize, ~charCode) => {
+      char
+      ->Ecs.out(char => {
+        let x = if CompressOptions.fixCJKLeftQuote {
+          context
+          ->Context.getCurrentX
+          ->Compress.fixCjkLeftQuote(~context, ~charFontSize, ~charCode, ~charWidth)
+        } else {
+          context->Context.getCurrentX
+        }
+        // ->Pipe.pipeIfConst(
+        //   // 判断修复CJK左引号偏移
+        //   CompressOptions.fixCJKLeftQuote,
+        //   Compress.fixCjkLeftQuote(~context, ~charFontSize, ~charCode, ~charWidth),
+        // )
+        let y = context->Context.getCurrentY -. (charFontSize -. env.gridSize) /. 2.0
+        char->Ecs.setPosition(x, y)->ignore
+        char->Ecs.setSize(charWidth, charFontSize)->ignore
+      })
+      ->ignore
+      context->Context.recordLastElement(char)
+    }
+
+    @inline
+    let processChar_ = (context, ~char, ~elementType, ~currentIsPunctuation, ~isValidEndChar) => {
+      let isInvalidEndColumn =
+        context->Context.getCurrentCol >= env.lastCol &&
+        currentIsPunctuation &&
+        ElementType.checkInvalidEndChar(elementType)
+      // Logger.debug2(
+      //   "isInvalidEndColumn",
+      //   char->Ecs.out(Ecs.getCharacter),
+      //   context->Context.getCurrentCol,
+      // )
+      let overflowCol = context->Context.getCurrentCol >= env.maxCol
+      let isEOL = overflowCol || isInvalidEndColumn
+      let charWidth = char->Ecs.out(Ecs.getWidth)
+      let charCode = char->Ecs.out(Ecs.getCharCode)
+      let charFontSize = char->Ecs.out(Ecs.getFontSize)
+      if isEOL {
+        // 起始符号在行尾时强制折行
+        // Logger.debug(
+        //   "isEOL",
+        //   JSON.stringify(character),
+        //   context.currentColumn,
+        //   column,
+        // )
+        if !isValidEndChar || isInvalidEndColumn || context.isNeedForceWrap {
+          Logger.debug4(
+            "overflowCol: %o\nisInvalidEndChar: %o\nisInvalidEndColumn: %o\nisNeedForceWrap: %o",
+            overflowCol,
+            !isValidEndChar,
+            isInvalidEndColumn,
+            context.isNeedForceWrap,
+          )
+          // 正常折行
+          context->Context.lineWrap
+        }
+      }
+
+      // 测量文字宽度
+      // Logger.debug(`[calcWithChar] ${char}:${character} = ${width}`)
+      // 在前后字号不一致的时候施行强制纵横对齐
+
+      // 预先缓存偏移量，确定字符位置后再进行下个字符的前瞻
+      // 确定字符位置并添加到返回数组中
+      if CompressOptions.forceGridAlignment {
+        context->ForceGridAlignment.buffOffsetX(
+          ~fontSize=charFontSize,
+          ~overflow=overflowCol && isValidEndChar,
+        )
+      }
+      context->recordLastElement(~char, ~charWidth, ~charFontSize, ~charCode)
+      if CompressOptions.forceGridAlignment {
+        context->ForceGridAlignment.consumeOffsetX
+      }
+      context
+      ->Compress.process(
+        _,
+        ~char,
+        ~charFontSize,
+        ~charWidth,
+        ~currentIsPunctuation,
+        ~isEOL,
+        ~isValidEndChar,
+      )
+      ->Context.growRowHeight(charFontSize) // 更新行高
+      // 杂七杂八的状态更新
+      ->Context.setLastCharWidth(charWidth)
+      ->return(
+        // 超出高度，直接略去后面的字符，返回的数据中也不包含后面的字符。
+        context->Context.getCurrentRow < env.maxRow ? Continue : Break,
+      )
+    }
+    @inline
+    let processChar = (
+      context,
+      ~char: ElementBufferFactory.identifier,
+      ~elementType: ElementType.elementKind,
+      ~currentIsPunctuation: bool,
+      ~isValidEndChar: bool,
+    ): loopStage => {
+      if elementType === ElementType.EOL {
+        // 强制折行
+        context->Context.lineWrap
+        Continue
+      } else {
+        context->processChar_(~char, ~elementType, ~currentIsPunctuation, ~isValidEndChar)
+      }
+    }
+
+    @inline
+    let allowContinueCompactProcess = (
+      ~elementType: ElementType.elementKind,
+      ~isValidEndChar: bool,
+    ) => CompactContext.isProcessing() && (elementType === ElementType.SPACE || isValidEndChar)
+
+    @inline
+    let allowProcessCompactText = (context: context, ~elementType) => {
+      switch elementType {
+      | ElementType.EMOJI
+      | ElementType.COMPACT_CHAR
+      | ElementType.COMPACT_QUOTE_COMMON
+      | ElementType.WORD => true
+      | ElementType.FULL_POINT => CompactContext.isProcessing()
+      | _ =>
+        if ElementType.checkCloseable(elementType) {
+          context->Context.nextIsWord
+        } else if CompactContext.isProcessing() {
+          ElementType.isQUOTE(elementType) || ElementType.isBRACKET(elementType)
+        } else {
+          false
+        }
+      }
+    }
+    // @inline
+    let each = (
+      context: context,
+      ~char: ElementBufferFactory.identifier,
+      ~elementType: ElementType.elementKind,
+      ~currentIsPunctuation: bool,
+      ~isValidEndChar: bool,
+    ): loopStage => {
+      Logger.debug6(
+        "%o: %o (%s) width: %d(px), isValidEndChar: %s, nextIsWord: %s",
+        char,
+        char->Ecs.out(Ecs.getCharacter),
+        char->Ecs.out(Ecs.getElementType)->ElementType.print,
+        char->Ecs.out(Ecs.getWidth),
+        isValidEndChar,
+        context->Context.nextIsWord,
+      )
+      if (
+        allowContinueCompactProcess(~elementType, ~isValidEndChar) ||
+        allowProcessCompactText(context, ~elementType)
+      ) {
+        if !CompactContext.isProcessing() {
+          CompactContext.openWindow(~start_i=context.cursor)
+          if CompressOptions.forceSpaceBetweenCJKAndWestern {
+            if !currentIsPunctuation {
+              Logger.debug("[盘古] 插入")
+              context->CompactContext.processPanguBegin
+            } else {
+              Logger.debug("[盘古] 由于是标点，不做处理")
+            }
+          }
+          Logger.groupCollapsed("处理紧凑模式")
+        }
+        context->CompactContext.processWindow(~char, ~elementHeight=char->Ecs.out(Ecs.getFontSize))
+      } else {
+        context->closeCompactWindow(~currentIsPunctuation, ~end=false)
+        context->processChar(~char, ~elementType, ~currentIsPunctuation, ~isValidEndChar)
+      }
+    }
+  }
+
+  // @inline
+  /**
+    *  as
+    */
+  let each: (
+    IContext.context,
+    ~char: ElementBufferFactory.identifier,
+    ~prevChar: ElementBufferFactory.identifier,
+  ) => Shared.loopStage = (context, ~char, ~prevChar) => {
+    let elementType = char->Ecs.out(Ecs.getElementType)
+    let currentIsPunctuation = ElementType.isPunctuation(elementType)
+    if CompressOptions.debugger && elementType == ElementType.INVALID {
+      Js.Exn.raiseRangeError("Invalid Element: " ++ char->ElementBufferFactory.id2String)
+    }
+    context.prevChar = prevChar
+    context->Compress.processUncompress(~elementType, ~currentIsPunctuation)
+    context->Process.each(
+      ~char,
+      ~elementType,
+      ~currentIsPunctuation,
+      ~isValidEndChar=currentIsPunctuation && ElementType.checkValidEndChar(elementType),
+    )
+  }
+
+  // @inline
+  let output: Context.t => IContext.result = context => {
+    // context->Compress.processUncompress(~currentIsPunctuation=false)
+    context->Process.closeCompactWindow(~currentIsPunctuation=false, ~end=true)
+    Logger.debug1("context", context)
+    Logger.groupEnd()
+    Context.flush(context)
+  }
+}

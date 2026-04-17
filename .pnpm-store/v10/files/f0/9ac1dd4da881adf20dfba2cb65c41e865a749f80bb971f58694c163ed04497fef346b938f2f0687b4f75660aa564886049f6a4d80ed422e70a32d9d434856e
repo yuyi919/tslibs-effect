@@ -1,0 +1,103 @@
+import { controller as abortController } from "../AbortSignal"
+import { Disposify, timeout } from "../Disposify"
+import { addEventListener } from "../dom"
+import * as Ok from "../Ok"
+import { make as promise } from "../Promisify"
+import { UNDEFINED } from "./constant"
+import * as internal from "./timeout"
+
+export const delay = <T = void>(
+  duration: number,
+  arg?: T,
+): {
+  force(value: T): boolean
+  knock(value: never): boolean
+  abort(reason: never): boolean
+  promise: Promise<Ok.Ok<T, never>>
+} => _sleepWithOk<T, never>(duration, false, arg)
+
+export const delayThrow = <T, E = void>(
+  duration: number,
+  arg?: E,
+): {
+  force(value: T): boolean
+  knock(value: E): boolean
+  abort(reason: E): boolean
+  promise: Promise<Ok.Ok<T, E>>
+} => _sleepWithOk<T, E>(duration, true, arg)
+
+const _sleepWith = <T = void>(duration: number, isThrow: boolean, arg?: T) => {
+  let controller: AbortController
+  let handle: ReturnType<typeof timeout>
+  let knock: (arg: T) => void
+  let abort: (arg: unknown) => void
+  return {
+    get controller() {
+      if (!controller) {
+        controller = abortController()
+        addEventListener(controller.signal, "abort", () => {
+          handle.dispose()
+          knock(arg as T)
+        })
+      }
+      return controller
+    },
+    wait: promise<T>((resolve, reject) => {
+      abort = reject
+      knock = resolve
+      internal.__setTimeout(
+        (arg: T) => {
+          ;(isThrow ? reject : resolve)(arg)
+        },
+        duration,
+        arg as T,
+      )
+      handle = timeout(isThrow ? reject : resolve, duration, arg as T)
+    }),
+    abort: (arg: unknown) => abort?.(arg),
+    knock: (arg: T) => knock?.(arg),
+  }
+}
+
+const _sleepWithOk = <T, E>(duration: number, isThrow: boolean, arg?: T | E) =>
+  ((
+    _resolve: ((value: Ok.Ok<T, E>) => void) | undefined,
+    _reject: ((reason: E) => void) | undefined,
+    id: any,
+  ) => ({
+    force(value: T) {
+      if (id === UNDEFINED || !_resolve) return false
+      _resolve(Ok.ok(value))
+      internal.__clearTimeout(id)
+      return true
+    },
+    knock(value: E) {
+      if (id === UNDEFINED || !_resolve) return false
+      _resolve(Ok.no(value))
+      internal.__clearTimeout(id)
+      return true
+    },
+    abort(reason: E) {
+      if (id === UNDEFINED || !_reject) return false
+      _reject(reason)
+      internal.__clearTimeout(id)
+      return true
+    },
+    promise: isThrow
+      ? promise<Ok.Ok<T, E>>((_, reject) => {
+          _reject = reject
+          id = internal.__setTimeout(
+            (arg: any) => reject(arg as E),
+            duration,
+            arg as T,
+          )
+        })
+      : promise<Ok.Ok<T, E>>((resolve, _) => {
+          _resolve = resolve
+          id = internal.__setTimeout(
+            (arg: any) => resolve(Ok.ok(arg)),
+            duration,
+            arg as T,
+          )
+        }),
+  }))(UNDEFINED, UNDEFINED, UNDEFINED)

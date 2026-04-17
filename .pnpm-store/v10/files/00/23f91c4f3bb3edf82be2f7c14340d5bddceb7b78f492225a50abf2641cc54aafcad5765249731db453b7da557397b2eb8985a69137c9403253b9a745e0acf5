@@ -1,0 +1,1 @@
+{"version":3,"file":"code-frame.d.ts","sourceRoot":"","sources":["../../../../../../src/internal/Parser/parser/parser-ts/code-frame.ts"],"names":[],"mappings":"AAAA;;GAEG;AAGH,UAAU,QAAQ;IAChB,QAAQ,CAAC,KAAK,EAAE;QACd,QAAQ,CAAC,IAAI,EAAE,MAAM,CAAA;QACrB,QAAQ,CAAC,MAAM,EAAE,MAAM,CAAA;KACxB,CAAA;CACF;AAID,eAAO,MAAM,WAAW,EAAE,CAAC,MAAM,EAAE,MAAM,EAAE,MAAM,EAAE,MAAM,KAAK,QAuB7D,CAAA"}

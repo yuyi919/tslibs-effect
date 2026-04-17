@@ -1,0 +1,8 @@
+'use strict';
+
+var e=t=>t;var p=t=>({_tag:"Left",left:t}),i=t=>({_tag:"Right",right:t});var u=p,x=i;var o=(t,r)=>{try{return x(t())}catch(n){return u(r(n))}};var J=t=>o(()=>JSON.parse(t),e),q=t=>o(()=>{let r=JSON.stringify(t);if(typeof r!="string")throw new Error("Converting unsupported structure to JSON");return r},e);
+
+exports.parse = J;
+exports.stringify = q;
+//# sourceMappingURL=Json.js.map
+//# sourceMappingURL=Json.js.map

@@ -1,0 +1,75 @@
+import { type HashValue } from "../Hash";
+/** @internal */
+export declare const randomHashCache: WeakMap<object, HashValue>;
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export declare function random<A extends object>(self: A): HashValue;
+/**
+ * @since 2.0.0
+ * @category hashing
+ */
+export declare function number(n: number | HashValue): 0 | HashValue;
+export declare function string(str: string): HashValue;
+export declare function boolean(value: boolean): HashValue;
+export declare function memoizedString(): typeof string & {
+    cache: import("@yuyi919/shared-proto/Functions").MemoizeCache<any, HashValue>;
+};
+export declare function bigInt(self: bigint): HashValue;
+export declare function memoizedBigInt(): typeof bigInt & {
+    cache: import("@yuyi919/shared-proto/Functions").MemoizeCache<any, HashValue>;
+};
+export declare function symbol(self: symbol): HashValue;
+export declare function memoizedSymbol(): typeof symbol & {
+    cache: import("@yuyi919/shared-proto/Functions").MemoizeCache<any, HashValue>;
+};
+export declare const KEYWORD_HASH: typeof string & {
+    cache: import("@yuyi919/shared-proto/Functions").MemoizeCache<any, HashValue>;
+};
+export declare function optimize(n: HashValue): HashValue;
+/**
+ * 拷贝自effect/Hash的非柯里化版本
+ */
+export declare function combine2(a: HashValue, b: HashValue): number;
+/**
+ *
+ * @remark 同`combine2(a, combine2(b, c))`
+ */
+export declare function combine3(a: HashValue, b: HashValue, c: HashValue): number;
+/**
+ * 拷贝自effect/Hash
+ */
+export declare function combineWith(b: HashValue): (self: HashValue) => number;
+/** @internal */
+export declare const HASH_UNDEFINED: HashValue;
+/** @internal */
+export declare const HASH_NULL: HashValue;
+/** @internal */
+export declare const HASH_TRUE: HashValue;
+/** @internal */
+export declare const HASH_FALSE: HashValue;
+/**
+ * @internal
+ * @remark
+ * ```ts
+ * string("_tag")
+ * ```*/
+export declare const HASH_TAG: HashValue;
+/**
+ * @internal
+ * @remark
+ * ```ts
+ * string("value")
+ * ```*/
+export declare const HASH_VALUE: HashValue;
+/**
+ *
+ * @param name
+ * @returns
+ * ```ts
+ * combine(string("_tag"), typeof name === 'string' ? string(name) : symbol(name))
+ * ```
+ */
+export declare function $tag(name: string | symbol): number;
+//# sourceMappingURL=hash.d.ts.map

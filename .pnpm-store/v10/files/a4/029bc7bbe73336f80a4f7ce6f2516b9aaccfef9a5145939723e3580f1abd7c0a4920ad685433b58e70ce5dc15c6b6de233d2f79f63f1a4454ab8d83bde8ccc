@@ -1,0 +1,4 @@
+export let Result: {};
+export function cursor(reg: any, offset: any): any;
+export function testAt(t: any, text: any, offset: any): any;
+//# sourceMappingURL=RegExp.bs.d.ts.map

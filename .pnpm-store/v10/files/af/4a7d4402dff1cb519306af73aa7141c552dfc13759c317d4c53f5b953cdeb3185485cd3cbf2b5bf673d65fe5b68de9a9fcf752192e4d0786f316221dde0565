@@ -1,0 +1,36 @@
+module TypedArray = {
+  type t<'a>
+
+  include NativeArray.Id({
+    type t<'a> = t<'a>
+  })
+
+  @get external buffer: t<'a> => ArrayBuffer.t = "buffer"
+  @get external byteLength: t<'a> => int = "byteLength"
+  @get external byteOffset: t<'a> => int = "byteOffset"
+
+  @send external update: (t<'a>, t<'a>) => unit = "set"
+  @send external updateFrom: (t<'a>, t<'a>, int) => unit = "set"
+
+  @send external setArray: (t<'a>, array<'a>) => unit = "set"
+  @send external setArrayFrom: (t<'a>, array<'a>, int) => unit = "set"
+
+  @get external length: t<'a> => int = "length"
+
+  module IArrayLike: ArrayLike.Indexable with type t<'a> = t<'a> = {
+    type t<'a> = t<'a>
+    let get = getUnsafe
+    let set = setUnsafe
+
+    let length = length
+  }
+
+  include NativeArray.Proto(IArrayLike)
+
+  @send external subarray: (t<'a>, ~start: int, ~end: int) => t<'a> = "subarray"
+  @send external subarrayToEnd: (t<'a>, ~start: int) => t<'a> = "subarray"
+
+  include ArrayLike.Swap(IArrayLike)
+}
+
+include TypedArray

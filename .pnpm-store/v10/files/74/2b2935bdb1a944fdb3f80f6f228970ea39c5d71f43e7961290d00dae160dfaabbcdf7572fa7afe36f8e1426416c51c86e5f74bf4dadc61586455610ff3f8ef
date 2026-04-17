@@ -1,0 +1,18 @@
+import * as unctx from "unctx";
+
+import * as Pos from "./pos.js";
+
+// import { IToken } from "chevrotain";
+let { use, call, tryUse } = /*#__PURE__*/ unctx.createNamespace().get("Pos");
+let initialContext = () => ({
+  pos: Pos.initialPos,
+  cache: {},
+  offset: 0,
+});
+export let run = (cb) => call(initialContext(), cb);
+export let withCtx =
+  (cb) =>
+  (...args) =>
+    tryUse() ? cb(...args) : call(initialContext(), () => cb(...args));
+export let useContext = use;
+//# sourceMappingURL=context.js.map

@@ -1,0 +1,39 @@
+/**
+ * The `FromEither` type class represents those data types which support errors.
+ *
+ * @since 2.10.0
+ */import { tap } from "./Chain.js";
+import { flow } from "./function.js";
+import * as _ from "./internal.js";
+export let fromOption = F => onNone => ma => F.fromEither(_.isNone(ma) ? _.left(onNone()) : _.right(ma.value));
+export let fromPredicate = F => (predicate, onFalse) => a => F.fromEither(predicate(a) ? _.right(a) : _.left(onFalse(a)));
+export let fromOptionK = F => {
+  let fromOptionF = fromOption(F);
+  return onNone => {
+    let from = fromOptionF(onNone);
+    return f => flow(f, from);
+  };
+};
+export let chainOptionK = (F, M) => {
+  let fromOptionKF = fromOptionK(F);
+  return onNone => {
+    let from = fromOptionKF(onNone);
+    return f => ma => M.chain(ma, from(f));
+  };
+};
+export let fromEitherK = F => f => flow(f, F.fromEither);
+export let chainEitherK = (F, M) => {
+  let fromEitherKF = fromEitherK(F);
+  return f => ma => M.chain(ma, fromEitherKF(f));
+};
+export let chainFirstEitherK = (F, M) => {
+  let tapEitherM = tapEither(F, M);
+  return f => ma => tapEitherM(ma, f);
+};
+export let filterOrElse = (F, M) => (predicate, onFalse) => ma => M.chain(ma, a => F.fromEither(predicate(a) ? _.right(a) : _.left(onFalse(a)))); /** @internal */
+export let tapEither = (F, M) => {
+  let fromEither = fromEitherK(F);
+  let tapM = tap(M);
+  return (self, f) => tapM(self, fromEither(f));
+};
+//# sourceMappingURL=FromEither.js.map

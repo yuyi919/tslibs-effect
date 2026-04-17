@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/Magma.js",
+  "module": "../dist/esm/Magma.js",
+  "types": "../dist/esm/Magma.d.ts",
+  "sideEffects": []
+}

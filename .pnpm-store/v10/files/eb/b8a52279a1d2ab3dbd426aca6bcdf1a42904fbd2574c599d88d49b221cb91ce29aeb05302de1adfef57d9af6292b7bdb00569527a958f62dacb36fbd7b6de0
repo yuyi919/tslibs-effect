@@ -1,0 +1,11 @@
+import { describe, expect, it } from "vitest"
+
+import { VoidMonoid } from "../Monoid"
+
+// import { mo } from "node:assert"
+
+describe("mitt", () => {
+  it("should accept an optional event handler map", () => {
+    expect(VoidMonoid.combineAll([])).toBeUndefined()
+  })
+})

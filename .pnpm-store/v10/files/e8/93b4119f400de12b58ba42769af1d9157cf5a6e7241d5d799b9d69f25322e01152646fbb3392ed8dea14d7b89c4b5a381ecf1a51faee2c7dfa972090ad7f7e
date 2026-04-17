@@ -1,0 +1,98 @@
+/**
+ * EvalFunction
+ */
+import { isArr } from "../JsTypes"
+import { __KEY_FUNC, __KEY_RETURN, FUNCTION } from "./constant"
+import { isFn, isStr, newFunction as pure, tryCatch } from "./helper"
+
+export { pure }
+
+export const Return = (content: string) => `${__KEY_RETURN} ${content}`
+export const newFunction = <F extends Function>(
+  content: string,
+  args: string[],
+) => new FUNCTION(...args, content) as F
+export const ENABLE_EVALFUNCTION = tryCatch(
+  () => !!pure(Return("1"), []),
+  (_) => false,
+)
+
+export const pure0 = <F extends Function>(content: string): F =>
+  pure(content, []) as F
+export const pureStrict = (content: string, args: string[]): Function =>
+  pure("'use strict';" + content, args)
+
+export const prop = (data: string, name: string | number) =>
+  data + (isStr(name) ? `.${name}` : `[${name}]`)
+
+/**
+ * @internal
+ * 不安全的函数
+ */
+export const tmpl = (tmpl: TemplateStringsArray, ...args: any[]) =>
+  tmpl
+    .flatMap((item, i) => (i === 0 ? [item] : [args[i - 1], item]))
+    .map((item) => (isArr(item) ? item.join("") : item))
+    .join("")
+
+export const AnonymousFunc = (
+  args: readonly string[],
+  body: readonly (string | readonly string[])[],
+) => Func("", args, body)
+export const ArrowFunc = (
+  args: readonly string[],
+  body: string | readonly (string | readonly string[])[],
+) =>
+  isStr(body)
+    ? `(${args})=>${body}`
+    : `(${args})=>{\n  ${body.flat(1).join("\n  ")}\n}`
+export const Tuple = (args: readonly string[]) => `[${args}]`
+
+export const Func = (
+  name: string,
+  args: readonly string[],
+  body: readonly (string | readonly string[])[],
+) => `${__KEY_FUNC} ${name}(${args}){\n  ${body.flat(1).join("\n  ")}\n}`
+
+export type ArgString<F extends readonly any[]> = Extract<
+  {
+    [K in keyof F]: string | number
+  },
+  any[]
+>
+export type Fns<F extends readonly any[]> = {
+  [K in keyof F]: F[K] extends (...args: any[]) => any
+    ? (...args: ArgString<Parameters<F[K]>>) => string
+    : string
+}
+
+/**
+ * @internal
+ * 不安全的函数
+ */
+export function makeReturnArrowFunction<const F extends readonly any[]>(
+  deps: F,
+  contentArgs: readonly string[],
+  content: (args: readonly string[]) => (...fns: Fns<F>) => string[] | string,
+): never {
+  return make(deps, (...extend) =>
+    Return(ArrowFunc(contentArgs, content(contentArgs)(...extend))),
+  )
+}
+
+/**
+ * @internal
+ * 不安全的函数
+ */
+export function make<const F extends readonly any[]>(
+  args: F,
+  content: (...fns: Fns<F>) => string,
+): never {
+  const names = args.map((_, index) => `$${(_ as any).name ?? "arg"}$` + index)
+  const _args = names.map((name, index) =>
+    isFn(args[index])
+      ? (...args: any[]) => `${name}(\n  ${args.join(",")}\n)`
+      : name,
+  ) as Fns<F>
+  return pure(content(..._args), names)(...args) as never
+}

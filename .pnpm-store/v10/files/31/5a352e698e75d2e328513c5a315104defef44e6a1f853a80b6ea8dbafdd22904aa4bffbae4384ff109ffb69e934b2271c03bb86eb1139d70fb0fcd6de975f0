@@ -1,0 +1,8 @@
+import { Nilable } from "./Types";
+export declare function forEach<A>(self: Nilable<ReadonlyArray<A>>, f: (a: A, i: number, array: ReadonlyArray<A>) => void): ReadonlyArray<A>;
+export declare function forEach<A>(self: Nilable<ReadonlyArray<A>>, f: (a: A, i: number, array: ReadonlyArray<A>) => void): ReadonlyArray<A> | undefined | null;
+export declare function every<A, B extends A>(self: Nilable<ReadonlyArray<A>>, f: (a: A, i: number, array: ReadonlyArray<A>) => a is B): ReadonlyArray<B> | null;
+export declare function every<A>(self: ReadonlyArray<A> | undefined | null, f: (a: A, i: number, array: ReadonlyArray<A>) => boolean): ReadonlyArray<A> | null;
+export declare function notEvery<A, B extends A>(self: Nilable<ReadonlyArray<A>>, f: (a: A, i: number, array: ReadonlyArray<A>) => a is B): ReadonlyArray<Exclude<A, B>> | null;
+export declare function notEvery<A>(self: Nilable<ReadonlyArray<A>>, f: (a: A, i: number, array: ReadonlyArray<A>) => boolean): ReadonlyArray<A> | null;
+//# sourceMappingURL=Optional.d.ts.map

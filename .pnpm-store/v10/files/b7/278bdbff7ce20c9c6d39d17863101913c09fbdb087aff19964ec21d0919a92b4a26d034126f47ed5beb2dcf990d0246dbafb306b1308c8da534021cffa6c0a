@@ -1,0 +1,47 @@
+import * as A from "./Array"
+import { Nilable } from "./Types"
+
+export function forEach<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => void,
+): ReadonlyArray<A>
+export function forEach<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => void,
+): ReadonlyArray<A> | undefined | null
+export function forEach<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => void,
+): ReadonlyArray<A> | undefined | null {
+  return (self && A.forEach(self, f), self)
+}
+
+export function every<A, B extends A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => a is B,
+): ReadonlyArray<B> | null
+export function every<A>(
+  self: ReadonlyArray<A> | undefined | null,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => boolean,
+): ReadonlyArray<A> | null
+export function every<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => boolean,
+): ReadonlyArray<A> | null {
+  return self && A.every(self, f) ? self : null
+}
+
+export function notEvery<A, B extends A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => a is B,
+): ReadonlyArray<Exclude<A, B>> | null
+export function notEvery<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => boolean,
+): ReadonlyArray<A> | null
+export function notEvery<A>(
+  self: Nilable<ReadonlyArray<A>>,
+  f: (a: A, i: number, array: ReadonlyArray<A>) => boolean,
+): ReadonlyArray<A> | null {
+  return self && !A.every(self, f) ? self : null
+}

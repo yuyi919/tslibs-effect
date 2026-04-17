@@ -1,0 +1,44 @@
+'use strict';
+
+var x=t=>t;var _=t=>()=>t;var f=(t,e)=>{let r=o=>o.length>=t;return function(){let o=Array.from(arguments);return r(arguments)?e.apply(this,o):p=>e(p,...o)}};var y=t=>t.length>0,M=t=>t[0];var A=[],R={};var S=t=>e=>r=>t.ap(t.map(r,o=>()=>o),e),O=t=>e=>r=>t.ap(t.map(r,()=>o=>o),e),I=t=>(e,r)=>o=>t.ap(t.map(o,p=>s=>Object.assign({},p,{[e]:s})),r),h=t=>e=>({concat:(r,o)=>t.ap(t.map(r,p=>s=>e.concat(p,s)),o)});var v=t=>e=>r=>t.map(r,o=>o(e)),C=t=>e=>r=>t.map(r,o=>({[e]:o})),E=t=>(e,r)=>o=>t.map(o,p=>Object.assign({},p,{[e]:r(p)}));var d=t=>(e,r)=>t.map(e,()=>r),N=t=>{let e=d(t);return r=>e(r,void 0)};var T=t=>{let e=h(t);return r=>({concat:e(r).concat,empty:t.of(r.empty)})};var w=t=>(e,r)=>t.chain(e,o=>t.map(r(o),()=>o)),j=t=>(e,r)=>o=>t.chain(o,p=>t.map(r(p),s=>Object.assign({},p,{[e]:s})));var n=(t,e)=>()=>e(t()),a=(t,e)=>()=>t()(e()),z=(t,e)=>()=>{let r=e(t)();for(;r._tag==="Left";)r=e(r.left)();return r.right},nt=t=>e=>n(e,t),at=t=>e=>a(e,t),i=_,u=f(2,(t,e)=>()=>e(t())()),it=u(x),l="IO",c={URI:l,map:n},ut=f(2,d(c)),mt=N(c),st=v(c),xt={URI:l,of:i},g={URI:l,map:n,ap:a},ct=S(g),ft=O(g),D={URI:l,map:n,ap:a,of:i},U={URI:l,map:n,ap:a,chain:u},ht={URI:l,map:n,ap:a,of:i,chain:u},P=f(2,w(U)),F=x,gt={URI:l,map:n,ap:a,of:i,chain:u,fromIO:F},dt={URI:l,map:n,ap:a,chain:u,chainRec:z},_t={URI:l,fromIO:x},yt=i(R),Mt=C(c),At=E(c);var Rt=j(U),St=I(g),K=i(A),V=t=>e=>()=>{let r=[t(0,M(e))()];for(let o=1;o<e.length;o++)r.push(t(o,e[o])());return r},L=t=>{let e=V(t);return r=>y(r)?e(r):K},Ot=L,H=t=>L((e,r)=>t(r)),It=H(x),vt=u,Ct=P,Et={URI:l,map:n,of:i,ap:a,chain:u,fromIO:F,chainRec:z},Nt=h(g),Tt=T(D);
+
+exports.ApT = K;
+exports.Applicative = D;
+exports.Apply = g;
+exports.Chain = U;
+exports.ChainRec = dt;
+exports.Do = yt;
+exports.FromIO = _t;
+exports.Functor = c;
+exports.Monad = ht;
+exports.MonadIO = gt;
+exports.Pointed = xt;
+exports.URI = l;
+exports.ap = at;
+exports.apFirst = ct;
+exports.apS = St;
+exports.apSecond = ft;
+exports.as = ut;
+exports.asUnit = mt;
+exports.bind = Rt;
+exports.bindTo = Mt;
+exports.chain = vt;
+exports.chainFirst = Ct;
+exports.flap = st;
+exports.flatMap = u;
+exports.flatten = it;
+exports.fromIO = F;
+exports.getMonoid = Tt;
+exports.getSemigroup = Nt;
+exports.io = Et;
+exports.let = At;
+exports.map = nt;
+exports.of = i;
+exports.sequenceArray = It;
+exports.tap = P;
+exports.traverseArray = H;
+exports.traverseArrayWithIndex = Ot;
+exports.traverseReadonlyArrayWithIndex = L;
+exports.traverseReadonlyNonEmptyArrayWithIndex = V;
+//# sourceMappingURL=IO.js.map
+//# sourceMappingURL=IO.js.map

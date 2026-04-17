@@ -1,0 +1,70 @@
+/**
+ * Y组合子相关类型和实现
+ * @packageDocumentation
+ */ import * as Eval from "../Eval.js";
+import { UNDEFINED } from "../internal/constant/index.js";
+import { lazy } from "./index.js";
+
+/** W组合子类型 */ /** 函数转换器类型 */ /**
+ * Y组合子类型定义
+ * 用于创建递归函数的高阶函数
+ */ /**
+ * 带求值器的递归函数类型
+ */ /**
+ * 带求值器的Y组合子类型
+ */ /**
+ * W组合子实现
+ * @internal
+ */
+let _w = (f) => f(f);
+/**
+ * Y组合子实现
+ * 用于创建递归函数的高阶函数
+ * @example
+ * ```ts
+ * const factorial = yCombinator<(n: number) => number>(
+ *   (f) => (n) => (n <= 1 ? 1 : n * f(n - 1))
+ * )
+ * ```
+ */
+export let yCombinator = (f) =>
+  f ? _y(f, UNDEFINED) : (f) => _y(f, UNDEFINED);
+/**
+ * Y组合子的内部实现
+ * @internal
+ */
+let _y = (f, _lazy) =>
+  _w((x) => (_lazy ||= f((...args) => /*LAZY*/ x(x)(...args))));
+/**
+ * 带求值器的Y组合子实现
+ * 用于创建带延迟求值的递归函数
+ */
+export let yEval = (f) => (f ? _yEval(f) : _yEval);
+/**
+ * 带求值器的Y组合子内部实现
+ * @internal
+ */
+let _yEval = (f) => {
+  let _eval = lazy(() => Eval.later(() => a));
+  let a = f(_eval().$(), Eval);
+  return (...args) => a(...args).value;
+};
+/**
+ * 不动点组合子实现
+ * 用于创建递归数据结构
+ */
+export let fix = (f) => {
+  let a = f(Eval.later(() => a));
+  return a;
+}; // export const yCombinator: Y.Y_Combinator = (f?: any) => {
+//   if (f) {
+//     let _lazy: any, _x: any
+//     return _w<any>(
+//       (x) => (
+//         (_x = x), (_lazy ||= f((...args: any[]) => /*LAZY*/ _x(_x)(...args)))
+//       ),
+//     )
+//   }
+//   return yCombinator
+// }
+//# sourceMappingURL=yExpr.js.map

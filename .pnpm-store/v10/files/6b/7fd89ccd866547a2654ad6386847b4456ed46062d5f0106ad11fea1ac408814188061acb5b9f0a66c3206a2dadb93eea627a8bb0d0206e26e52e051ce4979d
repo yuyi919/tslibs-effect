@@ -1,0 +1,39 @@
+import { expect, test, vi } from "vitest"
+
+import { pipe } from "effect/Function"
+
+import * as $ from "../internal/Callbag"
+
+test("basic", () => {
+  const handle = vi.fn((e: any) => {})
+
+  const eventTarget = new EventTarget()
+  const eventsource = $.fromEventTarget(eventTarget, "click")
+  const source = pipe(
+    eventsource,
+    $.filter((ev) => ev.target === eventTarget),
+    // $.map((ev) => ({ x: ev.clientX, y: ev.clientY })),
+    $.subscribe(handle),
+  )
+  const source2 = pipe(eventsource, $.subscribe(handle))
+  const e = new Event("click", {})
+  eventTarget.dispatchEvent(e)
+  expect(handle).toBeCalledWith(e)
+  expect(handle).toBeCalledTimes(2)
+  eventTarget.dispatchEvent(e)
+  expect(handle).toBeCalledTimes(4)
+  source()
+  eventTarget.dispatchEvent(e)
+  expect(handle).toBeCalledTimes(5)
+  source2()
+  eventTarget.dispatchEvent(e)
+  expect(handle).toBeCalledTimes(5)
+
+  handle.mockClear()
+  pipe($.fromIterable([10, 20, 30]), $.listen(handle))
+  expect(handle).toBeCalledTimes(0)
+  handle.mockClear()
+
+  pipe($.fromIterable([10, 20, 30]), $.subscribe(handle))
+  expect(handle).toBeCalledTimes(3)
+})

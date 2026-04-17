@@ -1,0 +1,20 @@
+/**
+ * @since 1.0.0
+ */
+import type * as Effect from "effect/Effect";
+import type { FileSystem } from "effect/FileSystem";
+import type { Path } from "effect/Path";
+import type * as Scope from "effect/Scope";
+import * as Stream from "effect/Stream";
+import * as Multipart from "effect/unstable/http/Multipart";
+/**
+ * @since 1.0.0
+ * @category Constructors
+ */
+export declare const stream: (source: Request) => Stream.Stream<Multipart.Part, Multipart.MultipartError>;
+/**
+ * @since 1.0.0
+ * @category Constructors
+ */
+export declare const persisted: (source: Request) => Effect.Effect<Multipart.Persisted, Multipart.MultipartError, FileSystem | Path | Scope.Scope>;
+//# sourceMappingURL=BunMultipart.d.ts.map

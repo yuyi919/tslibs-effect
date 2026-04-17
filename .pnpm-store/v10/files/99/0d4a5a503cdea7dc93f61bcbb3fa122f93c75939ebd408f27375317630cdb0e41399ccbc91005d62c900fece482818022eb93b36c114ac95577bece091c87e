@@ -1,0 +1,6 @@
+import * as A from "./Array.js";
+
+export let forEach = (self, f) => (self && A.forEach(self, f), self);
+export let every = (self, f) => (self && A.every(self, f) ? self : null);
+export let notEvery = (self, f) => (self && !A.every(self, f) ? self : null);
+//# sourceMappingURL=Optional.js.map

@@ -1,0 +1,209 @@
+/* eslint-disable one-var */
+/* eslint-disable no-param-reassign */
+/**
+ * @since 0.6.0
+ */
+import * as record from "fp-ts/Record"
+
+import { error, pipe, throwError } from "@yuyi919/shared-proto/Functions"
+import { isFn } from "@yuyi919/shared-proto/JsTypes"
+import { Pipeable } from "@yuyi919/shared-proto/Pipeable"
+
+import type { IParseOption } from "./options"
+import { Char } from "../char"
+import * as PR from "../ParseResult"
+import * as Stream from "../Stream"
+import { Parser } from "./core"
+
+export class ParserImpl<I, A> extends Pipeable {
+  static is = <I = any, A = any>(parser: unknown): parser is ParserImpl<I, A> =>
+    parser instanceof ParserImpl
+
+  static make = <I, A>(
+    parse: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>,
+  ) => new ParserImpl(parse, [], undefined, false, true)
+
+  static makeWith = <I, A>(
+    parse: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>,
+    _flows: any[],
+    _expected: string[] | undefined,
+    _fatal: boolean,
+  ) => new ParserImpl(parse, _flows, _expected, _fatal, true)
+
+  static clone = <I, A>(parser: ParserImpl<I, A>, emit?: boolean) =>
+    new ParserImpl(
+      parser._parse,
+      parser._flows,
+      parser._expected,
+      parser._fatal,
+      emit ?? parser._emit,
+    )
+
+  static skip = <I, A>(parser: ParserImpl<I, A>, emit?: boolean) =>
+    ParserImpl.clone(parser, emit ?? parser._emit)
+
+  _START_CHARS_HINT: Record<string, string> | undefined = undefined
+
+  protected constructor(
+    protected _parse: (
+      input: Stream.t<I>,
+      env: IParseOption,
+    ) => PR.ParseResult<I, A>,
+    readonly _flows: ((value: any, result: PR.ParseSuccess<I, any>) => any)[],
+    readonly _expected: string[] | undefined,
+    readonly _fatal: boolean,
+    readonly _emit: boolean,
+  ) {
+    super()
+  }
+
+  _emitMap(result: PR.ParseSuccess<I, any>) {
+    const fs = this._flows,
+      _result = result.clone()
+    let re = result.value
+
+    for (let i = 0; i < fs.length; ++i)
+      // eslint-disable-next-line no-multi-assign
+      re = _result.value = fs[i]!(re, _result)
+    return _result
+  }
+
+  _run(
+    input: Stream.t<I>,
+    option: IParseOption,
+    emit: boolean,
+  ): PR.ParseResult<I, A> {
+    const result = this._parse(
+      Stream.resolveNext(input, option.scanMode),
+      option,
+    )
+
+    if (PR.isLeft(result)) {
+      return this._expected && option.collectError
+        ? PR.withExpected(result, this._expected)
+        : result
+    }
+    return emit && this._flows.length > 0 ? this._emitMap(result) : result
+  }
+
+  _map<B>(f: (a: A) => B) {
+    return ParserImpl.makeWith<I, any>(
+      this._parse,
+      this._flows.concat([f]),
+      this._expected,
+      this._fatal,
+    )
+  }
+
+  _mapTo<B>(b: B) {
+    return ParserImpl.makeWith<I, any>(
+      this._parse,
+      [() => b],
+      this._expected,
+      this._fatal,
+    )
+  }
+
+  _withExpected(message: string) {
+    return ParserImpl.makeWith<I, A>(
+      this._parse,
+      this._flows,
+      [message],
+      this._fatal,
+    )
+  }
+
+  _withStartHintAll(char: Char[]): Parser<I, A> {
+    this._START_CHARS_HINT = pipe(
+      this._START_CHARS_HINT || ({} as Record<string, string>),
+      startCharHints(record.fromEntries(char.map((char) => [char[0]!, char]))),
+    )
+    return this
+  }
+}
+
+const startCharHints = record.union({
+  concat: (x: string, y: string) => y || x,
+})
+
+export const define: {
+  <I, A>(
+    parser: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>,
+    lamdba?: false,
+  ): Parser<I, A>
+  <I, R extends PR.ParseResult<I, any>>(
+    parser: (input: Stream.t<I>, env: IParseOption) => R,
+    lamdba?: false,
+  ): Parser<I, PR.ParseValue<R>>
+  <P extends Parser<any, any>>(P: P, lamdba: true): P
+} = <I, A>(
+  parseF: (input: Stream.t<I>, env: IParseOption) => PR.ParseResult<I, A>,
+): Parser<I, A> => ParserImpl.make(parseF)
+
+export function defineLambda<A>(
+  parser: <I>($: typeof define) => Parser<I, A>,
+  lazy: true,
+): <I>() => Parser<I, I>
+export function defineLambda<A>(
+  parser: Parser<any, A>,
+  lazy?: false,
+): <I>() => Parser<I, A>
+export function defineLambda<A>(
+  parser: (input: Stream.t<any>, env: IParseOption) => PR.ParseResult<any, A>,
+  lazy?: false,
+): <I>() => Parser<I, A>
+export function defineLambda(fa: any, lazy?: boolean) {
+  if (lazy) {
+    const _parser = fa(define)
+
+    return () => _parser
+  }
+  if (isFn(fa)) fa = define(fa)
+  return () => fa
+}
+
+/**
+ * @category model
+ * @since 0.6.0
+ */
+export interface ParserGen<I, A> {
+  _run(
+    i: Stream.t<I>,
+    env: IParseOption,
+  ): Generator<any, PR.ParseResult<I, A>, any>
+  void?: boolean
+  startCharacterHint?: Record<string, true>
+}
+
+export function _run<I, A>(
+  parser: Parser<I, A>,
+  input: Stream.t<I>,
+  env: IParseOption,
+  emit?: boolean,
+): PR.ParseResult<I, A>
+export function _run<I, A>(
+  parser: ParserGen<I, A>,
+  input: Stream.t<I>,
+  env: IParseOption,
+): Generator<any, PR.ParseResult<I, A>, any>
+export function _run(
+  parser: Parser<any, any> | ParserGen<any, any>,
+  input: Stream.t<any>,
+  env: IParseOption,
+  emit?: boolean,
+): any {
+  if (ParserImpl.is(parser))
+    return ParserImpl.is(parser)
+      ? parser._run(input, env, emit ?? parser._emit)
+      : throwError(error("parser is not valid Parser!"))
+  // if (typeof parser === "function") return parser(input, env);
+}
+
+export const run: <I, A>(
+  parser: Parser<I, A>,
+) => (
+  input: Stream.IStream<I>,
+  env: IParseOption,
+  emit?: boolean,
+) => PR.ParseResult<I, A> = (parser) => (input, env, emit) =>
+  _run(parser, input, env, emit)

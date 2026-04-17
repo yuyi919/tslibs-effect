@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","names":[],"sources":["../../../src/internal/Parser/parser/index.js"],"sourcesContent":["export * from \"./Parser.js\";\n"],"mappings":"AAAA,cAAc,aAAa","ignoreList":[]}

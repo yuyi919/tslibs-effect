@@ -1,0 +1,15 @@
+/* TypeScript file generated from JsTypes.resi by genType. */
+
+/* eslint-disable */
+/* tslint:disable */
+
+export type t<t> = 
+    "undefined"
+  | "null"
+  | "boolean"
+  | "number"
+  | "string"
+  | "function"
+  | "object"
+  | "symbol"
+  | "bigint";

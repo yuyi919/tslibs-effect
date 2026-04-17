@@ -1,0 +1,6 @@
+{
+  "main": "../dist/cjs/NonNullable.js",
+  "module": "../dist/esm/NonNullable.js",
+  "types": "../dist/esm/NonNullable.d.ts",
+  "sideEffects": []
+}

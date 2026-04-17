@@ -1,0 +1,244 @@
+import * as assert from "node:assert"
+import { describe, expect, it } from "vitest"
+
+import { char as C, string as S } from "."
+import { errorResult, succeedResult } from "./ParseResult"
+import * as Stream from "./Stream"
+
+describe("char", () => {
+  it("char", () => {
+    const parser = C.char("a")
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("a", Stream.from(["a", "b"], 1), Stream.from(["a", "b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("bb")(parser),
+      errorResult(Stream.from(["b", "b"]), ['"a"']),
+    )
+  })
+
+  it("run", () => {
+    const parser = C.char("a")
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+  })
+
+  it("many", () => {
+    const parser = C.many(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      succeedResult("", Stream.from(["b"]), Stream.from(["b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("a", Stream.from(["a", "b"], 1), Stream.from(["a", "b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("aab")(parser),
+      succeedResult(
+        "aa",
+        Stream.from(["a", "a", "b"], 2),
+        Stream.from(["a", "a", "b"]),
+      ),
+    )
+  })
+
+  it("many1", () => {
+    const parser = C.many1(C.char("a"))
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      errorResult(Stream.from(["b"]), ['"a"']),
+    )
+    assert.deepStrictEqual(
+      S.run("ab")(parser),
+      succeedResult("a", Stream.from(["a", "b"], 1), Stream.from(["a", "b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("aab")(parser),
+      succeedResult(
+        "aa",
+        Stream.from(["a", "a", "b"], 2),
+        Stream.from(["a", "a", "b"]),
+      ),
+    )
+  })
+
+  it("notChar", () => {
+    const parser = C.notChar("a")
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      succeedResult("b", Stream.from(["b"], 1), Stream.from(["b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ['anything but "a"']),
+    )
+  })
+
+  it("oneOf", () => {
+    const parser = C.oneOf("ab")
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      succeedResult("b", Stream.from(["b"], 1), Stream.from(["b"])),
+    )
+    assert.deepStrictEqual(
+      S.run("c")(parser),
+      errorResult(Stream.from(["c"]), ['One of "ab"']),
+    )
+  })
+
+  it("digit", () => {
+    const parser = C.digit
+    assert.deepStrictEqual(
+      S.run("1")(parser),
+      succeedResult("1", Stream.from(["1"], 1), Stream.from(["1"])),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ["a digit"]),
+    )
+  })
+
+  it("space", () => {
+    const parser = C.space
+    assert.deepStrictEqual(
+      S.run(" ")(parser),
+      succeedResult(" ", Stream.from([" "], 1), Stream.from([" "])),
+    )
+    assert.deepStrictEqual(
+      S.run("\t")(parser),
+      succeedResult("\t", Stream.from(["\t"], 1), Stream.from(["\t"])),
+    )
+    assert.deepStrictEqual(
+      S.run("\n")(parser),
+      succeedResult("\n", Stream.from(["\n"], 1), Stream.from(["\n"])),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ["a whitespace"]),
+    )
+  })
+
+  it("alphanum", () => {
+    const parser = C.alphanum
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("1")(parser),
+      succeedResult("1", Stream.from(["1"], 1), Stream.from(["1"])),
+    )
+    assert.deepStrictEqual(
+      S.run("_")(parser),
+      succeedResult("_", Stream.from(["_"], 1), Stream.from(["_"])),
+    )
+    assert.deepStrictEqual(
+      S.run("@")(parser),
+      errorResult(Stream.from(["@"]), ["a word character"]),
+    )
+  })
+
+  it("letter", () => {
+    const parser = C.letter
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("ą")(parser),
+      errorResult(Stream.from(["ą"]), ["a letter"]),
+    )
+    assert.deepStrictEqual(
+      S.run("@")(parser),
+      errorResult(Stream.from(["@"]), ["a letter"]),
+    )
+  })
+
+  it("unicode letter", () => {
+    const parser = C.unicodeLetter
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("ą")(parser),
+      succeedResult("ą", Stream.from(["ą"], 1), Stream.from(["ą"])),
+    )
+    assert.deepStrictEqual(
+      S.run("Ö")(parser),
+      succeedResult("Ö", Stream.from(["Ö"], 1), Stream.from(["Ö"])),
+    )
+    assert.deepStrictEqual(
+      S.run("š")(parser),
+      succeedResult("š", Stream.from(["š"], 1), Stream.from(["š"])),
+    )
+    assert.deepStrictEqual(
+      S.run("ж")(parser),
+      succeedResult("ж", Stream.from(["ж"], 1), Stream.from(["ж"])),
+    )
+    assert.deepStrictEqual(
+      S.run("æ")(parser),
+      succeedResult("æ", Stream.from(["æ"], 1), Stream.from(["æ"])),
+    )
+    assert.deepStrictEqual(
+      S.run("Δ")(parser),
+      succeedResult("Δ", Stream.from(["Δ"], 1), Stream.from(["Δ"])),
+    )
+    assert.deepStrictEqual(
+      S.run("哦")(parser),
+      errorResult(Stream.from(["哦"]), ["an unicode letter"]),
+    )
+    assert.deepStrictEqual(
+      S.run("@")(parser),
+      errorResult(Stream.from(["@"]), ["an unicode letter"]),
+    )
+  })
+
+  it("upper", () => {
+    const parser = C.upper
+    assert.deepStrictEqual(
+      S.run("A")(parser),
+      succeedResult("A", Stream.from(["A"], 1), Stream.from(["A"])),
+    )
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      errorResult(Stream.from(["a"]), ["an upper case letter"]),
+    )
+  })
+
+  it("lower", () => {
+    const parser = C.lower
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("A")(parser),
+      errorResult(Stream.from(["A"]), ["a lower case letter"]),
+    )
+  })
+
+  it("notOneOf", () => {
+    const parser = C.notOneOf("bc")
+    assert.deepStrictEqual(
+      S.run("a")(parser),
+      succeedResult("a", Stream.from(["a"], 1), Stream.from(["a"])),
+    )
+    assert.deepStrictEqual(
+      S.run("b")(parser),
+      errorResult(Stream.from(["b"]), ['Not one of "bc"']),
+    )
+    assert.deepStrictEqual(
+      S.run("c")(parser),
+      errorResult(Stream.from(["c"]), ['Not one of "bc"']),
+    )
+  })
+})
