@@ -14,6 +14,12 @@ import { deepAssign } from "../_helper";
 import { from } from "../effect";
 import * as Layer from "../layer";
 
+/**
+ * @internal
+ */
+export const EffectTypeId = "~effect/Effect";
+export type EffectTypeId = typeof EffectTypeId;
+
 export const cachedFunction: <A, B, E, R>(
   f: (a: A) => Effect<B, E, R>,
   eq?: Equivalence<A>
