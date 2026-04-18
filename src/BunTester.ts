@@ -285,10 +285,13 @@ const makeScopedTest =
     );
   };
 
-export const gen: EffectTester = Object.assign(makeEffectTest(() => bunTest.test), {
-  skip: makeEffectTest(() => bunTest.test.skip),
-  only: makeEffectTest(() => bunTest.test.only),
-});
+export const gen: EffectTester = Object.assign(
+  makeEffectTest(() => bunTest.test),
+  {
+    skip: makeEffectTest(() => bunTest.test.skip),
+    only: makeEffectTest(() => bunTest.test.only),
+  }
+);
 
 export const scopedGen: ScopedTester = Object.assign(
   makeScopedTest(() => bunTest.test),

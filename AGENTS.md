@@ -12,7 +12,7 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 - `src/public/`: (Planned/Conceptual) Stable public APIs. Files here are exposed via `package.json` exports.
 - `src/internal/`: Internal implementations and experimental features (e.g., `cluster`, `libs`). These are NOT directly exported to consumers.
 - `src/internal/test/`: Unit tests and testing utilities.
-- `docs/`: Project documentation and research notes.
+- `docs/`: Project documentation and research notes (e.g., `BUN_TESTER_GUIDE.md`).
 
 ## Setup Commands
 - **Install dependencies**: `pnpm install` (We use pnpm with workspace catalog for dependency management)
@@ -38,3 +38,4 @@ The main goal is to simplify usage (tree-shaking is not a priority) and align co
 4. **Validation**: Always run `pnpm run check`, `pnpm run build`, and `pnpm run test` to verify your changes before completing a task.
 5. **Code Maintenance**: Remember to execute `pnpm run check` before submitting PRs or ending tasks to ensure the code passes format, lint, and biome checks automatically.
 6. **Temporary Files**: All temporary files, scratchpads, scripts, or diff patches generated during task execution must be placed in the `.agent_temp/` directory. Do not clutter the project root.
+7. **Documentation Lessons**: Please review [AGENT_COAUTHORING_LESSONS.md](./docs/AGENT_COAUTHORING_LESSONS.md) for critical lessons learned on "one-stop imports", avoiding relative paths in docs, aligning with Effect v4 (e.g. `TxRef` instead of `TRef`), and validating documentation code via actual tests.
