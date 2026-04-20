@@ -2,7 +2,7 @@ import * as Context from "effect/Context";
 
 export * from "effect/Context";
 
-export type Tag<Identifier, Shape> = import("effect/Context").Key<
+export type Tag<Identifier, Shape> = import("effect/Context").Service<
   Identifier,
   Shape
 >;

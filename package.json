@@ -1,7 +1,7 @@
 {
   "name": "@yuyi919/tslibs-effect",
   "private": false,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A collection of effect libraries for TypeScript",
   "exports": {
     ".": {
@@ -67,6 +67,8 @@
   "files": [
     "README.md",
     "dist",
+    "examples",
+    "docs",
     "!**/__tests__/**",
     "!**/*.(spec,test).js",
     "!**/*.(spec,test).d.ts",
