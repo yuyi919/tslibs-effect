@@ -142,6 +142,7 @@ export declare namespace Service {
    * @since 3.9.0
    */
   export type Class<Self, Key extends string, Make> = {
+    "~proxy": Tag.Proxy<Self, MakeService<Make>>;
     new (
       _: MakeService<Make>
     ): MakeService<Make> & {
@@ -398,8 +399,6 @@ export const Service: <Self = never>() => [Self] extends [never]
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
               readonly dependencies?: ReadonlyArray<Layer.Any>;
               readonly accessors?: boolean;
-              /** @deprecated */
-              readonly ಠ_ಠ: never;
             }
           | {
               readonly effect:
@@ -409,22 +408,16 @@ export const Service: <Self = never>() => [Self] extends [never]
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
               readonly dependencies?: ReadonlyArray<Layer.Any>;
               readonly accessors?: boolean;
-              /** @deprecated */
-              readonly ಠ_ಠ: never;
             }
           | {
               readonly sync: LazyArg<Service.AllowedType<Key, Make>>;
               readonly dependencies?: ReadonlyArray<Layer.Any>;
               readonly accessors?: boolean;
-              /** @deprecated */
-              readonly ಠ_ಠ: never;
             }
           | {
               readonly succeed: Service.AllowedType<Key, Make>;
               readonly dependencies?: ReadonlyArray<Layer.Any>;
               readonly accessors?: boolean;
-              /** @deprecated */
-              readonly ಠ_ಠ: never;
             },
       >(
         key: Key,

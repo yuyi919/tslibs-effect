@@ -42,6 +42,7 @@ import {
   Exit,
   flow,
   Layer,
+  ManagedRuntime,
   pipe,
   Schedule,
   Schema,
@@ -105,7 +106,7 @@ const makeTester = <R>(
     self: BunTester.TestFunction<A, E, R, TestArgs>
   ) =>
     pipe(
-      Effect.suspend(() => self(...args)),
+      typeof self === "function" ? Effect.suspend(() => self(...args)) : self,
       mapEffect,
       runTestWith(ctx)
     );
@@ -409,36 +410,70 @@ export const prop: BunTester.Methods["prop"] = (
   );
 };
 
+export type TestLayerOptions<R = never> = {
+  readonly memoMap?: Layer.MemoMap;
+  readonly timeout?: Duration.Input;
+  readonly excludeTestServices?: boolean;
+  readonly beforeAll?: Effect.Effect<unknown, unknown, R>;
+  readonly afterAll?: Effect.Effect<unknown, unknown, R>;
+};
 /** @internal */
-export const layer =
-  <R, E>(
-    layer_: Layer.Layer<R, E>,
-    options?: {
-      readonly memoMap?: Layer.MemoMap;
-      readonly timeout?: Duration.Input;
-      readonly excludeTestServices?: boolean;
-    }
-  ): {
-    (f: (it: BunTester.MethodsNonLive<R>) => void): void;
-    (name: string, f: (it: BunTester.MethodsNonLive<R>) => void): void;
-  } =>
+export function layer<const Layers extends [Layer.Any, ...Array<Layer.Any>]>(
+  layer_: Layers,
+  options?: TestLayerOptions<NoInfer<Layer.Success<Layers[number]>>>
+): {
   (
+    f: (it: BunTester.MethodsNonLive<Layer.Success<Layers[number]>>) => void
+  ): void;
+  (
+    name: string,
+    f: (it: BunTester.MethodsNonLive<Layer.Success<Layers[number]>>) => void
+  ): void;
+};
+/** @internal */
+export function layer<R, E>(
+  layer_: Layer.Layer<R, E>,
+  options?: TestLayerOptions<R>
+): {
+  (f: (it: BunTester.MethodsNonLive<R>) => void): void;
+  (name: string, f: (it: BunTester.MethodsNonLive<R>) => void): void;
+};
+/** @internal */
+export function layer<R, RE>(
+  layer_: Layer.Layer<R, RE> | NonEmptyArray<Layer.Layer<R, RE>>,
+  options?: TestLayerOptions<R>
+): {
+  (f: (it: BunTester.MethodsNonLive<R>) => void): void;
+  (name: string, f: (it: BunTester.MethodsNonLive<R>) => void): void;
+} {
+  return (
     ...args:
       | [name: string, f: (it: BunTester.MethodsNonLive<R>) => void]
       | [f: (it: BunTester.MethodsNonLive<R>) => void]
   ) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
+    const layers = Array.isArray(layer_) ? Layer.mergeAll(...layer_) : layer_;
     const withTestEnv = excludeTestServices
-      ? (layer_ as Layer.Layer<R, E>)
-      : Layer.provideMerge(layer_, TestEnv);
+      ? (layers as Layer.Layer<R, RE>)
+      : Layer.provideMerge(layers, TestEnv);
     const memoMap = options?.memoMap ?? Effect.runSync(Layer.makeMemoMap);
-    const scope = Effect.runSync(Scope.make());
-    const contextEffect = Layer.buildWithMemoMap(
-      withTestEnv,
-      memoMap,
-      scope
-    ).pipe(Effect.orDie, Effect.cached, Effect.runSync);
-
+    const runtime: ManagedRuntime.ManagedRuntime<R, RE> = ManagedRuntime.make(
+      (options?.afterAll
+        ? Layer.effectDiscard(
+            Effect.suspend(() =>
+              Effect.addFinalizer(() => Effect.orDie(options.afterAll!))
+            )
+          )
+        : Layer.empty
+      ).pipe(Layer.provideMerge(withTestEnv)),
+      {
+        memoMap,
+      }
+    );
+    const contextEffect = Effect.orDie(runtime.contextEffect).pipe(
+      Effect.cached,
+      Effect.runSync
+    );
     const makeIt = (it: V.TestAPI): BunTester.MethodsNonLive<R> =>
       Object.assign(it, {
         effect: makeTester<R | Scope.Scope>(
@@ -466,13 +501,18 @@ export const layer =
 
     if (args.length === 1) {
       bunTest.beforeAll(
-        () => runPromise(Effect.asVoid(contextEffect)),
+        () =>
+          runtime.runPromise(
+            options?.beforeAll
+              ? options.beforeAll.pipe(Effect.asVoid, Effect.orDie)
+              : Effect.void
+          ),
         options?.timeout
           ? Duration.toMillis(Duration.fromInputUnsafe(options.timeout))
           : undefined
       );
       bunTest.afterAll(
-        () => runPromise(Scope.close(scope, Exit.void)),
+        () => runtime.dispose(),
         options?.timeout
           ? Duration.toMillis(Duration.fromInputUnsafe(options.timeout))
           : undefined
@@ -482,13 +522,18 @@ export const layer =
 
     return bunTest.describe(args[0], () => {
       bunTest.beforeAll(
-        () => runPromise(Effect.asVoid(contextEffect)),
+        () =>
+          runtime.runPromise(
+            options?.beforeAll
+              ? options.beforeAll.pipe(Effect.asVoid, Effect.orDie)
+              : Effect.void
+          ),
         options?.timeout
           ? Duration.toMillis(Duration.fromInputUnsafe(options.timeout))
           : undefined
       );
       bunTest.afterAll(
-        () => runPromise(Scope.close(scope, Exit.void)),
+        () => runtime.dispose(),
         options?.timeout
           ? Duration.toMillis(Duration.fromInputUnsafe(options.timeout))
           : undefined
@@ -496,6 +541,7 @@ export const layer =
       return args[1](makeIt(bunTest.it));
     });
   };
+}
 
 export const it = Object.assign(bunTest.test, {
   gen: gen,
@@ -524,9 +570,9 @@ export declare namespace BunTester {
   /**
    * @since 1.0.0
    */
-  export type TestFunction<A, E, R, TestArgs extends Array<any>> = (
-    ...args: TestArgs
-  ) => Effect.Effect<A, E, R>;
+  export type TestFunction<A, E, R, TestArgs extends Array<any>> =
+    | Effect.Effect<A, E, R>
+    | ((...args: TestArgs) => Effect.Effect<A, E, R>);
 
   /**
    * @since 1.0.0
