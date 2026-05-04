@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "useDefineForClassFields": false,
-    "target": "es2022",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["bun"],
     "skipLibCheck": true,
@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "module": "esnext",
+    "importHelpers": true,
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": false,
     "resolveJsonModule": true,

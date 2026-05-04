@@ -1,32 +1,49 @@
+import { pureMemoize } from "@yuyi919/shared-proto/Functions";
 import * as Eff from "./effect-next";
+import { Memoize } from "./libs/decorators";
 import { Scope } from "./Scope";
 
+const _defaultExecutionStrategy: "sequential" | "parallel" = "sequential";
 export class GlobalScope extends Eff.Service<GlobalScope>()(
   "~/tslibs/GlobalScope",
   {
     accessors: true,
-    effect: (executionStrategy: "sequential" | "parallel" = "parallel") =>
-      Eff.gen(function* () {
-        yield* Eff.logDebug("GlobalScope initial");
-        const memoize: Eff.Layer.MemoMap = GlobalScope._memoMap; //(GlobalScope._mempmap ??= yield* Eff.Layer.makeMemoMap);
-        // GlobalScope._mempmap = memoize
-        const scope = yield* Eff.Scope.make(
-          executionStrategy
-        ) as Eff.T<Eff.Scope>;
-        yield* Eff.Scope.addFinalizer(
-          scope,
-          Eff.logDebug("GlobalScope addFinalizer")
-        );
+    effect: pureMemoize(
+      (
+        executionStrategy: "sequential" | "parallel" = _defaultExecutionStrategy
+      ) =>
+        Eff.gen(function* () {
+          yield* Eff.logDebug("GlobalScope initial");
+          const memoize: Eff.Layer.MemoMap = GlobalScope._memoMap; //(GlobalScope._mempmap ??= yield* Eff.Layer.makeMemoMap);
+          const scope = yield* Eff.Scope.make(
+            executionStrategy
+          ) as Eff.T<Eff.Scope>;
+          yield* Eff.Scope.addFinalizer(
+            scope,
+            Eff.logDebug("GlobalScope addFinalizer")
+          );
 
-        return {
-          get: scope,
-          memoMap: memoize,
-          // provide: Eff.provideService(Eff.Scope, yield* GlobalScope.get)
-        };
-      }),
+          return {
+            get: scope,
+            memoMap: memoize,
+            // provide: Eff.provideService(Eff.Scope, yield* GlobalScope.get)
+          };
+        }),
+      {
+        key: (executionStrategy = _defaultExecutionStrategy) =>
+          executionStrategy,
+      }
+    ),
   }
 ) {
-  static _memoMap: Eff.Layer.MemoMap = Eff.runSync(Eff.Layer.makeMemoMap);
+  static _defaultExecutionStrategy: "sequential" | "parallel" =
+    _defaultExecutionStrategy;
+
+  @Memoize
+  static get _memoMap(): Eff.Layer.MemoMap {
+    return Eff.runSync(Eff.Layer.makeMemoMap);
+  }
+
   static provideScopeWith =
     <A, E, R>(globalScope: GlobalScope) =>
     (eff: Eff.T<A, E, R>) =>
@@ -68,7 +85,7 @@ export class GlobalScope extends Eff.Service<GlobalScope>()(
       )
     );
 
-  static provideGloablAlive<A, E, R>(
+  static provideGlobalAlive<A, E, R>(
     layer: Eff.Layer<A, E, R>
   ): Eff.Layer<A | GlobalScope, E, Exclude<R, GlobalScope>> {
     return layer.pipe(

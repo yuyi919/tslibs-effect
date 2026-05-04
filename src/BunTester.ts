@@ -346,7 +346,7 @@ export const flakyTest = <A, E, R>(
 
 /** @internal */
 export const makeMethods = (it: V.TestAPI): BunTester.Methods =>
-  Object.assign(it, {
+  Object.assign({}, it, {
     effect: makeTester<Scope.Scope>(
       flow(Effect.scoped, Effect.provide(TestEnv)),
       it
@@ -354,6 +354,7 @@ export const makeMethods = (it: V.TestAPI): BunTester.Methods =>
     live: makeTester<Scope.Scope>(Effect.scoped, it),
     flakyTest,
     layer,
+    layerLive,
     prop,
   });
 
@@ -452,7 +453,11 @@ export function layer<R, RE>(
       | [f: (it: BunTester.MethodsNonLive<R>) => void]
   ) => {
     const excludeTestServices = options?.excludeTestServices ?? false;
-    const layers = Array.isArray(layer_) ? Layer.mergeAll(...layer_) : layer_;
+    const layers = Array.isArray(layer_)
+      ? layer_.length === 1
+        ? layer_[0]
+        : Layer.mergeAll(...layer_)
+      : layer_;
     const withTestEnv = excludeTestServices
       ? (layers as Layer.Layer<R, RE>)
       : Layer.provideMerge(layers, TestEnv);
@@ -475,7 +480,7 @@ export function layer<R, RE>(
       Effect.runSync
     );
     const makeIt = (it: V.TestAPI): BunTester.MethodsNonLive<R> =>
-      Object.assign(it, {
+      Object.assign({}, it, {
         effect: makeTester<R | Scope.Scope>(
           (effect) =>
             Effect.flatMap(contextEffect, (context) =>
@@ -543,7 +548,43 @@ export function layer<R, RE>(
   };
 }
 
-export const it = Object.assign(bunTest.test, {
+/** @internal */
+export function layerLive<
+  const Layers extends [Layer.Any, ...Array<Layer.Any>],
+>(
+  layer_: Layers,
+  options?: Omit<
+    TestLayerOptions<NoInfer<Layer.Success<Layers[number]>>>,
+    "excludeTestServices"
+  >
+): {
+  (
+    f: (it: BunTester.MethodsNonLive<Layer.Success<Layers[number]>>) => void
+  ): void;
+  (
+    name: string,
+    f: (it: BunTester.MethodsNonLive<Layer.Success<Layers[number]>>) => void
+  ): void;
+};
+/** @internal */
+export function layerLive<R, E>(
+  layer_: Layer.Layer<R, E>,
+  options?: Omit<TestLayerOptions<R>, "excludeTestServices">
+): {
+  (f: (it: BunTester.MethodsNonLive<R>) => void): void;
+  (name: string, f: (it: BunTester.MethodsNonLive<R>) => void): void;
+};
+/** @internal */
+export function layerLive<R, RE>(
+  layer_: Layer.Layer<R, RE> | NonEmptyArray<Layer.Layer<R, RE>>,
+  options?: TestLayerOptions<R>
+): {
+  (f: (it: BunTester.MethodsNonLive<R>) => void): void;
+  (name: string, f: (it: BunTester.MethodsNonLive<R>) => void): void;
+} {
+  return layer(layer_ as any, { ...options, excludeTestServices: true });
+}
+const it_ = Object.assign(bunTest.test, {
   gen: gen,
   scopedGen: scopedGen,
   effect: makeTester<Scope.Scope>(
@@ -552,7 +593,10 @@ export const it = Object.assign(bunTest.test, {
   ),
   live: makeTester<Scope.Scope>(Effect.scoped, bunTest.it),
   layer,
+  layerLive,
 });
+
+export { it_ as it };
 
 /** */
 
@@ -693,6 +737,22 @@ export declare namespace BunTester {
         readonly memoMap?: Layer.MemoMap;
         readonly timeout?: Duration.Input;
         readonly excludeTestServices?: boolean;
+      }
+    ) => {
+      (f: (it: BunTester.MethodsNonLive<R | R2>) => void): void;
+      (name: string, f: (it: BunTester.MethodsNonLive<R | R2>) => void): void;
+    };
+    /**
+     * 同`layer`, 但`excludeTestServices`默认为`true`
+     * @param layer
+     * @param options
+     * @returns
+     */
+    readonly layerLive: <R2, E>(
+      layer: Layer.Layer<R2, E, R>,
+      options?: {
+        readonly memoMap?: Layer.MemoMap;
+        readonly timeout?: Duration.Input;
       }
     ) => {
       (f: (it: BunTester.MethodsNonLive<R | R2>) => void): void;

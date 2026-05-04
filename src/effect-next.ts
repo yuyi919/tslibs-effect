@@ -165,3 +165,5 @@ export type Effect<A, E = never, R = never> = import("./Effect").Effect<
 >;
 
 export * from "./core/effect";
+export { GlobalScope } from "./GlobalScope";
+export * as Console from "effect/Console";

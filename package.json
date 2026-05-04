@@ -1,12 +1,16 @@
 {
   "name": "@yuyi919/tslibs-effect",
   "private": false,
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A collection of effect libraries for TypeScript",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./GlobalScope": {
+      "types": "./dist/GlobalScope.d.ts",
+      "default": "./dist/GlobalScope.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
@@ -27,15 +31,20 @@
   "sideEffects": [],
   "type": "module",
   "dependencies": {
-    "glob": "^13.0.6"
+    "glob": "^13.0.6",
+    "memfs": "^4.57.2",
+    "tslib": "^2.8.1",
+    "zeptomatch": "^2.1.0"
   },
   "peerDependencies": {
-    "@yuyi919/shared-proto": "^0.1.23",
     "@effect/platform-bun": "catalog:",
-    "effect": "catalog:",
-    "@effect/sql-sqlite-bun": "catalog:",
+    "@effect/platform-node-shared": "catalog:",
     "@effect/sql-pg": "catalog:",
-    "es-toolkit": ">= 1"
+    "@effect/sql-sqlite-bun": "catalog:",
+    "@yuyi919/shared-proto": "^0.1.23",
+    "effect": "catalog:",
+    "es-toolkit": ">= 1",
+    "pathe": ">=2"
   },
   "peerDependenciesMeta": {
     "@effect/platform-bun": {
@@ -46,17 +55,23 @@
     },
     "@effect/sql-pg": {
       "optional": true
+    },
+    "pathe": {
+      "optional": true
     }
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "@effect/sql-sqlite-bun": "catalog:",
+    "@effect/platform-node-shared": "catalog:",
     "@effect/sql-pg": "catalog:",
-    "@yuyi919/shared-proto": "^0.1.23",
+    "@effect/sql-sqlite-bun": "catalog:",
+    "@perryts/perry": "^0.5.386",
     "@types/bun": "catalog:",
+    "@yuyi919/shared-proto": "^0.1.23",
     "effect": "catalog:",
     "es-toolkit": "^1.45.1",
+    "pathe": "^2.0.3",
     "tsdown": "^0.21.7",
     "typescript": "^6.0.2",
     "vite": "^8.0.8"
@@ -73,5 +88,16 @@
     "!**/*.(spec,test).js",
     "!**/*.(spec,test).d.ts",
     "package.json"
-  ]
+  ],
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*.d.ts",
+        "./*"
+      ]
+    }
+  },
+  "perry": {
+    "compilePackages": []
+  }
 }

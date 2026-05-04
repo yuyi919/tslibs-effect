@@ -1,0 +1,4 @@
+# 位于 distA/（不匹配 dist[0-9]/）之下
+# 应该会被扫描到
+distA-should-appear/
+

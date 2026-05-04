@@ -1,2 +1,2 @@
-export * as Backend from "./FileSystem/Backend";
-export * as InMemory from "./FileSystem/MemFs";
+export * as Backend from "../internal/libs/FileSystem/Backend";
+export * as InMemory from "../internal/libs/FileSystem/MemFs";

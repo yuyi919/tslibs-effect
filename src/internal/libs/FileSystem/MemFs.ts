@@ -6,9 +6,9 @@ import * as SharedNodePath from "@effect/platform-node-shared/NodePath";
 import { lazy } from "@yuyi919/shared-proto/Functions";
 import { layer } from "effect/Path";
 import type { IFs, Volume } from "memfs";
-import { Eff } from "../..";
-import * as Context from "../../core/context";
-import * as Layer from "../../core/layer";
+import * as Context from "../../../core/context";
+import * as Layer from "../../../core/layer";
+import * as Eff from "../../../effect-next";
 import { makeOfficialFileSystem } from "./factory";
 import { BackendPlatformProvider } from "./Platform";
 

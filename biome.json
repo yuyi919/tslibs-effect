@@ -2,7 +2,13 @@
   "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
   "root": true,
   "files": {
-    "includes": ["*.json", "src/**/*.ts", "example/**/*.ts", "!**/node_modules"]
+    "includes": [
+      "*.json",
+      "src/**/*.ts",
+      "example/**/*.ts",
+      "./*.ts",
+      "!**/node_modules"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -19,7 +25,19 @@
         "useKeyWithClickEvents": "off"
       },
       "complexity": "off",
-      "correctness": { "noUnusedVariables": "off" },
+      "correctness": {
+        "noUnusedVariables": "off",
+        "useImportExtensions": {
+          "level": "off",
+          "fix": "safe",
+          "options": {
+            "extensionMappings": {
+              "ts": "",
+              "js": ""
+            }
+          }
+        }
+      },
       "performance": {
         "noImgElement": "warn",
         "noUnwantedPolyfillio": "warn",
@@ -28,13 +46,7 @@
       "style": {
         "noHeadElement": "warn",
         "noNonNullAssertion": "off",
-        "useExportType": "warn",
-        "useFilenamingConvention": {
-          "level": "warn",
-          "options": {
-            "filenameCases": ["camelCase", "kebab-case", "PascalCase", "export"]
-          }
-        }
+        "useExportType": "warn"
       },
       "nursery": {},
       "security": {},
@@ -61,5 +73,32 @@
       "bracketSpacing": true
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "src/**/*.ts",
+        "example/**/*.ts",
+        "!**/*.test.*",
+        "!**/*.spec.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": {
+              "level": "warn",
+              "options": {
+                "filenameCases": [
+                  "camelCase",
+                  "kebab-case",
+                  "PascalCase",
+                  "export"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "json": { "formatter": { "enabled": true, "indentStyle": "space" } }
 }

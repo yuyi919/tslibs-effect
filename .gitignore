@@ -1,5 +1,6 @@
 node_modules/
 .DS_Store
+.perry*
 tmp/
 *.db
 *.db-shm
@@ -14,3 +15,5 @@ tsconfig.tsbuildinfo
 .trae/get-shit-done
 .pnpm-store/
 .agent_temp/
+
+a.01

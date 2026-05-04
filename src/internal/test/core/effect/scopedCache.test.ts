@@ -1,5 +1,5 @@
 import { describe, expect } from "bun:test";
-import { Effect, Ref, Scope } from "effect";
+import { Effect } from "effect";
 import { it } from "../../../../BunTester";
 import { scopedCacheWith } from "../../../../core/effect/scopedCache";
 

@@ -1,7 +1,8 @@
 import * as SharedNodePath from "@effect/platform-node-shared/NodePath";
 import { flow, Layer } from "effect";
 import { Path } from "effect/Path";
-import { Context, Eff } from "../..";
+import * as Context from "../../../core/context";
+import * as Eff from "../../../core/effect";
 
 export interface BackendPlatform {
   readonly Os: {

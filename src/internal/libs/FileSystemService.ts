@@ -1,0 +1,409 @@
+import { Schema } from "effect";
+import { File, FileSystem, OpenFlag } from "effect/FileSystem";
+import { Path } from "effect/Path";
+import { PlatformError } from "effect/PlatformError";
+import * as Eff from "../../core/effect";
+import * as Layer from "../../core/layer";
+import { Memoize } from "../utils/decorators";
+import { Glob } from "../utils/glob";
+import { layerRealFs } from "./FileSystem/Backend";
+
+export declare namespace ApplicationFileSystem {
+  export interface ServiceReadonly {
+    /**
+     * Check if a file can be accessed.
+     * You can optionally specify the level of access to check for.
+     */
+    readonly access: (
+      path: string,
+      options?: {
+        readonly ok?: boolean | undefined;
+        readonly readable?: boolean | undefined;
+        readonly writable?: boolean | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Check if a path exists.
+     */
+    readonly exists: (path: string) => Eff.Effect<boolean, PlatformError>;
+
+    /**
+     * List the contents of a directory.
+     *
+     * You can recursively list the contents of nested directories by setting the
+     * `recursive` option.
+     */
+    readonly readdir: (
+      path: string,
+      options?: {
+        readonly recursive?: boolean | undefined;
+      }
+    ) => Eff.Effect<Array<string>, PlatformError>;
+
+    readonly readdirWithType: (
+      path: string,
+      options?: { readonly recursive?: boolean | undefined }
+    ) => Eff.Effect<Array<import("node:fs").Dirent>, PlatformError>;
+
+    /**
+     * Get information about a file at `path`.
+     */
+    readonly stat: (path: string) => Eff.Effect<File.Info, PlatformError>;
+
+    /**
+     * Get information about a file at `path`, preserving symbolic links.
+     */
+    readonly lstat: (path: string) => Eff.Effect<File.Info, PlatformError>;
+
+    /**
+     * Read the contents of a file.
+     */
+    readonly readFile: (path: string) => Eff.Effect<Uint8Array, PlatformError>;
+    /**
+     * Read the contents of a file.
+     */
+    readonly readFileString: (
+      path: string,
+      encoding?: string
+    ) => Eff.Effect<string, PlatformError>;
+  }
+
+  export interface ServiceWirteable {
+    /**
+     * Remove a file or directory.
+     */
+    readonly rm: (
+      path: string,
+      options?: {
+        /**
+         * When `true`, you can recursively remove nested directories.
+         */
+        readonly recursive?: boolean | undefined;
+        /**
+         * When `true`, exceptions will be ignored if `path` does not exist.
+         */
+        readonly force?: boolean | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+
+    /**
+     * Create a directory at `path`. You can optionally specify the mode and
+     * whether to recursively create nested directories.
+     */
+    readonly mkdir: (
+      path: string,
+      options?: {
+        readonly recursive?: boolean | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+
+    /**
+     * Write data to a file at `path`.
+     */
+    readonly writeFile: (
+      path: string,
+      data: Uint8Array,
+      options?: {
+        readonly flag?: OpenFlag | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Write a string to a file at `path`.
+     */
+    readonly writeFileString: (
+      path: string,
+      data: string,
+      options?: {
+        readonly flag?: OpenFlag | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+  }
+
+  export interface ServiceExt {
+    readonly isDir: (path: string) => Eff.Effect<boolean>;
+    readonly isFile: (path: string) => Eff.Effect<boolean>;
+    readonly existsSafe: (path: string) => Eff.Effect<boolean>;
+    readonly readJson: (path: string) => Eff.Effect<unknown, Error>;
+    readonly writeJson: (
+      path: string,
+      data: unknown,
+      mode?: number
+    ) => Eff.Effect<void, Error>;
+    readonly ensureDir: (path: string) => Eff.Effect<void, Error>;
+    readonly writeWithDirs: (
+      path: string,
+      content: string | Uint8Array,
+      mode?: number
+    ) => Eff.Effect<void, Error>;
+    readonly readDirectoryEntries: (
+      path: string
+    ) => Eff.Effect<DirEntry[], Error>;
+    readonly findUp: (
+      target: string,
+      start: string,
+      stop?: string
+    ) => Eff.Effect<string[], Error>;
+    readonly up: (options: {
+      targets: string[];
+      start: string;
+      stop?: string;
+    }) => Eff.Effect<string[], Error>;
+    readonly globUp: (
+      pattern: string,
+      start: string,
+      stop?: string
+    ) => Eff.Effect<string[], Error>;
+    readonly glob: (
+      pattern: string,
+      options?: Glob.Options
+    ) => Eff.Effect<string[], Error>;
+    readonly globMatch: (pattern: string, filepath: string) => boolean;
+  }
+
+  export interface Service
+    extends ServiceReadonly,
+      ServiceWirteable,
+      ServiceExt {}
+  export type ServiceProxy = Eff.Tag.Proxy<ApplicationFileSystem, Service>;
+
+  export type Error = PlatformError | FileSystemError;
+
+  export interface DirEntry {
+    readonly name: string;
+    readonly type: "file" | "directory" | "symlink" | "other";
+  }
+}
+
+export class FileSystemError extends Schema.TaggedErrorClass<FileSystemError>()(
+  "FileSystemError",
+  {
+    method: Schema.String,
+    cause: Schema.optional(Schema.Defect),
+  }
+) {}
+export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
+  "@backend/platform/fs",
+  {
+    effect: Eff.gen(function* () {
+      const fs = yield* FileSystem;
+      const { join, dirname } = yield* Path;
+      const readonly: ApplicationFileSystem.ServiceReadonly = {
+        access: fs.access,
+        exists: fs.exists,
+        stat: fs.stat,
+        lstat: fs.stat, // TODO: Check this is correct.
+        readdir: fs.readDirectory,
+        readdirWithType: (
+          path: string,
+          options?: { readonly recursive?: boolean | undefined }
+        ) =>
+          fs.readDirectory(path, {
+            ...options,
+            withFileTypes: true,
+          } as any) as unknown as Eff.Effect<
+            import("node:fs").Dirent[],
+            PlatformError,
+            never
+          >,
+        readFile: fs.readFile,
+        readFileString: fs.readFileString,
+      };
+
+      const existsSafe = Eff.fn("FileSystem.existsSafe")(function* (
+        path: string
+      ) {
+        return yield* fs.exists(path).pipe(Eff.orElseSucceed(() => false));
+      });
+
+      const isDir = Eff.fn("FileSystem.isDir")(function* (path: string) {
+        const info = yield* fs.stat(path).pipe(Eff.catch(() => Eff.void));
+        return info?.type === "Directory";
+      });
+
+      const isFile = Eff.fn("FileSystem.isFile")(function* (path: string) {
+        const info = yield* fs.stat(path).pipe(Eff.catch(() => Eff.void));
+        return info?.type === "File";
+      });
+
+      const readDirectoryEntries = Eff.fn("FileSystem.readDirectoryEntries")(
+        function* (
+          dirPath: string,
+          options?: { readonly recursive?: boolean | undefined }
+        ) {
+          const entries = yield* fs.readDirectory(dirPath, {
+            // @ts-expect-error
+            withFileTypes: true,
+            ...options,
+          });
+          return yield* Eff.tryPromise({
+            try: async () => {
+              return (entries as unknown as import("node:fs").Dirent[]).map(
+                (e): ApplicationFileSystem.DirEntry => ({
+                  name: e.name,
+                  type: e.isDirectory()
+                    ? "directory"
+                    : e.isSymbolicLink()
+                      ? "symlink"
+                      : e.isFile()
+                        ? "file"
+                        : "other",
+                })
+              );
+            },
+            catch: (cause) =>
+              new FileSystemError({ method: "readDirectoryEntries", cause }),
+          });
+        }
+      );
+
+      const readJson = Eff.fn("FileSystem.readJson")(function* (path: string) {
+        const text = yield* fs.readFileString(path);
+        return JSON.parse(text);
+      });
+
+      const writeJson = Eff.fn("FileSystem.writeJson")(function* (
+        path: string,
+        data: unknown,
+        mode?: number
+      ) {
+        const content = JSON.stringify(data, null, 2);
+        yield* fs.writeFileString(path, content);
+        if (mode) yield* fs.chmod(path, mode);
+      });
+
+      const ensureDir = Eff.fn("FileSystem.ensureDir")(function* (
+        path: string
+      ) {
+        yield* fs.makeDirectory(path, { recursive: true });
+      });
+
+      const writeWithDirs = Eff.fn("FileSystem.writeWithDirs")(function* (
+        path: string,
+        content: string | Uint8Array,
+        mode?: number
+      ) {
+        const write =
+          typeof content === "string"
+            ? fs.writeFileString(path, content)
+            : fs.writeFile(path, content);
+
+        yield* write.pipe(
+          Eff.catchIf(
+            (e) => e.reason._tag === "NotFound",
+            () =>
+              Eff.gen(function* () {
+                yield* fs.makeDirectory(dirname(path), { recursive: true });
+                yield* write;
+              })
+          )
+        );
+        if (mode) yield* fs.chmod(path, mode);
+      });
+
+      const glob = Eff.fn("FileSystem.glob")(function* (
+        pattern: string,
+        options?: Glob.Options
+      ) {
+        return yield* Eff.tryPromise({
+          try: () => Glob.scan(pattern, options),
+          catch: (cause) => new FileSystemError({ method: "glob", cause }),
+        });
+      });
+
+      const findUp = Eff.fn("FileSystem.findUp")(function* (
+        target: string,
+        start: string,
+        stop?: string
+      ) {
+        const result: string[] = [];
+        let current = start;
+        while (true) {
+          const search = join(current, target);
+          if (yield* fs.exists(search)) result.push(search);
+          if (stop === current) break;
+          const parent = dirname(current);
+          if (parent === current) break;
+          current = parent;
+        }
+        return result;
+      });
+
+      const up = Eff.fn("FileSystem.up")(function* (options: {
+        targets: string[];
+        start: string;
+        stop?: string;
+      }) {
+        const result: string[] = [];
+        let current = options.start;
+        while (true) {
+          for (const target of options.targets) {
+            const search = join(current, target);
+            if (yield* fs.exists(search)) result.push(search);
+          }
+          if (options.stop === current) break;
+          const parent = dirname(current);
+          if (parent === current) break;
+          current = parent;
+        }
+        return result;
+      });
+
+      const globUp = Eff.fn("FileSystem.globUp")(function* (
+        pattern: string,
+        start: string,
+        stop?: string
+      ) {
+        const result: string[] = [];
+        let current = start;
+        while (true) {
+          const matches = yield* glob(pattern, {
+            cwd: current,
+            absolute: true,
+            include: "file",
+            dot: true,
+          }).pipe(Eff.catch(() => Eff.succeed([] as string[])));
+          result.push(...matches);
+          if (stop === current) break;
+          const parent = dirname(current);
+          if (parent === current) break;
+          current = parent;
+        }
+        return result;
+      });
+
+      return {
+        ...readonly,
+        mkdir: fs.makeDirectory,
+        rm: fs.remove,
+        writeFile: fs.writeFile,
+        writeFileString: fs.writeFileString,
+
+        existsSafe,
+        isDir,
+        isFile,
+        readDirectoryEntries,
+        readJson,
+        writeJson,
+        ensureDir,
+        writeWithDirs,
+        findUp,
+        up,
+        globUp,
+        glob,
+        globMatch: Glob.match,
+      } satisfies ApplicationFileSystem.Service;
+    }),
+  }
+) {
+  static layer = this.Default;
+
+  @Memoize
+  static get layerReal() {
+    return this.layer.pipe(Layer.provideMerge(layerRealFs()));
+  }
+}
+
+export type FsServiceProxy = ApplicationFileSystem.ServiceProxy;

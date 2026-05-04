@@ -1,7 +1,7 @@
 import { Path as PlatformPath, TypeId } from "effect/Path";
 import { BadArgument } from "effect/PlatformError";
-import * as p from "pathe";
-import * as Eff from "../../core/effect";
+import * as Eff from "../../../core/effect";
+import * as p from "../../utils/pathe/_path";
 
 export const Pathe = PlatformPath.of({
   basename: p.basename,

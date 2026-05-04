@@ -1,0 +1,3 @@
+# 位于未 ignore 的 .config/ 之下：应被读取
+config-should-appear/
+

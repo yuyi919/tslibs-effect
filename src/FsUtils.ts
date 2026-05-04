@@ -1,6 +1,7 @@
 import * as NodeFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as NodePath from "@effect/platform-bun/BunPath";
 import * as Layer from "effect/Layer";
+import { PlatformError } from "effect/PlatformError";
 import * as Glob from "glob";
 import * as Backend from "./Backend";
 import * as Effect from "./core/effect";
@@ -174,6 +175,20 @@ const make = /*@__PURE__*/ Effect.gen(function* () {
     readFileString: fs.readFileString,
     readFile: fs.readFile,
     readDirectory: fs.readDirectory,
+    writeFile: fs.writeFile,
+    writeFileString: fs.writeFileString,
+    readDirectoryWithType: (
+      path: string,
+      options?: { readonly recursive?: boolean | undefined }
+    ) =>
+      fs.readDirectory(path, {
+        ...options,
+        withFileTypes: true,
+      } as any) as unknown as Effect.Effect<
+        import("node:fs").Dirent[],
+        PlatformError,
+        never
+      >,
     readJson,
     writeJson,
     readYaml,
