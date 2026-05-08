@@ -10,7 +10,7 @@ export type StatLike = {
 export type ReadonlyFS = {
   readFile(path: string): Promise<string>;
   readBytes?(path: string): Promise<Uint8Array | Buffer>;
-  stat(path: string): Promise<StatLike>;
+  lstat(path: string): Promise<StatLike>;
   readdir(path: string): Promise<string[]>;
 };
 

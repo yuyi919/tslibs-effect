@@ -15,7 +15,7 @@ function isLikelyGitDir(relPosix: string) {
 
 async function exists(fs: ReadonlyFS, path: string): Promise<boolean> {
   try {
-    await fs.stat(path);
+    await fs.lstat(path);
     return true;
   } catch {
     return false;
@@ -77,7 +77,7 @@ export async function collectGitignoreGlobs(
 
       let st;
       try {
-        st = await fs.stat(childAbs);
+        st = await fs.lstat(childAbs);
       } catch {
         continue;
       }

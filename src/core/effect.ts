@@ -10,6 +10,7 @@ import {
   type Schedule,
 } from "effect";
 import { dual } from "effect/Function";
+import { LogLevel, Severity } from "effect/LogLevel";
 import { isPromiseLike } from "effect/Predicate";
 import type { Scope } from "effect/Scope";
 import type { NoSuchElementException } from "./cause";
@@ -93,32 +94,36 @@ export function fromAll<A>(f: () => Promise<A>[]): T<A[]> {
  */
 export function logElapsed<A, E = never, R = never>(
   label: string,
-  f: () => T<A, E, R> | Promise<A> | A
+  f: () => T<A, E, R> | Promise<A> | A,
+  level?: Severity
 ): T<A, E, R>;
 export function logElapsed(
   label: string,
-  duration: Duration.DurationInput
+  duration: Duration.DurationInput,
+  level?: Severity
 ): T<void>;
 export function logElapsed(
   label: string,
-  durOrF: Duration.DurationInput | (() => any)
+  durOrF: Duration.DurationInput | (() => any),
+  level?: Severity
 ): T<any> {
   if (isFn(durOrF)) {
     return Effect.timed(fromFunction(durOrF)).pipe(
       Effect.flatMap(([dur, v]) =>
-        Effect.succeed(v).pipe(Effect.tap(() => logElapsed(label, dur)))
+        Effect.succeed(v).pipe(Effect.tap(() => logElapsed(label, dur, level)))
       )
     );
   }
-  return Effect.logDebug(
+  return Effect.logWithLevel(level ?? "Debug")(
     `${label} elapsed: ${Duration.format(Duration.fromInputUnsafe(durOrF))}`
   );
 }
 
 export function withLogElapsed<A, E, R>(
-  label: string
+  label: string,
+  level?: Severity
 ): (e: T<A, E, R>) => T<A, E, R> {
-  return (e) => logElapsed(label, () => e);
+  return (e) => logElapsed(label, () => e, level);
 }
 
 export function tapBefore<A, E, R, A2, E2, R2>(

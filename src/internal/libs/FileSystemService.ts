@@ -2,11 +2,15 @@ import { Schema } from "effect";
 import { File, FileSystem, OpenFlag } from "effect/FileSystem";
 import { Path } from "effect/Path";
 import { PlatformError } from "effect/PlatformError";
+import type { Scope } from "effect/Scope";
+import { Sink } from "effect/Sink";
+
 import * as Eff from "../../core/effect";
 import * as Layer from "../../core/layer";
 import { Memoize } from "../utils/decorators";
 import { Glob } from "../utils/glob";
 import { layerRealFs } from "./FileSystem/Backend";
+import { Pathe } from "./FileSystem/Path";
 
 export declare namespace ApplicationFileSystem {
   export interface ServiceReadonly {
@@ -161,6 +165,87 @@ export declare namespace ApplicationFileSystem {
       options?: Glob.Options
     ) => Eff.Effect<string[], Error>;
     readonly globMatch: (pattern: string, filepath: string) => boolean;
+
+    /**
+     * Create a temporary directory.
+     *
+     * By default the directory will be created inside the system's default
+     * temporary directory, but you can specify a different location by setting
+     * the `directory` option.
+     *
+     * You can also specify a prefix for the directory name by setting the
+     * `prefix` option.
+     */
+    readonly makeTempDirectory: (options?: {
+      readonly directory?: string | undefined;
+      readonly prefix?: string | undefined;
+    }) => Eff.Effect<string, PlatformError>;
+    /**
+     * Create a temporary directory inside a scope.
+     *
+     * Functionally equivalent to `makeTempDirectory`, but the directory will be
+     * automatically deleted when the scope is closed.
+     */
+    readonly makeTempDirectoryScoped: (options?: {
+      readonly directory?: string | undefined;
+      readonly prefix?: string | undefined;
+    }) => Eff.Effect<string, PlatformError, Scope>;
+
+    /**
+     * Remove a file or directory.
+     */
+    readonly remove: (
+      path: string,
+      options?: {
+        /**
+         * When `true`, you can recursively remove nested directories.
+         */
+        readonly recursive?: boolean | undefined;
+        /**
+         * When `true`, exceptions will be ignored if `path` does not exist.
+         */
+        readonly force?: boolean | undefined;
+      }
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Rename a file or directory.
+     */
+    readonly rename: (
+      oldPath: string,
+      newPath: string
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Create a writable `Sink` for the specified `path`.
+     */
+    readonly sink: (
+      path: string,
+      options?: {
+        readonly flag?: OpenFlag | undefined;
+        readonly mode?: number | undefined;
+      }
+    ) => Sink<void, Uint8Array, never, PlatformError>;
+    /**
+     * Copy a file from `fromPath` to `toPath`.
+     */
+    readonly copyFile: (
+      fromPath: string,
+      toPath: string
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Change the permissions of a file.
+     */
+    readonly chmod: (
+      path: string,
+      mode: number
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Change the owner and group of a file.
+     */
+    readonly chown: (
+      path: string,
+      uid: number,
+      gid: number
+    ) => Eff.Effect<void, PlatformError>;
   }
 
   export interface Service
@@ -184,9 +269,11 @@ export class FileSystemError extends Schema.TaggedErrorClass<FileSystemError>()(
     cause: Schema.optional(Schema.Defect),
   }
 ) {}
+
 export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
   "@backend/platform/fs",
   {
+    accessors: true,
     effect: Eff.gen(function* () {
       const fs = yield* FileSystem;
       const { join, dirname } = yield* Path;
@@ -381,6 +468,14 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         writeFile: fs.writeFile,
         writeFileString: fs.writeFileString,
 
+        makeTempDirectoryScoped: fs.makeTempDirectoryScoped,
+        makeTempDirectory: fs.makeTempDirectory,
+        remove: fs.remove,
+        rename: fs.rename,
+        sink: fs.sink,
+        copyFile: fs.copyFile,
+        chmod: fs.chmod,
+        chown: fs.chown,
         existsSafe,
         isDir,
         isFile,
@@ -398,11 +493,21 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
     }),
   }
 ) {
-  static layer = this.Default;
+  static layer = ApplicationFileSystem.Default;
+
+  /**
+   * @deprecated
+   */
+  static get defaultLayer() {
+    return ApplicationFileSystem.layer;
+  }
 
   @Memoize
   static get layerReal() {
-    return this.layer.pipe(Layer.provideMerge(layerRealFs()));
+    return this.layer.pipe(
+      Layer.provideMerge(layerRealFs()),
+      Layer.provideMerge(Pathe.layer)
+    );
   }
 }
 

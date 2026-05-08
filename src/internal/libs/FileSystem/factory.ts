@@ -15,10 +15,12 @@ import * as Error from "effect/PlatformError";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 import { omitBy } from "es-toolkit";
+import { errorMessage, unknownError } from "../../utils/error";
+import { CurrentWorkingDirectory } from "./Cwd";
 import { handleBadArgument, handleErrnoException } from "./internal/utils";
 import { BackendPlatformProvider } from "./Platform";
 
-export function makeOfficialFileSystem() {
+export function makeOfficialFileSystem(cwd?: string) {
   const makeFileSystem = Effect.flatMap(
     Effect.all({
       backend: Effect.serviceOption(FileSystem.WatchBackend),
@@ -28,8 +30,12 @@ export function makeOfficialFileSystem() {
       platform: { Os: OS, path, fs: NFS },
       backend,
     }) {
-      // == access
+      // 解析并标准化传入的 cwd
+      const resolvedCwd = cwd ? cwd : yield* CurrentWorkingDirectory;
+      const resolve = (p: string) =>
+        resolvedCwd ? path.resolve(resolvedCwd, p) : p;
 
+      // == access
       const access = ((): FileSystem.FileSystem["access"] => {
         const nodeAccess = effectify(
           NFS.access,
@@ -44,12 +50,11 @@ export function makeOfficialFileSystem() {
           if (options?.writable) {
             mode |= NFS.constants.W_OK;
           }
-          return nodeAccess(path, mode);
+          return nodeAccess(resolve(path), mode);
         };
       })();
 
       // == copy
-
       const copy = ((): FileSystem.FileSystem["copy"] => {
         const nodeCp = effectify(
           NFS.cp,
@@ -57,7 +62,7 @@ export function makeOfficialFileSystem() {
           handleBadArgument("copy")
         );
         return (fromPath, toPath, options) =>
-          nodeCp(fromPath, toPath, {
+          nodeCp(resolve(fromPath), resolve(toPath), {
             force: options?.overwrite ?? false,
             preserveTimestamps: options?.preserveTimestamps ?? false,
             recursive: true,
@@ -65,7 +70,6 @@ export function makeOfficialFileSystem() {
       })();
 
       // == copyFile
-
       const copyFile = (() => {
         const nodeCopyFile = effectify(
           NFS.copyFile,
@@ -73,22 +77,20 @@ export function makeOfficialFileSystem() {
           handleBadArgument("copyFile")
         );
         return (fromPath: string, toPath: string) =>
-          nodeCopyFile(fromPath, toPath);
+          nodeCopyFile(resolve(fromPath), resolve(toPath));
       })();
 
       // == chmod
-
       const chmod = (() => {
         const nodeChmod = effectify(
           NFS.chmod,
           handleErrnoException("FileSystem", "chmod"),
           handleBadArgument("chmod")
         );
-        return (path: string, mode: number) => nodeChmod(path, mode);
+        return (path: string, mode: number) => nodeChmod(resolve(path), mode);
       })();
 
       // == chown
-
       const chown = (() => {
         const nodeChown = effectify(
           NFS.chown,
@@ -96,11 +98,10 @@ export function makeOfficialFileSystem() {
           handleBadArgument("chown")
         );
         return (path: string, uid: number, gid: number) =>
-          nodeChown(path, uid, gid);
+          nodeChown(resolve(path), uid, gid);
       })();
 
       // == link
-
       const link = (() => {
         const nodeLink = effectify(
           NFS.link,
@@ -108,11 +109,10 @@ export function makeOfficialFileSystem() {
           handleBadArgument("link")
         );
         return (existingPath: string, newPath: string) =>
-          nodeLink(existingPath, newPath);
+          nodeLink(resolve(existingPath), resolve(newPath));
       })();
 
       // == makeDirectory
-
       const makeDirectory = ((): FileSystem.FileSystem["makeDirectory"] => {
         const nodeMkdir = effectify(
           NFS.mkdir,
@@ -120,14 +120,13 @@ export function makeOfficialFileSystem() {
           handleBadArgument("makeDirectory")
         );
         return (path, options) =>
-          nodeMkdir(path, {
+          nodeMkdir(resolve(path), {
             recursive: options?.recursive ?? false,
             mode: options?.mode,
           });
       })();
 
       // == makeTempDirectory
-
       const makeTempDirectoryFactory = (
         method: string
       ): FileSystem.FileSystem["makeTempDirectory"] => {
@@ -139,11 +138,12 @@ export function makeOfficialFileSystem() {
         return (options) =>
           Effect.suspend(() => {
             const prefix = options?.prefix ?? "";
-            const directory =
+            let directory =
               typeof options?.directory === "string"
-                ? path.join(options.directory, ".")
+                ? resolve(options.directory)
                 : OS.tmpdir();
-
+            // 确保目录路径以分隔符结尾
+            directory = path.join(directory, ".");
             return nodeMkdtemp(
               prefix ? path.join(directory, prefix) : directory + "/"
             );
@@ -152,7 +152,6 @@ export function makeOfficialFileSystem() {
       const makeTempDirectory = makeTempDirectoryFactory("makeTempDirectory");
 
       // == remove
-
       const removeFactory = (
         method: string
       ): FileSystem.FileSystem["remove"] => {
@@ -162,7 +161,7 @@ export function makeOfficialFileSystem() {
           handleBadArgument(method)
         );
         return (path, options) =>
-          nodeRm(path, {
+          nodeRm(resolve(path), {
             recursive: options?.recursive ?? false,
             force: options?.force ?? false,
           });
@@ -170,7 +169,6 @@ export function makeOfficialFileSystem() {
       const remove = removeFactory("remove");
 
       // == makeTempDirectoryScoped
-
       const makeTempDirectoryScoped =
         ((): FileSystem.FileSystem["makeTempDirectoryScoped"] => {
           const makeDirectory = makeTempDirectoryFactory(
@@ -184,7 +182,6 @@ export function makeOfficialFileSystem() {
         })();
 
       // == open
-
       const openFactory = (method: string): FileSystem.FileSystem["open"] => {
         const nodeOpen = effectify(
           NFS.open,
@@ -200,7 +197,7 @@ export function makeOfficialFileSystem() {
         return (path, options) =>
           pipe(
             Effect.acquireRelease(
-              nodeOpen(path, options?.flag ?? "r", options?.mode),
+              nodeOpen(resolve(path), options?.flag ?? "r", options?.mode),
               (fd) => Effect.orDie(nodeClose(fd))
             ),
             Effect.map((fd) =>
@@ -407,7 +404,6 @@ export function makeOfficialFileSystem() {
       })();
 
       // == makeTempFile
-
       const makeTempFileFactory = (
         method: string
       ): FileSystem.FileSystem["makeTempFile"] => {
@@ -426,7 +422,6 @@ export function makeOfficialFileSystem() {
       const makeTempFile = makeTempFileFactory("makeTempFile");
 
       // == makeTempFileScoped
-
       const makeTempFileScoped =
         ((): FileSystem.FileSystem["makeTempFileScoped"] => {
           const makeFile = makeTempFileFactory("makeTempFileScoped");
@@ -440,13 +435,12 @@ export function makeOfficialFileSystem() {
         })();
 
       // == readDirectory
-
       const readDirectory: FileSystem.FileSystem["readDirectory"] = (
         path,
         options
       ) =>
         Effect.tryPromise({
-          try: () => NFS.promises.readdir(path, options),
+          try: () => NFS.promises.readdir(resolve(path), options),
           catch: (err) =>
             handleErrnoException("FileSystem", "readDirectory")(err as any, [
               path,
@@ -454,11 +448,10 @@ export function makeOfficialFileSystem() {
         });
 
       // == readFile
-
       const readFile = (path: string) =>
         Effect.callback<Uint8Array, Error.PlatformError>((resume, signal) => {
           try {
-            NFS.readFile(path, { signal }, (err, data) => {
+            NFS.readFile(resolve(path), { signal }, (err, data) => {
               if (err) {
                 resume(
                   Effect.fail(
@@ -475,29 +468,26 @@ export function makeOfficialFileSystem() {
         });
 
       // == readLink
-
       const readLink = (() => {
         const nodeReadLink = effectify(
           NFS.readlink,
           handleErrnoException("FileSystem", "readLink"),
           handleBadArgument("readLink")
         );
-        return (path: string) => nodeReadLink(path);
+        return (path: string) => nodeReadLink(resolve(path));
       })();
 
       // == realPath
-
       const realPath = (() => {
         const nodeRealPath = effectify(
           NFS.realpath,
           handleErrnoException("FileSystem", "realPath"),
           handleBadArgument("realPath")
         );
-        return (path: string) => nodeRealPath(path);
+        return (path: string) => nodeRealPath(resolve(path));
       })();
 
       // == rename
-
       const rename = (() => {
         const nodeRename = effectify(
           NFS.rename,
@@ -505,11 +495,10 @@ export function makeOfficialFileSystem() {
           handleBadArgument("rename")
         );
         return (oldPath: string, newPath: string) =>
-          nodeRename(oldPath, newPath);
+          nodeRename(resolve(oldPath), resolve(newPath));
       })();
 
       // == stat
-
       const makeFileInfo = (stat: NFS.Stats): FileSystem.File.Info => ({
         type: stat.isFile()
           ? "File"
@@ -549,22 +538,22 @@ export function makeOfficialFileSystem() {
           handleErrnoException("FileSystem", "stat"),
           handleBadArgument("stat")
         );
-        return (path: string) => Effect.map(nodeStat(path), makeFileInfo);
+        return (path: string) =>
+          Effect.mapEager(nodeStat(resolve(path)), makeFileInfo);
       })();
 
       // == symlink
-
       const symlink = (() => {
         const nodeSymlink = effectify(
           NFS.symlink,
           handleErrnoException("FileSystem", "symlink"),
           handleBadArgument("symlink")
         );
-        return (target: string, path: string) => nodeSymlink(target, path);
+        return (target: string, path: string) =>
+          nodeSymlink(target, resolve(path)); // target 不解析，保持相对路径语义
       })();
 
       // == truncate
-
       const truncate = (() => {
         const nodeTruncate = effectify(
           NFS.truncate,
@@ -572,11 +561,13 @@ export function makeOfficialFileSystem() {
           handleBadArgument("truncate")
         );
         return (path: string, length?: FileSystem.SizeInput) =>
-          nodeTruncate(path, length !== undefined ? Number(length) : undefined);
+          nodeTruncate(
+            resolve(path),
+            length !== undefined ? Number(length) : undefined
+          );
       })();
 
       // == utimes
-
       const utimes = (() => {
         const nodeUtimes = effectify(
           NFS.utimes,
@@ -584,80 +575,161 @@ export function makeOfficialFileSystem() {
           handleBadArgument("utime")
         );
         return (path: string, atime: number | Date, mtime: number | Date) =>
-          nodeUtimes(path, atime, mtime);
+          nodeUtimes(resolve(path), atime, mtime);
       })();
 
-      // == watch
-
-      const watchNode = (path: string) =>
-        Stream.callback<FileSystem.WatchEvent, Error.PlatformError>((queue) =>
-          Effect.acquireRelease(
-            Effect.sync(() => {
-              const watcher = NFS.watch(
-                path,
-                {
+      // == watch (改进后的实现，支持 cwd 和回调路径拼接)
+      const watchNode = (absolutePath: string) => {
+        return Stream.unwrap(
+          Effect.abortSignal.pipe(
+            Effect.mapEager((signal) => {
+              console.log("NFS.watch.watchNode", absolutePath);
+              return Stream.fromAsyncIterable(
+                NFS.promises.watch(absolutePath, {
                   recursive: true,
-                },
-                (event, path) => {
-                  if (!path) return;
-                  switch (event) {
+                  signal,
+                }),
+                (error) =>
+                  Error.systemError({
+                    module: "FileSystem",
+                    _tag: "Unknown",
+                    method: "watch",
+                    pathOrDescriptor: absolutePath,
+                    cause: error,
+                  })
+              ).pipe(
+                Stream.map((e): FileSystem.WatchEvent | null => {
+                  console.log("NFS.watch", e.eventType, e.filename);
+                  if (!e.filename) return null;
+                  const fullPath = path.join(absolutePath, e.filename);
+                  switch (e.eventType) {
                     case "rename": {
-                      Effect.runFork(
-                        Effect.matchEffect(stat(path), {
-                          onSuccess: (_) =>
-                            Queue.offer(queue, { _tag: "Create", path }),
-                          onFailure: (_) =>
-                            Queue.offer(queue, { _tag: "Remove", path }),
-                        })
-                      );
-                      return;
+                      try {
+                        NFS.statSync(fullPath);
+                        return {
+                          _tag: "Create",
+                          path: fullPath,
+                        };
+                      } catch (error) {
+                        return {
+                          _tag: "Remove",
+                          path: fullPath,
+                        };
+                      }
                     }
                     case "change": {
-                      Queue.offerUnsafe(queue, { _tag: "Update", path });
-                      return;
+                      return {
+                        _tag: "Update",
+                        path: fullPath,
+                      };
                     }
                   }
-                }
+                }),
+                Stream.filter((e) => e !== null)
               );
-              watcher.on("error", (error) => {
-                Queue.failCauseUnsafe(
-                  queue,
-                  Cause.fail(
-                    Error.systemError({
-                      module: "FileSystem",
-                      _tag: "Unknown",
-                      method: "watch",
-                      pathOrDescriptor: path,
-                      cause: error,
-                    })
-                  )
-                );
-              });
-              watcher.on("close", () => {
-                Queue.endUnsafe(queue);
-              });
-              return watcher;
-            }),
-            (watcher) => Effect.sync(() => watcher.close())
+            })
           )
         );
-
+        // console.log("NFS.watch.watchNode", absolutePath);
+        // return Stream.callback<FileSystem.WatchEvent, Error.PlatformError>(
+        //   (queue) => {
+        //     // console.log("NFS.watch.watchNode", absolutePath);
+        //     const watcher = NFS.watch(
+        //       absolutePath,
+        //       {
+        //         recursive: true,
+        //       },
+        //       (event, relativePath) => {
+        //         // console.log("NFS.watch", event, relativePath);
+        //         if (!relativePath) return;
+        //         // 将回调中的相对路径转为绝对路径
+        //         const fullPath = path.join(absolutePath, relativePath);
+        //         switch (event) {
+        //           case "rename": {
+        //             try {
+        //               NFS.statSync(fullPath);
+        //               Queue.offerUnsafe(queue, {
+        //                 _tag: "Create",
+        //                 path: fullPath,
+        //               });
+        //             } catch (error) {
+        //               Queue.offerUnsafe(queue, {
+        //                 _tag: "Remove",
+        //                 path: fullPath,
+        //               });
+        //             }
+        //             // Effect.runPromise(
+        //             //   Effect.matchCauseEffectEager(stat, makeFileInfo, {
+        //             //     onSuccess: (_) =>
+        //             //       Queue.offer(queue, {
+        //             //         _tag: "Create",
+        //             //         path: fullPath,
+        //             //       }),
+        //             //     onFailure: (_) =>
+        //             //       Queue.offer(queue, {
+        //             //         _tag: "Remove",
+        //             //         path: fullPath,
+        //             //       }),
+        //             //   })
+        //             // );
+        //             return;
+        //           }
+        //           case "change": {
+        //             Queue.offerUnsafe(queue, {
+        //               _tag: "Update",
+        //               path: fullPath,
+        //             });
+        //             return;
+        //           }
+        //         }
+        //       }
+        //     );
+        //     watcher.on("error", (error) => {
+        //       Queue.failCauseUnsafe(
+        //         queue,
+        //         Cause.fail(
+        //           Error.systemError({
+        //             module: "FileSystem",
+        //             _tag: "Unknown",
+        //             method: "watch",
+        //             pathOrDescriptor: absolutePath,
+        //             cause: error,
+        //           })
+        //         )
+        //       );
+        //     });
+        //     watcher.on("close", () => {
+        //       // console.log("NFS.watch.close");
+        //       Queue.endUnsafe(queue);
+        //     });
+        //     return Effect.acquireRelease(Effect.succeed(watcher), (watcher) =>
+        //       Effect.sync(() => {
+        //         watcher.close();
+        //       })
+        //     );
+        //   }
+        // );
+      };
       const watch = (
         backend: Option.Option<FileSystem.WatchBackend["Service"]>,
         path: string
-      ) =>
-        stat(path).pipe(
-          Effect.map((stat) =>
-            backend.pipe(
-              Option.flatMap((_) => _.register(path, stat)),
-              Option.getOrElse(() => watchNode(path))
+      ) => {
+        const resolvedPath = resolve(path);
+        return backend.pipe(
+          Option.map((_) =>
+            Stream.unwrap(
+              Effect.mapEager(stat(resolvedPath), (stat) =>
+                _.register(resolvedPath, stat).pipe(
+                  Option.getOrElse(() => watchNode(resolvedPath))
+                )
+              )
             )
           ),
-          Stream.unwrap
+          Option.getOrElse(() => watchNode(resolvedPath))
         );
+      };
 
       // == writeFile
-
       const writeFile: FileSystem.FileSystem["writeFile"] = (
         path,
         data,
@@ -666,7 +738,7 @@ export function makeOfficialFileSystem() {
         Effect.callback<void, Error.PlatformError>((resume, signal) => {
           try {
             NFS.writeFile(
-              path,
+              resolve(path),
               data,
               omitBy(
                 {

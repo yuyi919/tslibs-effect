@@ -2,13 +2,15 @@ packages:
   - .
 
 catalog:
-  '@biomejs/biome': 2.4.11
-  '@effect/platform-bun': ~4.0.0-beta.59
-  '@effect/platform-node-shared': ~4.0.0-beta.59
-  '@effect/sql-sqlite-bun': ~4.0.0-beta.59
-  '@effect/sql-pg': ~4.0.0-beta.59
-  '@types/bun': ^1.2.0
-  effect: ~4.0.0-beta.59
+  "@biomejs/biome": 2.4.11
+  "@types/bun": ^1.2.0
+  effect: ~4.0.0-beta.60
+  "@effect/opentelemetry": ~4.0.0-beta.60
+  "@effect/platform-node-shared": "~4.0.0-beta.60"
+  "@effect/platform-bun": ~4.0.0-beta.60
+  "@effect/sql-pg": ~4.0.0-beta.60
+  "@effect/sql-sqlite-bun": ~4.0.0-beta.60
+  "@effect/atom-react": ~4.0.0-beta.60
 
 overrides:
-  '@yuyi919/tslibs-effect': 'link:'
+  "@yuyi919/tslibs-effect": "link:"

@@ -62,7 +62,7 @@ export async function collectNestedDirectoryJSON(
       if (skipGitDir && isLikelyGitDir(childRelPosix)) continue;
 
       const childAbs = joinPosix(rootDir, childRelPosix);
-      const st = await fs.stat(childAbs);
+      const st = await fs.lstat(childAbs);
 
       if (st.isSymbolicLink()) continue;
 

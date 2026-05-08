@@ -9,8 +9,8 @@ export function createMemfs(vol: Volume | NestedDirectoryJSON): ReadonlyFS {
     async readFile(path: string) {
       return vol.readFileSync(path, "utf8") as unknown as string;
     },
-    async stat(path: string) {
-      const st = vol.statSync(path);
+    async lstat(path: string) {
+      const st = vol.lstatSync(path);
       return {
         isDirectory: () => st.isDirectory(),
         isSymbolicLink: () => st.isSymbolicLink(),

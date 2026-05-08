@@ -1,5 +1,4 @@
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
-import { GlobalScope } from "@yuyi919/tslibs-effect/GlobalScope";
 import { type Cause, type Scope } from "effect";
 import * as core from "effect/Effect";
 import { type Effect, service } from "effect/Effect";
@@ -7,6 +6,7 @@ import { mapValues } from "es-toolkit";
 import * as Context from "../../core/context";
 import * as Eff from "../../core/effect";
 import * as Layer from "../../core/layer";
+import { GlobalScope } from "./GlobalScope";
 import { _, Kind, TypeLambda } from "./TypeLambda";
 
 type ServiceProxyWith<Self, Type, ExcluedDeps = never, AdditionDeps = never> = {
@@ -45,15 +45,15 @@ export type ServiceProxy<Identifier, Shape, R = never> = ServiceProxyWith<
 
 export function makeServiceProxy<Identifier, Shape>(
   ServiceClass: Context.Service<Identifier, Shape>
-): ServiceProxy<Identifier, Shape, Identifier>;
+): typeof ServiceClass & ServiceProxy<Identifier, Shape, Identifier>;
 export function makeServiceProxy<Identifier, Shape, R = never>(
   ServiceClass: Context.Service<Identifier, Shape>,
   serviceEffect: core.Effect<Shape, never, R>
-): ServiceProxy<Identifier, Shape, R>;
+): typeof ServiceClass & ServiceProxy<Identifier, Shape, R>;
 export function makeServiceProxy<Identifier, Shape, R = Identifier>(
   ServiceClass: Context.Service<Identifier, Shape>,
   serviceEffect?: core.Effect<Shape, never, R>
-): ServiceProxy<Identifier, Shape, R> {
+): typeof ServiceClass & ServiceProxy<Identifier, Shape, R> {
   const cache = new Map();
   return new Proxy(ServiceClass, {
     get(target: any, prop: any, receiver) {
@@ -102,7 +102,7 @@ export function makeServiceProxy<Identifier, Shape, R = Identifier>(
       cache.set(prop, fn);
       return fn;
     },
-  }) as ServiceProxy<Identifier, Shape, R>;
+  }) as typeof ServiceClass & ServiceProxy<Identifier, Shape, R>;
 }
 
 function layerWithMemoized<Id, Shape, E = never, R = never>(
@@ -123,7 +123,8 @@ function layerWithMemoized<Id, Shape, E = never, R = never>(
 export function proxyWithDefaultLayer<Identifier, Shape, R = never>(
   serviceClass: Context.Service<Identifier, Shape>,
   defaultLayer: Layer.Layer<Identifier, never, R>
-): ServiceProxyWith<Identifier, Shape, never, GlobalScope | R> {
+): typeof serviceClass &
+  ServiceProxyWith<Identifier, Shape, never, GlobalScope | R> {
   const getService: core.Effect<
     Shape,
     never,
@@ -190,7 +191,7 @@ export function makeServiceProxyPromise<Identifier, Shape>(
 export type ServiceProxyPromise<Identifier, Shape> = ServiceProxyOutputWith<
   Identifier,
   Shape,
-  TypeLambda.Promise
+  TypeLambda.TPromise
 >;
 
 export type ServiceProxyOutputWith<Self, Type, Lambda extends TypeLambda> = {

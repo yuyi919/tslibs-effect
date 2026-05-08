@@ -6,19 +6,18 @@ export type { Kind, TypeClass };
 export type TypeLambda = HKTTypeLambda;
 
 export declare namespace TypeLambda {
-  interface Promise_1 extends TypeLambda {
+  export interface TPromise extends TypeLambda {
     readonly type: (
       ...args: this["In"] extends readonly unknown[] ? this["In"] : []
     ) => Promise<this["Target"]>;
   }
-  export type { Promise_1 as Promise };
 
-  export interface PromiseExit extends TypeLambda {
+  export interface TPromiseExit extends TypeLambda {
     readonly type: (
       ...args: this["In"] extends readonly unknown[] ? this["In"] : []
     ) => Promise<Exit.Exit<this["Out2"], this["Target"]>>;
   }
-  export interface AsyncResult extends TypeLambda {
+  export interface TAsyncResult extends TypeLambda {
     readonly type: (
       ...args: this["In"] extends readonly unknown[] ? this["In"] : []
     ) => Promise<Result.Result<this["Target"], this["Out2"]>>;

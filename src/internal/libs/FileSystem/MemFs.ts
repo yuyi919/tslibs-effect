@@ -2,14 +2,13 @@
  * @since 4.0.0
  */
 
-import * as SharedNodePath from "@effect/platform-node-shared/NodePath";
 import { lazy } from "@yuyi919/shared-proto/Functions";
-import { layer } from "effect/Path";
 import type { IFs, Volume } from "memfs";
 import * as Context from "../../../core/context";
 import * as Layer from "../../../core/layer";
 import * as Eff from "../../../effect-next";
 import { makeOfficialFileSystem } from "./factory";
+import { Pathe } from "./Path";
 import { BackendPlatformProvider } from "./Platform";
 
 /**
@@ -19,8 +18,13 @@ export const layerMem = (deps: {
   fs: IFs;
   vol: Volume;
   tmpdir?: () => string;
+  cwd?: string;
 }) =>
-  layerMemWithoutBackend().pipe(Layer.provide(Layer.succeed(Backend, deps)));
+  makeOfficialFileSystem(deps.cwd).pipe(
+    Layer.provide(layerMemWithoutBackend()),
+    Layer.provideMerge(Layer.succeed(Backend, deps)),
+    Layer.provideMerge(Pathe.layer)
+  );
 
 /**
  * @category Layers
@@ -30,11 +34,14 @@ export const layerMemWith = (deps: {
   vol: Volume;
   tmpdir?: () => string;
   path?: "win32" | "posix";
-}): Eff.Layer.Layer<Eff.FileSystem.FileSystem | Eff.Path.Path, never, never> =>
-  makeOfficialFileSystem().pipe(
+  cwd?: string;
+}): Eff.Layer<Eff.FileSystem | Eff.Path, never, never> =>
+  makeOfficialFileSystem(
+    deps.cwd?.startsWith(".") ? "/" + deps.cwd.slice(1) : deps.cwd
+  ).pipe(
     Layer.provide(layerMemWithoutBackend()),
     Layer.provide(Layer.succeed(Backend, deps)),
-    Layer.provideMerge(layer)
+    Layer.provideMerge(Pathe.layer)
   );
 
 export const layerMemWithoutBackend = /**#__PURE__**/ lazy(() =>

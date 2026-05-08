@@ -57,4 +57,28 @@ describe("Getter", () => {
     t.assert.equal(instanceA.callCount, 1);
     t.assert.equal(instanceB.callCount, 1);
   });
+  it("works with static decorator", (t) => {
+    class Foo {
+      public static callCount: number = 0;
+
+      @MemoizeGetter
+      public static get testedGetter(): string {
+        this.callCount++;
+
+        return "OK";
+      }
+    }
+
+    const instanceA = Foo;
+    t.assert.equal(instanceA.callCount, 0);
+
+    t.assert.equal(instanceA.testedGetter, "OK");
+    t.assert.equal(instanceA.callCount, 1);
+
+    t.assert.equal(instanceA.testedGetter, "OK");
+    t.assert.equal(instanceA.callCount, 1);
+
+    t.assert.equal(instanceA.testedGetter, "OK");
+    t.assert.equal(instanceA.callCount, 1);
+  });
 });

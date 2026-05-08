@@ -1,6 +1,7 @@
 import type { PathLike } from "node:fs";
 import type { SystemError, SystemErrorTag } from "effect/PlatformError";
 import * as PlatformError from "effect/PlatformError";
+import { errorMessage } from "../../../utils/error";
 
 /** @internal */
 export const handleErrnoException =
@@ -55,5 +56,5 @@ export const handleBadArgument = (method: string) => (err: unknown) =>
   PlatformError.badArgument({
     module: "FileSystem",
     method,
-    description: (err as Error).message ?? String(err),
+    description: errorMessage(err),
   });

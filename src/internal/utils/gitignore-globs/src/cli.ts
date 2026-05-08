@@ -1,11 +1,31 @@
-#!/usr/bin/env bun
-import { groupBy } from "es-toolkit";
 import { collectGitignoreGlobs } from "./collect";
+import { joinPosix } from "./path";
 
+const groupBy = <A, K extends string>(
+  self: Iterable<A>,
+  f: (a: A) => K
+): Record<K, Array<A>> => {
+  const out: Record<string, Array<A>> = {};
+  for (const a of self) {
+    const k = f(a);
+    if (Object.hasOwn(out, k)) {
+      out[k].push(a);
+    } else {
+      out[k] = [a];
+    }
+  }
+  return out;
+};
 const args = new Set(process.argv.slice(2));
 const asJson = args.has("--json");
-const rootDir = process.cwd();
-
+if (asJson) {
+  args.delete("--json");
+}
+const argsArray = [...args];
+const entry = argsArray[0] ?? "";
+const cwd = process.cwd();
+const rootDir = joinPosix(cwd, entry);
+// console.log("rootDir", rootDir);
 const results = await collectGitignoreGlobs({
   rootDir,
   dot: true,

@@ -1,23 +1,22 @@
-import * as NodeFileSystem from "@effect/platform-bun/BunFileSystem";
-import * as NodePath from "@effect/platform-bun/BunPath";
+import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
+import * as NodePath from "@effect/platform-node-shared/NodePath";
 import * as Layer from "effect/Layer";
 import { PlatformError } from "effect/PlatformError";
-import * as Glob from "glob";
 import * as Backend from "./Backend";
 import * as Effect from "./core/effect";
+import { Glob } from "./Glob";
 
 const make = /*@__PURE__*/ Effect.gen(function* () {
   const fs = yield* Backend.FileSystem;
   const path_ = yield* Backend.Path;
-  const glob = (
-    pattern: string | ReadonlyArray<string>,
-    options?: Glob.GlobOptionsWithFileTypesFalse
-  ) =>
-    Effect.tryPromise({
-      try: () =>
-        Glob.glob(pattern as string | string[], options!) as Promise<string[]>,
-      catch: (e) => new Error(`glob failed: ${e}`),
-    }).pipe(Effect.withSpan("FsUtils.glob"));
+  const globService = yield* Glob;
+
+  const glob = Effect.fn("FsUtils.glob")(
+    (
+      pattern: string | ReadonlyArray<string>,
+      options?: Glob.GlobOptionsWithFileTypesFalse
+    ) => globService.glob(pattern, options)
+  );
 
   const globFiles = (
     pattern: string | ReadonlyArray<string>,
@@ -203,10 +202,17 @@ export class FsUtils extends /*@__PURE__*/ Effect.Service<FsUtils>()(
   {
     accessors: true,
     effect: make,
+    dependencies: [
+      Glob.Default.pipe(
+        Layer.provideMerge(NodeFileSystem.layer),
+        Layer.provideMerge(NodePath.layerPosix)
+      ),
+    ],
   }
 ) {}
 
-export const FsUtilsLive = /*@__PURE__*/ FsUtils.Default.pipe(
-  /*@__PURE__*/ Layer.provideMerge(NodeFileSystem.layer),
-  /*@__PURE__*/ Layer.provideMerge(NodePath.layerPosix)
+export const FsUtilsLive = FsUtils.Default.pipe(
+  Layer.provideMerge(NodeFileSystem.layer),
+  Layer.provideMerge(NodePath.layerPosix)
 );
+export const FsUtilsLiveWithoutBackend = FsUtils.DefaultWithoutDependencies;
