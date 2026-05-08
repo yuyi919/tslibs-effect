@@ -20,6 +20,8 @@ catalog:
 
 overrides:
   "@yuyi919/tslibs-effect": "link:"
+  vite: "catalog:"
+  vitest: "catalog:"
 
 allowBuilds:
   "@parcel/watcher": true
