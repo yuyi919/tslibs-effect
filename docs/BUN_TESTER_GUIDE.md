@@ -24,41 +24,54 @@ describe("基础功能", () => {
     Effect.gen(function* () {
       const result = yield* Effect.succeed(42);
       expect(result).toBe(42);
-    })
+    }),
   );
 
   // 支持 skip / only / fails 等修饰符
-  it.effect.skip("跳过这个 Effect 测试", () => 
-    Effect.fail("不会执行到这里")
-  );
+  it.effect.skip("跳过这个 Effect 测试", () => Effect.fail("不会执行到这里"));
 });
 ```
 
-## 常见测试 API 
+## 常见测试 API
 
 ### 1. `it.effect` (最常用)
 
 将包含测试逻辑的 Effect 提交给运行器。它不仅仅是 `Effect.runPromise` 的简单包装，它还内置提供了测试常用的服务：
+
 - 自动提供 **`TestClock`**（便于快进时间测试）
 - 自动提供 **`TestConsole`**（拦截日志输出以进行验证）
 - 自动包裹在 **`Scope`** 内（测试结束自动释放资源）
 
 ```ts
-import { Effect, Context, Layer, TxRef, TestClock } from "@yuyi919/tslibs-effect/effect-next";
-import { describe, expect, it, layer, waitFor } from "@yuyi919/tslibs-effect/BunTester";
+import {
+  Effect,
+  Context,
+  Layer,
+  TxRef,
+  TestClock,
+} from "@yuyi919/tslibs-effect/effect-next";
+import {
+  describe,
+  expect,
+  it,
+  layer,
+  waitFor,
+} from "@yuyi919/tslibs-effect/BunTester";
 
 it.effect("时间控制测试", () =>
   Effect.gen(function* () {
     let executed = false;
     const fiber = yield* Effect.sleep("10 seconds").pipe(
-      Effect.tap(() => { executed = true }),
-      Effect.fork
+      Effect.tap(() => {
+        executed = true;
+      }),
+      Effect.fork,
     );
 
     // TestClock 允许我们快进虚拟时间
     yield* TestClock.adjust("10 seconds");
     expect(executed).toBe(true);
-  })
+  }),
 );
 ```
 
@@ -71,10 +84,10 @@ it.effect("时间控制测试", () =>
 it.live("真实的延迟测试", () =>
   Effect.gen(function* () {
     const start = Date.now();
-    yield* Effect.sleep("100 millis"); 
+    yield* Effect.sleep("100 millis");
     const end = Date.now();
     expect(end - start).toBeGreaterThanOrEqual(100);
-  })
+  }),
 );
 ```
 
@@ -90,8 +103,8 @@ it.effect("不稳定的测试", () =>
       const result = yield* unstableCall();
       expect(result).toBe("ok");
     }),
-    "5 seconds" // 允许在 5 秒内多次重试
-  )
+    "5 seconds", // 允许在 5 秒内多次重试
+  ),
 );
 ```
 
@@ -110,7 +123,7 @@ class Database extends Context.Tag("Database")<
 
 const LiveDatabase = Layer.succeed(
   Database,
-  Database.of({ query: () => Effect.succeed("data") })
+  Database.of({ query: () => Effect.succeed("data") }),
 );
 
 // 为整个代码块注入 LiveDatabase
@@ -121,7 +134,7 @@ layer(LiveDatabase)("测试数据库相关功能", (it) => {
       const db = yield* Database;
       const result = yield* db.query();
       expect(result).toBe("data");
-    })
+    }),
   );
 
   // 也可以继续嵌套层级注入！
@@ -131,7 +144,7 @@ layer(LiveDatabase)("测试数据库相关功能", (it) => {
 });
 ```
 
-*注意：`layer` 闭包内部会传递一个被绑定好上下文的局部 `it` 对象。所以你应该使用 `(it) => { it.effect(...) }`，而不要使用外部引入的全局 `it`。*
+_注意：`layer` 闭包内部会传递一个被绑定好上下文的局部 `it` 对象。所以你应该使用 `(it) => { it.effect(...) }`，而不要使用外部引入的全局 `it`。_
 
 ## BunTester 专属特性
 
@@ -150,7 +163,7 @@ import { Effect } from "@yuyi919/tslibs-effect/effect-next";
 it.effect("普通的写法", () =>
   Effect.gen(function* () {
     expect(yield* Effect.succeed(1)).toBe(1);
-  })
+  }),
 );
 
 // 🍬 甜甜的写法 (等效于 it.effect + Effect.gen)
@@ -175,12 +188,12 @@ import { TxRef, Effect } from "@yuyi919/tslibs-effect/effect-next";
 
 it.gen("测试并发事务", function* () {
   const counter = yield* TxRef.make(0);
-  
+
   // 模拟一个异步改变状态的动作
   yield* Effect.fork(
     Effect.sleep("100 millis").pipe(
-      Effect.andThen(TxRef.update(counter, n => n + 1))
-    )
+      Effect.andThen(TxRef.update(counter, (n) => n + 1)),
+    ),
   );
 
   // 优雅地等待条件满足，不会陷入忙轮询 (busy-waiting)
@@ -197,14 +210,17 @@ it.gen("测试并发事务", function* () {
 受限于 `bun:test` 自身的架构以及对 API 对齐的取舍，如果你要将已有的 `@effect/vitest` 项目迁移到 `BunTester` 上，需要注意以下差异：
 
 ### 1. `TestContext` 缺失
+
 Vitest 允许在测试中接收一个 `ctx`（TestContext 对象），你可以在测试中调用 `ctx.skip()` 或者往 ctx 上挂载自定义变量。
 BunTester 在内部处理中，由于 `bun:test` 对该模式的支持较弱，注入到测试函数中的 `ctx` 多数情况下只是一个 Stub（存根 `{}` 空对象），因此不要依赖测试函数参数注入的上下文控制逻辑。
 
 ### 2. `addEqualityTesters` 和 `describeWrapped`
-* **`addEqualityTesters`**：在 `@effect/vitest` 中，可以通过它覆盖 `expect` 比较的相等性算法（例如对于特定自定义类型）。由于 Bun 的 `expect` 不支持动态添加这类机制，BunTester 移除了这个方法。
-* **`describeWrapped`**：被移除，如果需要测试上下文的组合注入，建议全部通过顶层的 `layer()` 包装器来实现。
+
+- **`addEqualityTesters`**：在 `@effect/vitest` 中，可以通过它覆盖 `expect` 比较的相等性算法（例如对于特定自定义类型）。由于 Bun 的 `expect` 不支持动态添加这类机制，BunTester 移除了这个方法。
+- **`describeWrapped`**：被移除，如果需要测试上下文的组合注入，建议全部通过顶层的 `layer()` 包装器来实现。
 
 ### 3. 断言修饰符的微小差异
+
 在 `@effect/vitest` 中，处理属性测试与条件测试用的是 `it.for(cases)` 和 `it.fails()`，在 BunTester 中为了贴合 Bun 原生语法，映射成了 `it.each` 和 `it.fails`，因此：
 
 ```ts
@@ -216,6 +232,7 @@ it.effect.each([1,2,3])("测试", ...);
 ```
 
 ### 4. 属性测试（Property Testing）的 Schema 支持
+
 在 `it.prop` (基于 `fast-check` 的属性测试) 的实现中，全局回退版（fallback）目前直接抛出了 `"Schemas are not supported yet"` 异常。不过，在 `it.effect.prop` 等绑定的版本中，支持了将 `Schema` 转化为 `Arbitrary`。
 因此建议在编写涉及 `effect/Schema` 的属性测试时，务必使用 `it.effect.prop` 等 Effect 强关联方法。
 

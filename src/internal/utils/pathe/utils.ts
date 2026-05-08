@@ -1,5 +1,5 @@
-import { normalizeWindowsPath } from "./_internal";
-import { join } from "./_path";
+import { normalizeWindowsPath } from "./_internal.js";
+import { join } from "./_path.js";
 
 const pathSeparators = new Set(["/", "\\", undefined]);
 

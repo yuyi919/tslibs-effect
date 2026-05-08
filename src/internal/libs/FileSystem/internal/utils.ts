@@ -1,7 +1,7 @@
 import type { PathLike } from "node:fs";
 import type { SystemError, SystemErrorTag } from "effect/PlatformError";
 import * as PlatformError from "effect/PlatformError";
-import { errorMessage } from "../../../utils/error";
+import { errorMessage } from "../../../utils/error.js";
 
 /** @internal */
 export const handleErrnoException =

@@ -13,12 +13,12 @@ import { dual } from "effect/Function";
 import { LogLevel, Severity } from "effect/LogLevel";
 import { isPromiseLike } from "effect/Predicate";
 import type { Scope } from "effect/Scope";
-import type { NoSuchElementException } from "./cause";
-import type * as Context from "./context";
-import * as Duration from "./duration";
-import { scopedCacheWith } from "./effect/scopedCache";
-import * as Layer from "./layer";
-import type { RunForkOptions, Runtime } from "./mock/Runtime";
+import type { NoSuchElementException } from "./cause.js";
+import type * as Context from "./context.js";
+import * as Duration from "./duration.js";
+import { scopedCacheWith } from "./effect/scopedCache.js";
+import * as Layer from "./layer.js";
+import type { RunForkOptions, Runtime } from "./mock/Runtime.js";
 
 export interface T<out A, out E = never, out R = never>
   extends Effect.Effect<A, E, R> {}
@@ -263,27 +263,21 @@ export function runtimeHandleScope<
 export interface RuntimeHandle<R, E = unknown, A = unknown> {
   fork: <XE extends E, XA extends A>(
     effect: Effect.Effect<XA, XE, R>,
-    options?:
-      | (RunForkOptions & {
-          readonly onlyIfMissing?: boolean | undefined;
-        })
-      | undefined
+    options?: RunForkOptions & {
+      readonly onlyIfMissing?: boolean | undefined;
+    }
   ) => Fiber.Fiber<XA, XE>;
   forkPromise: <XE extends E, XA extends A>(
     effect: Effect.Effect<XA, XE, R>,
-    options?:
-      | (RunForkOptions & {
-          readonly propagateInterruption?: boolean | undefined;
-        })
-      | undefined
+    options?: RunForkOptions & {
+      readonly propagateInterruption?: boolean | undefined;
+    }
   ) => Promise<XA>;
   forkAwait: <XE extends E, XA extends A>(
     effect: Effect.Effect<XA, XE, R>,
-    options?:
-      | (RunForkOptions & {
-          readonly onlyIfMissing?: boolean | undefined;
-        })
-      | undefined
+    options?: RunForkOptions & {
+      readonly onlyIfMissing?: boolean | undefined;
+    }
   ) => Effect.Effect<XA, XE, never>;
 }
 
@@ -309,9 +303,9 @@ export function runtimeHandle<
 }
 
 export * from "effect/Effect";
-export * from "./effect/batched";
-export * from "./effect/funcs";
-export * from "./effect/persisted";
-export * from "./effect/scopedCache";
-export * from "./effect/shared";
-export * from "./mock/Effect";
+export * from "./effect/batched.js";
+export * from "./effect/funcs.js";
+export * from "./effect/persisted.js";
+export * from "./effect/scopedCache.js";
+export * from "./effect/shared.js";
+export * from "./mock/Effect.js";

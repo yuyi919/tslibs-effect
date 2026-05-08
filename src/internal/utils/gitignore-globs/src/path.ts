@@ -1,4 +1,4 @@
-import { dirname, join } from "../../pathe/_path";
+import { dirname, join } from "../../pathe/_path.js";
 
 export function normalizeSlashes(s: string): string {
   return s.replace(/\\/g, "/");

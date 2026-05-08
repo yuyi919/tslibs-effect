@@ -2,10 +2,10 @@
 export * as Data from "effect/Data";
 
 export type Cause<Err> = import("./core/cause").Cause<Err>;
-export * as Cause from "./core/cause";
+export * as Cause from "./core/cause.js";
 
 export type Context<Services> = import("./core/context").Context<Services>;
-export * as Context from "./core/context";
+export * as Context from "./core/context.js";
 
 export type Option<T> = import("effect/Option").Option<T>;
 export * as Option from "effect/Option";
@@ -34,16 +34,16 @@ export type SynchronizedRef<T> =
 export * as SynchronizedRef from "effect/SynchronizedRef";
 
 export type FiberRef<A> = import("./core/FiberRef").FiberRef<A>;
-export * as FiberRef from "./core/FiberRef";
+export * as FiberRef from "./core/FiberRef.js";
 
 export type Logger<Message, Output> = import("./core/logger").Logger<
   Message,
   Output
 >;
-export * as Logger from "./core/logger";
+export * as Logger from "./core/logger.js";
 
 export type LogLevel = import("effect/LogLevel").LogLevel;
-export * as LogLevel from "./core/logLevel";
+export * as LogLevel from "./core/logLevel.js";
 
 export type Chunk<A> = import("effect/Chunk").Chunk<A>;
 export * as Chunk from "effect/Chunk";
@@ -52,7 +52,7 @@ export type Deferred<A, E = never> = import("effect/Deferred").Deferred<A, E>;
 export * as Deferred from "effect/Deferred";
 
 export type Runtime<R> = import("./core/mock/Runtime").Runtime<R>;
-export * as Runtime from "./core/mock/Runtime";
+export * as Runtime from "./core/mock/Runtime.js";
 
 export type Config<R> = import("effect/Config").Config<R>;
 
@@ -86,7 +86,7 @@ export type Layer<ROut, E = never, RIn = never> = import("effect/Layer").Layer<
   E,
   RIn
 >;
-export * as Layer from "./core/layer";
+export * as Layer from "./core/layer.js";
 
 export type Duration = import("effect/Duration").Duration;
 export * as Duration from "effect/Duration";
@@ -96,7 +96,7 @@ export type Schedule<
   In = unknown,
   R = never,
 > = import("effect/Schedule").Schedule<Out, In, R>;
-export * as Schedule from "./core/schedule";
+export * as Schedule from "./core/schedule.js";
 
 // export * as logger from "./logger";
 
@@ -133,7 +133,7 @@ export type FileSystem = import("effect/FileSystem").FileSystem;
 export * as Path from "effect/Path";
 export type Path = import("effect/Path").Path;
 
-export * as Schema from "./core/schema";
+export * as Schema from "./core/schema.js";
 export type Schema<T> = import("./core/schema").Schema<T>;
 
 export * as Function from "effect/Function";
@@ -157,13 +157,13 @@ export type TestClock = import("effect/testing/TestClock").TestClock;
 export * as Optic from "effect/Optic";
 export type Optic<S, A> = import("effect/Optic").Iso<S, A>;
 
-export * as Effect from "./core/effect";
+export * as Effect from "./core/effect.js";
 export type Effect<A, E = never, R = never> = import("./Effect").Effect<
   A,
   E,
   R
 >;
 
-export * from "./core/effect";
-export { GlobalScope } from "./GlobalScope";
+export * from "./core/effect.js";
+export { GlobalScope } from "./GlobalScope.js";
 export * as Console from "effect/Console";

@@ -5,12 +5,12 @@ import { PlatformError } from "effect/PlatformError";
 import type { Scope } from "effect/Scope";
 import { Sink } from "effect/Sink";
 
-import * as Eff from "../../core/effect";
-import * as Layer from "../../core/layer";
-import { Memoize } from "../utils/decorators";
-import { Glob } from "../utils/glob";
-import { layerRealFs } from "./FileSystem/Backend";
-import { Pathe } from "./FileSystem/Path";
+import * as Eff from "../../core/effect.js";
+import * as Layer from "../../core/layer.js";
+import { Memoize } from "../utils/decorators/index.js";
+import { Glob } from "../utils/glob.js";
+import { layerRealFs } from "./FileSystem/Backend.js";
+import { Pathe } from "./FileSystem/Path.js";
 
 export declare namespace ApplicationFileSystem {
   export interface ServiceReadonly {
@@ -493,13 +493,13 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
     }),
   }
 ) {
-  static layer = ApplicationFileSystem.Default;
+  static layer = this.Default;
 
   /**
    * @deprecated
    */
   static get defaultLayer() {
-    return ApplicationFileSystem.layer;
+    return this.layer;
   }
 
   @Memoize

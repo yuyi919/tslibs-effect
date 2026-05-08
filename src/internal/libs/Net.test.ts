@@ -1,8 +1,8 @@
 import * as Net from "node:net";
 import { Effect } from "effect";
-import * as BunTester from "../../BunTester";
+import * as BunTester from "../../BunTester.js";
 
-import { NetError, NetService } from "./Net";
+import { NetError, NetService } from "./Net.js";
 
 const closeServer = (server: Net.Server) =>
   Effect.sync(() => {

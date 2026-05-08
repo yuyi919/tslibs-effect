@@ -1,1 +1,1 @@
-export * from "../internal/utils/decorators";
+export * from "../internal/utils/decorators/index.js";

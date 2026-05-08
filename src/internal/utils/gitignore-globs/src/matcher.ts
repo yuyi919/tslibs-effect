@@ -1,4 +1,4 @@
-import { normalizeSlashes } from "./path";
+import { normalizeSlashes } from "./path.js";
 
 export type CompiledRule = {
   glob: string;

@@ -1,7 +1,7 @@
 import { describe, expect } from "bun:test";
 import { Cause, Effect, Exit, Fiber } from "effect";
-import { it } from "../../../../BunTester";
-import * as Context from "../../../../core/context";
+import { it } from "../../../../BunTester.js";
+import * as Context from "../../../../core/context.js";
 import {
   runCallback,
   runFork,
@@ -9,7 +9,7 @@ import {
   runPromiseExit,
   runSync,
   runSyncExit,
-} from "../../../../core/mock/Runtime";
+} from "../../../../core/mock/Runtime.js";
 
 describe("Runtime Polyfills", () => {
   interface Config {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { collectGitignoreGlobs } from "../../src/collect";
-import { fsFromVolume } from "../_helpers/memfs";
-import { createEdgecasesFixtureVolume } from "./fixtures.memfs";
+import { collectGitignoreGlobs } from "../../src/collect.js";
+import { fsFromVolume } from "../_helpers/memfs.js";
+import { createEdgecasesFixtureVolume } from "./fixtures.memfs.js";
 
 describe("integration: edgecases fixtures (memfs)", () => {
   test("case-bom-escapes：应读到根 .gitignore，但不应读到 ignored-dir/.gitignore", async () => {

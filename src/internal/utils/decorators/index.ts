@@ -1,1 +1,1 @@
-export * from "./memoized";
+export * from "./memoized.js";

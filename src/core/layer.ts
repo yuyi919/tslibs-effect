@@ -4,8 +4,8 @@ import { Effect } from "effect";
 import type { MemoMap } from "effect/Layer";
 import * as Layer from "effect/Layer";
 import type { Scope } from "effect/Scope";
-import { deepAssign } from "./_helper";
-import type * as Context from "./context";
+import { deepAssign } from "./_helper.js";
+import type * as Context from "./context.js";
 
 export class LayerHelper<ROut, E = never, RIn = never> {
   constructor(public layer: Layer.Layer<ROut, E, RIn>) {}
@@ -102,10 +102,7 @@ export function launchEffect<A, E, R>(layer: Effect.Effect<A, E, R> | string) {
 }
 
 export * from "effect/Layer";
-export {
-  type Layer as t,
-  unwrap as unwrapEffect,
-} from "effect/Layer";
+export { type Layer as t, unwrap as unwrapEffect } from "effect/Layer";
 
 /**
  * @internal

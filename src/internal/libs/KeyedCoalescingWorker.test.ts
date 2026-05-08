@@ -1,8 +1,8 @@
 import { describe, expect } from "bun:test";
-import * as BunTester from "../../BunTester";
-import { Deferred, Effect } from "../../effect-next";
+import * as BunTester from "../../BunTester.js";
+import { Deferred, Effect } from "../../effect-next.js";
 
-import { makeKeyedCoalescingWorker } from "./KeyedCoalescingWorker";
+import { makeKeyedCoalescingWorker } from "./KeyedCoalescingWorker.js";
 
 describe("makeKeyedCoalescingWorker", () => {
   BunTester.it.scopedGen(

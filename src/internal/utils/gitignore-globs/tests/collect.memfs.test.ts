@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Volume } from "memfs";
-import { collectGitignoreGlobs } from "../src/collect";
-import { fsFromVolume } from "./_helpers/memfs";
+import { collectGitignoreGlobs } from "../src/collect.js";
+import { fsFromVolume } from "./_helpers/memfs.js";
 
 describe("collectGitignoreGlobs (memfs)", () => {
   test("父目录被 ignore 时剪枝：不再读取子目录 .gitignore（node_modules）", async () => {

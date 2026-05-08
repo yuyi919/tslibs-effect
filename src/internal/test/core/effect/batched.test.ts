@@ -1,7 +1,7 @@
 import { describe, expect } from "bun:test";
 import { Effect, RequestResolver } from "effect";
-import { it } from "../../../../BunTester";
-import { batched, batchedOrSingle } from "../../../../core/effect/batched";
+import { it } from "../../../../BunTester.js";
+import { batched, batchedOrSingle } from "../../../../core/effect/batched.js";
 
 describe("batched", () => {
   it.effect("batches multiple requests into a single execution", () =>

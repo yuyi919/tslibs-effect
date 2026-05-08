@@ -1,6 +1,6 @@
 import { Effect, type Exit, type Fiber } from "effect";
 import { dual } from "effect/Function";
-import * as Context from "../context";
+import * as Context from "../context.js";
 
 export interface Runtime<in R> extends Context.Context<R> {}
 
@@ -22,12 +22,12 @@ export const runFork: {
     runtime: Runtime<R>
   ): <A, E>(
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ) => Fiber.Fiber<A, E>;
   <R, A, E>(
     runtime: Runtime<R>,
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ): Fiber.Fiber<A, E>;
 } = function () {
   const runtime = arguments[0];
@@ -135,8 +135,8 @@ export const runCallback: {
     runtime: Runtime<R>
   ): <A, E>(
     effect: Effect.Effect<A, E, R>,
-    options?: RunCallbackOptions<A, E> | undefined
-  ) => (interruptor?: number | undefined) => void;
+    options?: RunCallbackOptions<A, E>
+  ) => (interruptor?: number) => void;
   /**
    * Executes the effect asynchronously, eventually passing the exit value to
    * the specified callback.
@@ -150,8 +150,8 @@ export const runCallback: {
   <R, A, E>(
     runtime: Runtime<R>,
     effect: Effect.Effect<A, E, R>,
-    options?: RunCallbackOptions<A, E> | undefined
-  ): (interruptor?: number | undefined) => void;
+    options?: RunCallbackOptions<A, E>
+  ): (interruptor?: number) => void;
 } = function () {
   const runtime = arguments[0];
   if (arguments.length >= 2 && arguments[1] !== undefined) {
@@ -177,12 +177,12 @@ export const runPromise: {
     runtime: Runtime<R>
   ): <A, E>(
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ) => Promise<A>;
   <R, A, E>(
     runtime: Runtime<R>,
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ): Promise<A>;
 } = function () {
   const runtime = arguments[0];
@@ -208,12 +208,12 @@ export const runPromiseExit: {
     runtime: Runtime<R>
   ): <A, E>(
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ) => Promise<Exit.Exit<A, E>>;
   <R, A, E>(
     runtime: Runtime<R>,
     effect: Effect.Effect<A, E, R>,
-    options?: Effect.RunOptions | undefined
+    options?: Effect.RunOptions
   ): Promise<Exit.Exit<A, E>>;
 } = function () {
   const runtime = arguments[0];

@@ -1,1 +1,1 @@
-export * from "../internal/libs/Net";
+export * from "../internal/libs/Net.js";

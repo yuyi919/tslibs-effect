@@ -4,11 +4,11 @@ import { DateTime, Effect, Scope, type Types } from "effect";
 import { context, type Yieldable } from "effect/Effect";
 import { dual, type LazyArg } from "effect/Function";
 import { pick } from "es-toolkit";
-import * as Cause from "../cause";
-import { currentMinimumLogLevel } from "../FiberRef";
-import * as LogLevel from "../logLevel";
-import type { Runtime } from "../mock/Runtime";
-import * as Option from "../option";
+import * as Cause from "../cause.js";
+import { currentMinimumLogLevel } from "../FiberRef.js";
+import * as LogLevel from "../logLevel.js";
+import type { Runtime } from "../mock/Runtime.js";
+import * as Option from "../option.js";
 
 export interface YieldWrap<T extends Effect.All.EffectAny>
   extends Yieldable<
@@ -340,22 +340,18 @@ export const zipRight: {
 export const zipLeft: {
   <A2, E2, R2>(
     that: Effect.Effect<A2, E2, R2>,
-    options?:
-      | {
-          readonly concurrent?: boolean | undefined;
-        }
-      | undefined
+    options?: {
+      readonly concurrent?: boolean | undefined;
+    }
   ): <A, E, R>(
     self: Effect.Effect<A, E, R>
   ) => Effect.Effect<A, E2 | E, R2 | R>;
   <A, E, R, A2, E2, R2>(
     self: Effect.Effect<A, E, R>,
     that: Effect.Effect<A2, E2, R2>,
-    options?:
-      | {
-          readonly concurrent?: boolean | undefined;
-        }
-      | undefined
+    options?: {
+      readonly concurrent?: boolean | undefined;
+    }
   ): Effect.Effect<A, E | E2, R | R2>;
 } = /*@__PURE__*/ dual(
   (args) => Effect.isEffect(args[1]),

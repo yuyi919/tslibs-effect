@@ -1,5 +1,5 @@
-import { MemoizeGetter } from "./memoized-getter";
-import { MemoizeMethod } from "./memoized-method";
+import { MemoizeGetter } from "./memoized-getter.js";
+import { MemoizeMethod } from "./memoized-method.js";
 /**
  * The "MemoizeGetter" decorator is used to avoid multiple computations for multiple calls of the same getter
  * @example

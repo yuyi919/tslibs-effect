@@ -1,1 +1,1 @@
-export * from "./internal/libs/ServiceProxy";
+export * from "./internal/libs/ServiceProxy.js";

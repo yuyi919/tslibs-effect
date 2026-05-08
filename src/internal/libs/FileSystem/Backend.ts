@@ -4,8 +4,8 @@
 
 import { lazy } from "@yuyi919/shared-proto/Functions";
 import * as Layer from "effect/Layer";
-import { makeOfficialFileSystem } from "./factory";
-import { BackendPlatformProvider } from "./Platform";
+import { makeOfficialFileSystem } from "./factory.js";
+import { BackendPlatformProvider } from "./Platform.js";
 
 /**
  * @since 1.0.0

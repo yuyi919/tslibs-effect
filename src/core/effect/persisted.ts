@@ -8,10 +8,10 @@ import { Persistable } from "effect/unstable/persistence";
 import * as PersistedCache from "effect/unstable/persistence/PersistedCache";
 import * as Persistence from "effect/unstable/persistence/Persistence";
 import { memoize } from "es-toolkit";
-import type * as Context from "../context";
-import type * as Duration from "../duration";
-import * as Eff from "../effect";
-import { scopedCacheWith } from "./scopedCache";
+import type * as Context from "../context.js";
+import type * as Duration from "../duration.js";
+import * as Eff from "../effect.js";
+import { scopedCacheWith } from "./scopedCache.js";
 
 /**
  * @since 1.0.0

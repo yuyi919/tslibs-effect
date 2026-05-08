@@ -1,1 +1,1 @@
-export * from "../internal/libs/DrainableWorker";
+export * from "../internal/libs/DrainableWorker.js";

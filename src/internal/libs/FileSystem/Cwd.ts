@@ -1,6 +1,6 @@
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
 import { Effect, Layer } from "effect";
-import * as Context from "../../../core/context";
+import * as Context from "../../../core/context.js";
 
 const Tag = Context.Reference<Effect.Effect<string | void>>(
   "@backend/CurrentWorkingDirectory",

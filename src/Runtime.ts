@@ -1,1 +1,1 @@
-export * from "./core/mock/Runtime";
+export * from "./core/mock/Runtime.js";

@@ -1,1 +1,1 @@
-export * from "./internal/libs/GlobalScope";
+export * from "./internal/libs/GlobalScope.js";

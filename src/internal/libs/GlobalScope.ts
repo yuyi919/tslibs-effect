@@ -1,9 +1,9 @@
 import { pureMemoize } from "@yuyi919/shared-proto/Functions";
-import * as Context from "../../core/context";
-import * as Eff from "../../core/effect";
-import * as Layer from "../../core/layer";
-import * as Scope from "../../Scope";
-import { Memoize } from "../utils/decorators";
+import * as Context from "../../core/context.js";
+import * as Eff from "../../core/effect.js";
+import * as Layer from "../../core/layer.js";
+import * as Scope from "../../Scope.js";
+import { Memoize } from "../utils/decorators/index.js";
 
 const _defaultExecutionStrategy: "sequential" | "parallel" = "sequential";
 export class GlobalScope extends Eff.Service<GlobalScope>()(
@@ -12,19 +12,17 @@ export class GlobalScope extends Eff.Service<GlobalScope>()(
     accessors: true,
     effect: pureMemoize(
       (
-        executionStrategy:
-          | "sequential"
-          | "parallel" = _defaultExecutionStrategy,
+        executionStrategy: "sequential" | "parallel" = _defaultExecutionStrategy
       ) =>
         Eff.gen(function* () {
           yield* Eff.logDebug("GlobalScope initial");
           const memoize: Layer.MemoMap = GlobalScope._memoMap; //(GlobalScope._mempmap ??= yield* Eff.Layer.makeMemoMap);
           const scope = yield* Scope.make(
-            executionStrategy,
+            executionStrategy
           ) as Eff.T<Scope.Scope>;
           yield* Scope.addFinalizer(
             scope,
-            Eff.logDebug("GlobalScope addFinalizer"),
+            Eff.logDebug("GlobalScope addFinalizer")
           );
 
           return {
@@ -36,9 +34,9 @@ export class GlobalScope extends Eff.Service<GlobalScope>()(
       {
         key: (executionStrategy = _defaultExecutionStrategy) =>
           executionStrategy,
-      },
+      }
     ),
-  },
+  }
 ) {
   static _defaultExecutionStrategy: "sequential" | "parallel" =
     _defaultExecutionStrategy;
@@ -55,53 +53,51 @@ export class GlobalScope extends Eff.Service<GlobalScope>()(
 
   static AliveScoped: Layer.Layer<Scope.Scope, never, GlobalScope> =
     Layer.flatMap(Layer.context<GlobalScope>(), (ctx) =>
-      Layer.succeed(Scope.Scope, ctx.pipe(Context.get(GlobalScope)).get),
+      Layer.succeed(Scope.Scope, ctx.pipe(Context.get(GlobalScope)).get)
     );
 
-  static ScopeAlive = (
-    executionStrategy?: "sequential" | "parallel" | undefined,
-  ) =>
+  static ScopeAlive = (executionStrategy?: "sequential" | "parallel") =>
     Layer.flatMap(Layer.context<GlobalScope>(), (ctx) =>
-      Layer.succeed(Scope.Scope, ctx.pipe(Context.get(GlobalScope)).get),
+      Layer.succeed(Scope.Scope, ctx.pipe(Context.get(GlobalScope)).get)
     ).pipe(Layer.provideMerge(this.Default(executionStrategy)));
 
   static scoped = <A, E, R>(
-    eff: Eff.T<A, E, R>,
+    eff: Eff.T<A, E, R>
   ): Eff.Effect<A, E, GlobalScope | Exclude<R, Scope.Scope>> =>
     Eff.provide(eff, this.AliveScoped);
 
   /** @internal */
   static launch = <RIn, E, ROut>(
-    layer: Layer.Layer<ROut, E, RIn>,
+    layer: Layer.Layer<ROut, E, RIn>
   ): Eff.Effect<never, E, RIn | GlobalScope> =>
     Eff.scoped(
       Eff.zipRight(
         GlobalScope.pipe(
           Eff.flatMap(({ memoMap, get }) =>
-            Layer.buildWithMemoMap(layer, memoMap, get),
-          ),
+            Layer.buildWithMemoMap(layer, memoMap, get)
+          )
         ),
-        Eff.never,
-      ),
+        Eff.never
+      )
     );
 
   static globalAlive = <A, E, R>(
-    layer: Layer.Layer<A, E, R>,
+    layer: Layer.Layer<A, E, R>
   ): Layer.Layer<A, E, GlobalScope | R> =>
     Layer.effectContext(
       GlobalScope.pipe(
         Eff.flatMap(({ memoMap, get }) =>
-          Layer.buildWithMemoMap(layer, memoMap, get),
-        ),
-      ),
+          Layer.buildWithMemoMap(layer, memoMap, get)
+        )
+      )
     );
 
   static provideGlobalAlive<A, E, R>(
-    layer: Layer.Layer<A, E, R>,
+    layer: Layer.Layer<A, E, R>
   ): Layer.Layer<A | GlobalScope, E, Exclude<R, GlobalScope>> {
     return layer.pipe(
       GlobalScope.globalAlive,
-      Layer.provideMerge(GlobalScope.Default()),
+      Layer.provideMerge(GlobalScope.Default())
     );
   }
 }

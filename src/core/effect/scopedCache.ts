@@ -1,6 +1,6 @@
 import { globalValue } from "@yuyi919/shared-proto/GlobalValue";
 import { Scope } from "effect";
-import * as Eff from "../effect";
+import * as Eff from "../effect.js";
 
 const globalMap = globalValue(
   Symbol.for("@yui9/globalMap"),

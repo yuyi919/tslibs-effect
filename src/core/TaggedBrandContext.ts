@@ -1,11 +1,11 @@
 import * as Brand from "effect/Brand";
 import * as Config from "effect/Config";
 import type * as Redacted from "effect/Redacted";
-import { deepAssign } from "./_helper";
-import * as Context from "./context";
-import * as Effect from "./effect";
-import * as Layer from "./layer";
-import * as Option from "./option";
+import { deepAssign } from "./_helper.js";
+import * as Context from "./context.js";
+import * as Effect from "./effect.js";
+import * as Layer from "./layer.js";
+import * as Option from "./option.js";
 
 export type BrandedContextType<T, P extends string> =
   T extends Brand.Branded<unknown, P>

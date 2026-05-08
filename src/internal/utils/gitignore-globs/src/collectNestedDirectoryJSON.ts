@@ -1,10 +1,10 @@
-import { createBunFS } from "./fs/bun";
-import { joinPosix, normalizeSlashes } from "./path";
+import { createBunFS } from "./fs/bun.js";
+import { joinPosix, normalizeSlashes } from "./path.js";
 import type {
   CollectNestedDirectoryJSONOptions,
   NestedDirectoryJSON,
   ReadonlyFS,
-} from "./types";
+} from "./types.js";
 
 function isLikelyGitDir(relPosix: string) {
   return (

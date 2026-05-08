@@ -3,8 +3,8 @@ import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { Effect, FileSystem, Layer } from "effect";
 import path from "path";
-import * as BunTester from "../../BunTester";
-import { ApplicationFileSystem } from "./FileSystemService";
+import * as BunTester from "../../BunTester.js";
+import { ApplicationFileSystem } from "./FileSystemService.js";
 
 const live = ApplicationFileSystem.layer.pipe(
   Layer.provideMerge(NodeFileSystem.layer),

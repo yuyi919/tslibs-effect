@@ -53,4 +53,4 @@ export const GenericTag: <Identifier, Shape = Identifier>(
 export type { Context as t } from "effect/Context";
 export * from "effect/Context";
 
-export * from "./TaggedBrandContext";
+export * from "./TaggedBrandContext.js";

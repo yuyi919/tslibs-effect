@@ -1,4 +1,4 @@
-import * as Context from "./context";
+import * as Context from "./context.js";
 
 export abstract class KVStorePath extends Context.TaggedBrandContext(
   "@app/contract/KVPathConfig"

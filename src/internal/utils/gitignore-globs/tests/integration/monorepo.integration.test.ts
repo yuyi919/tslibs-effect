@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { collectGitignoreGlobs } from "../../src/collect";
-import { fsFromVolume } from "../_helpers/memfs";
-import { createMonorepoFixtureVolume } from "./fixtures.memfs";
+import { collectGitignoreGlobs } from "../../src/collect.js";
+import { fsFromVolume } from "../_helpers/memfs.js";
+import { createMonorepoFixtureVolume } from "./fixtures.memfs.js";
 
 describe("integration: monorepo fixture (memfs)", () => {
   test("应读取未被剪枝的各层 .gitignore，并跳过 node_modules/dist 下的 .gitignore", async () => {

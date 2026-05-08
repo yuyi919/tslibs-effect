@@ -1,7 +1,7 @@
 import { describe, expect } from "bun:test";
 import { Effect } from "effect";
-import { it } from "../../../../BunTester";
-import { scopedCacheWith } from "../../../../core/effect/scopedCache";
+import { it } from "../../../../BunTester.js";
+import { scopedCacheWith } from "../../../../core/effect/scopedCache.js";
 
 describe("scopedCacheWith", () => {
   it.effect("caches effect execution within the same scope", () =>

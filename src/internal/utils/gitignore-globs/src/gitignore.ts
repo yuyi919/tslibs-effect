@@ -1,5 +1,5 @@
-import { dirnamePosix, joinPosix, normalizeSlashes } from "./path";
-import type { GitignoreGlob } from "./types";
+import { dirnamePosix, joinPosix, normalizeSlashes } from "./path.js";
+import type { GitignoreGlob } from "./types.js";
 
 function splitLines(text: string): string[] {
   return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");

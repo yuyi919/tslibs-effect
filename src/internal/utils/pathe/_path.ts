@@ -10,7 +10,7 @@ import type path from "node:path";
 
 import zeptomatch from "zeptomatch";
 
-import { normalizeWindowsPath } from "./_internal";
+import { normalizeWindowsPath } from "./_internal.js";
 
 const _UNC_REGEX = /^[/\\]{2}/;
 const _IS_ABSOLUTE_RE = /^[/\\](?![/\\])|^[/\\]{2}(?!\.)|^[A-Za-z]:[/\\]/;

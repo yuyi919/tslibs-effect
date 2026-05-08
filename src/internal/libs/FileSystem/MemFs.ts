@@ -4,12 +4,12 @@
 
 import { lazy } from "@yuyi919/shared-proto/Functions";
 import type { IFs, Volume } from "memfs";
-import * as Context from "../../../core/context";
-import * as Layer from "../../../core/layer";
-import * as Eff from "../../../effect-next";
-import { makeOfficialFileSystem } from "./factory";
-import { Pathe } from "./Path";
-import { BackendPlatformProvider } from "./Platform";
+import * as Context from "../../../core/context.js";
+import * as Layer from "../../../core/layer.js";
+import * as Eff from "../../../effect-next.js";
+import { makeOfficialFileSystem } from "./factory.js";
+import { Pathe } from "./Path.js";
+import { BackendPlatformProvider } from "./Platform.js";
 
 /**
  * @category Layers

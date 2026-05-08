@@ -1,5 +1,5 @@
-import { collectGitignoreGlobs } from "./collect";
-import { joinPosix } from "./path";
+import { collectGitignoreGlobs } from "./collect.js";
+import { joinPosix } from "./path.js";
 
 const groupBy = <A, K extends string>(
   self: Iterable<A>,

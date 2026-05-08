@@ -9,7 +9,7 @@ import {
 } from "effect";
 import type { NonEmptyArray } from "effect/Array";
 import { memoize } from "es-toolkit";
-import * as Eff from "../effect";
+import * as Eff from "../effect.js";
 
 // const liftReqResolve: <Req extends Eff.AnyRequest>(
 //   requests: NonEmptyArray<Req>

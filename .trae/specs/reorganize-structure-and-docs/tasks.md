@@ -1,4 +1,5 @@
 # Tasks
+
 - [x] Task 1: 代码库现状盘点（仅分析）
   - [x] 盘点当前 `src/` 目录下“对外入口模块”（如 `index.ts`, `Effect.ts` 等）与“对外子路径模块”（如 `core/`, `libs/`, `cluster/`）的实际可导入路径
   - [x] 识别内部实现/测试文件与对外 API 的边界（例如 `*.test.ts`、`mock/`、业务域 `cluster/domain`）
@@ -20,6 +21,7 @@
   - [x] `npm run build`（tsc --build）通过，产物结构满足 `package.json#exports` 的预期
 
 # Task Dependencies
+
 - Task 2 depends on Task 1
 - Task 3 depends on Task 2
 - Task 4 depends on Task 2, Task 3

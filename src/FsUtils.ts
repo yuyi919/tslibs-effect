@@ -2,9 +2,9 @@ import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import * as Layer from "effect/Layer";
 import { PlatformError } from "effect/PlatformError";
-import * as Backend from "./Backend";
-import * as Effect from "./core/effect";
-import { Glob } from "./Glob";
+import * as Backend from "./Backend.js";
+import * as Effect from "./core/effect.js";
+import { Glob } from "./Glob.js";
 
 const make = /*@__PURE__*/ Effect.gen(function* () {
   const fs = yield* Backend.FileSystem;

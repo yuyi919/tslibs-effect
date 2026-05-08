@@ -1,12 +1,12 @@
 import { describe, vi } from "bun:test";
 import * as Path from "effect/Path";
-import { expect, it } from "../../BunTester";
-import { Console, Effect, GlobalScope, Layer } from "../../effect-next";
+import { expect, it } from "../../BunTester.js";
+import { Console, Effect, GlobalScope, Layer } from "../../effect-next.js";
 import {
   makeServiceProxy,
   makeServiceProxyPromise,
   proxyWithDefaultLayer,
-} from "./ServiceProxy";
+} from "./ServiceProxy.js";
 
 it.layer([GlobalScope.Default()])("proxyWithDefaultLayer", (it) => {
   it.effect("正常工作", () =>

@@ -1,5 +1,17 @@
-import { Effect, Context, Layer, TxRef, TestClock } from "@yuyi919/tslibs-effect/effect-next";
-import { describe, expect, it, layer, waitFor } from "@yuyi919/tslibs-effect/BunTester";
+import {
+  describe,
+  expect,
+  it,
+  layer,
+  waitFor,
+} from "@yuyi919/tslibs-effect/BunTester";
+import {
+  Context,
+  Effect,
+  Layer,
+  TestClock,
+  TxRef,
+} from "@yuyi919/tslibs-effect/effect-next";
 
 describe("BunTester Guide Examples", () => {
   // --- 1. Introduction ---
@@ -18,9 +30,7 @@ describe("BunTester Guide Examples", () => {
     );
 
     // 支持 skip / only / fails 等修饰符
-    it.effect.skip("跳过这个 Effect 测试", () => 
-      Effect.fail("不会执行到这里")
-    );
+    it.effect.skip("跳过这个 Effect 测试", () => Effect.fail("不会执行到这里"));
   });
 
   // --- 2. Common APIs ---
@@ -28,13 +38,15 @@ describe("BunTester Guide Examples", () => {
     Effect.gen(function* () {
       let executed = false;
       const fiber = yield* Effect.sleep("10 seconds").pipe(
-        Effect.tap(() => { executed = true }),
+        Effect.tap(() => {
+          return Effect.sync(() => (executed = true));
+        }),
         Effect.fork
       );
 
       // TestClock 允许我们快进虚拟时间
       yield* TestClock.adjust("10 seconds");
-      
+
       expect(executed).toBe(true);
     })
   );
@@ -106,11 +118,11 @@ describe("BunTester Guide Examples", () => {
 
   it.gen("测试并发事务", function* () {
     const counter = yield* TxRef.make(0);
-    
+
     // 模拟一个异步改变状态的动作
     yield* Effect.fork(
       Effect.sleep("100 millis").pipe(
-        Effect.andThen(TxRef.update(counter, n => n + 1))
+        Effect.andThen(TxRef.update(counter, (n) => n + 1))
       )
     );
 

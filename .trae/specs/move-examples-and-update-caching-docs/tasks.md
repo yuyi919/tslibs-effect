@@ -1,4 +1,5 @@
 # Tasks
+
 - [x] Task 1: 盘点示例与脚本现状
   - [x] 列出当前仓库中应视为“示例/脚本/PoC”的文件清单（根目录与 `src/internal/**`）
   - [x] 识别这些示例是否被构建配置引用（例如 `vite.config.ts` entry、package.json scripts）
@@ -24,6 +25,7 @@
   - [x] `npm run test`（bun test src）通过
 
 # Task Dependencies
+
 - Task 2 depends on Task 1
 - Task 3 depends on Task 2
 - Task 4 depends on Task 3

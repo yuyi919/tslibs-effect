@@ -6,7 +6,7 @@ import { join } from "node:path";
 import {
   collectNestedDirectoryJSON,
   type NestedDirectoryJSON,
-} from "../src/collectNestedDirectoryJSON";
+} from "../src/collectNestedDirectoryJSON.js";
 
 const tempRoots: string[] = [];
 

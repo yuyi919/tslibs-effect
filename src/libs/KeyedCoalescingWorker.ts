@@ -1,1 +1,1 @@
-export * from "../internal/libs/KeyedCoalescingWorker";
+export * from "../internal/libs/KeyedCoalescingWorker.js";

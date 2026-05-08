@@ -1,8 +1,11 @@
 import { describe, expect } from "bun:test";
 import { Effect, Layer } from "effect";
 import { KeyValueStore, Persistence } from "effect/unstable/persistence";
-import { it } from "../../../../BunTester";
-import { persisted, persistedBatch } from "../../../../core/effect/persisted";
+import { it } from "../../../../BunTester.js";
+import {
+  persisted,
+  persistedBatch,
+} from "../../../../core/effect/persisted.js";
 
 const TestPersistenceLayer = Persistence.layerKvs.pipe(
   Layer.provideMerge(KeyValueStore.layerMemory)

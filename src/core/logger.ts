@@ -11,7 +11,7 @@ import {
 import { dual } from "effect/Function";
 import type { LogLevel } from "effect/LogLevel";
 import type { PlatformError } from "effect/PlatformError";
-import { Effect } from "../index";
+import { Effect } from "../index.js";
 
 export * from "effect/Logger";
 
@@ -45,22 +45,18 @@ export const filterLogLevel = dual<
 export const toFileWith = dual<
   (
     file: ScopedRef.ScopedRef<FileSystem.File>,
-    options?:
-      | {
-          readonly batchWindow?: Duration.Input | undefined;
-        }
-      | undefined
+    options?: {
+      readonly batchWindow?: Duration.Input | undefined;
+    }
   ) => <Message = void>(
     self: Logger.Logger<Message, string>
   ) => Effect.Effect<Logger.Logger<Message, void>, PlatformError, Scope.Scope>,
   <Message = void>(
     self: Logger.Logger<Message, string>,
     file: ScopedRef.ScopedRef<FileSystem.File>,
-    options?:
-      | {
-          readonly batchWindow?: Duration.Input | undefined;
-        }
-      | undefined
+    options?: {
+      readonly batchWindow?: Duration.Input | undefined;
+    }
   ) => Effect.Effect<Logger.Logger<Message, void>, PlatformError, Scope.Scope>
 >(
   (args) => Logger.isLogger(args[0]),

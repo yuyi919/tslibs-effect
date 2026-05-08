@@ -4,13 +4,23 @@ packages:
 catalog:
   "@biomejs/biome": 2.4.11
   "@types/bun": ^1.2.0
-  effect: ~4.0.0-beta.60
-  "@effect/opentelemetry": ~4.0.0-beta.60
-  "@effect/platform-node-shared": "~4.0.0-beta.60"
-  "@effect/platform-bun": ~4.0.0-beta.60
-  "@effect/sql-pg": ~4.0.0-beta.60
-  "@effect/sql-sqlite-bun": ~4.0.0-beta.60
-  "@effect/atom-react": ~4.0.0-beta.60
+  effect: ~4.0.0-beta.64
+  "@effect/opentelemetry": ~4.0.0-beta.64
+  "@effect/platform-node-shared": "~4.0.0-beta.64"
+  "@effect/platform-bun": ~4.0.0-beta.64
+  "@effect/sql-pg": ~4.0.0-beta.64
+  "@effect/sql-sqlite-bun": ~4.0.0-beta.64
+  "@effect/atom-react": ~4.0.0-beta.64
+
+  "@typescript/native-preview": 7.0.0-dev.20260328.1
+  typescript: ^6
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  vite-plus: latest
 
 overrides:
   "@yuyi919/tslibs-effect": "link:"
+
+allowBuilds:
+  "@parcel/watcher": true
+  msgpackr-extract: true

@@ -13,7 +13,7 @@ export {
 } from "effect/References";
 
 import type { Effect } from "effect/Effect";
-import type { Reference } from "./context";
+import type { Reference } from "./context.js";
 
 export function get<A>(ref: FiberRef<A>): Effect<A> {
   return ref.asEffect();

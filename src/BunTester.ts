@@ -58,7 +58,7 @@ export { afterAll, beforeAll, describe, expect };
 import * as FC from "effect/testing/FastCheck";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
-import * as Effect from "./Effect";
+import * as Effect from "./Effect.js";
 
 declare namespace V {
   export type TestContext = {
@@ -303,16 +303,16 @@ export const scopedGen: ScopedTester = Object.assign(
 );
 
 /** @internal */
-export const waitFor = <A>(
-  received: TRef.TxRef<A> | Effect.Effect<A, any, Effect.Transaction>,
-  f: (a: A) => any
+export const waitFor = <A, E = any, B = any>(
+  received: TRef.TxRef<A> | Effect.Effect<A, E, Effect.Transaction>,
+  f: (a: A) => B
 ) =>
   Effect.tx(
     Effect.gen(function* () {
       const current = yield* Effect.isEffect(received)
         ? received
         : TRef.get(received);
-      yield* Effect.try({
+      return yield* Effect.try({
         try: () => f(current),
         catch: () => false,
       }).pipe(Effect.catch(() => Effect.txRetry));
@@ -594,6 +594,7 @@ const it_ = Object.assign(bunTest.test, {
   live: makeTester<Scope.Scope>(Effect.scoped, bunTest.it),
   layer,
   layerLive,
+  flakyTest,
 });
 
 export { it_ as it };

@@ -9,6 +9,7 @@ tmp/
 .data
 icons/
 dist/
+types/
 build/
 tsconfig.tsbuildinfo
 .codex

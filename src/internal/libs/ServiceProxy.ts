@@ -3,11 +3,11 @@ import { type Cause, type Scope } from "effect";
 import * as core from "effect/Effect";
 import { type Effect, service } from "effect/Effect";
 import { mapValues } from "es-toolkit";
-import * as Context from "../../core/context";
-import * as Eff from "../../core/effect";
-import * as Layer from "../../core/layer";
-import { GlobalScope } from "./GlobalScope";
-import { _, Kind, TypeLambda } from "./TypeLambda";
+import * as Context from "../../core/context.js";
+import * as Eff from "../../core/effect.js";
+import * as Layer from "../../core/layer.js";
+import { GlobalScope } from "./GlobalScope.js";
+import { _, Kind, TypeLambda } from "./TypeLambda.js";
 
 type ServiceProxyWith<Self, Type, ExcluedDeps = never, AdditionDeps = never> = {
   [k in keyof Type]: Type[k] extends (

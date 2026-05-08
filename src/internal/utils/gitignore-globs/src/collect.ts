@@ -1,8 +1,8 @@
-import { createBunFS } from "./fs/bun";
-import { parseGitignoreFile } from "./gitignore";
-import { type CompiledRule, globToRegExp, isIgnored } from "./matcher";
-import { joinPosix, normalizeSlashes } from "./path";
-import type { CollectOptions, GitignoreGlob, ReadonlyFS } from "./types";
+import { createBunFS } from "./fs/bun.js";
+import { parseGitignoreFile } from "./gitignore.js";
+import { type CompiledRule, globToRegExp, isIgnored } from "./matcher.js";
+import { joinPosix, normalizeSlashes } from "./path.js";
+import type { CollectOptions, GitignoreGlob, ReadonlyFS } from "./types.js";
 
 function isLikelyGitDir(relPosix: string) {
   return (

@@ -2,8 +2,8 @@ import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as Schedule from "effect/Schedule";
 import * as SynchronizedRef from "effect/SynchronizedRef";
-import { structEntries } from "./_helper";
-import * as Duration from "./duration";
+import { structEntries } from "./_helper.js";
+import * as Duration from "./duration.js";
 
 export type { Schedule as t } from "effect/Schedule";
 export * from "effect/Schedule";

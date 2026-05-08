@@ -1,5 +1,5 @@
 import { NestedDirectoryJSON, Volume } from "memfs";
-import type { ReadonlyFS } from "../../src/types";
+import type { ReadonlyFS } from "../../src/types.js";
 
 export function createMemfs(vol: Volume | NestedDirectoryJSON): ReadonlyFS {
   if (!(vol instanceof Volume)) {

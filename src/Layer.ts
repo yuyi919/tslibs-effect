@@ -1,1 +1,1 @@
-export * from "./core/layer";
+export * from "./core/layer.js";

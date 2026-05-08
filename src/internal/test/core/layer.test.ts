@@ -1,8 +1,8 @@
 import { describe, expect } from "bun:test";
 import { Effect, Layer } from "effect";
-import { it } from "../../../BunTester";
-import * as Context from "../../../core/context";
-import { buildMemoized, withHelper } from "../../../core/layer";
+import { it } from "../../../BunTester.js";
+import * as Context from "../../../core/context.js";
+import { buildMemoized, withHelper } from "../../../core/layer.js";
 
 describe("Layer Helpers", () => {
   interface ServiceA {

@@ -1,8 +1,8 @@
 # Tasks
+
 - [ ] Task 1: 编写 `Runtime` 补齐的测试
   - [ ] 在 `src/internal/test/core/mock/Runtime.test.ts` 中测试 `runFork`, `runSync`, `runPromise` 等双态执行入口。
   - [ ] 优先使用 `BunTester` 导出的测试工具（如 `it.effect` 等）。
-  
 - [ ] Task 2: 编写 `Effect` 转换与流控制的测试
   - [ ] 在 `src/internal/test/core/effect.test.ts` 中测试 `from`, `tryMap`, `orElse`, `zipRight`, `tapBoth` 等。
   - [ ] 优先使用 `BunTester`。
@@ -20,4 +20,5 @@
   - [ ] 运行 `npm run build`，确保类型与构建正常。
 
 # Task Dependencies
+
 - Task 5 depends on Task 1, Task 2, Task 3, Task 4

@@ -25,14 +25,12 @@
     "allowArbitraryExtensions": true,
     "incremental": true,
     "outDir": "./dist",
+    "declarationDir": "./types",
     "rootDir": "./src",
     "paths": {
       "@/effect": ["./src/effect-next"]
-    }
-    // "paths": {
-    //   "effect/*": ["./node_modules/effect/src/*"],
-    //   "effect": ["./node_modules/effect/src/index.ts"]
-    // }
+    },
+    "emitDeclarationOnly": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

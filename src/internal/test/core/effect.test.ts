@@ -1,7 +1,13 @@
 import { describe, expect } from "bun:test";
 import { Effect } from "effect";
-import { it } from "../../../BunTester";
-import { from, orElse, tapBoth, tryMap, zipRight } from "../../../core/effect";
+import { it } from "../../../BunTester.js";
+import {
+  from,
+  orElse,
+  tapBoth,
+  tryMap,
+  zipRight,
+} from "../../../core/effect.js";
 
 describe("Effect Polyfills and Flow Control", () => {
   describe("from", () => {

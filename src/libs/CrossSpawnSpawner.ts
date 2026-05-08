@@ -1,1 +1,1 @@
-export * as CrossSpawnSpawner from "../internal/libs/CrossSpawnSpawner";
+export * as CrossSpawnSpawner from "../internal/libs/CrossSpawnSpawner.js";

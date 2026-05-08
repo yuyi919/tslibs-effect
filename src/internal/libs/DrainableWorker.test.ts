@@ -1,8 +1,8 @@
 import { describe, expect } from "bun:test";
 import { Deferred, Effect } from "effect";
-import * as BunTester from "../../BunTester";
+import * as BunTester from "../../BunTester.js";
 
-import { makeDrainableWorker } from "./DrainableWorker";
+import { makeDrainableWorker } from "./DrainableWorker.js";
 
 describe("makeDrainableWorker", () => {
   BunTester.it.live(

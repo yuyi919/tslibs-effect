@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
-import { joinPosix } from "../path";
-import type { ReadonlyFS, StatLike } from "../types";
+import { joinPosix } from "../path.js";
+import type { ReadonlyFS, StatLike } from "../types.js";
 
 export function createBunFS(): ReadonlyFS {
   return {

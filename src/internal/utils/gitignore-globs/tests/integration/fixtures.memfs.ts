@@ -1,6 +1,4 @@
 import { Volume } from "memfs";
-import { join } from "pathe";
-import { collectNestedDirectoryJSON } from "../../src/collectNestedDirectoryJSON";
 
 /**
  * 说明：
@@ -9,15 +7,15 @@ import { collectNestedDirectoryJSON } from "../../src/collectNestedDirectoryJSON
  */
 
 export async function createMonorepoFixtureVolume(): Promise<Volume> {
-  return Volume.fromNestedJSON(
-    {
-      repo: await collectNestedDirectoryJSON({
-        rootDir: join(__dirname, "../fixtures/gitignore-test-monorepo"),
-        skipGitDir: true,
-      }),
-    },
-    "/"
-  );
+  // return Volume.fromNestedJSON(
+  //   {
+  //     repo: await collectNestedDirectoryJSON({
+  //       rootDir: join(__dirname, "../fixtures/gitignore-test-monorepo"),
+  //       skipGitDir: true,
+  //     }),
+  //   },
+  //   "/"
+  // );
   return Volume.fromNestedJSON(
     {
       repo: {
@@ -116,15 +114,15 @@ export async function createMonorepoFixtureVolume(): Promise<Volume> {
 }
 
 export async function createEdgecasesFixtureVolume(): Promise<Volume> {
-  return Volume.fromNestedJSON(
-    {
-      cases: await collectNestedDirectoryJSON({
-        rootDir: join(__dirname, "../fixtures/gitignore-test-edgecases"),
-        skipGitDir: true,
-      }),
-    },
-    "/"
-  );
+  // return Volume.fromNestedJSON(
+  //   {
+  //     cases: await collectNestedDirectoryJSON({
+  //       rootDir: join(__dirname, "../fixtures/gitignore-test-edgecases"),
+  //       skipGitDir: true,
+  //     }),
+  //   },
+  //   "/"
+  // );
   const bom = "\ufeff";
   return Volume.fromNestedJSON(
     {

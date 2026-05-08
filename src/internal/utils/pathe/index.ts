@@ -1,6 +1,6 @@
-import * as _path from "./_path";
+import * as _path from "./_path.js";
 
-export * from "./_path";
+export * from "./_path.js";
 
 type NodePath = typeof import("node:path");
 

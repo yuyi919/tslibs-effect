@@ -1,1 +1,1 @@
-export * from "./core/effect";
+export * from "./core/effect.js";

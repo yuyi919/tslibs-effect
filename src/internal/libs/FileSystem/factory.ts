@@ -15,10 +15,10 @@ import * as Error from "effect/PlatformError";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 import { omitBy } from "es-toolkit";
-import { errorMessage, unknownError } from "../../utils/error";
-import { CurrentWorkingDirectory } from "./Cwd";
-import { handleBadArgument, handleErrnoException } from "./internal/utils";
-import { BackendPlatformProvider } from "./Platform";
+import { errorMessage, unknownError } from "../../utils/error.js";
+import { CurrentWorkingDirectory } from "./Cwd.js";
+import { handleBadArgument, handleErrnoException } from "./internal/utils.js";
+import { BackendPlatformProvider } from "./Platform.js";
 
 export function makeOfficialFileSystem(cwd?: string) {
   const makeFileSystem = Effect.flatMap(

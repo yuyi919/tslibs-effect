@@ -1,7 +1,7 @@
-import { FileSystem as _FileSystem } from "./FileSystem";
-import { layerRealFs } from "./internal/libs/FileSystem/Backend";
-import { Pathe } from "./internal/libs/FileSystem/Path";
-import { proxyWithDefaultLayer } from "./ServiceProxy";
+import { FileSystem as _FileSystem } from "./FileSystem.js";
+import { layerRealFs } from "./internal/libs/FileSystem/Backend.js";
+import { Pathe } from "./internal/libs/FileSystem/Path.js";
+import { proxyWithDefaultLayer } from "./ServiceProxy.js";
 
 const fs = /*#__PURE__*/ proxyWithDefaultLayer(_FileSystem, layerRealFs());
 const path = Pathe;

@@ -5,10 +5,12 @@
 ## 1. 核心概念
 
 在使用 Effect 框架处理外部数据拉取（如 HTTP 请求、数据库查询）时，我们经常面临两个痛点：
+
 1. **N+1 问题与并发控制**：短时间内触发大量相同的请求，导致目标服务器限流或被封禁。
 2. **重复拉取耗时**：每次运行脚本都需要重新拉取体积庞大且变动不频繁的数据（如 Iconify 的 JSON 图标库）。
 
 为了解决这些问题，我们可以结合以下 Effect 模式：
+
 - **Batching（批处理）**：将短时间内发起的多个独立请求，自动收集、去重，并合并为一个批量请求（类似于 GraphQL DataLoader）。
 - **Persistent Caching（持久化缓存）**：将请求结果持久化到本地文件系统（或 Redis 等 Key-Value 存储），跨进程/跨运行复用数据。
 
@@ -22,14 +24,18 @@
 
 ```typescript
 import { Eff, Schema } from "@yuyi919/tslibs-effect";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import {
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+} from "@effect/platform";
 
 // 1. 定义底层单条数据的获取逻辑
 const fetchWithId = (id: string) =>
   Eff.gen(function* () {
     const client = yield* HttpClient.HttpClient;
     const request = HttpClientRequest.get(`https://api.example.com/data/${id}`);
-    
+
     return yield* client.execute(request).pipe(
       // 校验状态码
       HttpClientResponse.filterStatusOk,
@@ -38,7 +44,7 @@ const fetchWithId = (id: string) =>
       // 失败重试 3 次
       Eff.retry({ times: 3 }),
       // 异常兜底，返回空对象
-      Eff.catchAll((e) => Eff.succeed({}))
+      Eff.catchAll((e) => Eff.succeed({})),
     );
   });
 
@@ -49,11 +55,11 @@ const fetchBatched = Eff.batched(
     return Eff.gen(function* () {
       // 限制底层真实并发数为 2，防止并发过高
       const results = yield* Eff.all(ids.map(fetchWithId), { concurrency: 2 });
-      
+
       // 返回结果数组，必须与传入的 ids 顺序/数量一致
       return results;
     });
-  }
+  },
 );
 ```
 
@@ -85,8 +91,8 @@ const program = Eff.gen(function* () {
 // 1. 定义数据的 Schema，用于校验缓存数据是否合法（防止毒数据）
 const SchemaIconifyJSON = Schema.Any.pipe(
   Schema.refine(
-    (a) => typeof a === "object" && a !== null && "prefix" in a && "icons" in a
-  )
+    (a) => typeof a === "object" && a !== null && "prefix" in a && "icons" in a,
+  ),
 );
 
 // 2. 定义持久化的批处理函数
@@ -99,13 +105,16 @@ const fetchIconifyJson = Eff.persistedBatch(
     // 定义缓存的存活时间 (TTL)
     timeToLive: (exit) => {
       // 如果请求成功且数据符合 Schema 预期，缓存 10 分钟
-      if (Eff.Exit.isSuccess(exit) && Schema.is(SchemaIconifyJSON)(exit.value)) {
+      if (
+        Eff.Exit.isSuccess(exit) &&
+        Schema.is(SchemaIconifyJSON)(exit.value)
+      ) {
         return "10 minutes";
       }
       // 否则不缓存
       return "0 minutes";
     },
-  }
+  },
 );
 ```
 
@@ -126,11 +135,10 @@ const program = Eff.gen(function* () {
 // 组装并运行
 const RunnableLayer = Persistence.layerKvs.pipe(
   // 注入基于文件系统的 KeyValueStore，缓存将写入 "./icons_cache" 目录
-  Layer.provideMerge(KeyValueStore.layerFileSystem("./icons_cache"))
+  Layer.provideMerge(KeyValueStore.layerFileSystem("./icons_cache")),
 );
 
 Eff.runMain(program.pipe(Eff.provide(RunnableLayer)));
-
 ```
 
 补充说明（Effect v4 缓存语义）：
@@ -142,7 +150,8 @@ Eff.runMain(program.pipe(Eff.provide(RunnableLayer)));
 import { Effect, RequestResolver } from "effect";
 
 const resolver = RequestResolver.makeBatched(/* ... */);
-const cachedResolver = yield* RequestResolver.withCache(resolver, { capacity: 1024 });
+const cachedResolver =
+  yield * RequestResolver.withCache(resolver, { capacity: 1024 });
 ```
 
 ## 4. 总结最佳实践
