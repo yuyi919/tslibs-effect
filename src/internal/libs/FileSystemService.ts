@@ -270,9 +270,7 @@ export declare namespace ApplicationFileSystem {
   }
 
   export interface Service
-    extends ServiceReadonly,
-      ServiceWirteable,
-      ServiceExt {}
+    extends ServiceReadonly, ServiceWirteable, ServiceExt {}
   export type ServiceProxy = Eff.Tag.Proxy<ApplicationFileSystem, Service>;
 
   export type Error = PlatformError | FileSystemError;
@@ -529,9 +527,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
 
   @Memoize
   static get layerReal(): Layer.Layer<
-    BackendPlatformProvider | Path | ApplicationFileSystem,
-    never,
-    FileSystem
+    BackendPlatformProvider | FileSystem | Path | ApplicationFileSystem
   > {
     return this.layer.pipe(Layer.provideMerge(layerRealFs()));
   }
