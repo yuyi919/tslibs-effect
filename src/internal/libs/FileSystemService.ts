@@ -1,6 +1,5 @@
 import { Schema } from "effect";
-import { File, FileSystem, OpenFlag } from "effect/FileSystem";
-import { Path } from "effect/Path";
+import { File, FileSystem, OpenFlag, Size } from "effect/FileSystem";
 import { PlatformError } from "effect/PlatformError";
 import type { Scope } from "effect/Scope";
 import { Sink } from "effect/Sink";
@@ -10,7 +9,8 @@ import * as Layer from "../../core/layer.js";
 import { Memoize } from "../utils/decorators/index.js";
 import { Glob } from "../utils/glob.js";
 import { layerRealFs } from "./FileSystem/Backend.js";
-import { Pathe } from "./FileSystem/Path.js";
+import { Path } from "./FileSystem/Path.js";
+import { BackendPlatformProvider } from "./FileSystem/Platform.js";
 
 export declare namespace ApplicationFileSystem {
   export interface ServiceReadonly {
@@ -58,11 +58,16 @@ export declare namespace ApplicationFileSystem {
      * Get information about a file at `path`, preserving symbolic links.
      */
     readonly lstat: (path: string) => Eff.Effect<File.Info, PlatformError>;
+    /**
+     * Read the destination of a symbolic link.
+     */
+    readonly readLink: (path: string) => Eff.Effect<string, PlatformError>;
 
     /**
      * Read the contents of a file.
      */
     readonly readFile: (path: string) => Eff.Effect<Uint8Array, PlatformError>;
+
     /**
      * Read the contents of a file.
      */
@@ -123,6 +128,22 @@ export declare namespace ApplicationFileSystem {
         readonly flag?: OpenFlag | undefined;
         readonly mode?: number | undefined;
       }
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Truncate a file to a specified length. If the `length` is not specified,
+     * the file will be truncated to length `0`.
+     */
+    readonly truncate: (
+      path: string,
+      length?: bigint | number | Size
+    ) => Eff.Effect<void, PlatformError>;
+    /**
+     * Change the file system timestamps of the file at `path`.
+     */
+    readonly utimes: (
+      path: string,
+      atime: Date | number,
+      mtime: Date | number
     ) => Eff.Effect<void, PlatformError>;
   }
 
@@ -282,6 +303,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         exists: fs.exists,
         stat: fs.stat,
         lstat: fs.stat, // TODO: Check this is correct.
+        readLink: fs.readLink, // TODO: Check this is correct.
         readdir: fs.readDirectory,
         readdirWithType: (
           path: string,
@@ -468,6 +490,9 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         writeFile: fs.writeFile,
         writeFileString: fs.writeFileString,
 
+        utimes: fs.utimes,
+        truncate: fs.truncate,
+
         makeTempDirectoryScoped: fs.makeTempDirectoryScoped,
         makeTempDirectory: fs.makeTempDirectory,
         remove: fs.remove,
@@ -503,12 +528,14 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
   }
 
   @Memoize
-  static get layerReal() {
-    return this.layer.pipe(
-      Layer.provideMerge(layerRealFs()),
-      Layer.provideMerge(Pathe.layer)
-    );
+  static get layerReal(): Layer.Layer<
+    BackendPlatformProvider | Path | ApplicationFileSystem,
+    never,
+    FileSystem
+  > {
+    return this.layer.pipe(Layer.provideMerge(layerRealFs()));
   }
 }
 
 export type FsServiceProxy = ApplicationFileSystem.ServiceProxy;
+export { BackendPlatformProvider };

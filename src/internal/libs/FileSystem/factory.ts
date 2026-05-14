@@ -4,6 +4,7 @@
 
 import * as Crypto from "node:crypto";
 import type * as NFS from "node:fs";
+import { Cache } from "effect";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import { effectify } from "effect/Effect";
@@ -15,6 +16,7 @@ import * as Error from "effect/PlatformError";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 import { omitBy } from "es-toolkit";
+import { cachedFunction } from "../../../core/effect.js";
 import { errorMessage, unknownError } from "../../utils/error.js";
 import { CurrentWorkingDirectory } from "./Cwd.js";
 import { handleBadArgument, handleErrnoException } from "./internal/utils.js";
@@ -25,15 +27,30 @@ export function makeOfficialFileSystem(cwd?: string) {
     Effect.all({
       backend: Effect.serviceOption(FileSystem.WatchBackend),
       platform: Effect.fromYieldable(BackendPlatformProvider),
+      currentWorkingDir: CurrentWorkingDirectory,
     }),
     Effect.fnUntraced(function* ({
       platform: { Os: OS, path, fs: NFS },
+      currentWorkingDir,
       backend,
     }) {
       // 解析并标准化传入的 cwd
-      const resolvedCwd = cwd ? cwd : yield* CurrentWorkingDirectory;
+      const resolvedCwd = cwd ? cwd : currentWorkingDir;
+      const cachedResolve = yield* Cache.make({
+        lookup: (p: string) =>
+          Effect.sync(() =>
+            path.isAbsolute(p)
+              ? p
+              : resolvedCwd
+                ? path.normalize(path.resolve(resolvedCwd, p))
+                : p
+          ),
+        timeToLive: "10 seconds",
+        capacity: 500,
+        requireServicesAt: "construction",
+      });
       const resolve = (p: string) =>
-        resolvedCwd ? path.resolve(resolvedCwd, p) : p;
+        Effect.runSync(Cache.get(cachedResolve, p));
 
       // == access
       const access = ((): FileSystem.FileSystem["access"] => {

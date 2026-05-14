@@ -27,174 +27,48 @@
     }
   },
   "exports": {
-    ".": {
-      "types": "./types/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./Backend": {
-      "types": "./types/Backend.d.ts",
-      "default": "./dist/Backend.js"
-    },
-    "./BunTester": {
-      "types": "./types/BunTester.d.ts",
-      "default": "./dist/BunTester.js"
-    },
-    "./Cause": {
-      "types": "./types/Cause.d.ts",
-      "default": "./dist/Cause.js"
-    },
-    "./Context": {
-      "types": "./types/Context.d.ts",
-      "default": "./dist/Context.js"
-    },
-    "./Contracts": {
-      "types": "./types/Contracts.d.ts",
-      "default": "./dist/Contracts.js"
-    },
-    "./Effect": {
-      "types": "./types/Effect.d.ts",
-      "default": "./dist/Effect.js"
-    },
-    "./effect-next": {
-      "types": "./types/effect-next.d.ts",
-      "default": "./dist/effect-next.js"
-    },
-    "./FiberId": {
-      "types": "./types/FiberId.d.ts",
-      "default": "./dist/FiberId.js"
-    },
-    "./FileSystem": {
-      "types": "./types/FileSystem.d.ts",
-      "default": "./dist/FileSystem.js"
-    },
-    "./FsUtils": {
-      "types": "./types/FsUtils.d.ts",
-      "default": "./dist/FsUtils.js"
-    },
-    "./Glob": {
-      "types": "./types/Glob.d.ts",
-      "default": "./dist/Glob.js"
-    },
-    "./GlobalScope": {
-      "types": "./types/GlobalScope.d.ts",
-      "default": "./dist/GlobalScope.js"
-    },
-    "./internal/libs/CrossSpawnSpawner": {
-      "types": "./types/internal/libs/CrossSpawnSpawner.d.ts",
-      "default": "./dist/internal/libs/CrossSpawnSpawner.js"
-    },
-    "./internal/libs/DrainableWorker": {
-      "types": "./types/internal/libs/DrainableWorker.d.ts",
-      "default": "./dist/internal/libs/DrainableWorker.js"
-    },
-    "./internal/libs/FileSystemService": {
-      "types": "./types/internal/libs/FileSystemService.d.ts",
-      "default": "./dist/internal/libs/FileSystemService.js"
-    },
-    "./internal/libs/GlobalScope": {
-      "types": "./types/internal/libs/GlobalScope.d.ts",
-      "default": "./dist/internal/libs/GlobalScope.js"
-    },
-    "./internal/libs/KeyedCoalescingWorker": {
-      "types": "./types/internal/libs/KeyedCoalescingWorker.d.ts",
-      "default": "./dist/internal/libs/KeyedCoalescingWorker.js"
-    },
-    "./internal/libs/Net": {
-      "types": "./types/internal/libs/Net.d.ts",
-      "default": "./dist/internal/libs/Net.js"
-    },
-    "./internal/libs/ServiceProxy": {
-      "types": "./types/internal/libs/ServiceProxy.d.ts",
-      "default": "./dist/internal/libs/ServiceProxy.js"
-    },
-    "./internal/libs/TypeLambda": {
-      "types": "./types/internal/libs/TypeLambda.d.ts",
-      "default": "./dist/internal/libs/TypeLambda.js"
-    },
-    "./internal/utils/error": {
-      "types": "./types/internal/utils/error.d.ts",
-      "default": "./dist/internal/utils/error.js"
-    },
-    "./internal/utils/glob": {
-      "types": "./types/internal/utils/glob.d.ts",
-      "default": "./dist/internal/utils/glob.js"
-    },
-    "./internal/utils/xdg-basedir": {
-      "types": "./types/internal/utils/xdg-basedir.d.ts",
-      "default": "./dist/internal/utils/xdg-basedir.js"
-    },
-    "./KeyValueStore": {
-      "types": "./types/KeyValueStore.d.ts",
-      "default": "./dist/KeyValueStore.js"
-    },
-    "./Layer": {
-      "types": "./types/Layer.d.ts",
-      "default": "./dist/Layer.js"
-    },
-    "./libs/CrossSpawnSpawner": {
-      "types": "./types/libs/CrossSpawnSpawner.d.ts",
-      "default": "./dist/libs/CrossSpawnSpawner.js"
-    },
-    "./libs/decorators": {
-      "types": "./types/libs/decorators.d.ts",
-      "default": "./dist/libs/decorators.js"
-    },
-    "./libs/DrainableWorker": {
-      "types": "./types/libs/DrainableWorker.d.ts",
-      "default": "./dist/libs/DrainableWorker.js"
-    },
-    "./libs/FileSystem": {
-      "types": "./types/libs/FileSystem.d.ts",
-      "default": "./dist/libs/FileSystem.js"
-    },
-    "./libs/KeyedCoalescingWorker": {
-      "types": "./types/libs/KeyedCoalescingWorker.d.ts",
-      "default": "./dist/libs/KeyedCoalescingWorker.js"
-    },
-    "./libs/Net": {
-      "types": "./types/libs/Net.d.ts",
-      "default": "./dist/libs/Net.js"
-    },
-    "./Logger": {
-      "types": "./types/Logger.d.ts",
-      "default": "./dist/Logger.js"
-    },
-    "./LogLevel": {
-      "types": "./types/LogLevel.d.ts",
-      "default": "./dist/LogLevel.js"
-    },
-    "./Option": {
-      "types": "./types/Option.d.ts",
-      "default": "./dist/Option.js"
-    },
-    "./Path": {
-      "types": "./types/Path.d.ts",
-      "default": "./dist/Path.js"
-    },
-    "./Persistence": {
-      "types": "./types/Persistence.d.ts",
-      "default": "./dist/Persistence.js"
-    },
-    "./Process": {
-      "types": "./types/Process.d.ts",
-      "default": "./dist/Process.js"
-    },
-    "./Runtime": {
-      "types": "./types/Runtime.d.ts",
-      "default": "./dist/Runtime.js"
-    },
-    "./Schema": {
-      "types": "./types/Schema.d.ts",
-      "default": "./dist/Schema.js"
-    },
-    "./Scope": {
-      "types": "./types/Scope.d.ts",
-      "default": "./dist/Scope.js"
-    },
-    "./ServiceProxy": {
-      "types": "./types/ServiceProxy.d.ts",
-      "default": "./dist/ServiceProxy.js"
-    },
+    ".": "./src/index.ts",
+    "./Backend": "./src/Backend.ts",
+    "./BunTester": "./src/BunTester.ts",
+    "./Cause": "./src/Cause.ts",
+    "./Context": "./src/Context.ts",
+    "./Contracts": "./src/Contracts.ts",
+    "./Effect": "./src/Effect.ts",
+    "./effect-next": "./src/effect-next.ts",
+    "./FiberId": "./src/FiberId.ts",
+    "./FileSystem": "./src/FileSystem.ts",
+    "./FsUtils": "./src/FsUtils.ts",
+    "./Glob": "./src/Glob.ts",
+    "./GlobalScope": "./src/GlobalScope.ts",
+    "./internal/libs/CrossSpawnSpawner": "./src/internal/libs/CrossSpawnSpawner.ts",
+    "./internal/libs/DrainableWorker": "./src/internal/libs/DrainableWorker.ts",
+    "./internal/libs/FileSystemService": "./src/internal/libs/FileSystemService.ts",
+    "./internal/libs/GlobalScope": "./src/internal/libs/GlobalScope.ts",
+    "./internal/libs/KeyedCoalescingWorker": "./src/internal/libs/KeyedCoalescingWorker.ts",
+    "./internal/libs/Net": "./src/internal/libs/Net.ts",
+    "./internal/libs/ServiceProxy": "./src/internal/libs/ServiceProxy.ts",
+    "./internal/libs/TypeLambda": "./src/internal/libs/TypeLambda.ts",
+    "./internal/utils/error": "./src/internal/utils/error.ts",
+    "./internal/utils/glob": "./src/internal/utils/glob.ts",
+    "./internal/utils/xdg-basedir": "./src/internal/utils/xdg-basedir.ts",
+    "./KeyValueStore": "./src/KeyValueStore.ts",
+    "./Layer": "./src/Layer.ts",
+    "./libs/CrossSpawnSpawner": "./src/libs/CrossSpawnSpawner.ts",
+    "./libs/decorators": "./src/libs/decorators.ts",
+    "./libs/DrainableWorker": "./src/libs/DrainableWorker.ts",
+    "./libs/FileSystem": "./src/libs/FileSystem.ts",
+    "./libs/KeyedCoalescingWorker": "./src/libs/KeyedCoalescingWorker.ts",
+    "./libs/Net": "./src/libs/Net.ts",
+    "./Logger": "./src/Logger.ts",
+    "./LogLevel": "./src/LogLevel.ts",
+    "./Option": "./src/Option.ts",
+    "./Path": "./src/Path.ts",
+    "./Persistence": "./src/Persistence.ts",
+    "./Process": "./src/Process.ts",
+    "./Runtime": "./src/Runtime.ts",
+    "./Schema": "./src/Schema.ts",
+    "./Scope": "./src/Scope.ts",
+    "./ServiceProxy": "./src/ServiceProxy.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {

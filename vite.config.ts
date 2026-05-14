@@ -47,17 +47,17 @@ export default defineConfig({
     unbundle: true,
     exports: {
       enabled: true,
-      // devExports: true,
+      devExports: true,
       customExports(exports, { isPublish }) {
-        return mapValues(exports, (exports) =>
-          !isPublish && exports.endsWith(".js")
+        return mapValues(exports, (p) =>
+          isPublish && p.endsWith(".js")
             ? {
-                types: exports
-                  .replace(/.js$/, ".d.ts")
-                  .replace(/dist\//, "types/"),
-                default: exports,
+                types: p.replace(/.js$/, ".d.ts").replace(/dist\//, "types/"),
+                default: p,
               }
-            : exports
+            : typeof p === "object"
+              ? p.default
+              : p
         );
       },
     },

@@ -2,16 +2,21 @@ import { isFn } from "@yuyi919/shared-proto/JsTypes";
 import { Effect, Layer } from "effect";
 import * as Context from "../../../core/context.js";
 
-const Tag = Context.Reference<Effect.Effect<string | void>>(
+const defaultCwd = () => process.cwd();
+const Tag = Context.Reference<Effect.Effect<string | null>>(
   "@backend/CurrentWorkingDirectory",
   {
-    defaultValue: () => Effect.sync(() => process.cwd()),
+    defaultValue: () => Effect.sync(defaultCwd),
   }
 );
-
 export const CurrentWorkingDirectory = Object.assign(
-  Tag.use((cwd) => cwd),
+  Effect.suspend(() =>
+    Effect.flatten(Tag.asEffect()).pipe(
+      Effect.map((cwd) => cwd ?? defaultCwd())
+    )
+  ),
   {
+    defaultCwd,
     layerWith(inject: (() => Effect.Effect<string>) | Effect.Effect<string>) {
       return Layer.succeed(
         Tag,

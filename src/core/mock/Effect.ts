@@ -20,6 +20,14 @@ import * as Layer from "../layer.js";
 export const EffectTypeId = "~effect/Effect";
 export type EffectTypeId = typeof EffectTypeId;
 
+/**
+ *
+ * @param f
+ * @param eq
+ * @returns
+ * @since 2.0.0
+ * @category Caching
+ */
 export const cachedFunction: <A, B, E, R>(
   f: (a: A) => Effect<B, E, R>,
   eq?: Equivalence<A>

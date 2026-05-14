@@ -8,7 +8,7 @@ import * as Context from "../../../core/context.js";
 import * as Layer from "../../../core/layer.js";
 import * as Eff from "../../../effect-next.js";
 import { makeOfficialFileSystem } from "./factory.js";
-import { Pathe } from "./Path.js";
+import { Path } from "./Path.js";
 import { BackendPlatformProvider } from "./Platform.js";
 
 /**
@@ -23,7 +23,7 @@ export const layerMem = (deps: {
   makeOfficialFileSystem(deps.cwd).pipe(
     Layer.provide(layerMemWithoutBackend()),
     Layer.provideMerge(Layer.succeed(Backend, deps)),
-    Layer.provideMerge(Pathe.layer)
+    Layer.provideMerge(Path.layer)
   );
 
 /**
@@ -41,7 +41,7 @@ export const layerMemWith = (deps: {
   ).pipe(
     Layer.provide(layerMemWithoutBackend()),
     Layer.provide(Layer.succeed(Backend, deps)),
-    Layer.provideMerge(Pathe.layer)
+    Layer.provideMerge(Path.layer)
   );
 
 export const layerMemWithoutBackend = /**#__PURE__**/ lazy(() =>

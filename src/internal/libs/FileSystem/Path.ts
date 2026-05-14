@@ -4,21 +4,27 @@ import * as Eff from "../../../core/effect.js";
 import * as Layer from "../../../core/layer.js";
 import { proxyWithDefaultLayer } from "../ServiceProxy.js";
 
-export type PathClass = typeof Path;
+export type PathClass = typeof PathNode;
 
-export const Path = /*#__PURE__*/ Object.assign(
+export const PathNode = /*#__PURE__*/ Object.assign(
   proxyWithDefaultLayer(PlatformPath, layerNodePath),
   {
     layer: layerNodePath,
   }
 );
-export type Path = import("effect/Path").Path;
+export type PathNode = import("effect/Path").Path;
 
-const layerPathe = /*#__PURE__*/ Layer.effect(
-  PlatformPath,
-  Eff.promise(() => import("./internal/pathe.js").then((_) => _.Pathe))
+const layerPathe = /*#__PURE__*/ Layer.unwrap(
+  Eff.suspend(() =>
+    Eff.log("Path.layer").pipe(
+      Eff.zipRight(
+        Eff.promise(() => import("./internal/pathe.js").then((_) => _.Pathe))
+      )
+    )
+  )
 );
-export const Pathe: PathClass = /*#__PURE__*/ Object.assign(
+export type Path = import("effect/Path").Path;
+export const Path: PathClass = /*#__PURE__*/ Object.assign(
   proxyWithDefaultLayer(PlatformPath, layerPathe),
   {
     layer: layerPathe,

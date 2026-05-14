@@ -15,21 +15,20 @@ it.layer([GlobalScope.Default()])("proxyWithDefaultLayer", (it) => {
       expect(yield* proxy.join("a", "b")).toBe("a/b");
     })
   );
+  const callCreate = vi.fn(Console.log);
+  const testLayer = Layer.unwrap(
+    Effect.suspend(() => callCreate("Path.layer")).pipe(
+      Effect.zipRight(Effect.succeed(Path.layer))
+    )
+  );
   it.effect("只创建了一次", () =>
     Effect.gen(function* () {
-      const callCreate = vi.fn(Console.log);
-      const proxy = proxyWithDefaultLayer(
-        Path.Path,
-        Layer.unwrap(
-          Effect.suspend(() => callCreate("Path.layer")).pipe(
-            Effect.zipRight(Effect.succeed(Path.layer))
-          )
-        )
-      );
+      const proxy = proxyWithDefaultLayer(Path.Path, testLayer);
+      yield* proxy.join("a", "b");
       yield* proxy.join("a", "b");
       yield* proxy.normalize("a\\b");
       expect(callCreate).toBeCalledTimes(1);
-    })
+    }).pipe(Effect.provide(Layer.mergeAll(testLayer)))
   );
 });
 

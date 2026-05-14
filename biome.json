@@ -2,7 +2,13 @@
   "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
   "root": true,
   "files": {
-    "includes": ["*.json", "src/**/*.ts", "examples/**/*.ts", "./*.ts", "!**/node_modules"]
+    "includes": [
+      "*.json",
+      "src/**/*.ts",
+      "examples/**/*.ts",
+      "./*.ts",
+      "!**/node_modules"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -68,14 +74,24 @@
   },
   "overrides": [
     {
-      "includes": ["src/**/*.ts", "examples/**/*.ts", "!**/*.test.*", "!**/*.spec.*"],
+      "includes": [
+        "src/**/*.ts",
+        "examples/**/*.ts",
+        "!**/*.test.*",
+        "!**/*.spec.*"
+      ],
       "linter": {
         "rules": {
           "style": {
             "useFilenamingConvention": {
               "level": "warn",
               "options": {
-                "filenameCases": ["camelCase", "kebab-case", "PascalCase", "export"]
+                "filenameCases": [
+                  "camelCase",
+                  "kebab-case",
+                  "PascalCase",
+                  "export"
+                ]
               }
             }
           }

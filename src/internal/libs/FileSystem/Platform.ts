@@ -1,8 +1,8 @@
 import * as SharedNodePath from "@effect/platform-node-shared/NodePath";
 import { flow, Layer } from "effect";
-import { Path } from "effect/Path";
 import * as Context from "../../../core/context.js";
 import * as Eff from "../../../core/effect.js";
+import { Path } from "./Path.js";
 
 export interface BackendPlatform {
   readonly Os: {
@@ -27,7 +27,7 @@ export class BackendPlatformProvider extends Context.Service<
   }),
 }) {
   static makeSharedNodeLayer = (
-    self: Layer.Layer<Path, never, never> = SharedNodePath.layer
+    self: Layer.Layer<Path, never, never> = Path.layer
   ) =>
     Layer.provideMerge(
       Layer.effect(BackendPlatformProvider, BackendPlatformProvider.make()),
@@ -39,7 +39,5 @@ export class BackendPlatformProvider extends Context.Service<
     Layer.effect(BackendPlatformProvider)
   );
 
-  static Real = this.makeSharedNodeLayer(SharedNodePath.layer);
-  static RealPosix = this.makeSharedNodeLayer(SharedNodePath.layerPosix);
-  static RealWin32 = this.makeSharedNodeLayer(SharedNodePath.layerWin32);
+  static Real = this.makeSharedNodeLayer(Path.layer);
 }
