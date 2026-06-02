@@ -16,7 +16,7 @@ export type PathNode = import("effect/Path").Path;
 
 const layerPathe = /*#__PURE__*/ Layer.unwrap(
   Eff.suspend(() =>
-    Eff.log("Path.layer").pipe(
+    Eff.void.pipe(
       Eff.zipRight(
         Eff.promise(() => import("./internal/pathe.js").then((_) => _.Pathe))
       )

@@ -270,7 +270,9 @@ export declare namespace ApplicationFileSystem {
   }
 
   export interface Service
-    extends ServiceReadonly, ServiceWirteable, ServiceExt {}
+    extends ServiceReadonly,
+      ServiceWirteable,
+      ServiceExt {}
   export type ServiceProxy = Eff.Tag.Proxy<ApplicationFileSystem, Service>;
 
   export type Error = PlatformError | FileSystemError;
