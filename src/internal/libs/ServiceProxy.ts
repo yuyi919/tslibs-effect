@@ -7,7 +7,7 @@ import * as Context from "../../core/context.js";
 import * as Eff from "../../core/effect.js";
 import * as Layer from "../../core/layer.js";
 import { GlobalScope } from "./GlobalScope.js";
-import { _, Kind, TypeLambda } from "./TypeLambda.js";
+import type { _, Kind, TypeLambda } from "./TypeLambda.js";
 
 type ServiceProxyWith<Self, Type, ExcluedDeps = never, AdditionDeps = never> = {
   [k in keyof Type]: Type[k] extends (

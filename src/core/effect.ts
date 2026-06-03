@@ -10,7 +10,7 @@ import {
   type Schedule,
 } from "effect";
 import { dual } from "effect/Function";
-import { LogLevel, Severity } from "effect/LogLevel";
+import type { LogLevel, Severity } from "effect/LogLevel";
 import { isPromiseLike } from "effect/Predicate";
 import type { Scope } from "effect/Scope";
 import type { NoSuchElementException } from "./cause.js";

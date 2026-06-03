@@ -1,8 +1,9 @@
 import { Schema } from "effect";
-import { File, FileSystem, OpenFlag, Size } from "effect/FileSystem";
+import { FileSystem } from "effect/FileSystem";
+import type { File, OpenFlag, Size } from "effect/FileSystem";
 import { PlatformError } from "effect/PlatformError";
 import type { Scope } from "effect/Scope";
-import { Sink } from "effect/Sink";
+import type { Sink } from "effect/Sink";
 
 import * as Eff from "../../core/effect.js";
 import * as Layer from "../../core/layer.js";

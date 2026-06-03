@@ -808,7 +808,7 @@ export function makeOfficialFileSystem(cwd?: string) {
         truncate,
         utimes,
         watch(path) {
-          return watch(backend, path);
+          return watch(backend, path) as any;
         },
         writeFile,
       });
