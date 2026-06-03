@@ -1,8 +1,9 @@
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
 import { Effect, Layer } from "effect";
+import * as p from "../../utils/pathe/index.js";
 import * as Context from "../../../core/context.js";
 
-const defaultCwd = () => process.cwd();
+const defaultCwd = () => p.normalize(process.cwd());
 const Tag = Context.Reference<Effect.Effect<string | null>>(
   "@backend/CurrentWorkingDirectory",
   {
