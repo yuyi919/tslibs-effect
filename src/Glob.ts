@@ -59,9 +59,7 @@ export class Glob extends Effect.Service<Glob>()("@effect/utils/Glob", {
               _.glob(unsafeCoerce(pattern), options ?? {})
             )
           ),
-          Effect.catch(({ cause }) =>
-            new GlobError({ pattern, cause }).asEffect()
-          )
+          Effect.catch(({ cause }) => new GlobError({ pattern, cause }))
         ),
       globWithFileTypes: (pattern, options) =>
         loadGlobLayer.pipe(
@@ -73,15 +71,11 @@ export class Glob extends Effect.Service<Glob>()("@effect/utils/Glob", {
               } as GlobLib.GlobOptionsWithFileTypesTrue)
             )
           ),
-          Effect.catch(({ cause }) =>
-            new GlobError({ pattern, cause }).asEffect()
-          )
+          Effect.catch(({ cause }) => new GlobError({ pattern, cause }))
         ),
       stream: (pattern, options) =>
         loadGlobLayer.pipe(
-          Effect.catch(({ cause }) =>
-            new GlobError({ pattern, cause }).asEffect()
-          ),
+          Effect.catch(({ cause }) => new GlobError({ pattern, cause })),
           Effect.flatMap((_) =>
             Effect.try({
               try: () =>

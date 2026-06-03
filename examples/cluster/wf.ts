@@ -60,20 +60,18 @@ const EmailWorkflowLayer = EmailWorkflow.toLayer(
           });
         }
       }),
-    })
-      .asEffect()
-      .pipe(
-        Activity.retry({ times: 5 }),
-        EmailWorkflow.withCompensation(
-          Effect.fn(function* (value, cause) {
-            // This is a compensation finalizer that will be executed if the workflow fails.
-            //
-            // You can use the success `value` of the wrapped effect, as well as the
-            // Cause of the workflow failure.
-            yield* Effect.log(`Compensating activity SendEmail`);
-          })
-        )
-      );
+    }).pipe(
+      Activity.retry({ times: 5 }),
+      EmailWorkflow.withCompensation(
+        Effect.fn(function* (value, cause) {
+          // This is a compensation finalizer that will be executed if the workflow fails.
+          //
+          // You can use the success `value` of the wrapped effect, as well as the
+          // Cause of the workflow failure.
+          yield* Effect.log(`Compensating activity SendEmail`);
+        })
+      )
+    );
 
     // Use the `DurableClock` to sleep for a specified duration.
     // The workflow will pause execution for the specified duration.

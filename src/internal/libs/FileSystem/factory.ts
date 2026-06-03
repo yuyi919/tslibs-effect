@@ -26,7 +26,7 @@ export function makeOfficialFileSystem(cwd?: string) {
   const makeFileSystem = Effect.flatMap(
     Effect.all({
       backend: Effect.serviceOption(FileSystem.WatchBackend),
-      platform: Effect.fromYieldable(BackendPlatformProvider),
+      platform: BackendPlatformProvider,
       currentWorkingDir: CurrentWorkingDirectory,
     }),
     Effect.fnUntraced(function* ({

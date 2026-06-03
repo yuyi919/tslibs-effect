@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { FileSystem } from "effect/FileSystem";
 import type { File, OpenFlag, Size } from "effect/FileSystem";
+import { FileSystem } from "effect/FileSystem";
 import { PlatformError } from "effect/PlatformError";
 import type { Scope } from "effect/Scope";
 import type { Sink } from "effect/Sink";

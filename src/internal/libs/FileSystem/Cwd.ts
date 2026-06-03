@@ -11,7 +11,7 @@ const Tag = Context.Reference<Effect.Effect<string | null>>(
 );
 export const CurrentWorkingDirectory = Object.assign(
   Effect.suspend(() =>
-    Effect.flatten(Tag.asEffect()).pipe(
+    Effect.flatten(Effect.service(Tag)).pipe(
       Effect.map((cwd) => cwd ?? defaultCwd())
     )
   ),
