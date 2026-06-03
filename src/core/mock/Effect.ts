@@ -589,7 +589,7 @@ function _Service() {
       },
     });
   }
-  deepAssign(TagClass, TagClass.asEffect());
+  // deepAssign(TagClass, TagClass.asEffect());
   return proxy === true ? makeTagProxy(TagClass) : TagClass;
 }
 const makeTagProxy = (

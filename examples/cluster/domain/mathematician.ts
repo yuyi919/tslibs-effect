@@ -121,10 +121,11 @@ const effect = Effect.gen(function* () {
             .pipe(
               // Effect.catchTag("TooMuchMath", Function.identity),
               // Effect.catchTag("BadLuckMath", Function.identity),
-              Effect.catchAll(() =>
-                new ClusterProblem({
-                  message: "Problem getting math from assistant",
-                }).asEffect()
+              Effect.catchAll(
+                () =>
+                  new ClusterProblem({
+                    message: "Problem getting math from assistant",
+                  })
               )
             );
           const doubleCheckerResult = yield* fib(envelope.payload.target).pipe(

@@ -46,7 +46,7 @@ export class TaggedBrandContextHelper<P extends string, Self, Shape> {
     public tag: Context.TagClass<Self, P, BrandedContextType<Shape, P>>,
     public layer: Layer.LayerWithHelper<Self, never, Self> = Layer.effect(
       tag,
-      tag.asEffect()
+      tag
     ).pipe(Layer.withHelper),
     public branded: Brand.Constructor<
       BrandedContextType<Shape, P>
@@ -62,7 +62,7 @@ export class TaggedBrandContextHelper<P extends string, Self, Shape> {
       Effect.flatMap((o) =>
         Option.match(o, {
           onNone: () =>
-            this.tagOption.asEffect() as Effect.Effect<
+            this.tagOption as Effect.Effect<
               Option.Option<BrandedContextType<Shape, P>>,
               never,
               Self
@@ -161,12 +161,10 @@ export class TaggedBrandContextHelper<P extends string, Self, Shape> {
     this: Shape extends Redacted.Redacted<string> ? this : never,
     name: string
   ): Layer.LayerWithHelper<Self, Config.ConfigError, never> {
-    return Config.redacted(name)
-      .asEffect()
-      .pipe(
-        Effect.map((value) => this.from(value as any)),
-        (eff) => Layer.effect(this.tag, eff).pipe(Layer.withHelper)
-      );
+    return Config.redacted(name).pipe(
+      Effect.map((value) => this.from(value as any)),
+      (eff) => Layer.effect(this.tag, eff).pipe(Layer.withHelper)
+    );
   }
 
   fromEffect<V extends Shape, E, R>(
@@ -221,9 +219,7 @@ export class TaggedBrandContextHelper<P extends string, Self, Shape> {
       Config.isConfig(name)
         ? name
         : (Config.string(name) as Config.Config<Shape>)
-    )
-      .asEffect()
-      .pipe(Effect.map((val) => this.from(map ? map(val) : (val as Shape))));
+    ).pipe(Effect.map((val) => this.from(map ? map(val) : (val as Shape))));
     return Layer.effect(this.tag, eff).pipe(Layer.withHelper);
   }
 

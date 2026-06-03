@@ -23,7 +23,7 @@ export const execDriveList = (cb: any) => {
 
 export const parse = (driveLine: string): DriveDataInterface => {
   const matches = driveLine.match(
-    /^.+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+%)\s+([\dA-Za-z\/]*)/
+    /^.+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+%)\s+([\dA-Za-z/]*)/
   );
 
   if (!matches || matches.length !== 6) {

@@ -76,10 +76,11 @@ const program = Effect.gen(function* () {
       times: 0,
     }),
     // Something catastrophic happened
-    Effect.catchAll((e) =>
-      new ClusterProblem({
-        message: "Something catastrophic happened -> " + e._tag,
-      }).asEffect()
+    Effect.catchAll(
+      (e) =>
+        new ClusterProblem({
+          message: "Something catastrophic happened -> " + e._tag,
+        })
     ),
     Effect.exit
   );

@@ -1,7 +1,7 @@
 import { identity } from "@yuyi919/shared-proto/Functions";
 import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes";
 import { DateTime, Effect, Scope, type Types } from "effect";
-import { context, type Yieldable } from "effect/Effect";
+import { context } from "effect/Effect";
 import { dual, type LazyArg } from "effect/Function";
 import { pick } from "es-toolkit";
 import * as Cause from "../cause.js";
@@ -11,8 +11,7 @@ import type { Runtime } from "../mock/Runtime.js";
 import * as Option from "../option.js";
 
 export interface YieldWrap<T extends Effect.All.EffectAny>
-  extends Yieldable<
-    T,
+  extends Effect.Effect<
     Effect.Success<T>,
     Effect.Error<T>,
     Effect.Services<T>
@@ -636,17 +635,15 @@ export function withLogErrorAndSpan(
 export function allowLog(
   level: LogLevel.LogLevel = LogLevel.None
 ): Effect.Effect<boolean, never, never> {
-  return currentMinimumLogLevel
-    .asEffect()
-    .pipe(
-      Effect.map(
-        (minimumLogLevel) =>
-          !LogLevel.isGreaterThan(
-            minimumLogLevel,
-            isStr(level) ? LogLevel.fromLiteral(level) : level
-          )
-      )
-    );
+  return currentMinimumLogLevel.pipe(
+    Effect.map(
+      (minimumLogLevel) =>
+        !LogLevel.isGreaterThan(
+          minimumLogLevel,
+          isStr(level) ? LogLevel.fromLiteral(level) : level
+        )
+    )
+  );
 }
 
 export function whenAllowLog<A, E, R>(

@@ -14,12 +14,12 @@ export class EcsContainerMetadata extends Context.Tag("EcsContainerMetadata")<
 
 export const ecsContainerMetadataLayer = Layer.effect(
   EcsContainerMetadata,
-  Config.option(Config.string("ECS_CONTAINER_METADATA_URI_V4")).asEffect()
+  Config.option(Config.string("ECS_CONTAINER_METADATA_URI_V4"))
 );
 
 export class FetchIpError extends Data.TaggedError("FetchIpError")<{}> {}
 
-export const privateIp = EcsContainerMetadata.asEffect().pipe(
+export const privateIp = EcsContainerMetadata.pipe(
   Effect.flatMap((uriOptional) =>
     Option.match(uriOptional, {
       onNone: () => Effect.succeed("localhost"),
@@ -50,5 +50,5 @@ export const ipLayer = Layer.effect(IpAddress, privateIp).pipe(
 export class Port extends Context.Tag("Port")<Port, number>() {}
 export const portLayer = Layer.effect(
   Port,
-  Config.number("PORT").pipe(Config.withDefault(34431)).asEffect()
+  Config.number("PORT").pipe(Config.withDefault(34431))
 );
