@@ -1,5 +1,4 @@
 import { Effect, type Exit, type Fiber } from "effect";
-import { dual } from "effect/Function";
 import * as Context from "../context.js";
 
 export interface Runtime<in R> extends Context.Context<R> {}

@@ -3,9 +3,9 @@
  */
 
 import { lazy } from "@yuyi919/shared-proto/Functions";
-import { FileSystem } from "effect/FileSystem";
+import type { FileSystem } from "effect/FileSystem";
 import * as Layer from "effect/Layer";
-import { Path } from "effect/Path";
+import type { Path } from "effect/Path";
 import { makeOfficialFileSystem } from "./factory.js";
 import { BackendPlatformProvider } from "./Platform.js";
 
@@ -22,3 +22,5 @@ export const layerRealFs: () => Layer.Layer<
     Layer.provideMerge(BackendPlatformProvider.Real)
   )
 );
+
+export { BackendPlatformProvider };

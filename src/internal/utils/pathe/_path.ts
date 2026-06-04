@@ -26,7 +26,7 @@ const _PATH_ROOT_RE = /^[/\\]|^[a-zA-Z]:[/\\]/;
  */
 export const sep = "/";
 
-export const normalize: typeof path.normalize = function (path: string) {
+export const normalize: typeof path.normalize = (path: string) => {
   if (path.length === 0) {
     return ".";
   }
@@ -64,7 +64,7 @@ export const normalize: typeof path.normalize = function (path: string) {
   return isPathAbsolute && !isAbsolute(path) ? `/${path}` : path;
 };
 
-export const join: typeof path.join = function (...segments) {
+export const join: typeof path.join = (...segments) => {
   let path = "";
 
   for (const seg of segments) {
@@ -95,7 +95,7 @@ function cwd() {
   return "/";
 }
 
-export const resolve: typeof path.resolve = function (...arguments_) {
+export const resolve: typeof path.resolve = (...arguments_) => {
   // Normalize windows arguments
   arguments_ = arguments_.map((argument) => normalizeWindowsPath(argument));
 
@@ -206,21 +206,19 @@ export function normalizeString(path: string, allowAboveRoot: boolean) {
   return res;
 }
 
-export const isAbsolute: typeof path.isAbsolute = function (p) {
-  return _IS_ABSOLUTE_RE.test(p);
-};
+export const isAbsolute: typeof path.isAbsolute = (p) =>
+  _IS_ABSOLUTE_RE.test(p);
 
-export const toNamespacedPath: typeof path.toNamespacedPath = function (p) {
-  return normalizeWindowsPath(p);
-};
+export const toNamespacedPath: typeof path.toNamespacedPath = (p) =>
+  normalizeWindowsPath(p);
 
-export const extname: typeof path.extname = function (p) {
+export const extname: typeof path.extname = (p) => {
   if (p === "..") return "";
   const match = _EXTNAME_RE.exec(normalizeWindowsPath(p));
   return (match && match[1]) || "";
 };
 
-export const relative: typeof path.relative = function (from, to) {
+export const relative: typeof path.relative = (from, to) => {
   // we cast these because `split` will always be at least one string
   const _from = resolve(from).replace(_ROOT_FOLDER_RE, "$1").split("/") as [
     string,
@@ -247,7 +245,7 @@ export const relative: typeof path.relative = function (from, to) {
   return [..._from.map(() => ".."), ..._to].join("/");
 };
 
-export const dirname: typeof path.dirname = function (p) {
+export const dirname: typeof path.dirname = (p) => {
   const segments = normalizeWindowsPath(p)
     .replace(/\/$/, "")
     .split("/")
@@ -258,7 +256,7 @@ export const dirname: typeof path.dirname = function (p) {
   return segments.join("/") || (isAbsolute(p) ? "/" : ".");
 };
 
-export const format: typeof path.format = function (p) {
+export const format: typeof path.format = (p) => {
   const ext = p.ext ? (p.ext.startsWith(".") ? p.ext : `.${p.ext}`) : "";
   const segments = [p.root, p.dir, p.base ?? (p.name ?? "") + ext].filter(
     Boolean
@@ -268,7 +266,7 @@ export const format: typeof path.format = function (p) {
   );
 };
 
-export const basename: typeof path.basename = function (p, extension) {
+export const basename: typeof path.basename = (p, extension) => {
   const segments = normalizeWindowsPath(p).split("/");
 
   // default to empty string
@@ -286,7 +284,7 @@ export const basename: typeof path.basename = function (p, extension) {
     : lastSegment;
 };
 
-export const parse: typeof path.parse = function (p) {
+export const parse: typeof path.parse = (p) => {
   // The root of the path such as '/' or 'c:\'
   const root = _PATH_ROOT_RE.exec(p)?.[0]?.replace(/\\/g, "/") || "";
   const base = basename(p);

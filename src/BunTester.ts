@@ -46,7 +46,7 @@ import {
   pipe,
   Schedule,
   Schema,
-  Scope,
+  type Scope,
   TxRef as TRef,
 } from "effect";
 import type { NonEmptyArray } from "effect/Array";

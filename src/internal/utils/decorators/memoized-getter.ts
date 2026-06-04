@@ -1,9 +1,7 @@
 import { pureMemoize } from "@yuyi919/shared-proto/Functions";
 import { useThis } from "@yuyi919/shared-proto/Proto";
 
-export interface Lazy<A> {
-  (): A;
-}
+export type Lazy<A> = () => A;
 
 export function lazy<F extends () => any>(init: F): F;
 export function lazy<A>(init: () => A): Lazy<A>;

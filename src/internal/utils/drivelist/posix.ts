@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { DriveDataInterface } from "./types.js";
+import type { DriveDataInterface } from "./types.js";
 
 export const execDriveList = (cb: any) => {
   execFile("df", ["-P", "-k"], (err, stdout) => {

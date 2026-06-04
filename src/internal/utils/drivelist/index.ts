@@ -1,6 +1,6 @@
-import { ExecException, ExecFileException } from "node:child_process";
+import type { ExecException, ExecFileException } from "node:child_process";
 import { platform } from "node:os";
-import { DriveDataInterface } from "./types.js";
+import type { DriveDataInterface } from "./types.js";
 
 let execDriveList: (
   cb: (

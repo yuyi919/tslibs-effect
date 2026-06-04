@@ -1,13 +1,18 @@
-import * as SharedNodePath from "@effect/platform-node-shared/NodePath";
 import { flow, Layer } from "effect";
 import * as Context from "../../../core/context.js";
 import * as Eff from "../../../core/effect.js";
 import { Path } from "./Path.js";
 
-export interface BackendPlatform {
-  readonly Os: {
+export declare namespace BackendPlatform {
+  export type Interface = BackendPlatform;
+  export type Os = {
     tmpdir: () => string;
+    homedir: () => string;
   };
+}
+
+export interface BackendPlatform {
+  readonly Os: BackendPlatform.Os;
   readonly path: Path;
   readonly fs: typeof import("node:fs");
 }
@@ -17,7 +22,7 @@ export class BackendPlatformProvider extends Context.Service<
 >()("@backend-adapter/providers", {
   make: Eff.fn(function* (options?: {
     fs?: typeof import("node:fs");
-    Os?: { tmpdir: () => string };
+    Os?: BackendPlatform.Os;
   }) {
     return {
       Os: options?.Os ?? (yield* Eff.promise(() => import("node:os"))),

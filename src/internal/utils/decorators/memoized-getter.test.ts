@@ -63,7 +63,7 @@ describe("Getter", () => {
 
       @MemoizeGetter
       public static get testedGetter(): string {
-        this.callCount++;
+        Foo.callCount++;
 
         return "OK";
       }

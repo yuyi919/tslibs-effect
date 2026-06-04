@@ -15,13 +15,13 @@ export function MemoizeMethod<This, TArgs extends any[], THash, TReturn>(
     (this: This, ...args: TArgs) => TReturn
   >
 ) => (this: This, ...args: TArgs) => TReturn {
-  return function (
+  return (
     target: (this: This, ...args: TArgs) => TReturn,
     context: ClassMethodDecoratorContext<
       This,
       (this: This, ...args: TArgs) => TReturn
     >
-  ) {
+  ) => {
     if (!hashFunction) {
       if (target.length > 1) {
         throw TypeError(

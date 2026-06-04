@@ -10,7 +10,6 @@ import type {
   Covariant,
   NoExcessProperties,
 } from "effect/Types";
-import { deepAssign } from "../_helper.js";
 import { from } from "../effect.js";
 import * as Layer from "../layer.js";
 

@@ -1,8 +1,8 @@
 import { dirname, join, resolve } from "node:path";
 import { Layer } from "effect";
 import { Path as PlatformPath, TypeId } from "effect/Path";
-import { BadArgument } from "effect/PlatformError";
-import * as Eff from "../../../../core/effect.js";
+import type { BadArgument } from "effect/PlatformError";
+import type * as Eff from "../../../../core/effect.js";
 import * as p from "../../../utils/pathe/index.js";
 
 export const Pathe = Layer.suspend(() =>
@@ -24,10 +24,10 @@ export const Pathe = Layer.suspend(() =>
       sep: p.sep,
       toNamespacedPath: p.toNamespacedPath,
       [TypeId]: TypeId,
-      fromFileUrl: function (url: URL): Eff.Effect<string, BadArgument> {
+      fromFileUrl: (url: URL): Eff.Effect<string, BadArgument> => {
         throw new Error("Function not implemented.");
       },
-      toFileUrl: function (path: string): Eff.Effect<URL, BadArgument> {
+      toFileUrl: (path: string): Eff.Effect<URL, BadArgument> => {
         throw new Error("Function not implemented.");
       },
     })

@@ -1,5 +1,5 @@
 import { exec } from "node:child_process";
-import { DriveDataInterface } from "./types.js";
+import type { DriveDataInterface } from "./types.js";
 
 export const execDriveList = (cb: any) => {
   // Logicaldisk get order the parameters has no effect

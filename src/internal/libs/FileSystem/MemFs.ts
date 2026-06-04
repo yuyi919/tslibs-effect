@@ -55,6 +55,9 @@ export const layerMemWithoutBackend = /**#__PURE__**/ lazy(() =>
           tmpdir:
             deps.tmpdir ??
             (() => deps.vol.mkdtempSync("tmp").toString("utf-8")),
+          homedir:
+            deps.homedir ??
+            (() => deps.vol.mkdtempSync("home").toString("utf-8")),
         },
       });
     })
@@ -65,6 +68,7 @@ export type Backend = {
   fs: IFs;
   vol: Volume;
   tmpdir?: () => string;
+  homedir?: () => string;
 };
 
 /**

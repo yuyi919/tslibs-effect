@@ -1,5 +1,5 @@
 import { describe, expect } from "bun:test";
-import { Effect, RequestResolver } from "effect";
+import { Effect } from "effect";
 import { it } from "../../../../BunTester.js";
 import { batched, batchedOrSingle } from "../../../../core/effect/batched.js";
 

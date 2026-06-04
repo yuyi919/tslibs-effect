@@ -1,5 +1,5 @@
 import { describe, expect } from "bun:test";
-import { Cause, Effect, Exit, Fiber } from "effect";
+import { Effect, Exit, Fiber } from "effect";
 import { it } from "../../../../BunTester.js";
 import * as Context from "../../../../core/context.js";
 import {

@@ -1,6 +1,5 @@
 import { unsafeCoerce } from "@yuyi919/shared-proto/Functions";
 import { Schema, Stream } from "effect";
-import * as Layer from "effect/Layer";
 import type * as GlobLib from "glob";
 import * as Effect from "./Effect.js";
 

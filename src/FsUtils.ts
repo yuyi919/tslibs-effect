@@ -1,7 +1,7 @@
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import * as Layer from "effect/Layer";
-import { PlatformError } from "effect/PlatformError";
+import type { PlatformError } from "effect/PlatformError";
 import * as Backend from "./Backend.js";
 import * as Effect from "./core/effect.js";
 import { Glob } from "./Glob.js";

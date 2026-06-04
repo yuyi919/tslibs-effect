@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect } from "bun:test";
+import path from "node:path";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { Effect, FileSystem, Layer } from "effect";
-import path from "path";
 import * as BunTester from "../../BunTester.js";
 import { ApplicationFileSystem } from "./FileSystemService.js";
 

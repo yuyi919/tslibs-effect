@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 import type { File, OpenFlag, Size } from "effect/FileSystem";
 import { FileSystem } from "effect/FileSystem";
-import { PlatformError } from "effect/PlatformError";
+import type { PlatformError } from "effect/PlatformError";
 import type { Scope } from "effect/Scope";
 import type { Sink } from "effect/Sink";
 
@@ -532,7 +532,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
   static get layerReal(): Layer.Layer<
     BackendPlatformProvider | FileSystem | Path | ApplicationFileSystem
   > {
-    return this.layer.pipe(Layer.provideMerge(layerRealFs()));
+    return ApplicationFileSystem.layer.pipe(Layer.provideMerge(layerRealFs()));
   }
 }
 

@@ -1,5 +1,5 @@
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
-import { type Cause, type Scope } from "effect";
+import type { Cause, Scope } from "effect";
 import * as core from "effect/Effect";
 import { type Effect, service } from "effect/Effect";
 import { mapValues } from "es-toolkit";
