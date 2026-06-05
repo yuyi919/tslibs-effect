@@ -532,7 +532,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
   static get layerReal(): Layer.Layer<
     BackendPlatformProvider | FileSystem | Path | ApplicationFileSystem
   > {
-    return ApplicationFileSystem.layer.pipe(Layer.provideMerge(layerRealFs()));
+    return this.layer.pipe(Layer.provideMerge(layerRealFs()));
   }
 }
 
