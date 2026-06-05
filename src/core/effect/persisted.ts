@@ -54,7 +54,7 @@ const DynamicRequest = memoize(
       })
       implements effect.Request.Request<A, E>
     {
-      get ["~effect/Request"]() {
+      override get ["~effect/Request"]() {
         return RequestPrototype["~effect/Request"] as any;
       }
     };
