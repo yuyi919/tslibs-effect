@@ -85,14 +85,5 @@ export default defineConfig({
   },
   lint: {
     options: { typeAware: true, typeCheck: false },
-    rules: {
-      "eslint/require-yield": "off",
-      "eslint/no-unused-vars": "off",
-      "eslint-plugin-unicorn/no-empty-file": "off",
-      "typescript/no-floating-promises": "off",
-      "typescript/no-base-to-string": "off",
-      "typescript/restrict-template-expressions": "off",
-      "typescript/unbound-method": "off",
-    },
   },
 });
