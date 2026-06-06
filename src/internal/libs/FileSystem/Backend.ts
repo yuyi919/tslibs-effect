@@ -7,7 +7,7 @@ import type { FileSystem } from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import type { Path } from "effect/Path";
 import { makeOfficialFileSystem } from "./factory.js";
-import { BackendPlatformProvider } from "./Platform.js";
+import { type BackendPlatform, BackendPlatformProvider } from "./Platform.js";
 
 /**
  * @since 1.0.0
@@ -23,4 +23,4 @@ export const layerRealFs: () => Layer.Layer<
   )
 );
 
-export { BackendPlatformProvider };
+export { type BackendPlatform, BackendPlatformProvider };
