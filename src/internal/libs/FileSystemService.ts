@@ -59,10 +59,16 @@ export declare namespace ApplicationFileSystem {
      * Get information about a file at `path`, preserving symbolic links.
      */
     readonly lstat: (path: string) => Eff.Effect<File.Info, PlatformError>;
+
     /**
      * Read the destination of a symbolic link.
      */
     readonly readLink: (path: string) => Eff.Effect<string, PlatformError>;
+
+    /**
+     * Resolve a path to its canonicalized absolute pathname.
+     */
+    readonly realPath: (path: string) => Eff.Effect<string, PlatformError>;
 
     /**
      * Read the contents of a file.
@@ -305,6 +311,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         stat: fs.stat,
         lstat: fs.stat, // TODO: Check this is correct.
         readLink: fs.readLink, // TODO: Check this is correct.
+        realPath: fs.realPath, // TODO: Check this is correct.
         readdir: fs.readDirectory,
         readdirWithType: (
           path: string,

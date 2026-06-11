@@ -18,6 +18,12 @@ export const CurrentWorkingDirectory = Object.assign(
   ),
   {
     defaultCwd,
+    use<A, E, R>(fn: (cwd: string) => Effect.Effect<A, E, R>) {
+      return Effect.flatMapEager(CurrentWorkingDirectory, fn);
+    },
+    useSync<A>(fn: (cwd: string) => A) {
+      return Effect.mapEager(CurrentWorkingDirectory, fn);
+    },
     layerWith(inject: (() => Effect.Effect<string>) | Effect.Effect<string>) {
       return Layer.succeed(
         Tag,

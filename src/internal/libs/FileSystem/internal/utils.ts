@@ -3,6 +3,28 @@ import type { SystemError, SystemErrorTag } from "effect/PlatformError";
 import * as PlatformError from "effect/PlatformError";
 import { errorMessage } from "../../../utils/error.js";
 
+export const errnoExceptionToTag = (
+  code?: string
+): PlatformError.SystemErrorTag => {
+  switch (code) {
+    case "ENOENT":
+      return "NotFound";
+    case "EACCES":
+      return "PermissionDenied";
+    case "EEXIST":
+      return "AlreadyExists";
+    case "EISDIR":
+    case "ENOTDIR":
+      return "BadResource";
+    case "EBUSY":
+      return "Busy";
+    case "ELOOP":
+      return "BadResource";
+    default:
+      return "Unknown";
+  }
+};
+
 /** @internal */
 export const handleErrnoException =
   (module: SystemError["module"], method: string) =>
@@ -10,37 +32,7 @@ export const handleErrnoException =
     err: NodeJS.ErrnoException,
     [path]: [path: PathLike | number, ...args: Array<any>]
   ): PlatformError.PlatformError => {
-    let reason: SystemErrorTag = "Unknown";
-
-    switch (err.code) {
-      case "ENOENT":
-        reason = "NotFound";
-        break;
-
-      case "EACCES":
-        reason = "PermissionDenied";
-        break;
-
-      case "EEXIST":
-        reason = "AlreadyExists";
-        break;
-
-      case "EISDIR":
-        reason = "BadResource";
-        break;
-
-      case "ENOTDIR":
-        reason = "BadResource";
-        break;
-
-      case "EBUSY":
-        reason = "Busy";
-        break;
-
-      case "ELOOP":
-        reason = "BadResource";
-        break;
-    }
+    let reason: SystemErrorTag = errnoExceptionToTag(err.code);
 
     return PlatformError.systemError({
       _tag: reason,

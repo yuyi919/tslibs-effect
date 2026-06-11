@@ -26,30 +26,10 @@ import {
   make as makeSpawner,
   ProcessId,
 } from "effect/unstable/process/ChildProcessSpawner";
+import { errnoExceptionToTag } from "./FileSystem/internal/utils.js";
 
 const toError = (err: unknown): Error =>
   err instanceof globalThis.Error ? err : new globalThis.Error(String(err));
-
-const toTag = (err: NodeJS.ErrnoException): PlatformError.SystemErrorTag => {
-  switch (err.code) {
-    case "ENOENT":
-      return "NotFound";
-    case "EACCES":
-      return "PermissionDenied";
-    case "EEXIST":
-      return "AlreadyExists";
-    case "EISDIR":
-      return "BadResource";
-    case "ENOTDIR":
-      return "BadResource";
-    case "EBUSY":
-      return "Busy";
-    case "ELOOP":
-      return "BadResource";
-    default:
-      return "Unknown";
-  }
-};
 
 const flatten = (command: ChildProcess.Command) => {
   const commands: Array<ChildProcess.StandardCommand> = [];
@@ -90,7 +70,7 @@ const toPlatformError = (
     .commands.map((x) => `${x.command} ${x.args.join(" ")}`)
     .join(" | ");
   return PlatformError.systemError({
-    _tag: toTag(err),
+    _tag: errnoExceptionToTag(err.code),
     module: "ChildProcess",
     method,
     pathOrDescriptor: cmd,
