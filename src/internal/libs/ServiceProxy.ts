@@ -1,5 +1,5 @@
 import { isFn } from "@yuyi919/shared-proto/JsTypes";
-import type { Cause, Scope } from "effect";
+import { type Cause, type Scope } from "effect";
 import * as core from "effect/Effect";
 import { type Effect, service } from "effect/Effect";
 import { mapValues } from "es-toolkit";
@@ -211,3 +211,17 @@ export type ServiceProxyOutputWith<Self, Type, Lambda extends TypeLambda> = {
           ? Kind<Lambda, _, E, Self | R, A>
           : Kind<Lambda, _, _, Self, Type[k]>;
 };
+
+export const WarpClass: {
+  <C extends Context.Reference<any>, Only extends boolean = false>(
+    ClassConstructor: C,
+    onlyStatic?: Only
+  ): (Only extends true ? {} : C) & {
+    new (_: never): {};
+  } & (C extends Context.Reference<infer S> ? Eff.Tag.Proxy<never, S> : {});
+  <C extends Context.Service<any, any>, Only extends boolean = false>(
+    ClassConstructor: C,
+    onlyStatic?: Only
+  ): (Only extends true ? {} : C) &
+    (C extends Context.Service<infer I, infer N> ? Eff.Tag.Proxy<I, N> : {});
+} = (s: any) => Eff.makeProxyWithClass(s);

@@ -155,6 +155,10 @@
       "types": "./types/libs/KeyedCoalescingWorker.d.ts",
       "default": "./dist/libs/KeyedCoalescingWorker.js"
     },
+    "./libs/KeyedMutex": {
+      "types": "./types/libs/KeyedMutex.d.ts",
+      "default": "./dist/libs/KeyedMutex.js"
+    },
     "./libs/Net": {
       "types": "./types/libs/Net.d.ts",
       "default": "./dist/libs/Net.js"

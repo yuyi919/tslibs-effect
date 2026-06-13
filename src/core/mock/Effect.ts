@@ -618,13 +618,21 @@ function _Service() {
     });
   }
   // deepAssign(TagClass, TagClass.asEffect());
-  return proxy === true ? makeTagProxy(TagClass) : TagClass;
+  return proxy === true ? makeProxyWithClass(TagClass, true) : TagClass;
 }
-const makeTagProxy = (
-  TagClass: Context.Service<any, any> & Record<PropertyKey, any>
+
+/**
+ * @internal
+ * @param ClassConstructor
+ * @returns
+ */
+export const makeProxyWithClass = (
+  ClassConstructor: (Context.Service<any, any> | Context.Reference<any>) &
+    Record<PropertyKey, any>,
+  layerPattern = false
 ) => {
   const cache = new Map();
-  return new Proxy(TagClass, {
+  return new Proxy(ClassConstructor, {
     get(target: any, prop: any, receiver) {
       if (prop in target) {
         const value = Reflect.get(target, prop, receiver);
@@ -633,10 +641,10 @@ const makeTagProxy = (
       if (cache.has(prop)) {
         return cache.get(prop);
       }
-      if (prop === "defaultLayer") {
+      if (layerPattern && prop === "defaultLayer") {
         return target.Default;
       }
-      if (prop === "layer") {
+      if (layerPattern && prop === "layer") {
         return KDefaultWithoutDependencies in target
           ? target.DefaultWithoutDependencies
           : target.Default;
