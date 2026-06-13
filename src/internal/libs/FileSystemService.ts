@@ -82,6 +82,11 @@ export declare namespace ApplicationFileSystem {
       path: string,
       encoding?: string
     ) => Eff.Effect<string, PlatformError>;
+
+    /**
+     * Get the Effect FileSystem.
+     */
+    platform: FileSystem;
   }
 
   export interface ServiceWirteable {
@@ -339,6 +344,8 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
           >,
         readFile: fs.readFile,
         readFileString: fs.readFileString,
+
+        platform: fs,
       };
 
       const existsSafe = Eff.fn("FileSystem.existsSafe")(function* (
