@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Cause, Schema } from "effect";
 import type { File, OpenFlag, Size } from "effect/FileSystem";
 import { FileSystem } from "effect/FileSystem";
 import type { PlatformError } from "effect/PlatformError";
@@ -113,6 +113,18 @@ export declare namespace ApplicationFileSystem {
         readonly mode?: number | undefined;
       }
     ) => Eff.Effect<void, PlatformError>;
+
+    /**
+     * Create a directory at `path`. You can optionally specify the mode.
+     * Default auto recursively create nested directories.
+     * When throw exception, log warning.
+     */
+    readonly mkdirSafe: (
+      path: string,
+      options?: {
+        readonly mode?: number | undefined;
+      }
+    ) => Eff.Effect<void>;
 
     /**
      * Write data to a file at `path`.
@@ -491,9 +503,14 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         return result;
       });
 
-      return {
+      const impl: ApplicationFileSystem.Service = {
         ...readonly,
         mkdir: fs.makeDirectory,
+        mkdirSafe: (p, o) =>
+          fs.makeDirectory(p, { ...o, recursive: true }).pipe(
+            Eff.catchCause((e) => Eff.logWarning(Cause.prettyErrors(e))),
+            Eff.ignoreCause
+          ),
         rm: fs.remove,
         writeFile: fs.writeFile,
         writeFileString: fs.writeFileString,
@@ -522,19 +539,12 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
         globUp,
         glob,
         globMatch: Glob.match,
-      } satisfies ApplicationFileSystem.Service;
+      };
+      return impl;
     }),
+    dependencies: [layerRealFs],
   }
 ) {
-  static layer = this.Default;
-
-  /**
-   * @deprecated
-   */
-  static get defaultLayer() {
-    return this.layer;
-  }
-
   @Memoize
   static get layerReal(): Layer.Layer<
     BackendPlatformProvider | FileSystem | Path | ApplicationFileSystem
@@ -543,5 +553,12 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
   }
 }
 
+/**
+ * @deprecated use FsBackend.Interface instead
+ */
 export type FsServiceProxy = ApplicationFileSystem.ServiceProxy;
 export { BackendPlatformProvider };
+
+// ApplicationFileSystem.layer;
+
+// type c = Eff.Service.ResolveDepLayer<() => Layer.Layer<FileSystem | Path | BackendPlatformProvider, never, never>>

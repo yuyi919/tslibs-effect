@@ -1,37 +1,24 @@
-import * as fs from "node:fs";
+import * as fs from "node:fs/promises";
 import { joinPosix } from "../path.js";
 import type { ReadonlyFS, StatLike } from "../types.js";
 
 export function createBunFS(): ReadonlyFS {
   return {
     async readFile(path: string) {
-      // console.log("readFile", path)
-      return fs.readFileSync(path, "utf-8");
+      return fs.readFile(path, "utf-8");
       // return await Bun.file(path).text();
     },
     async readBytes(path: string) {
-      return fs.readFileSync(path);
+      return fs.readFile(path);
       // return await Bun.file(path).bytes();
     },
     async lstat(path: string): Promise<StatLike> {
-      // console.log("stat", path)
-      return fs.lstatSync(path);
+      return fs.lstat(path);
       // return await Bun.file(path).stat();
     },
     async readdir(dirPath: string): Promise<string[]> {
       // console.log("readdir", dirPath)
-      return fs.readdirSync(dirPath);
-      // Bun.Glob 默认只返回文件；要包含目录必须 onlyFiles: false
-      // const entries = new Bun.Glob("*");
-      // const names: string[] = [];
-      // for await (const name of entries.scan({
-      //   cwd: dirPath,
-      //   dot: true,
-      //   onlyFiles: false,
-      // })) {
-      //   names.push(String(name));
-      // }
-      // return names;
+      return fs.readdir(dirPath);
     },
   };
 }

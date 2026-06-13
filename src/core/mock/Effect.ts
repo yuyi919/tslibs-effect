@@ -13,6 +13,8 @@ import type {
 import { from } from "../effect.js";
 import * as Layer from "../layer.js";
 
+const KDefaultWithoutDependencies = "DefaultWithoutDependencies";
+
 /**
  * @internal
  */
@@ -168,8 +170,27 @@ export declare namespace Service {
       key: Key;
     } & (MakeAccessors<Make> extends true
       ? Tag.Proxy<Self, MakeService<Make>>
-      : {}) &
-    (MakeDeps<Make> extends never
+      : {}) & {
+      readonly layer: HasArguments<Make> extends true
+        ? (
+            ...args: MakeArguments<Make>
+          ) => Layer.Layer<Self, MakeError<Make>, MakeContext<Make>>
+        : Layer.Layer<Self, MakeError<Make>, MakeContext<Make>>;
+
+      readonly defaultLayer: HasArguments<Make> extends true
+        ? (
+            ...args: MakeArguments<Make>
+          ) => Layer.Layer<
+            Self,
+            MakeError<Make> | MakeDepsE<Make>,
+            Exclude<MakeContext<Make>, MakeDepsOut<Make>> | MakeDepsIn<Make>
+          >
+        : Layer.Layer<
+            Self,
+            MakeError<Make> | MakeDepsE<Make>,
+            Exclude<MakeContext<Make>, MakeDepsOut<Make>> | MakeDepsIn<Make>
+          >;
+    } & (MakeDeps<Make> extends never
       ? {
           readonly Default: HasArguments<Make> extends true
             ? (
@@ -272,13 +293,16 @@ export declare namespace Service {
           ? Exclude<_R, Scope.Scope>
           : never;
 
+  export type ResolveDepLayer<I extends LayerInput> =
+    I extends (() => infer L extends Layer.Any) ? L : I;
+
   /**
    * @since 3.9.0
    */
   export type MakeDeps<Make> = Make extends {
-    readonly dependencies: ReadonlyArray<Layer.Any>;
+    readonly dependencies: ReadonlyArray<LayerInput>;
   }
-    ? Make["dependencies"][number]
+    ? ResolveDepLayer<Make["dependencies"][number]>
     : never;
 
   /**
@@ -344,6 +368,7 @@ export declare namespace Service {
       : false;
 }
 
+type LayerInput = Layer.Any | (() => Layer.Any);
 type MissingSelfGeneric =
   `Missing \`Self\` generic - use \`class Self extends Effect.Service<Self>()...\``;
 
@@ -404,7 +429,7 @@ export const Service: <Self = never>() => [Self] extends [never]
                 | ((
                     ...args: any
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
-              readonly dependencies?: ReadonlyArray<Layer.Any>;
+              readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
             }
           | {
@@ -413,17 +438,17 @@ export const Service: <Self = never>() => [Self] extends [never]
                 | ((
                     ...args: any
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
-              readonly dependencies?: ReadonlyArray<Layer.Any>;
+              readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
             }
           | {
               readonly sync: LazyArg<Service.AllowedType<Key, Make>>;
-              readonly dependencies?: ReadonlyArray<Layer.Any>;
+              readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
             }
           | {
               readonly succeed: Service.AllowedType<Key, Make>;
-              readonly dependencies?: ReadonlyArray<Layer.Any>;
+              readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
             },
       >(
@@ -510,7 +535,7 @@ function _Service() {
     }
   };
   const hasDeps = "dependencies" in maker && maker.dependencies.length > 0;
-  const layerName = hasDeps ? "DefaultWithoutDependencies" : "Default";
+  const layerName = hasDeps ? KDefaultWithoutDependencies : "Default";
   let layerCache: Layer.Any | undefined;
   let isFunction = false;
   if ("effect" in maker) {
@@ -577,13 +602,17 @@ function _Service() {
           return function (this: typeof TagClass) {
             return Layer.provide(
               this.DefaultWithoutDependencies.apply(null, arguments),
-              maker.dependencies
+              maker.dependencies.map((input: LayerInput) =>
+                isFn(input) ? input() : input
+              )
             );
           };
         }
         return (layerWithDepsCache ??= Layer.provide(
           this.DefaultWithoutDependencies,
-          maker.dependencies
+          maker.dependencies.map((input: LayerInput) =>
+            isFn(input) ? input() : input
+          )
         ));
       },
     });
@@ -603,6 +632,14 @@ const makeTagProxy = (
       }
       if (cache.has(prop)) {
         return cache.get(prop);
+      }
+      if (prop === "defaultLayer") {
+        return target.Default;
+      }
+      if (prop === "layer") {
+        return KDefaultWithoutDependencies in target
+          ? target.DefaultWithoutDependencies
+          : target.Default;
       }
       const fn = (...args: Array<any>) => {
         return core.flatMap(service(target), (s: any) => {

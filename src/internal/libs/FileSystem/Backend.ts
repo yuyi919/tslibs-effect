@@ -3,11 +3,12 @@
  */
 
 import { lazy } from "@yuyi919/shared-proto/Functions";
-import type { FileSystem } from "effect/FileSystem";
+import { FileSystem } from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import type { Path } from "effect/Path";
+import { proxyWithDefaultLayer } from "../ServiceProxy.js";
 import { makeOfficialFileSystem } from "./factory.js";
-import { type BackendPlatform, BackendPlatformProvider } from "./Platform.js";
+import { BackendPlatformProvider } from "./Platform.js";
 
 /**
  * @since 1.0.0
@@ -23,4 +24,9 @@ export const layerRealFs: () => Layer.Layer<
   )
 );
 
-export { type BackendPlatform, BackendPlatformProvider };
+export { BackendPlatformProvider };
+
+const fs = /*#__PURE__*/ proxyWithDefaultLayer(FileSystem, layerRealFs());
+type fs = FileSystem;
+
+export { fs as FileSystem };

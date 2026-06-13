@@ -3,10 +3,11 @@
  */
 
 import { lazy } from "@yuyi919/shared-proto/Functions";
+import * as Context from "effect/Context";
+import * as Eff from "effect/Effect";
+import { FileSystem } from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import type { IFs, Volume } from "memfs";
-import * as Context from "../../../core/context.js";
-import * as Layer from "../../../core/layer.js";
-import * as Eff from "../../../effect-next.js";
 import { makeOfficialFileSystem } from "./factory.js";
 import { Path } from "./Path.js";
 import { BackendPlatformProvider } from "./Platform.js";
@@ -22,7 +23,7 @@ export const layerMem = (deps: {
 }) =>
   makeOfficialFileSystem(deps.cwd).pipe(
     Layer.provide(layerMemWithoutBackend()),
-    Layer.provideMerge(Layer.succeed(Backend, deps)),
+    Layer.provideMerge(Layer.succeed(MemFsBackend, deps)),
     Layer.provideMerge(Path.layer)
   );
 
@@ -33,14 +34,13 @@ export const layerMemWith = (deps: {
   fs: IFs;
   vol: Volume;
   tmpdir?: () => string;
-  path?: "win32" | "posix";
   cwd?: string;
-}): Eff.Layer<Eff.FileSystem | Eff.Path, never, never> =>
+}): Layer.Layer<FileSystem | Path, never, never> =>
   makeOfficialFileSystem(
     deps.cwd?.startsWith(".") ? "/" + deps.cwd.slice(1) : deps.cwd
   ).pipe(
     Layer.provide(layerMemWithoutBackend()),
-    Layer.provide(Layer.succeed(Backend, deps)),
+    Layer.provide(Layer.succeed(MemFsBackend, deps)),
     Layer.provideMerge(Path.layer)
   );
 
@@ -48,7 +48,7 @@ export const layerMemWithoutBackend = /**#__PURE__**/ lazy(() =>
   Layer.effect(
     BackendPlatformProvider,
     Eff.gen(function* () {
-      const deps = yield* Backend;
+      const deps = yield* MemFsBackend;
       return yield* BackendPlatformProvider.make({
         fs: deps.fs as never,
         Os: {
@@ -64,7 +64,7 @@ export const layerMemWithoutBackend = /**#__PURE__**/ lazy(() =>
   )
 );
 
-export type Backend = {
+export type MemFsBackend = {
   fs: IFs;
   vol: Volume;
   tmpdir?: () => string;
@@ -75,6 +75,7 @@ export type Backend = {
  * @since 1.0.0
  * @category Layers
  */
-export const Backend = /**#__PURE__**/ Context.Service<Backend, Backend>(
-  "@providers/memfs"
-);
+export const MemFsBackend = /**#__PURE__**/ Context.Service<
+  MemFsBackend,
+  MemFsBackend
+>("@providers/MemFsBackend");

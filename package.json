@@ -131,6 +131,10 @@
       "types": "./types/Layer.d.ts",
       "default": "./dist/Layer.js"
     },
+    "./libs/Backend": {
+      "types": "./types/libs/Backend.d.ts",
+      "default": "./dist/libs/Backend.js"
+    },
     "./libs/CrossSpawnSpawner": {
       "types": "./types/libs/CrossSpawnSpawner.d.ts",
       "default": "./dist/libs/CrossSpawnSpawner.js"
