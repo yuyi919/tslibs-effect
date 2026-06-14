@@ -1,6 +1,8 @@
 export const DO_NOT_CACHE: object = Object.create(null);
 export const cacheProperty = "~/Memoize/cache";
 
+const globalMap = new Map<any, Map<any, any>>();
+
 /**
  * The "MemoizeMethod" decorator is used to avoid multiple computations for multiple calls of the same method
  *
@@ -33,24 +35,38 @@ export function MemoizeMethod<This, TArgs extends any[], THash, TReturn>(
     }
 
     if (hashFunction) {
-      context.addInitializer(function (this: This) {
-        let caches = (this as any)[cacheProperty];
-        if (!caches) {
-          Object.defineProperty(this, cacheProperty, {
-            value: (caches = new Map()),
-          });
-        }
+      if (context.static) {
+        context.addInitializer(function (this: This) {
+          let caches = globalMap.get(this);
+          if (!caches) {
+            caches = new Map();
+            globalMap.set(this, caches);
+          }
 
-        caches.set(context.name, new Map());
-      });
+          caches.set(context.name, new Map());
+        });
+      } else {
+        context.addInitializer(function (this: This) {
+          let caches = (this as any)[cacheProperty];
+          if (!caches || !(caches instanceof Map)) {
+            Object.defineProperty(this, cacheProperty, {
+              value: (caches = new Map()),
+            });
+          }
 
+          caches.set(context.name, new Map());
+        });
+      }
+      const isStatic = context.static;
       return function (this: This, ...args: TArgs) {
         const key = hashFunction!.apply(this, args);
         if (key === DO_NOT_CACHE) {
           return target.apply(this, args);
         }
 
-        const cache = (this as any)[cacheProperty]!.get(context.name)!;
+        const cache = (
+          isStatic ? globalMap.get(this) : (this as any)[cacheProperty]
+        )!.get(context.name)!;
 
         if (!cache.has(key)) {
           const value = target.apply(this, args);

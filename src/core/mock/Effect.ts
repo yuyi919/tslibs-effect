@@ -678,5 +678,8 @@ export const makeProxyWithClass = (
       cache.set(prop, fn);
       return fn;
     },
+    set(target, p, newValue, receiver) {
+      return Reflect.set(target, p, newValue, receiver);
+    },
   });
 };

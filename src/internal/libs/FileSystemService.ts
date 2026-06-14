@@ -78,10 +78,24 @@ export declare namespace ApplicationFileSystem {
     /**
      * Read the contents of a file.
      */
+    readonly readFileSafe: (
+      path: string
+    ) => Eff.Effect<Uint8Array | undefined, PlatformError>;
+    /**
+     * Read the contents of a file.
+     */
     readonly readFileString: (
       path: string,
       encoding?: string
     ) => Eff.Effect<string, PlatformError>;
+
+    /**
+     * Read the contents of a file.
+     */
+    readonly readFileStringSafe: (
+      path: string,
+      encoding?: string
+    ) => Eff.Effect<string | undefined, PlatformError>;
 
     /**
      * Get the Effect FileSystem.
@@ -343,7 +357,19 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
             never
           >,
         readFile: fs.readFile,
+        readFileSafe: Eff.flow(
+          fs.readFile,
+          Eff.catchReason("PlatformError", "NotFound", () =>
+            Eff.succeed(undefined)
+          )
+        ),
         readFileString: fs.readFileString,
+        readFileStringSafe: Eff.flow(
+          fs.readFileString,
+          Eff.catchReason("PlatformError", "NotFound", () =>
+            Eff.succeed(undefined)
+          )
+        ),
 
         platform: fs,
       };

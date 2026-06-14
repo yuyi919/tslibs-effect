@@ -1,4 +1,5 @@
 import { describe, it } from "node:test";
+import { Eff } from "../../../index.js";
 import { Memoize as MemoizeMethod } from "./memoized.js";
 import { DO_NOT_CACHE } from "./memoized-method.js";
 
@@ -260,5 +261,29 @@ describe("Method", () => {
 
     foo.increment();
     t.assert.equal(foo.callCount, 2);
+  });
+  it("is able to not memoize", (t) => {
+    class Bar extends Eff.Service<Bar>()("Bar", {
+      effect() {
+        return Eff.succeed({ callCount: 0 });
+      },
+    }) {}
+    class Foo extends Bar {
+      public static callCount: number = 0;
+
+      @MemoizeMethod()
+      public static increment(a?: number): number {
+        return (this.callCount += a ?? 0);
+      }
+    }
+
+    const foo = Foo;
+    t.assert.equal(foo.callCount, 0);
+
+    foo.increment(1);
+    t.assert.equal(foo.callCount, 1);
+
+    foo.increment(2);
+    t.assert.equal(foo.callCount, 3);
   });
 });
