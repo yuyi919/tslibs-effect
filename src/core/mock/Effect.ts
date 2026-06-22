@@ -653,18 +653,20 @@ export const makeProxyWithClass = (
         return core.flatMap(service(target), (s: any) => {
           if (typeof s[prop] === "function") {
             cache.set(prop, (...args: Array<any>) =>
-              core.flatMap(service(target), (s: any) => from(s[prop](...args)))
+              core.flatMap(service(target), (s: any) =>
+                from(() => s[prop](...args))
+              )
             );
-            return from(s[prop](...args));
+            return from(() => s[prop](...args));
           }
           cache.set(
             prop,
-            core.flatMap(service(target), (s: any) => from(s[prop]))
+            core.flatMap(service(target), (s: any) => from(() => s[prop]))
           );
           return from(s[prop]);
         });
       };
-      const cn = target.use((s: any) => from(s[prop]));
+      const cn = target.use((s: any) => from(() => s[prop]));
       // @effect-diagnostics-next-line floatingEffect:off
       Object.assign(fn, cn);
       const apply = fn.apply;
