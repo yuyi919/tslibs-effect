@@ -21,15 +21,16 @@ const report = { /* ... */ } as Report
 
 ## Known Pitfalls
 
-1. **`function* ($)` not supported** — beta.68+ `Effect.gen` uses parameterless `function* ()`
-2. **`Effect.dieMessage` does not exist** — use `Effect.die(new UnimplementedError(...))` instead
-3. **`satisfies` does not narrow** — use `as` for forced casts under exactOptionalPropertyTypes
-4. **Ref type is `Ref.Ref<T>`** — not `Effect.Ref.Ref<T>`
-5. **`Effect.service` is not `Effect.service`** — actually `Effect.service(Tag)`, no trailing `s`
-6. **Smart quote issue** — Windows Edit tool may convert `"` to Chinese quotes, causing TS1127
-7. **Effect.gen return type** — explicit `Effect.Effect<T, E, R>` return annotation may conflict with inference; prefer no explicit return type
-8. **`getHasher()` Promise cache** — replace with `Layer.effect` + `Tag`; Promise appears only once inside Layer
-9. **Legacy Effect APIs** — `Effect.zipRight`/`zipLeft` → `Effect.zipWith`; `Effect.catchAll` → `Effect.catch`; `Effect.fork` → `Effect.forkChild`; `Effect.forkDaemon` → `Effect.forkDetach`
+1. **`Effect.never` does not end** — `Effect.never` is an Effect that runs forever (never completes), not a shorthand for `Effect<never, ...>`. If you need an Effect that completes with no value, use `Effect.void` instead.
+2. **`function* ($)` not supported** — beta.68+ `Effect.gen` uses parameterless `function* ()`
+3. **`Effect.dieMessage` does not exist** — use `Effect.die(new UnimplementedError(...))` instead
+4. **`satisfies` does not narrow** — use `as` for forced casts under exactOptionalPropertyTypes
+5. **Ref type is `Ref.Ref<T>`** — not `Effect.Ref.Ref<T>`
+6. **`Effect.service` is not `Effect.service`** — actually `Effect.service(Tag)`, no trailing `s`
+7. **Smart quote issue** — Windows Edit tool may convert `"` to Chinese quotes, causing TS1127
+8. **Effect.gen return type** — explicit `Effect.Effect<T, E, R>` return annotation may conflict with inference; prefer no explicit return type
+9. **`getHasher()` Promise cache** — replace with `Layer.effect` + `Tag`; Promise appears only once inside Layer
+10. **Legacy Effect APIs** — `Effect.zipRight`/`zipLeft` → `Effect.zipWith`; `Effect.catchAll` → `Effect.catch`; `Effect.fork` → `Effect.forkChild`; `Effect.forkDaemon` → `Effect.forkDetach`
 
 ## Context.Reference Deep Dive
 

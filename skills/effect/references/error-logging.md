@@ -16,6 +16,14 @@ The idiomatic pattern used extensively inside the Effect source — pass the ful
 Effect.catchCause(Effect.logError)
 ```
 
+From `.agents/references/effect-smol/packages/effect/src/unstable/rpc/RpcClient.ts` (L791-793):
+```typescript
+  }).pipe(
+    Effect.catchCause(Effect.logError),
+    Effect.interruptible,
+  )
+```
+
 ## Comparison
 
 | | `Effect.catch` | `Effect.catchCause` |
@@ -37,7 +45,7 @@ ErrorName: message
 }
 ```
 
-Source: `.agents/references/effect-smol/packages/effect/src/Logger.ts` (L492-494) and `.agents/references/effect-smol/packages/effect/src/internal/effect.ts` (L460-477).
+Source: `.agents/references/effect-smol/packages/effect/src/Logger.ts` (L415-417) and `.agents/references/effect-smol/packages/effect/src/internal/effect.ts` (L460-477).
 
 ## Summary
 
