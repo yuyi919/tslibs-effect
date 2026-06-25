@@ -580,7 +580,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
 ) {
   @Memoize
   static get layerReal(): Layer.Layer<
-    BackendPlatformProvider | FileSystem | Path | ApplicationFileSystem
+    FileSystem | Path | ApplicationFileSystem
   > {
     return this.layer.pipe(Layer.provideMerge(layerRealFs()));
   }
@@ -594,4 +594,4 @@ export { BackendPlatformProvider };
 
 // ApplicationFileSystem.layer;
 
-// type c = Eff.Service.ResolveDepLayer<() => Layer.Layer<FileSystem | Path | BackendPlatformProvider, never, never>>
+// type c = Eff.Service.ResolveDepLayer<() => Layer.Layer<FileSystem | Path, never, never>>

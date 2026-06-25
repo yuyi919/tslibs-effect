@@ -65,19 +65,19 @@ describe("Service", () => {
   it.gen("this 2", function* () {
     const thisRef: { this: any } = { this: null };
     function define() {
-      return Effect.gen(function*() {
+      return Effect.gen(function* () {
         yield* Effect.logDebug(2);
         return async function (this: any) {
           thisRef.this = this;
         };
-      })
+      });
     }
     class LogThis extends Effect.Service<LogThis>()("LogThis", {
       effect: Effect.gen(function* () {
         return {
           logThis() {
-            return define()
-          }
+            return define();
+          },
         };
       }),
       accessors: true,
@@ -89,7 +89,7 @@ describe("Service", () => {
     // expect(thisRef.this).toEqual(1);
     yield* Effect.gen(function* () {
       const consts = {
-        log: yield* LogThis.logThis()
+        log: yield* LogThis.logThis(),
       };
       consts.log.apply(2, []);
     }).pipe(Effect.provide(LogThis.Default));

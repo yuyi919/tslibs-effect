@@ -166,7 +166,7 @@ const program = Eff.gen(function* () {
   // yield* Eff.all(
   //   [fetchIconifyJsonBatchedP("mdi"), fetchIconifyJsonBatchedP("line-md")],
   //   { batching: true },
-  // ).pipe(Eff.catchAllCause(Eff.logError));
+  // ).pipe(Eff.catchCause(Eff.logError));
   // yield* Eff.all(
   //   [fetchIconifyJsonBatched("mdi"), fetchIconifyJsonBatched("line-md")],
   //   { batching: true },

@@ -11,6 +11,7 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
+import { Path } from "effect/Path";
 import * as Error from "effect/PlatformError";
 import * as Stream from "effect/Stream";
 import { omitBy } from "es-toolkit";
@@ -22,11 +23,15 @@ export function makeOfficialFileSystem(cwd?: string) {
   const makeFileSystem = Effect.flatMap(
     Effect.all({
       backend: Effect.serviceOption(FileSystem.WatchBackend),
-      platform: BackendPlatformProvider,
+      platform: BackendPlatformProvider.pipe(
+        Effect.flatMap((_) => Effect.all({ ..._ }))
+      ),
+      path: Path,
       currentWorkingDir: CurrentWorkingDirectory,
     }),
     Effect.fnUntraced(function* ({
-      platform: { Os: OS, path, fs: NFS },
+      platform: { Os: OS, fs: NFS },
+      path,
       currentWorkingDir,
       backend,
     }) {

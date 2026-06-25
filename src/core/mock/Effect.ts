@@ -10,6 +10,7 @@ import type {
   Covariant,
   NoExcessProperties,
 } from "effect/Types";
+import { deepAssignUnsafe } from "../_helper.js";
 import { from } from "../effect.js";
 import * as Layer from "../layer.js";
 
@@ -431,6 +432,7 @@ export const Service: <Self = never>() => [Self] extends [never]
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
               readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
+              readonly deepAssign?: boolean;
             }
           | {
               readonly effect:
@@ -440,16 +442,19 @@ export const Service: <Self = never>() => [Self] extends [never]
                   ) => Effect<Service.AllowedType<Key, Make>, any, any>);
               readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
+              readonly deepAssign?: boolean;
             }
           | {
               readonly sync: LazyArg<Service.AllowedType<Key, Make>>;
               readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
+              readonly deepAssign?: boolean;
             }
           | {
               readonly succeed: Service.AllowedType<Key, Make>;
               readonly dependencies?: ReadonlyArray<LayerInput>;
               readonly accessors?: boolean;
+              readonly deepAssign?: boolean;
             },
       >(
         key: Key,
@@ -466,6 +471,7 @@ export const Service: <Self = never>() => [Self] extends [never]
                 ) => Effect<Service.AllowedType<Key, Make>, any, any>);
             readonly dependencies?: ReadonlyArray<Layer.Any>;
             readonly accessors?: boolean;
+            readonly deepAssign?: boolean;
           },
           Make
         >,
@@ -484,6 +490,7 @@ export const Service: <Self = never>() => [Self] extends [never]
                 ) => Effect<Service.AllowedType<Key, Make>, any, any>);
             readonly dependencies?: ReadonlyArray<Layer.Any>;
             readonly accessors?: boolean;
+            readonly deepAssign?: boolean;
           },
           Make
         >,
@@ -498,6 +505,7 @@ export const Service: <Self = never>() => [Self] extends [never]
             readonly sync: LazyArg<Service.AllowedType<Key, Make>>;
             readonly dependencies?: ReadonlyArray<Layer.Any>;
             readonly accessors?: boolean;
+            readonly deepAssign?: boolean;
           },
           Make
         >,
@@ -512,6 +520,7 @@ export const Service: <Self = never>() => [Self] extends [never]
             readonly succeed: Service.AllowedType<Key, Make>;
             readonly dependencies?: ReadonlyArray<Layer.Any>;
             readonly accessors?: boolean;
+            readonly deepAssign?: boolean;
           },
           Make
         >,
@@ -531,7 +540,11 @@ function _Service() {
   }) {
     constructor(self: any) {
       super(void 0 as never);
-      Object.assign(this, self);
+      if (maker.deepAssign) {
+        deepAssignUnsafe(this, self);
+      } else {
+        Object.assign(this, self);
+      }
     }
   };
   const hasDeps = "dependencies" in maker && maker.dependencies.length > 0;
