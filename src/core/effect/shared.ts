@@ -1,7 +1,7 @@
 import { identity } from "@yuyi919/shared-proto/Functions";
 import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes";
-import { DateTime, Effect, Scope, type Types } from "effect";
-import { context } from "effect/Effect";
+import { DateTime, Scope, type Types } from "effect";
+import * as Effect from "effect/Effect";
 import { dual, type LazyArg } from "effect/Function";
 import { pick } from "es-toolkit";
 import * as Cause from "../cause.js";
@@ -65,9 +65,15 @@ export {
   tapCause as tapErrorCause,
 } from "effect/Effect";
 
+/**
+ * @deprecated use Effect.context instead
+ */
 export const runtime: <R = never>() => Effect.Effect<Runtime<R>, never, R> =
-  context;
+  Effect.context;
 
+/**
+ * @deprecated
+ */
 export const withRequestCaching = (_: boolean) => identity;
 
 export const tryMap = /*@__PURE__*/ dual<

@@ -28,7 +28,8 @@
     "declarationDir": "./types",
     "rootDir": "./src",
     "paths": {
-      "@/effect": ["./src/effect-next"]
+      "@/Effect.js": ["./src/Effect"],
+      "@/BunTester.js": ["./src/BunTester"]
     },
     "emitDeclarationOnly": true
   },

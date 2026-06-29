@@ -4,6 +4,7 @@ import { isPrimitive, toString } from "@yuyi919/shared-proto/JsTypes";
 import * as effect from "effect";
 import { constTrue, dual, pipe } from "effect/Function";
 import { RequestPrototype } from "effect/Request";
+import * as Schema from "effect/Schema";
 import { Persistable } from "effect/unstable/persistence";
 import * as PersistedCache from "effect/unstable/persistence/PersistedCache";
 import * as Persistence from "effect/unstable/persistence/Persistence";
@@ -19,70 +20,31 @@ import { scopedCacheWith } from "./scopedCache.js";
  */
 export interface PersistedRequest<R, IE, E, IA, A>
   extends effect.Request.Request<A, E>,
-    Persistable.Persistable<
-      effect.Schema.Schema<IA>,
-      effect.Schema.Schema<IE>
-    > {}
+    Persistable.Persistable<Schema.Schema<IA>, Schema.Schema<IE>> {}
 export declare namespace PersistedRequest {
   export type Any = effect.Request.Request<any, any> &
-    Persistable.Persistable<effect.Schema.Any, effect.Schema.Any>;
+    Persistable.Persistable<Schema.Any, Schema.Any>;
 }
 const DynamicRequest = memoize(
-  <P extends effect.Schema.Top, A, E>({
-    _id: id,
-    _arg: arg,
-  }: {
-    _id: string;
-    _arg: P;
-  }) => {
-    return class
-      extends Persistable.Class<{
-        payload: {
-          arg: P["Type"];
-        };
-      }>()("DynamicRequest", {
-        primaryKey: (payload) =>
-          isPrimitive(payload.arg)
-            ? toString(payload.arg)
-            : effect.Hash.hash(payload.arg) + "",
-        success: effect.Schema.Any.pipe(
-          effect.Schema.refine<effect.Schema.Any, A>(unsafeCoerce(constTrue))
-        ),
-        error: effect.Schema.Any.pipe(
-          effect.Schema.refine<effect.Schema.Any, E>(unsafeCoerce(constTrue))
-        ),
-      })
-      implements effect.Request.Request<A, E>
-    {
-      override get ["~effect/Request"]() {
-        return RequestPrototype["~effect/Request"] as any;
-      }
-    };
-    return class DynamicRequest
-      extends effect.Request.Class<{ arg: P["Type"] }, A, E>
-      implements
-        Persistable.Persistable<
-          effect.Schema.Schema<A>,
-          effect.Schema.Schema<E>
-        >
-    {
-      [effect.PrimaryKey.symbol]() {
-        return isPrimitive(this.arg)
-          ? toString(this.arg)
-          : effect.Hash.hash(this.arg) + "";
-      }
-      [effect.Hash.symbol]() {
-        return effect.Hash.hash(this.arg);
-      }
-      [Persistable.symbol] = {
-        error: effect.Schema.Any.pipe(
-          effect.Schema.refine(unsafeCoerce(constTrue))
-        ),
-        success: effect.Schema.Any.pipe(
-          effect.Schema.refine(unsafeCoerce(constTrue))
-        ),
+  <P extends Schema.Top, A, E>(_: { _id: string; _arg: P }) => {
+    const DynamicRequest = Persistable.Class<{
+      payload: {
+        arg: P["Type"];
       };
-    };
+      requestError: never;
+    }>()("DynamicRequest@" + _._id, {
+      primaryKey: (payload) =>
+        isPrimitive(payload.arg)
+          ? toString(payload.arg)
+          : effect.Hash.hash(payload.arg) + "",
+      success: Schema.Any.pipe(
+        Schema.refine<Schema.Any, A>(unsafeCoerce(constTrue))
+      ),
+      error: Schema.Any.pipe(
+        Schema.refine<Schema.Any, E>(unsafeCoerce(constTrue))
+      ),
+    });
+    return DynamicRequest;
   },
   { getCacheKey: (e) => e._id }
 );
@@ -99,9 +61,9 @@ const _makePersistedBatchFn = <
   type E = Eff.T.Error<ReturnType<F>>;
   type R = Eff.T.Context<ReturnType<F>>;
 
-  const Req = DynamicRequest<effect.Schema.Any, A, E>({
+  const Req = DynamicRequest<Schema.Any, A, E>({
     _id: options.storeId,
-    _arg: effect.Schema.Any,
+    _arg: Schema.Any,
   });
   type Req = InstanceType<typeof Req>;
   const prettyReq = effect.Formatter.format; //Pretty.make(Req);
@@ -206,9 +168,9 @@ export function persisted<P, A, E = never, R = never, O extends any[] = any[]>(
   request: P,
   ...other: O
 ) => Eff.Effect<A, E, R | Persistence.Persistence | effect.Scope.Scope> {
-  const Req = DynamicRequest<effect.Schema.Schema<P>, A, E>({
+  const Req = DynamicRequest<Schema.Schema<P>, A, E>({
     _id: options.storeId,
-    _arg: effect.Schema.Any,
+    _arg: Schema.Any,
   });
   const pretyReq = effect.Formatter.format; //Pretty.make(Req);
   type Req = InstanceType<typeof Req>;
@@ -261,9 +223,9 @@ export function persisted0<P, A, E = never, R = never>(
 ): (
   request: P
 ) => Eff.Effect<A, E, R | Persistence.Persistence | effect.Scope.Scope> {
-  const Req = DynamicRequest<effect.Schema.Schema<P>, A, E>({
+  const Req = DynamicRequest<Schema.Schema<P>, A, E>({
     _id: options.storeId,
-    _arg: effect.Schema.Any,
+    _arg: Schema.Any,
   });
   const pretyReq = effect.Formatter.format; //Pretty.make(Req);
   type Req = InstanceType<typeof Req>;

@@ -1,7 +1,6 @@
 import { unsafeCoerce } from "@yuyi919/shared-proto/Functions";
 import { isFn, isNotNil } from "@yuyi919/shared-proto/JsTypes";
 import {
-  Effect,
   Fiber,
   FiberHandle,
   identity,
@@ -9,6 +8,8 @@ import {
   Ref,
   type Schedule,
 } from "effect";
+import * as Effect from "effect/Effect";
+import { Effect as T } from "effect/Effect";
 import { dual } from "effect/Function";
 import type { Severity } from "effect/LogLevel";
 import { isPromiseLike } from "effect/Predicate";
@@ -20,10 +21,7 @@ import { scopedCacheWith } from "./effect/scopedCache.js";
 import * as Layer from "./layer.js";
 import type { RunForkOptions, Runtime } from "./mock/Runtime.js";
 
-export interface T<out A, out E = never, out R = never>
-  extends Effect.Effect<A, E, R> {}
-export type { T as t };
-
+export type { T, T as t };
 export declare namespace T {
   export type Success<T> = Effect.Success<T>;
   export type Error<T> = Effect.Error<T>;
@@ -308,4 +306,5 @@ export * from "./effect/funcs.js";
 export * from "./effect/persisted.js";
 export * from "./effect/scopedCache.js";
 export * from "./effect/shared.js";
+export * from "./effect/try.js";
 export * from "./mock/Effect.js";

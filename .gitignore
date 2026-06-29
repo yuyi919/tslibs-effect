@@ -17,4 +17,4 @@ tsconfig.tsbuildinfo
 .pnpm-store/
 .agent_temp/
 
-a.01
+.codegraph/
