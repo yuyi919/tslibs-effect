@@ -2,7 +2,13 @@ import { identity } from "@yuyi919/shared-proto/Functions";
 import { isFn, isStr } from "@yuyi919/shared-proto/JsTypes";
 import { DateTime, Scope, type Types } from "effect";
 import * as Effect from "effect/Effect";
-import { dual, type LazyArg } from "effect/Function";
+import {
+  constFalse,
+  constNull,
+  constUndefined,
+  dual,
+  type LazyArg,
+} from "effect/Function";
 import { pick } from "es-toolkit";
 import * as Cause from "../cause.js";
 import { currentMinimumLogLevel } from "../FiberRef.js";
@@ -798,3 +804,8 @@ export function annotateLogsWith<T extends Record<string, any>>(
     selectKeys?.length ? pick(values, selectKeys) : values
   );
 }
+
+export const orUndef = Effect.orElseSucceed(constUndefined);
+export const orVoid = Effect.orElseSucceed<void>(constUndefined);
+export const orNull = Effect.orElseSucceed(constNull);
+export const orFalse = Effect.orElseSucceed(constFalse);

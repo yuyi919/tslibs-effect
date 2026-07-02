@@ -132,12 +132,12 @@ export function tryEvaluate<A, E = never>(
 export function tryEvaluate<A>(
   evaluate: (signal: AbortSignal) => PromiseLike<A>
 ): Evaluate<A, UnknownError>;
-export function tryEvaluate<A>(
-  evaluate: (signal: AbortSignal) => A
-): Evaluate<A, UnknownError>;
 export function tryEvaluate<A, E = never, R = never>(
   evaluate: (signal: AbortSignal) => A | PromiseLike<A> | Effect.Effect<A, E, R>
 ): Evaluate<A, E | UnknownError, R>;
+export function tryEvaluate<A>(
+  evaluate: (signal: AbortSignal) => A
+): Evaluate<A, UnknownError>;
 export function tryEvaluate<A, E, E2, R>(
   evaluate: (
     signal: AbortSignal

@@ -48,3 +48,9 @@ export function Memoize<This, TReturn>(
   }
   return MemoizeMethod(unknownTarget);
 }
+
+export {
+  cacheProperty,
+  DO_NOT_CACHE,
+} from "./memoized-method.js";
+export { MemoizeGetter, MemoizeMethod };
