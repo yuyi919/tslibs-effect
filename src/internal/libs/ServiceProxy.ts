@@ -212,7 +212,7 @@ export type ServiceProxyOutputWith<Self, Type, Lambda extends TypeLambda> = {
           : Kind<Lambda, _, _, Self, Type[k]>;
 };
 
-export const WarpClass: {
+export const WrapClass: {
   <C extends Context.Reference<any>, Only extends boolean = false>(
     ClassConstructor: C,
     onlyStatic?: Only

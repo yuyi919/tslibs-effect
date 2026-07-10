@@ -302,6 +302,7 @@ export function runtimeHandle<
 
 export * from "effect/Effect";
 export * from "./effect/batched.js";
+export * from "./effect/ext.js";
 export * from "./effect/funcs.js";
 export * from "./effect/persisted.js";
 export * from "./effect/scopedCache.js";

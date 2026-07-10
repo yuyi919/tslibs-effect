@@ -41,7 +41,7 @@ export function makeOfficialFileSystem(cwd?: string) {
         lookup: (p: string) =>
           Effect.sync(() =>
             path.isAbsolute(p)
-              ? p
+              ? path.normalize(p)
               : resolvedCwd
                 ? path.normalize(path.resolve(resolvedCwd, p))
                 : p
@@ -502,7 +502,8 @@ export function makeOfficialFileSystem(cwd?: string) {
           handleErrnoException("FileSystem", "realPath"),
           handleBadArgument("realPath")
         );
-        return (path: string) => nodeRealPath(resolve(path));
+        return (path: string) =>
+          pipe(nodeRealPath(resolve(path)), Effect.mapEager(resolve));
       })();
 
       // == rename

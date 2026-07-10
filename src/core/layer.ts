@@ -1,11 +1,11 @@
 import { pureMemoize } from "@yuyi919/shared-proto/Functions";
 import { isStr } from "@yuyi919/shared-proto/JsTypes";
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 import type { MemoMap } from "effect/Layer";
 import * as Layer from "effect/Layer";
 import type { Scope } from "effect/Scope";
 import { deepAssign } from "./_helper.js";
-import type * as Context from "./context.js";
+import * as Context from "./context.js";
 
 export class LayerHelper<ROut, E = never, RIn = never> {
   constructor(public layer: Layer.Layer<ROut, E, RIn>) {}
@@ -111,3 +111,93 @@ export const LayerTypeId = "~effect/Layer";
 export type LayerTypeId = typeof LayerTypeId;
 
 export const context = <R>() => Layer.effectContext(Effect.context<R>());
+
+export function backup<Id, Shape, ER = never, R = never>(
+  tag: Context.Service<Id, Shape>,
+  defaultLayer: () => Layer.Layer<Id, ER, R>
+) {
+  const source = context<never>();
+  return Layer.flatMap(context<never>(), (ctx) => {
+    return Option.match(Context.getOption(ctx, tag), {
+      onSome: () => source as Layer.Layer<Id>,
+      onNone: defaultLayer,
+    });
+  });
+}
+
+export class ComputeLayer<Shape, Out, E, R> {
+  #ctx: Layer.Layer<Out, E, R>;
+  constructor(
+    public tag: Context.Service<any, Shape>,
+    ctx: Layer.Layer<Out, E, R>
+  ) {
+    this.#ctx = ctx;
+  }
+
+  mapTo<ToId, ToShape>(
+    tag: Context.Service<ToId, ToShape>,
+    compute: (input: Shape) => ToShape
+  ) {
+    const newLayer = Layer.flatMap(this.#ctx, (ctx) => {
+      const t = Context.getUnsafe(ctx, this.tag);
+      return Layer.succeedContext(Context.make(tag, compute(t)));
+    });
+    return new ComputeLayer<Shape, ToId, E, R>(this.tag, newLayer);
+  }
+
+  map<ToId, E2 = never, R2 = never>(
+    compute: (input: Shape) => Layer.Layer<ToId, E2, R2>
+  ) {
+    const newLayer = Layer.flatMap(this.#ctx, (ctx) => {
+      const t = Context.getUnsafe(ctx, this.tag);
+      return compute(t);
+    });
+    return new ComputeLayer(this.tag, newLayer);
+  }
+
+  merge<ToShape, E2, R2>(
+    compute: (input: Shape) => Layer.Layer<ToShape, E2, R2>
+  ) {
+    const newLayer = Layer.flatMap(this.#ctx, (ctx) => {
+      const t = Context.getUnsafe(ctx, this.tag);
+      return compute(t);
+    });
+    return new ComputeLayer(this.tag, Layer.merge(this.#ctx, newLayer));
+  }
+
+  mergeTo<ToId, ToShape>(
+    tag: Context.Service<ToId, ToShape>,
+    compute: (input: Shape) => ToShape
+  ) {
+    const newLayer = Layer.flatMap(this.#ctx, (ctx) => {
+      const t = Context.getUnsafe(ctx, this.tag);
+      return Layer.succeedContext(Context.make(tag, compute(t)));
+    });
+    return new ComputeLayer(this.tag, Layer.merge(this.#ctx, newLayer));
+  }
+
+  mergeToEffect<ToId, ToShape, E2, R2>(
+    tag: Context.Service<ToId, ToShape>,
+    compute: (input: Shape) => Effect.Effect<ToShape, E2, R2>
+  ) {
+    const newLayer = Layer.flatMap(this.#ctx, (ctx) => {
+      const t = Context.getUnsafe(ctx, this.tag);
+      return Layer.effectContext(
+        compute(t).pipe(Effect.mapEager((a) => Context.make(tag, a)))
+      );
+    });
+    return new ComputeLayer(this.tag, Layer.merge(this.#ctx, newLayer));
+  }
+
+  toBackup<E2 = never, R2 = never>(defaultLayer: () => Layer.Layer<R, E2, R2>) {
+    return Layer.provide(this.#ctx, backup(this.tag, defaultLayer));
+  }
+
+  toLayer() {
+    return this.#ctx;
+  }
+}
+
+export function makeCompute<Id, Shape>(tag: Context.Service<Id, Shape>) {
+  return new ComputeLayer<Shape, Id, never, Id>(tag, context<Id>() as any);
+}

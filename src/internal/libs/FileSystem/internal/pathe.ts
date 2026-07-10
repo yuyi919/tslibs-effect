@@ -9,6 +9,7 @@ export const Pathe = Layer.suspend(() =>
   Layer.succeed(
     PlatformPath,
     PlatformPath.of({
+      [TypeId]: TypeId,
       basename: p.basename,
       dirname: (path) => p.normalize(dirname(path)),
       extname: p.extname,
@@ -23,7 +24,6 @@ export const Pathe = Layer.suspend(() =>
       resolve: (...path) => p.normalize(resolve(...path)),
       sep: p.sep,
       toNamespacedPath: p.toNamespacedPath,
-      [TypeId]: TypeId,
       fromFileUrl: (url: URL): Eff.Effect<string, BadArgument> => {
         throw new Error("Function not implemented.");
       },

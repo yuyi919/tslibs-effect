@@ -12,9 +12,11 @@ dist/
 types/
 build/
 tsconfig.tsbuildinfo
+tsconfig.*.tsbuildinfo
 .codex
 .trae/get-shit-done
 .pnpm-store/
 .agent_temp/
 
 .codegraph/
+src/auto-imports.d.ts

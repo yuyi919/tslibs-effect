@@ -127,6 +127,10 @@
       "types": "./types/KeyValueStore.d.ts",
       "default": "./dist/KeyValueStore.js"
     },
+    "./Kinds": {
+      "types": "./types/Kinds.d.ts",
+      "default": "./dist/Kinds.js"
+    },
     "./Layer": {
       "types": "./types/Layer.d.ts",
       "default": "./dist/Layer.js"
@@ -191,6 +195,10 @@
       "types": "./types/Runtime.d.ts",
       "default": "./dist/Runtime.js"
     },
+    "./Schedule": {
+      "types": "./types/Schedule.d.ts",
+      "default": "./dist/Schedule.js"
+    },
     "./Schema": {
       "types": "./types/Schema.d.ts",
       "default": "./dist/Schema.js"
@@ -202,6 +210,10 @@
     "./ServiceProxy": {
       "types": "./types/ServiceProxy.d.ts",
       "default": "./dist/ServiceProxy.js"
+    },
+    "./Types": {
+      "types": "./types/Types.d.ts",
+      "default": "./dist/Types.js"
     },
     "./package.json": "./package.json"
   },
@@ -384,7 +396,8 @@
     "lint": "biome lint --write .",
     "check": "biome check --write .",
     "build": "vp pack",
-    "build:dts": "tsc --build",
+    "gen": "bun ./scripts/gen-env-dts",
+    "build:dts": "tsc --build tsconfig.build.json",
     "dev": "vp pack --watch",
     "test": "bun test"
   },
@@ -408,9 +421,9 @@
     "effect": "catalog:",
     "es-toolkit": "^1.45.1",
     "typescript": "catalog:",
+    "unplugin-auto-import": "catalog:",
     "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "vitest": "catalog:"
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "@effect/platform-bun": "catalog:",

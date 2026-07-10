@@ -24,15 +24,13 @@
     "rewriteRelativeImportExtensions": true,
     "allowArbitraryExtensions": true,
     "incremental": true,
-    "outDir": "./dist",
-    "declarationDir": "./types",
-    "rootDir": "./src",
+    "rootDir": ".",
     "paths": {
       "@/Effect.js": ["./src/Effect"],
       "@/BunTester.js": ["./src/BunTester"]
     },
-    "emitDeclarationOnly": true
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "examples", "scripts", "*.ts"],
   "exclude": ["node_modules", "dist"]
 }

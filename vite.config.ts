@@ -1,4 +1,5 @@
 import { mapValues } from "es-toolkit";
+import AutoImport from "unplugin-auto-import/vite";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
@@ -26,6 +27,7 @@ export default defineConfig({
       "./src/libs/*.ts",
       "./src/internal/utils/*.ts",
       "./src/internal/libs/*.ts",
+      "!./src/*.d.ts",
       "!**/*.test.ts",
     ],
     outputOptions: {
@@ -61,6 +63,19 @@ export default defineConfig({
         );
       },
     },
+    plugins: [
+      AutoImport({
+        imports: [
+          {
+            "effect/Function": ["pipe", "flow"],
+            "@yuyi919/tslibs-effect/BunTester": [["*", "BunTester"]],
+          },
+        ],
+        dumpUnimportItems: "./tmp/auto-import.json",
+        defaultExportByFilename: false,
+        dts: false,
+      }),
+    ],
     onSuccess: "vp run build:dts",
     dts: false,
   },

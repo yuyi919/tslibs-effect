@@ -317,7 +317,8 @@ export declare namespace ApplicationFileSystem {
 
   export interface DirEntry {
     readonly name: string;
-    readonly type: "file" | "directory" | "symlink" | "other";
+    readonly type: "file" | "directory";
+    readonly isSymlink?: boolean;
   }
 }
 
@@ -335,6 +336,7 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
     accessors: true,
     effect: Eff.gen(function* () {
       const fs = yield* FileSystem;
+      const backend = yield* BackendPlatformProvider;
       const { join, dirname } = yield* Path;
       const readonly: ApplicationFileSystem.ServiceReadonly = {
         access: fs.access,
@@ -395,23 +397,33 @@ export class ApplicationFileSystem extends Eff.Service<ApplicationFileSystem>()(
           dirPath: string,
           options?: { readonly recursive?: boolean | undefined }
         ) {
-          const entries = yield* fs.readDirectory(dirPath, {
-            // @ts-expect-error
-            withFileTypes: true,
-            ...options,
-          });
+          const fs = yield* backend.fs;
           return yield* Eff.tryPromise({
             try: async () => {
-              return (entries as unknown as import("node:fs").Dirent[]).map(
-                (e): ApplicationFileSystem.DirEntry => ({
-                  name: e.name,
-                  type: e.isDirectory()
-                    ? "directory"
-                    : e.isSymbolicLink()
-                      ? "symlink"
-                      : e.isFile()
-                        ? "file"
-                        : "other",
+              const entries = await fs.promises.readdir(dirPath, {
+                withFileTypes: true,
+                ...options,
+              });
+              return await Promise.all(
+                entries.map(async (entry) => {
+                  const entryPath = join(dirPath, entry.name);
+                  const isSymlink = entry.isSymbolicLink();
+                  let type = entry.isDirectory() ? "directory" : "file";
+
+                  if (isSymlink) {
+                    try {
+                      const targetStat = await fs.promises.stat(entryPath);
+                      type = targetStat.isDirectory() ? "directory" : "file";
+                    } catch {
+                      type = "file";
+                    }
+                  }
+
+                  return <ApplicationFileSystem.DirEntry>{
+                    name: entry.name,
+                    type,
+                    isSymlink: isSymlink || undefined,
+                  };
                 })
               );
             },
